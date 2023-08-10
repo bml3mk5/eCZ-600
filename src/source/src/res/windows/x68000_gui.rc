@@ -1,0 +1,570 @@
+// Resource script
+//
+// ignore invoke string.h, yvals.h and mbstring.h
+#ifndef _INC_STRING
+#define _INC_STRING
+#endif
+#ifndef _YVALS
+#define _YVALS
+#endif
+#ifndef _INC_MBSTRING
+#define _INC_MBSTRING
+#endif
+
+#include "../resource.h"
+#include "../../version.h"
+#include "../../vm/vm_defs.h"
+
+#ifdef _DEBUG
+#define APP_FILEFLAGS	VS_FF_DEBUG
+#else
+#define APP_FILEFLAGS	0
+#endif
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include <windows.h>
+#include <commctrl.h>
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// All resources use english
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_DEFAULT
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog resources
+//
+IDD_ABOUTBOX DIALOGEX 0, 0, 240, 106
+STYLE DS_MODALFRAME | DS_CENTER | DS_SHELLFONT | WS_CAPTION | WS_POPUP | WS_SYSMENU
+CAPTION "About"
+FONT 9, "Ms Shell Dlg"
+{
+    ICON            IDI_ICON1, IDC_STATIC_1, 15, 20, 18, 21, SS_ICON
+    LTEXT           APP_NAME, IDC_STATIC_2, 40, 10, 190, 10, SS_LEFT | SS_NOPREFIX
+	LTEXT           APP_COPYRIGHT, IDC_STATIC_3, 40, 78, 190, 21, SS_LEFT
+    DEFPUSHBUTTON   "OK", IDOK, 95, 92, 62, 14, WS_GROUP
+}
+
+IDD_VOLUME DIALOG 0, 0, 240, 121
+STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP
+CAPTION "Volume"
+FONT 9, "Ms Shell Dlg"
+{
+}
+
+IDD_CONFIGURE DIALOG 0, 0, 280, 263
+STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
+CAPTION "Configure"
+FONT 9, "Ms Shell Dlg"
+{
+    CONTROL         "", IDC_TAB1, WC_TABCONTROL, 0, 5, 5, 270, 175, WS_EX_LEFT
+    LTEXT           "", IDC_STATIC_0, 0, 5, 5, 270, SS_LEFT
+}
+
+IDD_KEYBIND DIALOG 0, 0, 300, 292
+STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
+CAPTION "Keybind"
+FONT 9, "Ms Shell Dlg"
+{
+    CONTROL         "", IDC_TAB1, WC_TABCONTROL, 0, 5, 5, 250, 260
+    LTEXT           "", IDC_STATIC_0, 0, 5, 5, 270, SS_LEFT
+}
+
+IDD_RECVIDEOBOX DIALOG 0, 0, 290, 150
+STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
+CAPTION "Record Screen"
+FONT 9, "Ms Shell Dlg"
+{
+    CONTROL         "", IDC_TAB1, WC_TABCONTROL, 0, 5, 5, 270, 175, WS_EX_LEFT
+    LTEXT           "", IDC_STATIC_0, 0, 5, 5, 270, SS_LEFT
+    DEFPUSHBUTTON   "Start", IDOK, 145, 270, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 200, 270, 50, 14
+}
+
+IDD_RECAUDIOBOX DIALOG 0, 0, 290, 150
+STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
+CAPTION "Record Sound"
+FONT 9, "Ms Shell Dlg"
+{
+    CONTROL         "", IDC_TAB1, WC_TABCONTROL, 0, 5, 5, 270, 175, WS_EX_LEFT
+    LTEXT           "", IDC_STATIC_0, 0, 5, 5, 270, SS_LEFT
+    DEFPUSHBUTTON   "Start", IDOK, 145, 270, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 200, 270, 50, 14
+}
+
+IDD_SNDFILTERBOX DIALOG 0, 0, 240, 121
+STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP
+CAPTION "Filter"
+FONT 9, "Ms Shell Dlg"
+{
+    CONTROL         "", IDC_SLIDER_VOL1, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_HORZ | TBS_BOTH, 10, 20, 25, 55
+    CONTROL         "", IDC_SLIDER_VOL2, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_HORZ | TBS_BOTH, 45, 20, 25, 55
+    CONTROL         "", IDC_SLIDER_VOL3, TRACKBAR_CLASS, WS_TABSTOP | TBS_AUTOTICKS | TBS_HORZ | TBS_BOTH, 45, 20, 25, 55
+    CTEXT           "IN0", IDC_STATIC_1, 44, 10, 25, 8, SS_CENTER
+    CTEXT           "IN1", IDC_STATIC_2, 75, 5, 25, 16, SS_CENTER
+    CTEXT           "OUT", IDC_STATIC_3, 75, 5, 25, 16, SS_CENTER
+    CTEXT           "", IDC_STATIC_11, 44, 10, 25, 8, SS_CENTER
+    CTEXT           "", IDC_STATIC_12, 75, 5, 25, 16, SS_CENTER
+    CTEXT           "", IDC_STATIC_13, 75, 5, 25, 16, SS_CENTER
+    DEFPUSHBUTTON   "Close", IDOK, 170, 100, 50, 15
+}
+
+IDD_SELDRVBOX DIALOG 0, 0, 240, 121
+STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP
+CAPTION "Select Drive"
+FONT 9, "Ms Shell Dlg"
+{
+}
+
+IDD_JOYSETTING DIALOG 0, 0, 240, 121
+STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP
+CAPTION "Joypad Setting"
+FONT 9, "Ms Shell Dlg"
+{
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU1 MENU DISCARDABLE 
+BEGIN
+    POPUP "&Control"
+    BEGIN
+        MENUITEM "Power Switch\tAlt+F3",        ID_SPECIAL_RESET
+        MENUITEM SEPARATOR
+        POPUP "Power Off Forcely"
+        BEGIN
+            MENUITEM "Do it",                   ID_FORCE_RESET
+        END
+//        MENUITEM "MODE Switch\tAlt+M",          ID_DIPSWITCH3
+        MENUITEM SEPARATOR
+        MENUITEM "Reset Switch\tAlt+R",         ID_WARM_RESET
+        MENUITEM "Interrupt Switch",            ID_INTERRUPT7
+        MENUITEM SEPARATOR
+//        POPUP "FDD Type"
+//        BEGIN
+//            MENUITEM "No FDD\tAlt+F",           ID_FDD_TYPE_1
+//            MENUITEM "3inch compact FDD\tAlt+F",ID_FDD_TYPE_2
+//            MENUITEM "5.25inch mini FDD\tAlt+F",ID_FDD_TYPE_3
+//            MENUITEM "8inch standard FDD\tAlt+F",ID_FDD_TYPE_4
+//        END
+//        MENUITEM SEPARATOR
+        MENUITEM "Pause\tAlt+Q",                ID_PAUSE
+        MENUITEM SEPARATOR
+        POPUP "CPU Speed"
+        BEGIN
+            MENUITEM "CPU x0.5\tAlt+9",         ID_CPU_POWER0
+            MENUITEM "CPU x1\tAlt+1",           ID_CPU_POWER1
+            MENUITEM "CPU x2\tAlt+2",           ID_CPU_POWER2
+            MENUITEM "CPU x4\tAlt+3",           ID_CPU_POWER3
+            MENUITEM "CPU x8\tAlt+4",           ID_CPU_POWER4
+            MENUITEM "CPU x16\tAlt+5",          ID_CPU_POWER5
+            MENUITEM SEPARATOR
+            MENUITEM "Sync With CPU Speed\tAlt+0",ID_SYNC_IRQ
+        END
+        MENUITEM SEPARATOR
+        POPUP "Auto Key"
+        BEGIN
+            MENUITEM "Open...",                 ID_AUTOKEY_OPEN
+            MENUITEM "Paste",                   ID_AUTOKEY_START
+            MENUITEM "Stop",                    ID_AUTOKEY_STOP
+        END
+        MENUITEM SEPARATOR
+        POPUP "Record Key"
+        BEGIN
+            MENUITEM "Play...\tAlt+E",          ID_RECKEY_PLAY
+            MENUITEM "Stop Playing",            ID_RECKEY_STOP_PLAY
+            MENUITEM SEPARATOR
+            MENUITEM "Record...",               ID_RECKEY_REC
+            MENUITEM "Stop Recording",          ID_RECKEY_STOP_REC
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Load State...\tAlt+O",        ID_LOAD_STATE
+        MENUITEM "Save State...",               ID_SAVE_STATE
+        MENUITEM SEPARATOR
+        POPUP "Recent State Files"
+        BEGIN
+            MENUITEM "None",                    ID_RECENT_STATE
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Exit\tAlt+F4",                ID_EXIT
+    END
+#ifdef USE_DATAREC
+    POPUP "&Tape"
+    BEGIN
+        MENUITEM "Play...",                     ID_PLAY_DATAREC
+        MENUITEM "Rec...",                      ID_REC_DATAREC
+        MENUITEM "Eject",                       ID_CLOSE_DATAREC
+        MENUITEM SEPARATOR
+//        MENUITEM "Play Button",                 ID_PLAY_BUTTON
+//        MENUITEM "Record Button",               ID_REC_BUTTON
+        MENUITEM "Rewind\tAlt+F5",              ID_REWIND_DATAREC
+        MENUITEM "F.F.\tAlt+F8",                ID_FAST_FORWARD_DATAREC
+        MENUITEM "Stop\tAlt+F6",                ID_STOP_DATAREC
+        MENUITEM SEPARATOR
+        MENUITEM "Real Mode",                   ID_REAL_DATAREC
+        MENUITEM SEPARATOR
+        POPUP "Recent Files"
+        BEGIN
+            MENUITEM "None",                    ID_RECENT_DATAREC
+        END
+    END
+#endif
+#ifdef USE_FD1
+    POPUP "FDD&0"
+    BEGIN
+        MENUITEM "Insert...",                   ID_OPEN_FD1
+//        MENUITEM "Change Side to B",            ID_CHANGE_FD1
+        MENUITEM "Eject",                       ID_CLOSE_FD1
+        POPUP "New"
+        BEGIN
+//	        MENUITEM "Insert Blank 2D...",      ID_OPEN_BLANK_2D_FD1
+	        MENUITEM "Insert Blank 2HD...",     ID_OPEN_BLANK_2HD_FD1
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Write Protect",               ID_WRITEPROTECT_FD1
+        MENUITEM SEPARATOR
+        POPUP "Multi Volume"
+        BEGIN
+            MENUITEM "None",                    ID_SELECT_D88_BANK1
+        END
+        MENUITEM SEPARATOR
+        POPUP "Recent Files"
+        BEGIN
+            MENUITEM "None",                    ID_RECENT_FD1
+        END
+    END
+#endif
+#ifdef USE_FD2
+    POPUP "FDD&1"
+    BEGIN
+        MENUITEM "Insert...",                   ID_OPEN_FD2
+ //       MENUITEM "Change Side to B",            ID_CHANGE_FD2
+        MENUITEM "Eject",                       ID_CLOSE_FD2
+        POPUP "New"
+        BEGIN
+//	        MENUITEM "Insert Blank 2D...",      ID_OPEN_BLANK_2D_FD2
+	        MENUITEM "Insert Blank 2HD...",     ID_OPEN_BLANK_2HD_FD2
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Write Protect",               ID_WRITEPROTECT_FD2
+        MENUITEM SEPARATOR
+        POPUP "Multi Volume"
+        BEGIN
+            MENUITEM "None",                    ID_SELECT_D88_BANK2
+        END
+        MENUITEM SEPARATOR
+        POPUP "Recent Files"
+        BEGIN
+            MENUITEM "None",                    ID_RECENT_FD2
+        END
+    END
+#endif
+#ifdef USE_FD3
+    POPUP "FDD&2"
+    BEGIN
+        MENUITEM "Insert...",                   ID_OPEN_FD3
+ //       MENUITEM "Change Side to B",            ID_CHANGE_FD3
+        MENUITEM "Eject",                       ID_CLOSE_FD3
+        POPUP "New"
+        BEGIN
+//	        MENUITEM "Insert Blank 2D...",      ID_OPEN_BLANK_2D_FD3
+	        MENUITEM "Insert Blank 2HD...",     ID_OPEN_BLANK_2HD_FD3
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Write Protect",               ID_WRITEPROTECT_FD3
+        MENUITEM SEPARATOR
+        POPUP "Multi Volume"
+        BEGIN
+            MENUITEM "None",                    ID_SELECT_D88_BANK3
+        END
+        MENUITEM SEPARATOR
+        POPUP "Recent Files"
+        BEGIN
+            MENUITEM "None",                    ID_RECENT_FD3
+        END
+    END
+#endif
+#ifdef USE_FD4
+    POPUP "FDD&3"
+    BEGIN
+        MENUITEM "Insert...",                   ID_OPEN_FD4
+ //       MENUITEM "Change Side to B",            ID_CHANGE_FD4
+        MENUITEM "Eject",                       ID_CLOSE_FD4
+        POPUP "New"
+        BEGIN
+//	        MENUITEM "Insert Blank 2D...",      ID_OPEN_BLANK_2D_FD4
+	        MENUITEM "Insert Blank 2HD...",     ID_OPEN_BLANK_2HD_FD4
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Write Protect",               ID_WRITEPROTECT_FD4
+        MENUITEM SEPARATOR
+        POPUP "Multi Volume"
+        BEGIN
+            MENUITEM "None",                    ID_SELECT_D88_BANK4
+        END
+        MENUITEM SEPARATOR
+        POPUP "Recent Files"
+        BEGIN
+            MENUITEM "None",                    ID_RECENT_FD4
+        END
+    END
+#endif
+#ifdef USE_HD1
+    POPUP "&HDD"
+    BEGIN
+		POPUP "SASI0"
+		BEGIN
+            MENUITEM "Mount...",                ID_OPEN_HD1
+            MENUITEM "Unmount",                 ID_CLOSE_HD1
+			POPUP "New"
+			BEGIN
+				MENUITEM "Mount Blank 10MB...", ID_OPEN_BLANK_10MB_HD1
+				MENUITEM "Mount Blank 20MB...", ID_OPEN_BLANK_20MB_HD1
+				MENUITEM "Mount Blank 40MB...", ID_OPEN_BLANK_40MB_HD1
+			END
+            MENUITEM SEPARATOR
+            POPUP "Recent Files"
+            BEGIN
+                MENUITEM "None",                ID_RECENT_HD1
+            END
+		END
+    END
+#endif
+    POPUP "&Screen"
+    BEGIN
+        POPUP "Frame Rate"
+        BEGIN
+            MENUITEM "Auto",                    ID_SCREEN_VFRAME
+            MENUITEM "1/1fps",                   ID_SCREEN_FPS60
+            MENUITEM "1/2fps",                   ID_SCREEN_FPS30
+            MENUITEM "1/3fps",                   ID_SCREEN_FPS20
+            MENUITEM "1/4fps",                   ID_SCREEN_FPS15
+            MENUITEM "1/5fps",                   ID_SCREEN_FPS12
+            MENUITEM "1/6fps",                   ID_SCREEN_FPS10
+        END
+        MENUITEM SEPARATOR
+        POPUP "Record Screen"
+        BEGIN
+            MENUITEM "640x480",                 ID_SCREEN_REC_SIZE1
+            MENUITEM "768x512",                 ID_SCREEN_REC_SIZE2
+            MENUITEM SEPARATOR
+//            MENUITEM "Rec 1/1fps",               ID_SCREEN_REC60
+//            MENUITEM "Rec 1/2fps",               ID_SCREEN_REC30
+//            MENUITEM "Rec 1/3fps",               ID_SCREEN_REC20
+//            MENUITEM "Rec 1/4fps",               ID_SCREEN_REC15
+//            MENUITEM "Rec 1/5fps",               ID_SCREEN_REC12
+//            MENUITEM "Rec 1/6fps",               ID_SCREEN_REC10
+//            MENUITEM "Stop",                    ID_SCREEN_STOP
+//            MENUITEM SEPARATOR
+            MENUITEM "Capture",                 ID_SCREEN_CAPTURE
+        END
+        MENUITEM SEPARATOR
+        POPUP "Window"
+        BEGIN
+            MENUITEM "x1",                      ID_SCREEN_WINDOW_A
+        END
+        POPUP "Fullscreen"
+        BEGIN
+            MENUITEM "Stretch Screen\tAlt+X",   ID_SCREEN_STRETCH
+            MENUITEM "Cutout Screen\tAlt+X",    ID_SCREEN_CUTOUT
+            MENUITEM SEPARATOR
+            MENUITEM "Display",                 ID_SCREEN_DISPLAY_A
+        END
+		POPUP "Aspect Ratio"
+		BEGIN
+            MENUITEM "Square",                  ID_SCREEN_PIXEL_ASPECT0
+	    END
+        MENUITEM SEPARATOR
+		POPUP "Drawing Mode"
+		BEGIN
+            MENUITEM "Full Draw\tAlt+S",        ID_SCREEN_SCANLINE0
+            MENUITEM "Scanline\tAlt+S",         ID_SCREEN_SCANLINE1
+            MENUITEM "Stripe\tAlt+S",           ID_SCREEN_SCANLINE2
+            MENUITEM "Stripe Strongly\tAlt+S",  ID_SCREEN_SCANLINE3
+	    END
+#ifdef USE_AFTERIMAGE
+        MENUITEM SEPARATOR
+        MENUITEM "Afterimage1\tAlt+T",          ID_SCREEN_AFTERIMAGE1
+        MENUITEM "Afterimage2\tAlt+T",          ID_SCREEN_AFTERIMAGE2
+#endif
+#ifdef USE_KEEPIMAGE
+        MENUITEM SEPARATOR
+        MENUITEM "Keepimage1",                  ID_SCREEN_KEEPIMAGE1
+        MENUITEM "Keepimage2",                  ID_SCREEN_KEEPIMAGE2
+#endif
+        MENUITEM SEPARATOR
+		POPUP "Show Screen"
+		BEGIN
+            MENUITEM "Graphic0\tAlt+Shift+1",   ID_SCREEN_SHOW_01
+            MENUITEM "Graphic1\tAlt+Shift+2",   ID_SCREEN_SHOW_02
+            MENUITEM "Graphic2\tAlt+Shift+3",   ID_SCREEN_SHOW_03
+            MENUITEM "Graphic3\tAlt+Shift+4",   ID_SCREEN_SHOW_04
+            MENUITEM "Graphic4\tAlt+Shift+5",   ID_SCREEN_SHOW_05
+            MENUITEM "Text\tAlt+Shift+6",       ID_SCREEN_SHOW_06
+            MENUITEM "Sprite\tAlt+Shift+7",     ID_SCREEN_SHOW_07
+            MENUITEM "BG0\tAlt+Shift+8",        ID_SCREEN_SHOW_08
+            MENUITEM "BG1\tAlt+Shift+9",        ID_SCREEN_SHOW_09
+            MENUITEM SEPARATOR
+            MENUITEM "Show All\tAlt+Shift+0",   ID_SCREEN_SHOW_ALL
+	    END
+        MENUITEM SEPARATOR
+#ifdef USE_DIRECT3D
+        MENUITEM "Use Direct3D(Sync)\tAlt+Y",   ID_SCREEN_D3D_SYNC
+        MENUITEM "Use Direct3D(Async)\tAlt+Y",  ID_SCREEN_D3D_ASYNC
+		POPUP "Direct3D Filter"
+		BEGIN
+            MENUITEM "None\tAlt+U",				ID_SCREEN_D3D_FILTER0
+            MENUITEM "Point\tAlt+U",			ID_SCREEN_D3D_FILTER1
+            MENUITEM "Linear\tAlt+U",			ID_SCREEN_D3D_FILTER2
+        END
+#endif
+#ifdef USE_OPENGL
+        MENUITEM "Use OpenGL(Sync)\tAlt+Y",     ID_SCREEN_OPENGL_SYNC
+        MENUITEM "Use OpenGL(Async)\tAlt+Y",    ID_SCREEN_OPENGL_ASYNC
+		POPUP "OpenGL Filter"
+		BEGIN
+            MENUITEM "Nearest Neighbour\tAlt+U",ID_SCREEN_OPENGL_FILTER0
+            MENUITEM "Linear\tAlt+U",			ID_SCREEN_OPENGL_FILTER1
+        END
+#endif
+    END
+    POPUP "So&und"
+    BEGIN
+        MENUITEM "Volume...\tAlt+V",            ID_SOUND_VOLUME
+        MENUITEM SEPARATOR
+        POPUP "Record Sound"
+        BEGIN
+            MENUITEM "Start...",                ID_SOUND_REC
+            MENUITEM "Stop",                    ID_SOUND_STOP
+        END
+        MENUITEM SEPARATOR
+//        MENUITEM "2000Hz",                      ID_SOUND_FREQ0
+//        MENUITEM "4000Hz",                      ID_SOUND_FREQ1
+        MENUITEM "8000Hz",                      ID_SOUND_FREQ2
+        MENUITEM "11025Hz",                     ID_SOUND_FREQ3
+        MENUITEM "22050Hz",                     ID_SOUND_FREQ4
+        MENUITEM "44100Hz",                     ID_SOUND_FREQ5
+        MENUITEM "48000Hz",                     ID_SOUND_FREQ6
+        MENUITEM "96000Hz",                     ID_SOUND_FREQ7
+        MENUITEM SEPARATOR
+        MENUITEM "50msec.",                     ID_SOUND_LATE0
+        MENUITEM "75msec.",                     ID_SOUND_LATE1
+        MENUITEM "100msec.",                    ID_SOUND_LATE2
+        MENUITEM "200msec.",                    ID_SOUND_LATE3
+        MENUITEM "300msec.",                    ID_SOUND_LATE4
+        MENUITEM "400msec.",                    ID_SOUND_LATE5
+#ifdef USE_DEBUG_SOUND_FILTER
+        MENUITEM SEPARATOR
+        MENUITEM "Filter...",                   ID_SOUND_FILTER
+#endif
+    END
+    POPUP "&Devices"
+    BEGIN
+	  POPUP "Printer"
+        BEGIN
+            MENUITEM "Save...",                 ID_PRINTER0_SAVE
+            MENUITEM "Print to mpprinter",      ID_PRINTER0_PRINT
+            MENUITEM "Clear",                   ID_PRINTER0_CLEAR
+            MENUITEM SEPARATOR
+            MENUITEM "Online",                  ID_PRINTER0_ONLINE
+            MENUITEM SEPARATOR
+            MENUITEM "Send to mpprinter concurrently",ID_PRINTER0_DIRECT
+        END
+        MENUITEM SEPARATOR
+        POPUP "Communication"
+        BEGIN
+            MENUITEM "Enable Server",           ID_COMM0_SERVER
+			POPUP "Connect"
+			BEGIN
+	            MENUITEM "Ethernet",            ID_COMM0_CONNECT
+			END
+//            MENUITEM SEPARATOR
+//            MENUITEM "Comm With Byte Data",     ID_COMM0_THROUGH
+            MENUITEM SEPARATOR
+			POPUP "Options For Telnet"
+			BEGIN
+                MENUITEM "Binary Mode",         ID_COMM0_BINARY
+	            MENUITEM SEPARATOR
+                MENUITEM "Send WILL ECHO",      ID_COMM0_WILLECHO
+			END
+        END
+    END
+    POPUP "&Options"
+    BEGIN
+        MENUITEM "Show LED\tAlt+L",             ID_OPTIONS_LEDBOX_SHOW
+        MENUITEM "Inside LED\tAlt+L",           ID_OPTIONS_LEDBOX_INSIDE
+        MENUITEM "Show Message\tAlt+Z",         ID_OPTIONS_MSGBOARD
+#ifdef USE_PERFORMANCE_METER
+        MENUITEM "Show Performance Meter",      ID_OPTIONS_PMETER
+#endif
+#ifdef USE_MOUSE
+        MENUITEM SEPARATOR
+        MENUITEM "Use Mouse\tAlt+Ctrl",         ID_OPTIONS_MOUSE
+#endif
+#ifdef USE_JOYSTICK
+        MENUITEM SEPARATOR
+        MENUITEM "Use Joypad (Key Assigned)\tAlt+J",ID_OPTIONS_JOYPAD0
+#ifdef USE_PIAJOYSTICK
+        MENUITEM "Use Joypad (Port Connected)\tAlt+J",ID_OPTIONS_JOYPAD1
+#endif
+#endif
+#ifdef USE_KEY2JOYSTICK
+        MENUITEM "Enable Key to Joypad",        ID_OPTIONS_KEY2JOYPAD
+#endif
+        MENUITEM SEPARATOR
+#ifdef USE_DIRECTINPUT
+        MENUITEM "Use DirectInput For Key In",  ID_OPTIONS_USE_DINPUT
+#endif
+        MENUITEM "Virtual Keyboard...",         ID_OPTIONS_VKEYBOARD
+#ifdef USE_DEBUGGER
+        MENUITEM SEPARATOR
+        MENUITEM "Start Debugger\tAlt+D",       ID_OPEN_DEBUGGER0
+        MENUITEM "Stop Debugger",               ID_CLOSE_DEBUGGER
+#endif
+        MENUITEM SEPARATOR
+#if defined(USE_JOYSTICK) || defined(USE_KEY2JOYSTICK)
+        MENUITEM "Joypad Setting...",           ID_OPTIONS_JOYSETTING
+#endif
+        MENUITEM "Keybind...\tAlt+K",           ID_OPTIONS_KEYBIND
+        MENUITEM "Configure...\tAlt+C",         ID_OPTIONS_CONFIG
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "About...",                    ID_HELP_ABOUT
+    END
+END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ICON1               ICON    DISCARDABLE     "x68000.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Manifest
+//
+#ifdef USE_RC_MANIFEST
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "style_x86.manifest"
+#endif
+
+#endif    // end of resources
+/////////////////////////////////////////////////////////////////////////////
+

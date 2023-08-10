@@ -1,0 +1,64 @@
+--- SDL-1.2.15-orig/src/video/quartz/SDL_QuartzKeys.h	2012-01-19 01:30:06.000000000 +0900
++++ SDL-1.2.15/src/video/quartz/SDL_QuartzKeys.h	2015-10-12 01:06:01.000000000 +0900
+@@ -138,6 +138,8 @@
+ #define QZ_KP0			0x52
+ #define QZ_KP_PERIOD	0x41
+ 
++#define QZ_FN			0x3F
++
+ /* Wierd, these keys are on my iBook under Mac OS X */
+ #define QZ_IBOOK_ENTER		0x34
+ #define QZ_IBOOK_LEFT		0x3B
+--- SDL-1.2.15-orig/src/video/quartz/SDL_QuartzEvents.m	2012-01-19 01:30:06.000000000 +0900
++++ SDL-1.2.15/src/video/quartz/SDL_QuartzEvents.m	2015-10-13 19:46:17.000000000 +0900
+@@ -203,6 +203,7 @@
+     keymap[QZ_IBOOK_DOWN] = SDLK_DOWN;
+     keymap[QZ_IBOOK_UP]      = SDLK_UP;
+     keymap[QZ_IBOOK_LEFT] = SDLK_LEFT;
++    keymap[QZ_FN] = SDLK_WORLD_5;
+ 
+     /* 
+         Up there we setup a static scancode->keysym map. However, it will not
+@@ -328,6 +329,7 @@
+     keymap[QZ_KP_DIVIDE] = SDLK_KP_DIVIDE;
+     keymap[QZ_KP_MULTIPLY] = SDLK_KP_MULTIPLY;
+     keymap[QZ_KP_ENTER] = SDLK_KP_ENTER;
++    keymap[QZ_FN] = SDLK_WORLD_5;
+ }
+ 
+ static void QZ_DoKey (_THIS, int state, NSEvent *event) {
+@@ -695,6 +697,26 @@
+     current_mods = newMods;
+ }
+ 
++static void QZ_DoFlagsChanged (_THIS, NSEvent *event) {
++
++	int state;
++    SDL_keysym key;
++    
++    key.scancode = [ event keyCode ];
++    key.sym      = keymap [ key.scancode ];
++    key.unicode  = 0;
++    key.mod      = KMOD_NONE;
++
++    if (key.scancode == QZ_FN) {
++        if ([ event modifierFlags ] & NSFunctionKeyMask) {
++            state = SDL_PRESSED;
++        } else {
++            state = SDL_RELEASED;
++        }
++        SDL_PrivateKeyboard (state, &key);
++    }
++}
++
+ static void QZ_GetMouseLocation (_THIS, NSPoint *p) {
+     *p = [ NSEvent mouseLocation ]; /* global coordinates */
+     if (qz_window)
+@@ -1027,6 +1049,7 @@
+                     QZ_DoKey (this, SDL_PRESSED, event);
+                     break;
+                 case NSFlagsChanged:
++                    QZ_DoFlagsChanged (this, event);
+                     break;
+                 case NSAppKitDefined:
+                     [ NSApp sendEvent:event ];

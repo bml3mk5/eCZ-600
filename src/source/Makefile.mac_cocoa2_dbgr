@@ -1,0 +1,118 @@
+#
+# SDL2 + COCOA
+# for MacOSX  
+#
+export
+
+include mk_deps.mk
+
+GUI_TYPE:=GUI_TYPE_COCOA
+
+SUBCPU_CARD:=
+
+BUILDDIR_BASE:=./build
+SH_BUILDDIR:=$(BUILDDIR_BASE)/shared_cocoa2_dbgr
+ST_BUILDDIR:=$(BUILDDIR_BASE)/static_cocoa2_dbgr
+DBG_BUILDDIR:=$(BUILDDIR_BASE)/debug_cocoa2_dbgr
+
+SH_INSTALLDIR:=../ReleaseSHCocoa2Dbgr/$(VMNAME).app
+ST_INSTALLDIR:=../ReleaseSTCocoa2Dbgr/$(VMNAME).app
+DBG_INSTALLDIR:=../DebugSTCocoa2Dbgr/$(VMNAME).app
+
+CDEFS_BASE:=-D$(VMTARGET) -DUSE_OPENGL -DUSE_GETTEXT -DUSE_DEBUGGER -DUSE_SDL2 -D$(GUI_TYPE)
+SH_CDEFS:=$(CDEFS_BASE)
+ST_CDEFS:=$(CDEFS_BASE)
+DBG_CDEFS:=$(CDEFS_BASE) -D_DEBUG -D_DEBUG_LOG
+ifneq ($(SUBCPU_CARD),)
+	SH_CDEFS:=$(SH_CDEFS) -DUSE_$(SUBCPU_CARD)
+	ST_CDEFS:=$(ST_CDEFS) -DUSE_$(SUBCPU_CARD)
+	DBG_CDEFS:=$(DBG_CDEFS) -DUSE_$(SUBCPU_CARD)
+endif
+
+#ARCH:=-arch i386
+ARCH:=-arch x86_64
+#ARCH:=-arch i386 -arch x86_64
+
+SH_CFLAGS:=-Wall -O2 $(shell sdl2-config --cflags)
+ST_CFLAGS:=-Wall -O2 $(shell sdl2-config --cflags)
+DBG_CFLAGS:=-g -Wall -O0 $(shell sdl2-config --cflags)
+
+LOCALLIBDIR:=/usr/local/lib
+# SDLLIBS:=$(LOCALLIBDIR)/libSDL2main.a $(LOCALLIBDIR)/libSDL2.a $(LOCALLIBDIR)/libSDL2_ttf.a $(LOCALLIBDIR)/libSDL2_net.a
+SDLLIBS:=$(LOCALLIBDIR)/libSDL2main.a $(LOCALLIBDIR)/libSDL2.a $(LOCALLIBDIR)/libSDL2_ttf.a
+FREETYPELIBS:=$(LOCALLIBDIR)/libfreetype.a
+# LOCALELIBS:=$(LOCALLIBDIR)/libintl.a
+# LOCALEDBGLIBS:=../../../../../Devel/gettext-0.19.4/gettext-runtime/intl/.libs/libintl.a
+
+# SH_LDFLAGS:=$(ARCH) -dead_strip $(shell sdl2-config --libs) -lSDL2_ttf -lSDL2_net -lintl
+SH_LDFLAGS:=$(ARCH) -dead_strip $(shell sdl2-config --libs) -lSDL2_ttf
+ST_LDFLAGS:=$(ARCH) -dead_strip
+DBG_LDFLAGS:=$(ARCH) -L/usr/X11/lib
+
+CONTDIR:=Contents
+EXEDIR:=$(CONTDIR)/MacOS
+RESDIR:=$(CONTDIR)/Resources
+
+LIBS_BASE:=$(SDLLIBS)
+
+SH_LIBS:=
+ST_LIBS:=$(LIBS_BASE) $(FREETYPELIBS) $(LOCALELIBS)
+DBG_LIBS:=$(LIBS_BASE) $(FREETYPELIBS) $(LOCALEDBGLIBS)
+
+#
+#
+#
+
+all: sh_exe
+
+sh_exe: export INSTALLDIR:=$(SH_INSTALLDIR)
+sh_exe: export BUILDDIR:=$(SH_BUILDDIR)
+sh_exe: export LIBS:=$(SH_LIBS)
+sh_exe: export LDFLAGS:=$(SH_LDFLAGS)
+sh_exe: export CDEFS:=$(SH_CDEFS)
+sh_exe: export CFLAGS:=$(SH_CFLAGS)
+sh_exe: export CXXFLAGS:=$(SH_CFLAGS)
+
+st_exe: export INSTALLDIR:=$(ST_INSTALLDIR)
+st_exe: export BUILDDIR:=$(ST_BUILDDIR)
+st_exe: export LIBS:=$(ST_LIBS)
+st_exe: export LDFLAGS:=$(ST_LDFLAGS)
+st_exe: export CDEFS:=$(ST_CDEFS)
+st_exe: export CFLAGS:=$(ST_CFLAGS)
+st_exe: export CXXFLAGS:=$(ST_CFLAGS)
+
+dbg_exe: export INSTALLDIR:=$(DBG_INSTALLDIR)
+dbg_exe: export BUILDDIR:=$(DBG_BUILDDIR)
+dbg_exe: export LIBS:=$(DBG_LIBS)
+dbg_exe: export LDFLAGS:=$(DBG_LDFLAGS)
+dbg_exe: export CDEFS:=$(DBG_CDEFS)
+dbg_exe: export CFLAGS:=$(DBG_CFLAGS)
+dbg_exe: export CXXFLAGS:=$(DBG_CFLAGS)
+
+sh_exe st_exe dbg_exe:
+	$(MAKE) -f mk_mac_sdl.mk $(TARGET)
+
+install: sh_install
+
+sh_install st_install dbg_install: export TARGET:=install
+
+sh_install: sh_exe
+
+st_install: st_exe
+
+dbg_install: dbg_exe
+
+clean: sh_clean
+
+sh_clean:
+	rm -rf $(SH_BUILDDIR)
+
+st_clean:
+	rm -rf $(ST_BUILDDIR)
+
+dbg_clean:
+	rm -rf $(DBG_BUILDDIR)
+
+clean_all:
+	rm -rf $(BUILDDIR)
+

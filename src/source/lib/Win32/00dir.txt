@@ -1,0 +1,1 @@
+put win32bit lib files of external libraries on this folder.

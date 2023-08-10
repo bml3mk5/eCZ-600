@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LocaleList version="1.0">
+	<!-- Locale file="en" name="English" win="English_United States" posix="en_US" / -->
+	<Locale file="ja" name="Japanese" win="Japanese_Japan" posix="ja_JP" />
+</LocaleList>

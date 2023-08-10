@@ -1,0 +1,620 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+	<storageModule moduleId="org.eclipse.cdt.core.settings">
+		<cconfiguration id="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749" moduleId="org.eclipse.cdt.core.settings" name="DebugS2">
+				<macros>
+					<stringMacro name="FFMPEGDIR" type="VALUE_PATH_DIR" value="D:\Devel\vc\ffmpeg-3.4.1-win64-dev\include"/>
+					<stringMacro name="SDL2DIR" type="VALUE_PATH_DIR" value="${MSYS_HOME}/local"/>
+					<stringMacro name="SDLINCLUDE" type="VALUE_PATH_DIR" value="${SDLDIR}/include/SDL"/>
+					<stringMacro name="SDLDIR" type="VALUE_PATH_DIR" value="${MSYS_HOME}/local"/>
+					<stringMacro name="SDLCONFIG" type="VALUE_TEXT" value="sdl-config"/>
+					<stringMacro name="SDL2INCLUDE" type="VALUE_PATH_DIR" value="${SDL2DIR}/include/SDL2"/>
+					<stringMacro name="SDL2CONFIG" type="VALUE_TEXT" value="sdl2-config"/>
+					<stringMacro name="LOCALINCLUDE" type="VALUE_TEXT" value="${MSYS_HOME}/local/include"/>
+					<stringMacro name="SDL2LIBDIR" type="VALUE_PATH_DIR" value="${SDL2DIR}/lib"/>
+					<stringMacro name="SDLLIBDIR" type="VALUE_PATH_DIR" value="${SDLDIR}/lib"/>
+					<stringMacro name="PROJPREFIX" type="VALUE_TEXT" value="x68000"/>
+				</macros>
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="using SDL2" id="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749" name="DebugS2" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=" parent="cdt.managedbuild.config.gnu.cross.exe.debug" postbuildStep="sh ${ProjDirPath}/post_build.sh &quot;${ProjDirPath}&quot; &quot;${ConfigName}&quot;" prebuildStep="sh ${ProjDirPath}/pre_build.sh &quot;${PROJPREFIX}&quot; &quot;_X68000&quot; &quot;-DUSE_RC_MANIFEST -DUSE_OPENGL&quot;">
+					<folderInfo id="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749." name="/" resourcePath="">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.base.1819754059" name="MinGW GCC" superClass="cdt.managedbuild.toolchain.gnu.mingw.base">
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.PE" id="cdt.managedbuild.target.gnu.platform.mingw.base.1378525362" name="デバッグ・プラットフォーム" osList="win32" superClass="cdt.managedbuild.target.gnu.platform.mingw.base"/>
+							<builder buildPath="${workspace_loc:/x68000}/DebugS2" id="cdt.managedbuild.tool.gnu.builder.mingw.base.652098720" keepEnvironmentInBuildfile="false" name="CDT 内部ビルダー" superClass="cdt.managedbuild.tool.gnu.builder.mingw.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.mingw.base.1106100779" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.base">
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.213156746" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.archiver.mingw.base.1634903788" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.mingw.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.865135272" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.2138805771" name="インクルード・パス (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${SDL2INCLUDE}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFMPEGDIR}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${LOCALINCLUDE}&quot;"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.preprocessor.def.1438904257" name="定義済みのシンボル (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="_X68000"/>
+									<listOptionValue builtIn="false" value="_DEBUG"/>
+									<listOptionValue builtIn="false" value="USE_SDL2"/>
+									<listOptionValue builtIn="false" value="USE_OPENGL"/>
+									<listOptionValue builtIn="false" value="USE_GETTEXT"/>
+									<listOptionValue builtIn="false" value="GUI_TYPE_WINDOWS"/>
+									<listOptionValue builtIn="false" value="_FILE_OFFSET_BITS=64"/>
+									<listOptionValue builtIn="false" value="_GNU_SOURCE=1"/>
+									<listOptionValue builtIn="false" value="main=SDL_main"/>
+								</option>
+								<option id="gnu.cpp.compiler.option.optimization.level.860798017" name="最適化レベル" superClass="gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
+								<option defaultValue="gnu.cpp.compiler.debugging.level.max" id="gnu.cpp.compiler.option.debugging.level.845655482" name="デバッグ・レベル" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.dialect.std.1934190949" name="言語標準" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1926274861" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.mingw.base.1198600459" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.mingw.base">
+								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.option.optimization.level.827955773" name="最適化レベル" superClass="gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" valueType="enumerated"/>
+								<option defaultValue="gnu.c.debugging.level.max" id="gnu.c.compiler.option.debugging.level.471181149" name="デバッグ・レベル" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" valueType="enumerated"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.preprocessor.def.symbols.1847211745" name="定義済みのシンボル (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="_X68000"/>
+									<listOptionValue builtIn="false" value="_DEBUG"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.include.paths.1860756682" name="インクルード・パス (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${SDL2INCLUDE}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFMPEGDIR}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${LOCALINCLUDE}&quot;"/>
+								</option>
+								<option id="gnu.c.compiler.option.dialect.std.849356170" name="言語標準" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1185663361" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.mingw.base.1425175105" name="MinGW C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.mingw.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.mingw.base.929873044" name="MinGW C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.mingw.base">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.userobjs.1725414035" name="その他のオブジェクト" superClass="gnu.cpp.link.option.userobjs" useByScannerDiscovery="false" valueType="userObjs">
+									<listOptionValue builtIn="false" value="${ConfigName}/${PROJPREFIX}.res"/>
+									<listOptionValue builtIn="false" value="&quot;${ConfigName}/${PROJPREFIX}_gui.res&quot;"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.paths.573485161" name="ライブラリー検索パス (-L)" superClass="gnu.cpp.link.option.paths" useByScannerDiscovery="false" valueType="libPaths">
+									<listOptionValue builtIn="false" value="${SDL2LIBDIR}"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.libs.1494801399" name="ライブラリー (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false" valueType="libs">
+									<listOptionValue builtIn="false" value="SDL2"/>
+									<listOptionValue builtIn="false" value="SDL2_ttf"/>
+									<listOptionValue builtIn="false" value="freetype"/>
+									<listOptionValue builtIn="false" value="z"/>
+									<listOptionValue builtIn="false" value="mingw32"/>
+									<listOptionValue builtIn="false" value="rpcrt4"/>
+									<listOptionValue builtIn="false" value="oleaut32"/>
+									<listOptionValue builtIn="false" value="ole32"/>
+									<listOptionValue builtIn="false" value="uuid"/>
+									<listOptionValue builtIn="false" value="winspool"/>
+									<listOptionValue builtIn="false" value="winmm"/>
+									<listOptionValue builtIn="false" value="shell32"/>
+									<listOptionValue builtIn="false" value="shlwapi"/>
+									<listOptionValue builtIn="false" value="comctl32"/>
+									<listOptionValue builtIn="false" value="comdlg32"/>
+									<listOptionValue builtIn="false" value="advapi32"/>
+									<listOptionValue builtIn="false" value="version"/>
+									<listOptionValue builtIn="false" value="wsock32"/>
+									<listOptionValue builtIn="false" value="gdi32"/>
+									<listOptionValue builtIn="false" value="opengl32"/>
+									<listOptionValue builtIn="false" value="glu32"/>
+									<listOptionValue builtIn="false" value="imm32"/>
+									<listOptionValue builtIn="false" value="vfw32"/>
+									<listOptionValue builtIn="false" value="gdiplus"/>
+									<listOptionValue builtIn="false" value="iphlpapi"/>
+									<listOptionValue builtIn="false" value="iconv"/>
+									<listOptionValue builtIn="false" value="m"/>
+									<listOptionValue builtIn="false" value="user32"/>
+									<listOptionValue builtIn="false" value="dxguid"/>
+									<listOptionValue builtIn="false" value="setupapi"/>
+									<listOptionValue builtIn="false" value="SDL2main"/>
+								</option>
+								<option id="gnu.cpp.link.option.flags.1779381170" name="リンカー・フラグ" superClass="gnu.cpp.link.option.flags" useByScannerDiscovery="false" value="-mwindows -static" valueType="string"/>
+								<option id="gnu.cpp.link.option.strip.1219431939" name="シンボル情報の除去 (-s)" superClass="gnu.cpp.link.option.strip" useByScannerDiscovery="false" value="false" valueType="boolean"/>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1492903346" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="osd/mac|osd/linux|gui/agar/|gui/cocoa/|gui/gtk_x11/|osd/gtk/|video/avkit/|video/cocoa/|video/libpng/|video/qtkit/|osd/gnu_clocale.cpp|osd/windows/win_cbitmap.cpp|osd/windows/win_cbitmap.h|osd/windows/win_ccolor.cpp|osd/windows/win_ccolor.h|osd/windows/win_common.h|osd/windows/win_csurface.cpp|osd/windows/win_csurface.h|osd/windows/win_d3d.cpp|osd/windows/win_d3d.h|osd/windows/win_debugger_console.cpp|osd/windows/win_debugger_console.h|osd/windows/win_emu.cpp|osd/windows/win_emu.h|osd/windows/win_input_keysym.cpp|osd/windows/win_input.cpp|osd/windows/win_input.h|osd/windows/win_ledboxbase.cpp|osd/windows/win_ledboxbase.h|osd/windows/win_main.cpp|osd/windows/win_main.h|osd/windows/win_msgboard.cpp|osd/windows/win_msgboard.h|osd/windows/win_parseopt.cpp|osd/windows/win_parseopt.h|osd/windows/win_screen.cpp|osd/windows/win_screenmode.cpp|osd/windows/win_screenmode.h|osd/windows/win_socket.cpp|osd/windows/win_socket.h|osd/windows/win_sound.cpp|osd/windows/win_timer.cpp|osd/windows/win_vkeyboardbase.cpp|osd/windows/win_vkeyboardbase.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826" moduleId="org.eclipse.cdt.core.settings" name="DebugS2_Dbgr">
+				<macros>
+					<stringMacro name="FFMPEGDIR" type="VALUE_PATH_DIR" value="D:\Devel\vc\ffmpeg-3.4.1-win64-dev\include"/>
+					<stringMacro name="SDL2DIR" type="VALUE_PATH_DIR" value="${MSYS_HOME}/local"/>
+					<stringMacro name="SDLINCLUDE" type="VALUE_PATH_DIR" value="${SDLDIR}/include/SDL"/>
+					<stringMacro name="SDLDIR" type="VALUE_PATH_DIR" value="${MSYS_HOME}/local"/>
+					<stringMacro name="SDLCONFIG" type="VALUE_TEXT" value="sdl-config"/>
+					<stringMacro name="SDL2INCLUDE" type="VALUE_PATH_DIR" value="${SDL2DIR}/include/SDL2"/>
+					<stringMacro name="SDL2CONFIG" type="VALUE_TEXT" value="sdl2-config"/>
+					<stringMacro name="LOCALINCLUDE" type="VALUE_TEXT" value="${MSYS_HOME}/local/include"/>
+					<stringMacro name="SDL2LIBDIR" type="VALUE_PATH_DIR" value="${SDL2DIR}/lib"/>
+					<stringMacro name="SDLLIBDIR" type="VALUE_PATH_DIR" value="${SDLDIR}/lib"/>
+					<stringMacro name="PROJPREFIX" type="VALUE_TEXT" value="x68000"/>
+				</macros>
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="using SDL2 with Debugger" errorParsers="org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GCCErrorParser" id="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826" name="DebugS2_Dbgr" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.enablement=null,org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.image=null,org.eclipse.cdt.docker.launcher.containerbuild.property.connection=null" parent="cdt.managedbuild.config.gnu.cross.exe.debug" postbuildStep="sh ${ProjDirPath}/post_build.sh &quot;${ProjDirPath}&quot; &quot;${ConfigName}&quot;" prebuildStep="sh ${ProjDirPath}/pre_build.sh &quot;${PROJPREFIX}&quot; &quot;_X68000&quot; &quot;-DUSE_RC_MANIFEST -DUSE_OPENGL -DUSE_DEBUGGER&quot;">
+					<folderInfo id="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826." name="/" resourcePath="">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.base.73766740" name="MinGW GCC" superClass="cdt.managedbuild.toolchain.gnu.mingw.base">
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.PE" id="cdt.managedbuild.target.gnu.platform.mingw.base.189206665" name="デバッグ・プラットフォーム" osList="win32" superClass="cdt.managedbuild.target.gnu.platform.mingw.base"/>
+							<builder buildPath="${workspace_loc:/x68000}/DebugS2" id="cdt.managedbuild.tool.gnu.builder.mingw.base.1433998761" keepEnvironmentInBuildfile="false" name="CDT 内部ビルダー" superClass="cdt.managedbuild.tool.gnu.builder.mingw.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.mingw.base.1903933247" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.base">
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.2025866295" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.archiver.mingw.base.318748131" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.mingw.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.1600091303" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.1485615627" name="インクルード・パス (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${SDL2INCLUDE}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFMPEGDIR}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${LOCALINCLUDE}&quot;"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.preprocessor.def.1750448686" name="定義済みのシンボル (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="_X68000"/>
+									<listOptionValue builtIn="false" value="_DEBUG"/>
+									<listOptionValue builtIn="false" value="USE_SDL2"/>
+									<listOptionValue builtIn="false" value="USE_OPENGL"/>
+									<listOptionValue builtIn="false" value="USE_GETTEXT"/>
+									<listOptionValue builtIn="false" value="USE_DEBUGGER"/>
+									<listOptionValue builtIn="false" value="GUI_TYPE_WINDOWS"/>
+									<listOptionValue builtIn="false" value="_FILE_OFFSET_BITS=64"/>
+									<listOptionValue builtIn="false" value="_GNU_SOURCE=1"/>
+									<listOptionValue builtIn="false" value="main=SDL_main"/>
+								</option>
+								<option id="gnu.cpp.compiler.option.optimization.level.1541258854" name="最適化レベル" superClass="gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
+								<option defaultValue="gnu.cpp.compiler.debugging.level.max" id="gnu.cpp.compiler.option.debugging.level.1654657086" name="デバッグ・レベル" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.dialect.std.191461694" name="言語標準" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1389305114" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.mingw.base.1811729657" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.mingw.base">
+								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.option.optimization.level.714788180" name="最適化レベル" superClass="gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" valueType="enumerated"/>
+								<option defaultValue="gnu.c.debugging.level.max" id="gnu.c.compiler.option.debugging.level.387818364" name="デバッグ・レベル" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" valueType="enumerated"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.preprocessor.def.symbols.1726605279" name="定義済みのシンボル (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="_X68000"/>
+									<listOptionValue builtIn="false" value="_DEBUG"/>
+									<listOptionValue builtIn="false" value="USE_DEBUGGER"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.include.paths.1011746530" name="インクルード・パス (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${SDL2INCLUDE}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFMPEGDIR}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${LOCALINCLUDE}&quot;"/>
+								</option>
+								<option id="gnu.c.compiler.option.dialect.std.338583804" name="言語標準" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.667480328" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.mingw.base.582758714" name="MinGW C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.mingw.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.mingw.base.500876137" name="MinGW C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.mingw.base">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.userobjs.1656404758" name="その他のオブジェクト" superClass="gnu.cpp.link.option.userobjs" useByScannerDiscovery="false" valueType="userObjs">
+									<listOptionValue builtIn="false" value="${ConfigName}/${PROJPREFIX}.res"/>
+									<listOptionValue builtIn="false" value="&quot;${ConfigName}/${PROJPREFIX}_gui.res&quot;"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.paths.1839192809" name="ライブラリー検索パス (-L)" superClass="gnu.cpp.link.option.paths" useByScannerDiscovery="false" valueType="libPaths">
+									<listOptionValue builtIn="false" value="${SDL2LIBDIR}"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.libs.1315723217" name="ライブラリー (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false" valueType="libs">
+									<listOptionValue builtIn="false" value="SDL2"/>
+									<listOptionValue builtIn="false" value="SDL2_ttf"/>
+									<listOptionValue builtIn="false" value="freetype"/>
+									<listOptionValue builtIn="false" value="z"/>
+									<listOptionValue builtIn="false" value="mingw32"/>
+									<listOptionValue builtIn="false" value="rpcrt4"/>
+									<listOptionValue builtIn="false" value="oleaut32"/>
+									<listOptionValue builtIn="false" value="ole32"/>
+									<listOptionValue builtIn="false" value="uuid"/>
+									<listOptionValue builtIn="false" value="winspool"/>
+									<listOptionValue builtIn="false" value="winmm"/>
+									<listOptionValue builtIn="false" value="shell32"/>
+									<listOptionValue builtIn="false" value="shlwapi"/>
+									<listOptionValue builtIn="false" value="comctl32"/>
+									<listOptionValue builtIn="false" value="comdlg32"/>
+									<listOptionValue builtIn="false" value="advapi32"/>
+									<listOptionValue builtIn="false" value="version"/>
+									<listOptionValue builtIn="false" value="wsock32"/>
+									<listOptionValue builtIn="false" value="gdi32"/>
+									<listOptionValue builtIn="false" value="opengl32"/>
+									<listOptionValue builtIn="false" value="glu32"/>
+									<listOptionValue builtIn="false" value="imm32"/>
+									<listOptionValue builtIn="false" value="vfw32"/>
+									<listOptionValue builtIn="false" value="gdiplus"/>
+									<listOptionValue builtIn="false" value="iphlpapi"/>
+									<listOptionValue builtIn="false" value="iconv"/>
+									<listOptionValue builtIn="false" value="m"/>
+									<listOptionValue builtIn="false" value="user32"/>
+									<listOptionValue builtIn="false" value="dxguid"/>
+									<listOptionValue builtIn="false" value="setupapi"/>
+									<listOptionValue builtIn="false" value="SDL2main"/>
+								</option>
+								<option id="gnu.cpp.link.option.flags.466619583" name="リンカー・フラグ" superClass="gnu.cpp.link.option.flags" useByScannerDiscovery="false" value="-mwindows -static" valueType="string"/>
+								<option id="gnu.cpp.link.option.strip.159745187" name="シンボル情報の除去 (-s)" superClass="gnu.cpp.link.option.strip" useByScannerDiscovery="false" value="false" valueType="boolean"/>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1852507339" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="osd/mac|osd/linux|gui/agar/|gui/cocoa/|gui/gtk_x11/|osd/gtk/|video/avkit/|video/cocoa/|video/libpng/|video/qtkit/|osd/gnu_clocale.cpp|osd/windows/win_cbitmap.cpp|osd/windows/win_cbitmap.h|osd/windows/win_ccolor.cpp|osd/windows/win_ccolor.h|osd/windows/win_common.h|osd/windows/win_csurface.cpp|osd/windows/win_csurface.h|osd/windows/win_d3d.cpp|osd/windows/win_d3d.h|osd/windows/win_debugger_console.cpp|osd/windows/win_debugger_console.h|osd/windows/win_emu.cpp|osd/windows/win_emu.h|osd/windows/win_input_keysym.cpp|osd/windows/win_input.cpp|osd/windows/win_input.h|osd/windows/win_ledboxbase.cpp|osd/windows/win_ledboxbase.h|osd/windows/win_main.cpp|osd/windows/win_main.h|osd/windows/win_msgboard.cpp|osd/windows/win_msgboard.h|osd/windows/win_parseopt.cpp|osd/windows/win_parseopt.h|osd/windows/win_screen.cpp|osd/windows/win_screenmode.cpp|osd/windows/win_screenmode.h|osd/windows/win_socket.cpp|osd/windows/win_socket.h|osd/windows/win_sound.cpp|osd/windows/win_timer.cpp|osd/windows/win_vkeyboardbase.cpp|osd/windows/win_vkeyboardbase.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.132298305">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.132298305" moduleId="org.eclipse.cdt.core.settings" name="ReleaseS2">
+				<macros>
+					<stringMacro name="FFMPEGDIR" type="VALUE_PATH_DIR" value="D:\Devel\vc\ffmpeg-3.4.1-win64-dev\include"/>
+					<stringMacro name="SDL2DIR" type="VALUE_PATH_DIR" value="${MSYS_HOME}/local"/>
+					<stringMacro name="SDLINCLUDE" type="VALUE_PATH_DIR" value="${SDLDIR}/include/SDL"/>
+					<stringMacro name="SDLDIR" type="VALUE_PATH_DIR" value="${MSYS_HOME}/local"/>
+					<stringMacro name="SDLCONFIG" type="VALUE_TEXT" value="sdl-config"/>
+					<stringMacro name="SDL2INCLUDE" type="VALUE_PATH_DIR" value="${SDL2DIR}/include/SDL2"/>
+					<stringMacro name="SDL2CONFIG" type="VALUE_TEXT" value="sdl2-config"/>
+					<stringMacro name="LOCALINCLUDE" type="VALUE_TEXT" value="${MSYS_HOME}/local/include"/>
+					<stringMacro name="SDL2LIBDIR" type="VALUE_PATH_DIR" value="${SDL2DIR}/lib"/>
+					<stringMacro name="SDLLIBDIR" type="VALUE_PATH_DIR" value="${SDLDIR}/lib"/>
+					<stringMacro name="PROJPREFIX" type="VALUE_TEXT" value="x68000"/>
+				</macros>
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="using SDL2" id="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.132298305" name="ReleaseS2" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=" parent="cdt.managedbuild.config.gnu.cross.exe.debug" postbuildStep="sh ${ProjDirPath}/post_build.sh &quot;${ProjDirPath}&quot; &quot;${ConfigName}&quot;" prebuildStep="sh ${ProjDirPath}/pre_build.sh &quot;${PROJPREFIX}&quot; &quot;_X68000&quot; &quot;-DUSE_RC_MANIFEST -DUSE_OPENGL&quot;">
+					<folderInfo id="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.132298305." name="/" resourcePath="">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.base.305903617" name="MinGW GCC" superClass="cdt.managedbuild.toolchain.gnu.mingw.base">
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.PE" id="cdt.managedbuild.target.gnu.platform.mingw.base.1389799640" name="デバッグ・プラットフォーム" osList="win32" superClass="cdt.managedbuild.target.gnu.platform.mingw.base"/>
+							<builder buildPath="${workspace_loc:/x68000}/DebugS2" id="cdt.managedbuild.tool.gnu.builder.mingw.base.1135759342" keepEnvironmentInBuildfile="false" name="CDT 内部ビルダー" superClass="cdt.managedbuild.tool.gnu.builder.mingw.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.mingw.base.333521366" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.base">
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1350926129" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.archiver.mingw.base.956816232" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.mingw.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.652574875" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.1559176121" name="インクルード・パス (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${SDL2INCLUDE}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFMPEGDIR}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${LOCALINCLUDE}&quot;"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.preprocessor.def.1840140087" name="定義済みのシンボル (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="_X68000"/>
+									<listOptionValue builtIn="false" value="USE_SDL2"/>
+									<listOptionValue builtIn="false" value="USE_OPENGL"/>
+									<listOptionValue builtIn="false" value="USE_GETTEXT"/>
+									<listOptionValue builtIn="false" value="GUI_TYPE_WINDOWS"/>
+									<listOptionValue builtIn="false" value="_FILE_OFFSET_BITS=64"/>
+									<listOptionValue builtIn="false" value="_GNU_SOURCE=1"/>
+									<listOptionValue builtIn="false" value="main=SDL_main"/>
+								</option>
+								<option id="gnu.cpp.compiler.option.optimization.level.1390504718" name="最適化レベル" superClass="gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
+								<option defaultValue="gnu.cpp.compiler.debugging.level.max" id="gnu.cpp.compiler.option.debugging.level.1491282785" name="デバッグ・レベル" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.dialect.std.528294281" name="言語標準" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1322486135" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.mingw.base.1361953428" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.mingw.base">
+								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.option.optimization.level.1070806539" name="最適化レベル" superClass="gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.more" valueType="enumerated"/>
+								<option defaultValue="gnu.c.debugging.level.max" id="gnu.c.compiler.option.debugging.level.898551236" name="デバッグ・レベル" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.none" valueType="enumerated"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.preprocessor.def.symbols.2041571127" name="定義済みのシンボル (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="_X68000"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.include.paths.412428990" name="インクルード・パス (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${SDL2INCLUDE}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFMPEGDIR}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${LOCALINCLUDE}&quot;"/>
+								</option>
+								<option id="gnu.c.compiler.option.dialect.std.2043473966" name="言語標準" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1716878544" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.mingw.base.724740863" name="MinGW C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.mingw.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.mingw.base.695536459" name="MinGW C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.mingw.base">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.userobjs.1116574007" name="その他のオブジェクト" superClass="gnu.cpp.link.option.userobjs" useByScannerDiscovery="false" valueType="userObjs">
+									<listOptionValue builtIn="false" value="${ConfigName}/${PROJPREFIX}.res"/>
+									<listOptionValue builtIn="false" value="&quot;${ConfigName}/${PROJPREFIX}_gui.res&quot;"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.paths.1723809423" name="ライブラリー検索パス (-L)" superClass="gnu.cpp.link.option.paths" useByScannerDiscovery="false" valueType="libPaths">
+									<listOptionValue builtIn="false" value="${SDL2LIBDIR}"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.libs.1870338799" name="ライブラリー (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false" valueType="libs">
+									<listOptionValue builtIn="false" value="SDL2"/>
+									<listOptionValue builtIn="false" value="SDL2_ttf"/>
+									<listOptionValue builtIn="false" value="freetype"/>
+									<listOptionValue builtIn="false" value="z"/>
+									<listOptionValue builtIn="false" value="mingw32"/>
+									<listOptionValue builtIn="false" value="rpcrt4"/>
+									<listOptionValue builtIn="false" value="oleaut32"/>
+									<listOptionValue builtIn="false" value="ole32"/>
+									<listOptionValue builtIn="false" value="uuid"/>
+									<listOptionValue builtIn="false" value="winspool"/>
+									<listOptionValue builtIn="false" value="winmm"/>
+									<listOptionValue builtIn="false" value="shell32"/>
+									<listOptionValue builtIn="false" value="shlwapi"/>
+									<listOptionValue builtIn="false" value="comctl32"/>
+									<listOptionValue builtIn="false" value="comdlg32"/>
+									<listOptionValue builtIn="false" value="advapi32"/>
+									<listOptionValue builtIn="false" value="version"/>
+									<listOptionValue builtIn="false" value="wsock32"/>
+									<listOptionValue builtIn="false" value="gdi32"/>
+									<listOptionValue builtIn="false" value="opengl32"/>
+									<listOptionValue builtIn="false" value="glu32"/>
+									<listOptionValue builtIn="false" value="imm32"/>
+									<listOptionValue builtIn="false" value="vfw32"/>
+									<listOptionValue builtIn="false" value="gdiplus"/>
+									<listOptionValue builtIn="false" value="iphlpapi"/>
+									<listOptionValue builtIn="false" value="iconv"/>
+									<listOptionValue builtIn="false" value="m"/>
+									<listOptionValue builtIn="false" value="user32"/>
+									<listOptionValue builtIn="false" value="dxguid"/>
+									<listOptionValue builtIn="false" value="setupapi"/>
+									<listOptionValue builtIn="false" value="SDL2main"/>
+								</option>
+								<option id="gnu.cpp.link.option.flags.629609419" name="リンカー・フラグ" superClass="gnu.cpp.link.option.flags" useByScannerDiscovery="false" value="-mwindows -static" valueType="string"/>
+								<option id="gnu.cpp.link.option.strip.634658147" name="シンボル情報の除去 (-s)" superClass="gnu.cpp.link.option.strip" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1995092192" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="osd/mac|osd/linux|gui/agar/|gui/cocoa/|gui/gtk_x11/|osd/gtk/|video/avkit/|video/cocoa/|video/libpng/|video/qtkit/|osd/gnu_clocale.cpp|osd/windows/win_cbitmap.cpp|osd/windows/win_cbitmap.h|osd/windows/win_ccolor.cpp|osd/windows/win_ccolor.h|osd/windows/win_common.h|osd/windows/win_csurface.cpp|osd/windows/win_csurface.h|osd/windows/win_d3d.cpp|osd/windows/win_d3d.h|osd/windows/win_debugger_console.cpp|osd/windows/win_debugger_console.h|osd/windows/win_emu.cpp|osd/windows/win_emu.h|osd/windows/win_input_keysym.cpp|osd/windows/win_input.cpp|osd/windows/win_input.h|osd/windows/win_ledboxbase.cpp|osd/windows/win_ledboxbase.h|osd/windows/win_main.cpp|osd/windows/win_main.h|osd/windows/win_msgboard.cpp|osd/windows/win_msgboard.h|osd/windows/win_parseopt.cpp|osd/windows/win_parseopt.h|osd/windows/win_screen.cpp|osd/windows/win_screenmode.cpp|osd/windows/win_screenmode.h|osd/windows/win_socket.cpp|osd/windows/win_socket.h|osd/windows/win_sound.cpp|osd/windows/win_timer.cpp|osd/windows/win_vkeyboardbase.cpp|osd/windows/win_vkeyboardbase.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826.992885413">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826.992885413" moduleId="org.eclipse.cdt.core.settings" name="ReleaseS2_Dbgr">
+				<macros>
+					<stringMacro name="FFMPEGDIR" type="VALUE_PATH_DIR" value="D:\Devel\vc\ffmpeg-3.4.1-win64-dev\include"/>
+					<stringMacro name="SDL2DIR" type="VALUE_PATH_DIR" value="${MSYS_HOME}/local"/>
+					<stringMacro name="SDLINCLUDE" type="VALUE_PATH_DIR" value="${SDLDIR}/include/SDL"/>
+					<stringMacro name="SDLDIR" type="VALUE_PATH_DIR" value="${MSYS_HOME}/local"/>
+					<stringMacro name="SDLCONFIG" type="VALUE_TEXT" value="sdl-config"/>
+					<stringMacro name="SDL2INCLUDE" type="VALUE_PATH_DIR" value="${SDL2DIR}/include/SDL2"/>
+					<stringMacro name="SDL2CONFIG" type="VALUE_TEXT" value="sdl2-config"/>
+					<stringMacro name="LOCALINCLUDE" type="VALUE_TEXT" value="${MSYS_HOME}/local/include"/>
+					<stringMacro name="SDL2LIBDIR" type="VALUE_PATH_DIR" value="${SDL2DIR}/lib"/>
+					<stringMacro name="SDLLIBDIR" type="VALUE_PATH_DIR" value="${SDLDIR}/lib"/>
+					<stringMacro name="PROJPREFIX" type="VALUE_TEXT" value="x68000"/>
+				</macros>
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.PE" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="using SDL2 with Debugger" errorParsers="org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GCCErrorParser" id="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826.992885413" name="ReleaseS2_Dbgr" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.enablement=null,org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.image=null,org.eclipse.cdt.docker.launcher.containerbuild.property.connection=null" parent="cdt.managedbuild.config.gnu.cross.exe.debug" postbuildStep="sh ${ProjDirPath}/post_build.sh &quot;${ProjDirPath}&quot; &quot;${ConfigName}&quot;" prebuildStep="sh ${ProjDirPath}/pre_build.sh &quot;${PROJPREFIX}&quot; &quot;_X68000&quot; &quot;-DUSE_RC_MANIFEST -DUSE_OPENGL -DUSE_DEBUGGER&quot;">
+					<folderInfo id="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826.992885413." name="/" resourcePath="">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.base.385055723" name="MinGW GCC" superClass="cdt.managedbuild.toolchain.gnu.mingw.base">
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.PE" id="cdt.managedbuild.target.gnu.platform.mingw.base.1755610211" name="デバッグ・プラットフォーム" osList="win32" superClass="cdt.managedbuild.target.gnu.platform.mingw.base"/>
+							<builder buildPath="${workspace_loc:/x68000}/DebugS2" id="cdt.managedbuild.tool.gnu.builder.mingw.base.569582515" keepEnvironmentInBuildfile="false" name="CDT 内部ビルダー" superClass="cdt.managedbuild.tool.gnu.builder.mingw.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.mingw.base.192435956" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.base">
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1268581658" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.archiver.mingw.base.169078448" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.mingw.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.832583560" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.1608333349" name="インクルード・パス (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${SDL2INCLUDE}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFMPEGDIR}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${LOCALINCLUDE}&quot;"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.preprocessor.def.1991560246" name="定義済みのシンボル (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="_X68000"/>
+									<listOptionValue builtIn="false" value="USE_SDL2"/>
+									<listOptionValue builtIn="false" value="USE_OPENGL"/>
+									<listOptionValue builtIn="false" value="USE_GETTEXT"/>
+									<listOptionValue builtIn="false" value="USE_DEBUGGER"/>
+									<listOptionValue builtIn="false" value="GUI_TYPE_WINDOWS"/>
+									<listOptionValue builtIn="false" value="_FILE_OFFSET_BITS=64"/>
+									<listOptionValue builtIn="false" value="_GNU_SOURCE=1"/>
+									<listOptionValue builtIn="false" value="main=SDL_main"/>
+								</option>
+								<option id="gnu.cpp.compiler.option.optimization.level.816428784" name="最適化レベル" superClass="gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
+								<option defaultValue="gnu.cpp.compiler.debugging.level.max" id="gnu.cpp.compiler.option.debugging.level.1235208998" name="デバッグ・レベル" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.dialect.std.363299555" name="言語標準" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1172900463" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.mingw.base.763009113" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.mingw.base">
+								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.option.optimization.level.695363254" name="最適化レベル" superClass="gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.more" valueType="enumerated"/>
+								<option defaultValue="gnu.c.debugging.level.max" id="gnu.c.compiler.option.debugging.level.917485024" name="デバッグ・レベル" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.none" valueType="enumerated"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.preprocessor.def.symbols.562555937" name="定義済みのシンボル (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="_X68000"/>
+									<listOptionValue builtIn="false" value="USE_DEBUGGER"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.include.paths.1624581095" name="インクルード・パス (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${SDL2INCLUDE}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${FFMPEGDIR}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${LOCALINCLUDE}&quot;"/>
+								</option>
+								<option id="gnu.c.compiler.option.dialect.std.637863767" name="言語標準" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1364101842" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.mingw.base.1102602040" name="MinGW C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.mingw.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.mingw.base.253394912" name="MinGW C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.mingw.base">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.userobjs.545843469" name="その他のオブジェクト" superClass="gnu.cpp.link.option.userobjs" useByScannerDiscovery="false" valueType="userObjs">
+									<listOptionValue builtIn="false" value="${ConfigName}/${PROJPREFIX}.res"/>
+									<listOptionValue builtIn="false" value="&quot;${ConfigName}/${PROJPREFIX}_gui.res&quot;"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.paths.358827511" name="ライブラリー検索パス (-L)" superClass="gnu.cpp.link.option.paths" useByScannerDiscovery="false" valueType="libPaths">
+									<listOptionValue builtIn="false" value="${SDL2LIBDIR}"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.libs.486943233" name="ライブラリー (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false" valueType="libs">
+									<listOptionValue builtIn="false" value="SDL2"/>
+									<listOptionValue builtIn="false" value="SDL2_ttf"/>
+									<listOptionValue builtIn="false" value="freetype"/>
+									<listOptionValue builtIn="false" value="z"/>
+									<listOptionValue builtIn="false" value="mingw32"/>
+									<listOptionValue builtIn="false" value="rpcrt4"/>
+									<listOptionValue builtIn="false" value="oleaut32"/>
+									<listOptionValue builtIn="false" value="ole32"/>
+									<listOptionValue builtIn="false" value="uuid"/>
+									<listOptionValue builtIn="false" value="winspool"/>
+									<listOptionValue builtIn="false" value="winmm"/>
+									<listOptionValue builtIn="false" value="shell32"/>
+									<listOptionValue builtIn="false" value="shlwapi"/>
+									<listOptionValue builtIn="false" value="comctl32"/>
+									<listOptionValue builtIn="false" value="comdlg32"/>
+									<listOptionValue builtIn="false" value="advapi32"/>
+									<listOptionValue builtIn="false" value="version"/>
+									<listOptionValue builtIn="false" value="wsock32"/>
+									<listOptionValue builtIn="false" value="gdi32"/>
+									<listOptionValue builtIn="false" value="opengl32"/>
+									<listOptionValue builtIn="false" value="glu32"/>
+									<listOptionValue builtIn="false" value="imm32"/>
+									<listOptionValue builtIn="false" value="vfw32"/>
+									<listOptionValue builtIn="false" value="gdiplus"/>
+									<listOptionValue builtIn="false" value="iphlpapi"/>
+									<listOptionValue builtIn="false" value="iconv"/>
+									<listOptionValue builtIn="false" value="m"/>
+									<listOptionValue builtIn="false" value="user32"/>
+									<listOptionValue builtIn="false" value="dxguid"/>
+									<listOptionValue builtIn="false" value="setupapi"/>
+									<listOptionValue builtIn="false" value="SDL2main"/>
+								</option>
+								<option id="gnu.cpp.link.option.flags.1257092389" name="リンカー・フラグ" superClass="gnu.cpp.link.option.flags" useByScannerDiscovery="false" value="-mwindows -static" valueType="string"/>
+								<option id="gnu.cpp.link.option.strip.1224527427" name="シンボル情報の除去 (-s)" superClass="gnu.cpp.link.option.strip" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.2017006799" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="osd/mac|osd/linux|gui/agar/|gui/cocoa/|gui/gtk_x11/|osd/gtk/|video/avkit/|video/cocoa/|video/libpng/|video/qtkit/|osd/gnu_clocale.cpp|osd/windows/win_cbitmap.cpp|osd/windows/win_cbitmap.h|osd/windows/win_ccolor.cpp|osd/windows/win_ccolor.h|osd/windows/win_common.h|osd/windows/win_csurface.cpp|osd/windows/win_csurface.h|osd/windows/win_d3d.cpp|osd/windows/win_d3d.h|osd/windows/win_debugger_console.cpp|osd/windows/win_debugger_console.h|osd/windows/win_emu.cpp|osd/windows/win_emu.h|osd/windows/win_input_keysym.cpp|osd/windows/win_input.cpp|osd/windows/win_input.h|osd/windows/win_ledboxbase.cpp|osd/windows/win_ledboxbase.h|osd/windows/win_main.cpp|osd/windows/win_main.h|osd/windows/win_msgboard.cpp|osd/windows/win_msgboard.h|osd/windows/win_parseopt.cpp|osd/windows/win_parseopt.h|osd/windows/win_screen.cpp|osd/windows/win_screenmode.cpp|osd/windows/win_screenmode.h|osd/windows/win_socket.cpp|osd/windows/win_socket.h|osd/windows/win_sound.cpp|osd/windows/win_timer.cpp|osd/windows/win_vkeyboardbase.cpp|osd/windows/win_vkeyboardbase.h" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+	</storageModule>
+	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+		<project id="x68000.cdt.managedbuild.target.gnu.cross.exe.1311337294" name="Executable" projectType="cdt.managedbuild.target.gnu.cross.exe"/>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="ReleaseS2_Dbgr">
+			<resource resourceType="PROJECT" workspacePath="/x68000"/>
+		</configuration>
+		<configuration configurationName="DebugS2_Dbgr">
+			<resource resourceType="PROJECT" workspacePath="/x68000"/>
+		</configuration>
+		<configuration configurationName="DebugS2">
+			<resource resourceType="PROJECT" workspacePath="/x68000"/>
+		</configuration>
+		<configuration configurationName="Release"/>
+		<configuration configurationName="Debug"/>
+		<configuration configurationName="ReleaseS2">
+			<resource resourceType="PROJECT" workspacePath="/x68000"/>
+		</configuration>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.583850673;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.583850673.;cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.776857059;cdt.managedbuild.tool.gnu.cpp.compiler.input.785668600">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.;cdt.managedbuild.tool.gnu.c.compiler.mingw.base.1035337092;cdt.managedbuild.tool.gnu.c.compiler.input.156815628">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826.;cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.1600091303;cdt.managedbuild.tool.gnu.cpp.compiler.input.1389305114">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.release.282474607;cdt.managedbuild.config.gnu.cross.exe.release.282474607.;cdt.managedbuild.tool.gnu.cross.c.compiler.614092752;cdt.managedbuild.tool.gnu.c.compiler.input.1022749329">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.2018179053;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.2018179053.;cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.1816499094;cdt.managedbuild.tool.gnu.cpp.compiler.input.1400410552">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.132298305;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.132298305.;cdt.managedbuild.tool.gnu.c.compiler.mingw.base.1361953428;cdt.managedbuild.tool.gnu.c.compiler.input.1716878544">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826.992885413;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826.992885413.;cdt.managedbuild.tool.gnu.c.compiler.mingw.base.763009113;cdt.managedbuild.tool.gnu.c.compiler.input.1364101842">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826.992885413;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826.992885413.;cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.832583560;cdt.managedbuild.tool.gnu.cpp.compiler.input.1172900463">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.;cdt.managedbuild.tool.gnu.cross.cpp.compiler.1426482576;cdt.managedbuild.tool.gnu.cpp.compiler.input.756091988">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.;cdt.managedbuild.tool.gnu.cross.c.compiler.844485337;cdt.managedbuild.tool.gnu.c.compiler.input.724259268">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.release.282474607;cdt.managedbuild.config.gnu.cross.exe.release.282474607.;cdt.managedbuild.tool.gnu.cross.cpp.compiler.979180788;cdt.managedbuild.tool.gnu.cpp.compiler.input.1756937178">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.298081838;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.298081838.;cdt.managedbuild.tool.gnu.cross.cpp.compiler.1177331949;cdt.managedbuild.tool.gnu.cpp.compiler.input.703841504">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.583850673.1430020093;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.583850673.1430020093.;cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.1647231420;cdt.managedbuild.tool.gnu.cpp.compiler.input.411351952">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.132298305;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.132298305.;cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.652574875;cdt.managedbuild.tool.gnu.cpp.compiler.input.1322486135">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.583850673;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.583850673.;cdt.managedbuild.tool.gnu.c.compiler.mingw.base.1644434284;cdt.managedbuild.tool.gnu.c.compiler.input.1964819403">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.298081838;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.298081838.;cdt.managedbuild.tool.gnu.cross.c.compiler.3302595;cdt.managedbuild.tool.gnu.c.compiler.input.309246292">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.2018179053;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.2018179053.;cdt.managedbuild.tool.gnu.c.compiler.mingw.base.578724935;cdt.managedbuild.tool.gnu.c.compiler.input.1053298070">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826.;cdt.managedbuild.tool.gnu.c.compiler.mingw.base.1811729657;cdt.managedbuild.tool.gnu.c.compiler.input.667480328">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.;cdt.managedbuild.tool.gnu.c.compiler.mingw.base.1198600459;cdt.managedbuild.tool.gnu.c.compiler.input.1185663361">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.;cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.865135272;cdt.managedbuild.tool.gnu.cpp.compiler.input.1926274861">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826.131707908;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826.131707908.;cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.1382625969;cdt.managedbuild.tool.gnu.cpp.compiler.input.599608500">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.583850673.1430020093;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.583850673.1430020093.;cdt.managedbuild.tool.gnu.c.compiler.mingw.base.400191788;cdt.managedbuild.tool.gnu.c.compiler.input.207849269">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826.131707908.1053313644;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826.131707908.1053313644.;cdt.managedbuild.tool.gnu.c.compiler.mingw.base.1040652839;cdt.managedbuild.tool.gnu.c.compiler.input.393178621">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826.131707908;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826.131707908.;cdt.managedbuild.tool.gnu.c.compiler.mingw.base.752203809;cdt.managedbuild.tool.gnu.c.compiler.input.1512518295">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826.131707908.1053313644;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.712208749.1963845826.131707908.1053313644.;cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.1505219512;cdt.managedbuild.tool.gnu.cpp.compiler.input.113900968">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.2014723605;cdt.managedbuild.config.gnu.cross.exe.debug.2014723605.;cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.973303188;cdt.managedbuild.tool.gnu.cpp.compiler.input.169166334">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+	</storageModule>
+</cproject>

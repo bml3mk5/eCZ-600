@@ -1,0 +1,118 @@
+#
+# SDL2 + WinAPI
+# for Windows + MinGW + MSYS
+#
+export
+
+include mk_deps.mk
+
+GUI_TYPE:=GUI_TYPE_WINDOWS
+
+SUBCPU_CARD:=
+
+BUILDDIR_BASE:=./build
+SH_BUILDDIR:=$(BUILDDIR_BASE)/shared_win2_dbgr
+ST_BUILDDIR:=$(BUILDDIR_BASE)/static_win2_dbgr
+DBG_BUILDDIR:=$(BUILDDIR_BASE)/debug_win2_dbgr
+
+SH_INSTALLDIR:=../ReleaseSHWin2Dbgr
+ST_INSTALLDIR:=../ReleaseSTWin2Dbgr
+DBG_INSTALLDIR:=../DebugSTWin2Dbgr
+
+CDEFS_BASE:=-D$(VMTARGET) -DWINVER=0x0500 -DUSE_OPENGL -DUSE_GETTEXT -DUSE_DEBUGGER -DUSE_SDL2 -D$(GUI_TYPE) -DUSE_RC_MANIFEST
+SH_CDEFS:=$(CDEFS_BASE)
+ST_CDEFS:=$(CDEFS_BASE)
+DBG_CDEFS:=$(CDEFS_BASE) -D_DEBUG -D_DEBUG_LOG
+ifneq ($(SUBCPU_CARD),)
+	SH_CDEFS:=$(SH_CDEFS) -DUSE_$(SUBCPU_CARD)
+	ST_CDEFS:=$(ST_CDEFS) -DUSE_$(SUBCPU_CARD)
+	DBG_CDEFS:=$(DBG_CDEFS) -DUSE_$(SUBCPU_CARD)
+endif
+
+#ARCH:=-m32
+#ARCH:=-m64
+
+SDL_CFLAGS:=$(shell sdl2-config --cflags)
+
+SH_CFLAGS:=$(ARCH) -Wall -O2 $(SDL_CFLAGS)
+ST_CFLAGS:=$(ARCH) -Wall -O2 $(SDL_CFLAGS)
+DBG_CFLAGS:=$(ARCH) -g -Wall -O0 $(SDL_CFLAGS)
+
+LOCALLIBDIR:=/usr/local/lib
+# SDLLIBS:=$(LOCALLIBDIR)/libSDL2main.a $(LOCALLIBDIR)/libSDL2.a $(LOCALLIBDIR)/libSDL2_ttf.a $(LOCALLIBDIR)/libSDL2_net.a
+SDLLIBS:=$(LOCALLIBDIR)/libSDL2main.a $(LOCALLIBDIR)/libSDL2.a $(LOCALLIBDIR)/libSDL2_ttf.a
+LOCALLIBS:=$(LOCALLIBDIR)/libfreetype.a
+MINGWLIBS:=-lole32 -lws2_32 -liphlpapi -lShlwapi -lversion -limm32 -lopengl32 -lwinmm -lz -lvfw32 -lgdiplus -loleaut32 -lsetupapi -luuid
+ifneq ($(USE_GETTEXT),)
+#	GETTEXTLIBS:= $(LOCALLIBDIR)/libintl.a
+#	GETTEXTLDFLAGS:=-lintl
+endif
+
+# SH_LDFLAGS:=-s $(shell sdl2-config --libs) -lSDL2_ttf -lSDL2_net $(GETTEXTLDFLAGS)
+SH_LDFLAGS:=-s $(shell sdl2-config --libs) -lSDL2_ttf $(GETTEXTLDFLAGS)
+ST_LDFLAGS:=-s -static $(shell sdl2-config --libs)
+DBG_LDFLAGS:=-static $(shell sdl2-config --libs)
+
+LIBS_BASE:=$(SDLLIBS) $(LOCALLIBS) $(MINGWLIBS) $(GETTEXTLIBS)
+
+SH_LIBS:=$(MINGWLIBS)
+ST_LIBS:=$(LIBS_BASE)
+DBG_LIBS:=$(LIBS_BASE)
+
+#
+#
+#
+
+all: sh_exe
+
+sh_exe: export INSTALLDIR:=$(SH_INSTALLDIR)
+sh_exe: export BUILDDIR:=$(SH_BUILDDIR)
+sh_exe: export LIBS:=$(SH_LIBS)
+sh_exe: export LDFLAGS:=$(SH_LDFLAGS)
+sh_exe: export CDEFS:=$(SH_CDEFS)
+sh_exe: export CFLAGS:=$(SH_CFLAGS)
+sh_exe: export CXXFLAGS:=$(SH_CFLAGS)
+
+st_exe: export INSTALLDIR:=$(ST_INSTALLDIR)
+st_exe: export BUILDDIR:=$(ST_BUILDDIR)
+st_exe: export LIBS:=$(ST_LIBS)
+st_exe: export LDFLAGS:=$(ST_LDFLAGS)
+st_exe: export CDEFS:=$(ST_CDEFS)
+st_exe: export CFLAGS:=$(ST_CFLAGS)
+st_exe: export CXXFLAGS:=$(ST_CFLAGS)
+
+dbg_exe: export INSTALLDIR:=$(DBG_INSTALLDIR)
+dbg_exe: export BUILDDIR:=$(DBG_BUILDDIR)
+dbg_exe: export LIBS:=$(DBG_LIBS)
+dbg_exe: export LDFLAGS:=$(DBG_LDFLAGS)
+dbg_exe: export CDEFS:=$(DBG_CDEFS)
+dbg_exe: export CFLAGS:=$(DBG_CFLAGS)
+dbg_exe: export CXXFLAGS:=$(DBG_CFLAGS)
+
+sh_exe st_exe dbg_exe:
+	$(MAKE) -f mk_win_sdl.mk $(TARGET)
+
+install: sh_install
+
+sh_install st_install dbg_install: export TARGET:=install
+
+sh_install: sh_exe
+
+st_install: st_exe
+
+dbg_install: dbg_exe
+
+clean: sh_clean
+
+sh_clean:
+	rm -rf $(SH_BUILDDIR)
+
+st_clean:
+	rm -rf $(ST_BUILDDIR)
+
+dbg_clean:
+	rm -rf $(DBG_BUILDDIR)
+
+clean_all:
+	rm -rf $(BUILDDIR)
+

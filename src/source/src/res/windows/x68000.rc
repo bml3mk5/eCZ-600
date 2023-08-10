@@ -1,0 +1,153 @@
+// Resource script
+//
+// ignore invoke string.h, yvals.h and mbstring.h
+#ifndef _INC_STRING
+#define _INC_STRING
+#endif
+#ifndef _YVALS
+#define _YVALS
+#endif
+#ifndef _INC_MBSTRING
+#define _INC_MBSTRING
+#endif
+
+#include "../resource.h"
+#include "../../version.h"
+#include "../../vm/vm_defs.h"
+
+#ifdef _DEBUG
+#define APP_FILEFLAGS	VS_FF_DEBUG
+#else
+#define APP_FILEFLAGS	0
+#endif
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include <windows.h>
+#include <commctrl.h>
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// All resources use english
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_DEFAULT
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+//IDR_ACCELERATOR1 ACCELERATORS DISCARDABLE 
+//BEGIN
+//   VK_RETURN,      ID_ACCEL_MOUSE,         VIRTKEY, CONTROL, NOINVERT
+//END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap resources
+//
+IDB_LED_PARTS      IMAGE         "../common/ledparts_x68k_1.png"
+IDB_KBLEDBOX       IMAGE         "../common/ledbox_x68k_1.png"
+
+IDB_VKEYBOARD      IMAGE         "../common/x68000_keyboard_1.png"
+IDB_VKEY_LED0      IMAGE         "../common/x68000_keyboard_1_led0.png"
+IDB_VKEY_LED1      IMAGE         "../common/x68000_keyboard_1_led1.png"
+IDB_VKEY_LED2      IMAGE         "../common/x68000_keyboard_1_led2.png"
+IDB_VKEY_LED3      IMAGE         "../common/x68000_keyboard_1_led3.png"
+//IDB_VKEY_BREAK     IMAGE         "../common/bml3mk5_key_break.png"
+//IDB_VKEY_POWER     IMAGE         "../common/bml3mk5_key_power.png"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog resources
+//
+IDD_KBLEDBOX DIALOG 0, 0, 141, 14
+STYLE DS_SHELLFONT | WS_BORDER | WS_POPUP
+EXSTYLE WS_EX_WINDOWEDGE
+FONT 9, "Ms Shell Dlg"
+{
+}
+
+IDD_VKEYBOARD DIALOGEX 0, 0, 640, 400
+STYLE DS_3DLOOK | DS_SHELLFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX
+CAPTION "Virtual Keyboard"
+FONT 9, "Ms Shell Dlg"
+{
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version Information resources
+//
+LANGUAGE LANG_NEUTRAL, SUBLANG_DEFAULT
+VS_VERSION_INFO VERSIONINFO
+    FILEVERSION     APP_VER_MAJOR,APP_VER_MINOR,APP_VER_REV,APP_VER_BUILD
+    PRODUCTVERSION  APP_VER_MAJOR,APP_VER_MINOR,APP_VER_REV,APP_VER_BUILD
+    FILEOS          VOS__WINDOWS32
+    FILETYPE        VFT_APP
+    FILESUBTYPE     VFT2_UNKNOWN
+    FILEFLAGSMASK   0x0000003F
+    FILEFLAGS       APP_FILEFLAGS
+{
+    BLOCK "StringFileInfo"
+    {
+        BLOCK "041103a4"
+        {
+            VALUE "FileVersion", APP_VERSION "\0"
+#ifdef USE_DEBUGGER
+			VALUE "ProductVersion", APP_VERSION ""PLATFORM" with Debugger\0"
+#else
+			VALUE "ProductVersion", APP_VERSION ""PLATFORM"\0"
+#endif
+            VALUE "FileDescription", APP_NAME "\0"
+            VALUE "LegalCopyright", APP_COPYRIGHT "\0"
+            VALUE "OriginalFilename", APP_FILENAME "\0"
+            VALUE "ProductName", APP_NAME "\0"
+            VALUE "InternalName", APP_INTERNAME "\0"
+        }
+    }
+    BLOCK "VarFileInfo"
+    {
+        VALUE "Translation", 0x0411, 0x03A4
+    }
+}
+
+#endif    // end of resources
+/////////////////////////////////////////////////////////////////////////////
+

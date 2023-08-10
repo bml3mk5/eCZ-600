@@ -1,0 +1,1149 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug_SDL2_Dbgr|Win32">
+      <Configuration>Debug_SDL2_Dbgr</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug_SDL2_Dbgr|x64">
+      <Configuration>Debug_SDL2_Dbgr</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug_SDL2|Win32">
+      <Configuration>Debug_SDL2</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug_SDL2|x64">
+      <Configuration>Debug_SDL2</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug_SDL_Dbgr|Win32">
+      <Configuration>Debug_SDL_Dbgr</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug_SDL_Dbgr|x64">
+      <Configuration>Debug_SDL_Dbgr</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug_SDL|Win32">
+      <Configuration>Debug_SDL</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug_SDL|x64">
+      <Configuration>Debug_SDL</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_SDL2_Dbgr|Win32">
+      <Configuration>Release_SDL2_Dbgr</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_SDL2_Dbgr|x64">
+      <Configuration>Release_SDL2_Dbgr</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_SDL2|Win32">
+      <Configuration>Release_SDL2</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_SDL2|x64">
+      <Configuration>Release_SDL2</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_SDL_Dbgr|Win32">
+      <Configuration>Release_SDL_Dbgr</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_SDL_Dbgr|x64">
+      <Configuration>Release_SDL_Dbgr</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_SDL|Win32">
+      <Configuration>Release_SDL</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_SDL|x64">
+      <Configuration>Release_SDL</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{BA43A56C-9204-40D2-B789-461D66E421B7}</ProjectGuid>
+    <RootNamespace>X68000</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL_Dbgr|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL2|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL2_Dbgr|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL_Dbgr|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2_Dbgr|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL_Dbgr|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL2|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL2_Dbgr|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL_Dbgr|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2_Dbgr|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="library_sdl.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL_Dbgr|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="library_sdl.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL2|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="library_sdl.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL2_Dbgr|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="library_sdl.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="library_sdl.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL_Dbgr|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="library_sdl.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="library_sdl.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2_Dbgr|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="library_sdl.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="library_sdl.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL_Dbgr|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="library_sdl.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL2|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="library_sdl.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL2_Dbgr|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="library_sdl.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="library_sdl.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL_Dbgr|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="library_sdl.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="library_sdl.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2_Dbgr|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="library_sdl.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_SDL|Win32'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_SDL_Dbgr|Win32'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2|Win32'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2_Dbgr|Win32'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_SDL|Win32'">$(Configuration)\$(Platform)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_SDL_Dbgr|Win32'">$(Configuration)\$(Platform)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2|Win32'">$(Configuration)\$(Platform)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2_Dbgr|Win32'">$(Configuration)\$(Platform)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug_SDL|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug_SDL_Dbgr|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2_Dbgr|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_SDL|x64'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_SDL_Dbgr|x64'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2|x64'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2_Dbgr|x64'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_SDL|x64'">$(Configuration)\$(Platform)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_SDL_Dbgr|x64'">$(Configuration)\$(Platform)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2|x64'">$(Configuration)\$(Platform)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2_Dbgr|x64'">$(Configuration)\$(Platform)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug_SDL|x64'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug_SDL_Dbgr|x64'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2|x64'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2_Dbgr|x64'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_SDL|Win32'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_SDL_Dbgr|Win32'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_SDL2|Win32'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_SDL2_Dbgr|Win32'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_SDL|Win32'">$(Configuration)\$(Platform)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_SDL_Dbgr|Win32'">$(Configuration)\$(Platform)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_SDL2|Win32'">$(Configuration)\$(Platform)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_SDL2_Dbgr|Win32'">$(Configuration)\$(Platform)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_SDL|x64'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_SDL_Dbgr|x64'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_SDL2|x64'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_SDL2_Dbgr|x64'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_SDL|x64'">$(Configuration)\$(Platform)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_SDL_Dbgr|x64'">$(Configuration)\$(Platform)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_SDL2|x64'">$(Configuration)\$(Platform)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_SDL2_Dbgr|x64'">$(Configuration)\$(Platform)\</IntDir>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug_SDL|Win32'">$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug_SDL_Dbgr|Win32'">$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2|Win32'">$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2_Dbgr|Win32'">$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release_SDL|Win32'">$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release_SDL_Dbgr|Win32'">$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release_SDL2|Win32'">$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release_SDL2_Dbgr|Win32'">$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;..\include;\Devel\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BrowseInformation>false</BrowseInformation>
+      <CompileAsManaged>false</CompileAsManaged>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
+      <StringPooling>false</StringPooling>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL.lib;SDLmain.lib;freetype248_D.lib;SDL_ttf.lib;winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SDLDebugLibDir);$(FreeTypeDebugLibDir);$(SDLTtfDebugLibDir);$(SDLNetDebugLibDir);$(GLEWDebugLibDir);$(LibIntlLibDir);..\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>MSVCRT</IgnoreSpecificDefaultLibraries>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Manifest>
+      <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL_Dbgr|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;..\include;\Devel\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BrowseInformation>false</BrowseInformation>
+      <CompileAsManaged>false</CompileAsManaged>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
+      <StringPooling>false</StringPooling>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL.lib;SDLmain.lib;freetype248_D.lib;SDL_ttf.lib;winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SDLDebugLibDir);$(FreeTypeDebugLibDir);$(SDLTtfDebugLibDir);$(SDLNetDebugLibDir);$(GLEWDebugLibDir);$(LibIntlLibDir);..\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>MSVCRT</IgnoreSpecificDefaultLibraries>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Manifest>
+      <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDL2Dir)include;$(SDL2TtfDir);$(SDL2NetDir);$(LibIntlDir)include;$(GLEWDir)include;..\include;\Devel\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BrowseInformation>false</BrowseInformation>
+      <CompileAsManaged>false</CompileAsManaged>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
+      <StringPooling>false</StringPooling>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;freetype255d.lib;SDL2_ttf.lib;winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;version.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SDL2DebugLibDir);$(FreeType25DebugLibDir);$(SDL2TtfDebugLibDir);$(SDL2NetDebugLibDir);$(GLEWDebugLibDir);$(LibIntlLibDir);..\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Manifest>
+      <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2_Dbgr|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDL2Dir)include;$(SDL2TtfDir);$(SDL2NetDir);$(LibIntlDir)include;$(GLEWDir)include;..\include;\Devel\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BrowseInformation>false</BrowseInformation>
+      <CompileAsManaged>false</CompileAsManaged>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
+      <StringPooling>false</StringPooling>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;freetype255d.lib;SDL2_ttf.lib;winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;version.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SDL2DebugLibDir);$(FreeType25DebugLibDir);$(SDL2TtfDebugLibDir);$(SDL2NetDebugLibDir);$(GLEWDebugLibDir);$(LibIntlLibDir);..\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Manifest>
+      <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;..\include;\Devel\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BrowseInformation>true</BrowseInformation>
+      <CompileAsManaged>false</CompileAsManaged>
+      <OmitFramePointers>false</OmitFramePointers>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <StringPooling>false</StringPooling>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL.lib;SDLmain.lib;freetype248_D.lib;SDL_ttf.lib;winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SDLDebugLibDir);$(FreeTypeDebugLibDir);$(SDLTtfDebugLibDir);$(SDLNetDebugLibDir);$(GLEWDebugLibDir);$(LibIntlLib64Dir);..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Manifest>
+      <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL_Dbgr|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;..\include;\Devel\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BrowseInformation>true</BrowseInformation>
+      <CompileAsManaged>false</CompileAsManaged>
+      <OmitFramePointers>false</OmitFramePointers>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <StringPooling>false</StringPooling>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL.lib;SDLmain.lib;freetype248_D.lib;SDL_ttf.lib;winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SDLDebugLibDir);$(FreeTypeDebugLibDir);$(SDLTtfDebugLibDir);$(SDLNetDebugLibDir);$(GLEWDebugLibDir);$(LibIntlLib64Dir);..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Manifest>
+      <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDL2Dir)include;$(SDL2TtfDir);$(SDL2NetDir);$(LibIntlDir)include;$(GLEWDir)include;..\include;\Devel\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BrowseInformation>true</BrowseInformation>
+      <CompileAsManaged>false</CompileAsManaged>
+      <OmitFramePointers>false</OmitFramePointers>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <StringPooling>false</StringPooling>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;freetype255d.lib;SDL2_ttf.lib;winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;version.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SDL2DebugLibDir);$(FreeType25DebugLibDir);$(SDL2TtfDebugLibDir);$(SDL2NetDebugLibDir);$(GLEWDebugLibDir);$(LibIntlLib64Dir);..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Manifest>
+      <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_SDL2_Dbgr|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDL2Dir)include;$(SDL2TtfDir);$(SDL2NetDir);$(LibIntlDir)include;$(GLEWDir)include;..\include;\Devel\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BrowseInformation>true</BrowseInformation>
+      <CompileAsManaged>false</CompileAsManaged>
+      <OmitFramePointers>false</OmitFramePointers>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <StringPooling>false</StringPooling>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;freetype255d.lib;SDL2_ttf.lib;winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;version.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SDL2DebugLibDir);$(FreeType25DebugLibDir);$(SDL2TtfDebugLibDir);$(SDL2NetDebugLibDir);$(GLEWDebugLibDir);$(LibIntlLib64Dir);..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Manifest>
+      <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;..\include;\Devel\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL.lib;SDLmain.lib;freetype248.lib;SDL_ttf.lib;winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SDLReleaseLibDir);$(FreeTypeReleaseLibDir);$(SDLTtfReleaseLibDir);$(SDLNetReleaseLibDir);$(GLEWReleaseLibDir);$(LibIntlLibDir);..\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Manifest>
+      <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL_Dbgr|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;..\include;\Devel\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL.lib;SDLmain.lib;freetype248.lib;SDL_ttf.lib;winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SDLReleaseLibDir);$(FreeTypeReleaseLibDir);$(SDLTtfReleaseLibDir);$(SDLNetReleaseLibDir);$(GLEWReleaseLibDir);$(LibIntlLibDir);..\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Manifest>
+      <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL2|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDL2Dir)include;$(SDL2TtfDir);$(SDL2NetDir);$(LibIntlDir)include;$(GLEWDir)include;..\include;\Devel\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;freetype255.lib;SDL2_ttf.lib;winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;version.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SDL2ReleaseLibDir);$(FreeType25ReleaseLibDir);$(SDL2TtfReleaseLibDir);$(SDL2NetReleaseLibDir);$(GLEWReleaseLibDir);$(LibIntlLibDir);..\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Manifest>
+      <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL2_Dbgr|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDL2Dir)include;$(SDL2TtfDir);$(SDL2NetDir);$(LibIntlDir)include;$(GLEWDir)include;..\include;\Devel\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;freetype255.lib;SDL2_ttf.lib;winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;version.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SDL2ReleaseLibDir);$(FreeType25ReleaseLibDir);$(SDL2TtfReleaseLibDir);$(SDL2NetReleaseLibDir);$(GLEWReleaseLibDir);$(LibIntlLibDir);..\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Manifest>
+      <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;..\include;\Devel\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL.lib;SDLmain.lib;freetype248.lib;SDL_ttf.lib;winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SDLReleaseLibDir);$(FreeTypeReleaseLibDir);$(SDLTtfReleaseLibDir);$(SDLNetReleaseLibDir);$(GLEWReleaseLibDir);$(LibIntlLib64Dir);..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Manifest>
+      <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL_Dbgr|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;..\include;\Devel\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL.lib;SDLmain.lib;freetype248.lib;SDL_ttf.lib;winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SDLReleaseLibDir);$(FreeTypeReleaseLibDir);$(SDLTtfReleaseLibDir);$(SDLNetReleaseLibDir);$(GLEWReleaseLibDir);$(LibIntlLib64Dir);..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Manifest>
+      <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL2|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDL2Dir)include;$(SDL2TtfDir);$(SDL2NetDir);$(LibIntlDir)include;$(GLEWDir)include;..\include;\Devel\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;freetype255.lib;SDL2_ttf.lib;winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;version.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SDL2ReleaseLibDir);$(FreeType25ReleaseLibDir);$(SDL2TtfReleaseLibDir);$(SDL2NetReleaseLibDir);$(GLEWReleaseLibDir);$(LibIntlLib64Dir);..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Manifest>
+      <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_SDL2_Dbgr|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDL2Dir)include;$(SDL2TtfDir);$(SDL2NetDir);$(LibIntlDir)include;$(GLEWDir)include;..\include;\Devel\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;freetype255.lib;SDL2_ttf.lib;winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;version.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SDL2ReleaseLibDir);$(FreeType25ReleaseLibDir);$(SDL2TtfReleaseLibDir);$(SDL2NetReleaseLibDir);$(GLEWReleaseLibDir);$(LibIntlLib64Dir);..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Manifest>
+      <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\cchar.cpp" />
+    <ClCompile Include="..\src\cmutex.cpp" />
+    <ClCompile Include="..\src\common.cpp" />
+    <ClCompile Include="..\src\config.cpp" />
+    <ClCompile Include="..\src\cpixfmt.cpp" />
+    <ClCompile Include="..\src\curtime.cpp" />
+    <ClCompile Include="..\src\debugger_bpoint.cpp" />
+    <ClCompile Include="..\src\debugger_socket.cpp" />
+    <ClCompile Include="..\src\debugger_symbol.cpp" />
+    <ClCompile Include="..\src\depend.cpp" />
+    <ClCompile Include="..\src\emumsg.cpp" />
+    <ClCompile Include="..\src\fifo.cpp" />
+    <ClCompile Include="..\src\fileio.cpp" />
+    <ClCompile Include="..\src\gui\gui_base.cpp" />
+    <ClCompile Include="..\src\gui\gui_keybinddata.cpp" />
+    <ClCompile Include="..\src\gui\sdl2_ledbox.cpp" />
+    <ClCompile Include="..\src\gui\windows\win_aboutbox.cpp" />
+    <ClCompile Include="..\src\gui\windows\win_configbox.cpp" />
+    <ClCompile Include="..\src\gui\windows\win_dialogbox.cpp" />
+    <ClCompile Include="..\src\gui\windows\win_filebox.cpp" />
+    <ClCompile Include="..\src\gui\windows\win_folderbox.cpp" />
+    <ClCompile Include="..\src\gui\windows\win_fontbox.cpp" />
+    <ClCompile Include="..\src\gui\windows\win_gui.cpp" />
+    <ClCompile Include="..\src\gui\windows\win_joysetbox.cpp" />
+    <ClCompile Include="..\src\gui\windows\win_key_trans.cpp" />
+    <ClCompile Include="..\src\gui\windows\win_keybindbox.cpp" />
+    <ClCompile Include="..\src\gui\windows\win_keybindctrl.cpp" />
+    <ClCompile Include="..\src\gui\windows\win_ledbox.cpp" />
+    <ClCompile Include="..\src\gui\windows\win_recaudbox.cpp" />
+    <ClCompile Include="..\src\gui\windows\win_seldrvbox.cpp" />
+    <ClCompile Include="..\src\gui\windows\win_vkeyboard.cpp" />
+    <ClCompile Include="..\src\gui\windows\win_volumebox.cpp" />
+    <ClCompile Include="..\src\gui\windows\winfont.cpp" />
+    <ClCompile Include="..\src\labels.cpp" />
+    <ClCompile Include="..\src\msgs.cpp" />
+    <ClCompile Include="..\src\osd\SDL\sdl_cbitmap.cpp" />
+    <ClCompile Include="..\src\osd\SDL\sdl_ccolor.cpp" />
+    <ClCompile Include="..\src\osd\SDL\sdl_csurface.cpp" />
+    <ClCompile Include="..\src\osd\SDL\sdl_debugger_console.cpp" />
+    <ClCompile Include="..\src\osd\SDL\sdl_emu.cpp" />
+    <ClCompile Include="..\src\osd\SDL\sdl_input.cpp" />
+    <ClCompile Include="..\src\osd\SDL\sdl_input_keysym.cpp" />
+    <ClCompile Include="..\src\osd\SDL\sdl_ledboxbase.cpp" />
+    <ClCompile Include="..\src\osd\SDL\sdl_main.cpp" />
+    <ClCompile Include="..\src\osd\SDL\sdl_msgboard.cpp" />
+    <ClCompile Include="..\src\osd\SDL\sdl_parseopt.cpp" />
+    <ClCompile Include="..\src\osd\SDL\sdl_screen.cpp" />
+    <ClCompile Include="..\src\osd\SDL\sdl_screenmode.cpp" />
+    <ClCompile Include="..\src\osd\SDL\sdl_socket.cpp" />
+    <ClCompile Include="..\src\osd\SDL\sdl_sound.cpp" />
+    <ClCompile Include="..\src\osd\SDL\sdl_timer.cpp" />
+    <ClCompile Include="..\src\osd\SDL\sdl_vkeyboardbase.cpp" />
+    <ClCompile Include="..\src\osd\d88_files.cpp" />
+    <ClCompile Include="..\src\osd\debugger_console.cpp" />
+    <ClCompile Include="..\src\osd\emu.cpp" />
+    <ClCompile Include="..\src\osd\emu_input.cpp" />
+    <ClCompile Include="..\src\osd\emu_input_keysym.cpp" />
+    <ClCompile Include="..\src\osd\emu_screen.cpp" />
+    <ClCompile Include="..\src\osd\emu_sound.cpp" />
+    <ClCompile Include="..\src\osd\logging.cpp" />
+    <ClCompile Include="..\src\osd\opengl.cpp" />
+    <ClCompile Include="..\src\osd\parseopt.cpp" />
+    <ClCompile Include="..\src\osd\screenmode.cpp" />
+    <ClCompile Include="..\src\osd\simple_clocale.cpp" />
+    <ClCompile Include="..\src\osd\vkeyboardbase.cpp" />
+    <ClCompile Include="..\src\osd\windowmode.cpp" />
+    <ClCompile Include="..\src\osd\windows\win_uart.cpp" />
+    <ClCompile Include="..\src\simple_ini.cpp" />
+    <ClCompile Include="..\src\utility.cpp" />
+    <ClCompile Include="..\src\video\rec_audio.cpp" />
+    <ClCompile Include="..\src\video\rec_video.cpp" />
+    <ClCompile Include="..\src\video\wave\wav_rec_audio.cpp" />
+    <ClCompile Include="..\src\video\windows\win_bitmap.cpp" />
+    <ClCompile Include="..\src\video\windows\win_rec_video.cpp" />
+    <ClCompile Include="..\src\vm\debugger.cpp" />
+    <ClCompile Include="..\src\vm\debugger_base.cpp" />
+    <ClCompile Include="..\src\vm\device.cpp" />
+    <ClCompile Include="..\src\vm\disk.cpp" />
+    <ClCompile Include="..\src\vm\disk_parser.cpp" />
+    <ClCompile Include="..\src\vm\event.cpp" />
+    <ClCompile Include="..\src\vm\fmgen\fmgen.cpp" />
+    <ClCompile Include="..\src\vm\fmgen\fmtimer.cpp" />
+    <ClCompile Include="..\src\vm\fmgen\opm.cpp" />
+    <ClCompile Include="..\src\vm\fmgen\opna.cpp" />
+    <ClCompile Include="..\src\vm\fmgen\psg.cpp" />
+    <ClCompile Include="..\src\vm\harddisk.cpp" />
+    <ClCompile Include="..\src\vm\i8255.cpp" />
+    <ClCompile Include="..\src\vm\mc68000.cpp" />
+    <ClCompile Include="..\src\vm\mc68000cycs.cpp" />
+    <ClCompile Include="..\src\vm\mc68000dasm.cpp" />
+    <ClCompile Include="..\src\vm\mc68000fpu.cpp" />
+    <ClCompile Include="..\src\vm\mc68000mmu.cpp" />
+    <ClCompile Include="..\src\vm\mc68000ops.cpp" />
+    <ClCompile Include="..\src\vm\noise.cpp" />
+    <ClCompile Include="..\src\vm\parsewav.cpp" />
+    <ClCompile Include="..\src\vm\paw_datas.cpp" />
+    <ClCompile Include="..\src\vm\paw_defs.cpp" />
+    <ClCompile Include="..\src\vm\paw_dft.cpp" />
+    <ClCompile Include="..\src\vm\paw_file.cpp" />
+    <ClCompile Include="..\src\vm\paw_format.cpp" />
+    <ClCompile Include="..\src\vm\paw_param.cpp" />
+    <ClCompile Include="..\src\vm\paw_parse.cpp" />
+    <ClCompile Include="..\src\vm\paw_parsecar.cpp" />
+    <ClCompile Include="..\src\vm\paw_parsewav.cpp" />
+    <ClCompile Include="..\src\vm\paw_util.cpp" />
+    <ClCompile Include="..\src\vm\softfloat\fpatan.cpp" />
+    <ClCompile Include="..\src\vm\softfloat\fsincos.cpp" />
+    <ClCompile Include="..\src\vm\softfloat\fyl2x.cpp" />
+    <ClCompile Include="..\src\vm\softfloat\softfloat.cpp" />
+    <ClCompile Include="..\src\vm\sound_base.cpp" />
+    <ClCompile Include="..\src\vm\x68000\adpcm.cpp" />
+    <ClCompile Include="..\src\vm\x68000\board.cpp" />
+    <ClCompile Include="..\src\vm\x68000\comm.cpp" />
+    <ClCompile Include="..\src\vm\x68000\crtc.cpp" />
+    <ClCompile Include="..\src\vm\x68000\display.cpp" />
+    <ClCompile Include="..\src\vm\x68000\dmac.cpp" />
+    <ClCompile Include="..\src\vm\x68000\fdc.cpp" />
+    <ClCompile Include="..\src\vm\x68000\floppy.cpp" />
+    <ClCompile Include="..\src\vm\x68000\joypad.cpp" />
+    <ClCompile Include="..\src\vm\x68000\keyboard.cpp" />
+    <ClCompile Include="..\src\vm\x68000\keyrecord.cpp" />
+    <ClCompile Include="..\src\vm\x68000\memory.cpp" />
+    <ClCompile Include="..\src\vm\x68000\mfp.cpp" />
+    <ClCompile Include="..\src\vm\x68000\mouse.cpp" />
+    <ClCompile Include="..\src\vm\x68000\printer.cpp" />
+    <ClCompile Include="..\src\vm\x68000\rtc.cpp" />
+    <ClCompile Include="..\src\vm\x68000\sasi.cpp" />
+    <ClCompile Include="..\src\vm\x68000\scc.cpp" />
+    <ClCompile Include="..\src\vm\x68000\sprite_bg.cpp" />
+    <ClCompile Include="..\src\vm\x68000\sysport.cpp" />
+    <ClCompile Include="..\src\vm\x68000\x68000.cpp" />
+    <ClCompile Include="..\src\vm\ym2151.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\cbitmap.h" />
+    <ClInclude Include="..\src\cchar.h" />
+    <ClInclude Include="..\src\ccolor.h" />
+    <ClInclude Include="..\src\clocale.h" />
+    <ClInclude Include="..\src\cmutex.h" />
+    <ClInclude Include="..\src\common.h" />
+    <ClInclude Include="..\src\config.h" />
+    <ClInclude Include="..\src\cpixfmt.h" />
+    <ClInclude Include="..\src\cptrlist.h" />
+    <ClInclude Include="..\src\csurface.h" />
+    <ClInclude Include="..\src\curtime.h" />
+    <ClInclude Include="..\src\d88_defs.h" />
+    <ClInclude Include="..\src\debugger_bpoint.h" />
+    <ClInclude Include="..\src\debugger_defs.h" />
+    <ClInclude Include="..\src\debugger_socket.h" />
+    <ClInclude Include="..\src\debugger_symbol.h" />
+    <ClInclude Include="..\src\depend.h" />
+    <ClInclude Include="..\src\emu.h" />
+    <ClInclude Include="..\src\emu_osd.h" />
+    <ClInclude Include="..\src\emumsg.h" />
+    <ClInclude Include="..\src\fifo.h" />
+    <ClInclude Include="..\src\fileio.h" />
+    <ClInclude Include="..\src\gui\gui.h" />
+    <ClInclude Include="..\src\gui\gui_base.h" />
+    <ClInclude Include="..\src\gui\gui_keybinddata.h" />
+    <ClInclude Include="..\src\gui\ledbox.h" />
+    <ClInclude Include="..\src\gui\sdl2_ledbox.h" />
+    <ClInclude Include="..\src\gui\vkeyboard.h" />
+    <ClInclude Include="..\src\gui\vkeyboard_x68000.h" />
+    <ClInclude Include="..\src\gui\windows\scancodes_windows.h" />
+    <ClInclude Include="..\src\gui\windows\win_aboutbox.h" />
+    <ClInclude Include="..\src\gui\windows\win_configbox.h" />
+    <ClInclude Include="..\src\gui\windows\win_dialogbox.h" />
+    <ClInclude Include="..\src\gui\windows\win_filebox.h" />
+    <ClInclude Include="..\src\gui\windows\win_folderbox.h" />
+    <ClInclude Include="..\src\gui\windows\win_fontbox.h" />
+    <ClInclude Include="..\src\gui\windows\win_gui.h" />
+    <ClInclude Include="..\src\gui\windows\win_joysetbox.h" />
+    <ClInclude Include="..\src\gui\windows\win_key_trans.h" />
+    <ClInclude Include="..\src\gui\windows\win_keybindbox.h" />
+    <ClInclude Include="..\src\gui\windows\win_keybindctrl.h" />
+    <ClInclude Include="..\src\gui\windows\win_ledbox.h" />
+    <ClInclude Include="..\src\gui\windows\win_recaudbox.h" />
+    <ClInclude Include="..\src\gui\windows\win_seldrvbox.h" />
+    <ClInclude Include="..\src\gui\windows\win_vkeyboard.h" />
+    <ClInclude Include="..\src\gui\windows\win_volumebox.h" />
+    <ClInclude Include="..\src\gui\windows\winfont.h" />
+    <ClInclude Include="..\src\keycode.h" />
+    <ClInclude Include="..\src\labels.h" />
+    <ClInclude Include="..\src\loadlibrary.h" />
+    <ClInclude Include="..\src\logging.h" />
+    <ClInclude Include="..\src\main.h" />
+    <ClInclude Include="..\src\msgboard.h" />
+    <ClInclude Include="..\src\msgs.h" />
+    <ClInclude Include="..\src\osd\SDL\sdl_cbitmap.h" />
+    <ClInclude Include="..\src\osd\SDL\sdl_ccolor.h" />
+    <ClInclude Include="..\src\osd\SDL\sdl_common.h" />
+    <ClInclude Include="..\src\osd\SDL\sdl_csurface.h" />
+    <ClInclude Include="..\src\osd\SDL\sdl_debugger_console.h" />
+    <ClInclude Include="..\src\osd\SDL\sdl_emu.h" />
+    <ClInclude Include="..\src\osd\SDL\sdl_input.h" />
+    <ClInclude Include="..\src\osd\SDL\sdl_ledboxbase.h" />
+    <ClInclude Include="..\src\osd\SDL\sdl_main.h" />
+    <ClInclude Include="..\src\osd\SDL\sdl_msgboard.h" />
+    <ClInclude Include="..\src\osd\SDL\sdl_parseopt.h" />
+    <ClInclude Include="..\src\osd\SDL\sdl_screenmode.h" />
+    <ClInclude Include="..\src\osd\SDL\sdl_socket.h" />
+    <ClInclude Include="..\src\osd\SDL\sdl_vkeyboardbase.h" />
+    <ClInclude Include="..\src\osd\d88_files.h" />
+    <ClInclude Include="..\src\osd\debugger_console.h" />
+    <ClInclude Include="..\src\osd\emu_input.h" />
+    <ClInclude Include="..\src\osd\opengl.h" />
+    <ClInclude Include="..\src\osd\parseopt.h" />
+    <ClInclude Include="..\src\osd\screenmode.h" />
+    <ClInclude Include="..\src\osd\simple_clocale.h" />
+    <ClInclude Include="..\src\osd\vkeyboardbase.h" />
+    <ClInclude Include="..\src\osd\windowmode.h" />
+    <ClInclude Include="..\src\osd\windows\win_uart.h" />
+    <ClInclude Include="..\src\rec_video_defs.h" />
+    <ClInclude Include="..\src\res\resource.h" />
+    <ClInclude Include="..\src\simple_ini.h" />
+    <ClInclude Include="..\src\utility.h" />
+    <ClInclude Include="..\src\utils.h" />
+    <ClInclude Include="..\src\version.h" />
+    <ClInclude Include="..\src\video\rec_audio.h" />
+    <ClInclude Include="..\src\video\rec_video.h" />
+    <ClInclude Include="..\src\video\wave\wav_rec_audio.h" />
+    <ClInclude Include="..\src\video\windows\win_bitmap.h" />
+    <ClInclude Include="..\src\video\windows\win_rec_video.h" />
+    <ClInclude Include="..\src\vm\debugger.h" />
+    <ClInclude Include="..\src\vm\debugger_base.h" />
+    <ClInclude Include="..\src\vm\device.h" />
+    <ClInclude Include="..\src\vm\disk.h" />
+    <ClInclude Include="..\src\vm\disk_parser.h" />
+    <ClInclude Include="..\src\vm\event.h" />
+    <ClInclude Include="..\src\vm\fmgen\diag.h" />
+    <ClInclude Include="..\src\vm\fmgen\fmgen.h" />
+    <ClInclude Include="..\src\vm\fmgen\fmgeninl.h" />
+    <ClInclude Include="..\src\vm\fmgen\fmtimer.h" />
+    <ClInclude Include="..\src\vm\fmgen\headers.h" />
+    <ClInclude Include="..\src\vm\fmgen\misc.h" />
+    <ClInclude Include="..\src\vm\fmgen\opm.h" />
+    <ClInclude Include="..\src\vm\fmgen\opna.h" />
+    <ClInclude Include="..\src\vm\fmgen\psg.h" />
+    <ClInclude Include="..\src\vm\fmgen\types.h" />
+    <ClInclude Include="..\src\vm\harddisk.h" />
+    <ClInclude Include="..\src\vm\i8255.h" />
+    <ClInclude Include="..\src\vm\mc68000.h" />
+    <ClInclude Include="..\src\vm\mc68000_consts.h" />
+    <ClInclude Include="..\src\vm\mc68000dasm.h" />
+    <ClInclude Include="..\src\vm\mc68000fpu.h" />
+    <ClInclude Include="..\src\vm\mc68000mmu.h" />
+    <ClInclude Include="..\src\vm\mc68000ops.h" />
+    <ClInclude Include="..\src\vm\noise.h" />
+    <ClInclude Include="..\src\vm\parsewav.h" />
+    <ClInclude Include="..\src\vm\paw_datas.h" />
+    <ClInclude Include="..\src\vm\paw_defs.h" />
+    <ClInclude Include="..\src\vm\paw_dft.h" />
+    <ClInclude Include="..\src\vm\paw_file.h" />
+    <ClInclude Include="..\src\vm\paw_format.h" />
+    <ClInclude Include="..\src\vm\paw_param.h" />
+    <ClInclude Include="..\src\vm\paw_parse.h" />
+    <ClInclude Include="..\src\vm\paw_parsecar.h" />
+    <ClInclude Include="..\src\vm\paw_parsewav.h" />
+    <ClInclude Include="..\src\vm\paw_util.h" />
+    <ClInclude Include="..\src\vm\softfloat\fpu_constant.h" />
+    <ClInclude Include="..\src\vm\softfloat\mamesf.h" />
+    <ClInclude Include="..\src\vm\softfloat\milieu.h" />
+    <ClInclude Include="..\src\vm\softfloat\softfloat.h" />
+    <ClInclude Include="..\src\vm\sound_base.h" />
+    <ClInclude Include="..\src\vm\vm.h" />
+    <ClInclude Include="..\src\vm\vm_defs.h" />
+    <ClInclude Include="..\src\vm\x68000\adpcm.h" />
+    <ClInclude Include="..\src\vm\x68000\board.h" />
+    <ClInclude Include="..\src\vm\x68000\comm.h" />
+    <ClInclude Include="..\src\vm\x68000\crtc.h" />
+    <ClInclude Include="..\src\vm\x68000\display.h" />
+    <ClInclude Include="..\src\vm\x68000\dmac.h" />
+    <ClInclude Include="..\src\vm\x68000\fdc.h" />
+    <ClInclude Include="..\src\vm\x68000\floppy.h" />
+    <ClInclude Include="..\src\vm\x68000\floppy_defs.h" />
+    <ClInclude Include="..\src\vm\x68000\joypad.h" />
+    <ClInclude Include="..\src\vm\x68000\keyboard.h" />
+    <ClInclude Include="..\src\vm\x68000\keyboard_bind.h" />
+    <ClInclude Include="..\src\vm\x68000\keyrecord.h" />
+    <ClInclude Include="..\src\vm\x68000\memory.h" />
+    <ClInclude Include="..\src\vm\x68000\mfp.h" />
+    <ClInclude Include="..\src\vm\x68000\mouse.h" />
+    <ClInclude Include="..\src\vm\x68000\printer.h" />
+    <ClInclude Include="..\src\vm\x68000\rtc.h" />
+    <ClInclude Include="..\src\vm\x68000\sasi.h" />
+    <ClInclude Include="..\src\vm\x68000\scc.h" />
+    <ClInclude Include="..\src\vm\x68000\sprite_bg.h" />
+    <ClInclude Include="..\src\vm\x68000\sysport.h" />
+    <ClInclude Include="..\src\vm\x68000\x68000.h" />
+    <ClInclude Include="..\src\vm\x68000\x68000_defs.h" />
+    <ClInclude Include="..\src\vm\ym2151.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\src\res\windows\x68000.rc" />
+    <ResourceCompile Include="..\src\res\windows\x68000_gui.rc" />
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

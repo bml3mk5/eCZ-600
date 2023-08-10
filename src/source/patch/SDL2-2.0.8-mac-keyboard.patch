@@ -1,0 +1,34 @@
+--- SDL2-2.0.8-orig/src/video/cocoa/SDL_cocoakeyboard.m	2018-03-02 01:34:42.000000000 +0900
++++ SDL2-2.0.8/src/video/cocoa/SDL_cocoakeyboard.m	2020-03-02 19:37:11.000000000 +0900
+@@ -497,6 +497,13 @@
+         return;
+     }
+ 
++    if (scancode == 57) {
++        /* caps lock */
++        SDL_SendKeyboardKey(modifierFlags & (NSEventModifierFlagCapsLock) ? SDL_PRESSED : SDL_RELEASED, SDL_SCANCODE_CAPSLOCK);
++    } else if (scancode == 63) {
++        /* fn */
++        SDL_SendKeyboardKey(modifierFlags & (NSEventModifierFlagFunction) ? SDL_PRESSED : SDL_RELEASED, SDL_SCANCODE_ALTERASE);
++    }
+     DoSidedModifiers(scancode, data->modifierFlags, modifierFlags);
+     data->modifierFlags = modifierFlags;
+ }
+@@ -586,7 +593,7 @@
+     data->modifierFlags = [NSEvent modifierFlags];
+     SDL_ToggleModState(KMOD_CAPS, (data->modifierFlags & NSEventModifierFlagCapsLock) != 0);
+ 
+-    InitHIDCallback();
++/*    InitHIDCallback(); */
+ }
+ 
+ void
+@@ -712,7 +719,7 @@
+ void
+ Cocoa_QuitKeyboard(_THIS)
+ {
+-    QuitHIDCallback();
++/*    QuitHIDCallback(); */
+ }
+ 
+ #endif /* SDL_VIDEO_DRIVER_COCOA */
