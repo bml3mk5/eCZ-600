@@ -105,11 +105,12 @@ private:
 	};
 	enum en_reg_data_mask {
 		CSR_MASK = 0xf6,
+		CSR_INTMASK = 0xf2,
 		GCR_MASK = 0x0f,
 		DCR_MASK = 0xfb,
 		SCR_MASK = 0x0f,
-		CCR_TOGGLE_MASK = 0x28,
-		CCR_OPERATE_MASK = 0xd0,
+		CCR_TOGGLE_MASK = 0x68,
+		CCR_OPERATE_MASK = 0x90,
 		CPR_MASK = 0x03,
 		FC_MASK = 0x07,
 	};
@@ -175,7 +176,8 @@ private:
 		REQLINE_MASK = 0xf0,
 	};
 	uint8_t m_busreq;	 ///< asserting bus request (bit3-0: each asserting channel, b7-b4:request signal)
-	uint8_t m_interrupt; ///< asserting interrupt 
+	uint8_t m_interrupt; ///< asserting interrupt (bit3-0)
+	uint8_t m_intr_mask; ///< interrupt mask INT on CCR (bit3-0)
 	bool m_now_iack;	 ///< receiving IACK
 
 	int m_register_id[END_OF_EVENT_IDS];
@@ -249,6 +251,7 @@ private:
 	void error_transfer(int channel, uint8_t reason);
 	void processed(int channel);
 	void update_irq(int channel, bool onoff);
+	void update_irq_mask(int channel, bool mask_onoff);
 	inline void update_breq(int channel, bool onoff);
 	inline void update_reqline(int channel, bool onoff);
 

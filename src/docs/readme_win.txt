@@ -1,9 +1,9 @@
 ==============================================================================
     SHARP X68000 Emulator 'eCZ-600'
-                                                                 build 259
-                                                                2023/##/##
+                                                                 build 262
+                                                                2024/01/07
 
-Copyright(C) Common Source Code Project, Sasaji 2011-2023 All Rights Reserved.
+Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 ==============================================================================
 
 ● はじめに
@@ -21,18 +21,15 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2023 All Rights Reserved.
   ● 使い方
     ○ メニュー説明
     ○ キー操作説明
+    ○ ジョイパッド設定ダイアログ(Joypad Setting...)
     ○ キー割り当てダイアログ(Keybind...)
     ○ 設定ダイアログ(Configure...)
     ○ 音量設定ダイアログ(Volume...)
-    ○ 録画設定ダイアログ(Record Screen)
     ○ 録音設定ダイアログ(Record Sound)
     ○ 仮想キーボード(Virtual Keyboard)
-  ● 録画＆録音で使用するライブラリについて
-  ● コマンドラインオプション
   ● ドラッグ＆ドロップ
   ● その他補足
     ○ ディスクイメージについて
-    ○ カセットテープイメージについて
     ○ キー入力記録ファイル(x6kファイル)について
     ○ マウスについて
     ○ ジョイスティック
@@ -92,7 +89,7 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2023 All Rights Reserved.
           LC_MESSAGES\
             x68000.mo ... 日本語用翻訳ファイル
       readme.txt      ... このファイル
-      history.txt     ... 変更履歴
+      change_log.txt  ... 変更履歴
       spec.txt        ... 本ソフトの詳細仕様
 
 
@@ -208,8 +205,8 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2023 All Rights Reserved.
         ボリュームをFDD0、2番目のボリュームをFDD1で開きます。同様にFDD2で
         開いた場合、2番目のボリュームをFDD3で開きます。
 
-  【注意】d68(d88)形式以外のディスクイメージは正しく読み込めない可能性が
-        あります。
+  【注意】ベタ(xdf)、d68(d88)形式以外のディスクイメージは正しく読み込めない
+        可能性があります。
 
   「取り出し(Eject)」 ........... ディスクイメージを閉じます。
           ディスクに書き込んだデータは、取り出し操作を行うか、約5秒無操作で
@@ -247,7 +244,7 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2023 All Rights Reserved.
 
     「アンマウント(Unmount)」 ........ ハードディスクイメージを閉じます。
 
-    「新規(New)」 ................. 新規にハードディスクイメージを作成し開きます。
+    「新規(New)」 .............. 新規にハードディスクイメージを作成し開きます。
       「ブランク10MBをマウント(Mount Blank 10MB)」
       「ブランク20MBをマウント(Mount Blank 20MB)」
       「ブランク40MBをマウント(Mount Blank 40MB)」
@@ -329,7 +326,7 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2023 All Rights Reserved.
       :
   「96000Hz」
 
-  「50ミリ秒(50msec.)」 ......... 音が出力されるまでのディレイ時間を設定します。
+  「50ミリ秒(50msec.)」 ....... 音が出力されるまでのディレイ時間を設定します。
       :
   「400ミリ秒(400msec.)」
 
@@ -407,16 +404,22 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2023 All Rights Reserved.
   「マウスを使用(Use Mouse)」......... マウスを使用可能にします。
   「ジョイパッドを使用(キー割当)」.... ジョイスティックの方向キーや各ボタンを
           キーボードのキーに割り当てて使用します。
-  「ジョイパッドを使用(ポート接続)」...... ジョイスティックを使用可能にします。
+  「ジョイパッドを使用(ポート接続)」.. ジョイスティックを使用可能にします。
+  「キーtoジョイパッド有効」 ......... キー入力をジョイスティックとして使用
+          します。
 
-  「キー入力にDirectInputを使用(Use DirectInput)」.. キー入力にDirectInputを使用します。
-  「キー割り当て...(Keybind...)」 .... キー割り当てダイアログ(後述)を開きます。
+  「キー入力にDirectInputを使用(Use DirectInput)」.. キー入力にDirectInputを
+          使用します。
   「仮想キーボード(Virtual Keyboard)」.. 仮想キーボードウィンドウを開きます。
+
+  「ジョイパッド設定...(Joypad Setting...)」.. ジョイパッドの種類およびボタンの
+          連射設定ダイアログ(後述)を開きます。
+  「キー割り当て...(Keybind...)」 .... キー割り当てダイアログ(後述)を開きます。
   「設定...(Configure...)」 .......... 設定ダイアログ(後述)を開きます。
 
-  「デバッガを開始(Start Debugger)」.. デバッガを開始します(搭載バージョンのみ)。
-  「デバッガを停止(Stop Debugger)」 .. デバッガを停止します(搭載バージョンのみ)。
-    ※デバッガの詳細はdebugger.txtを参照してください。
+  「デバッガを開始(Start Debugger)」.. デバッガを開始します。※
+  「デバッガを停止(Stop Debugger)」 .. デバッガを停止します。※
+    ※搭載バージョンのみ。デバッガの詳細はdebugger.txtを参照してください。
 
 
 「ヘルプ(Help)」メニュー
@@ -487,6 +490,36 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2023 All Rights Reserved.
   戻ります。
 
 
+○ ジョイパッド設定ダイアログ(Joypad Setting...)
+
+  ■ジョイパッドの種類について
+
+  選択した入力デバイスをエミュレートします。
+
+  各デバイスで使用するボタンは以下の通りです。
+  各ボタンは「キー割り当てダイアログ(Keybind...)」のジョイパッド(ポート接続)
+  にて割り当ててください。
+
+    【標準】
+     ... ↑↓←→ ボタンA,B
+    【メガドライブ3ボタン】
+     ... ↑↓←→ ボタンA,B,C,START
+    【メガドライブ6ボタン】
+     ... ↑↓←→ ボタンA,B,C,X,Y,Z,START,SELECT
+    【パワースティックファイター】
+     ... ↑↓←→ ボタンA,B,X,Y,L,R,START,SELECT
+    【パワースティックファイターMD】
+     ... ↑↓←→ ボタンA,B,C,X,Y,Z,START,SELECT
+    【ツインプラス(XPD-1LR)】
+     ... ↑↓←→ 別↑↓←→
+    【サイバースティック】
+     ... 左アナログX,Y 右アナログX,Y ボタンA,B,C,D,E1,E2,START,SELECT
+
+  ■アナログ→デジタル感度
+
+  アナログスティックを十字キーとして使用する場合にその感度を設定します。
+
+
 ○ キー割り当てダイアログ(Keybind...)
 
   ■キーボード(Keyboard)
@@ -524,6 +557,11 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2023 All Rights Reserved.
   another key when pressed two buttons)」をチェックすると、ボタンの同時押しや
   十字キーを斜めに入れた場合に別のキーとして判定するようになります。
 
+  【Z軸有効、R軸有効、U軸有効、V軸有効について】
+    ジョイスティックによっては、アナログスティックが押しっぱなしになる場合が
+  あります。このような場合は該当する軸のチェックをはずすことで押しっぱなしを
+  抑止できます。
+
   【注意】このダイアログを開く前にメニューの「ジョイパッドを使用(キー割当)」に
           チェックを入れて使用する状態にしてください。
 
@@ -531,9 +569,16 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2023 All Rights Reserved.
 
   ジョイスティックの十字キーおよびボタン1～28をポートに対応付けします。
   キーボードの場合と同様に操作してください。
+  入力デバイスの種類は「ジョイパッド設定...(Joypad Setting...)」で設定して
+  ください。
 
   【注意】このダイアログを開く前にメニューの「ジョイパッドを使用(ポート接続)」に
           チェックを入れて使用する状態にしてください。
+
+  ■キーtoジョイパッド(Key to Joypad)
+
+  キー入力をジョイスティックの方向キーやボタンとして使用します。
+  キーボードの場合と同様に操作してください。
 
 
 ○ 設定ダイアログ(Configure...)

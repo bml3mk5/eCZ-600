@@ -36,6 +36,10 @@
 #define OUT_DEBUG_ARR(...)
 //#define OUT_DEBUG_LNKARR(ch, ...) if (DEBUG_CH(ch)) logging->out_debugf(__VA_ARGS__)
 #define OUT_DEBUG_LNKARR(...)
+//#define OUT_DEBUG_INTR(ch, ...) if (DEBUG_CH(ch)) logging->out_debugf(__VA_ARGS__)
+#define OUT_DEBUG_INTR(...)
+//#define _DEBUG_INTR
+//#define OUT_DEBUG_IACK(ch, ...) logging->out_debugf(__VA_ARGS__)
 //#define OUT_DEBUG_IACK(ch, ...) if (DEBUG_CH(ch)) logging->out_debugf(__VA_ARGS__)
 #define OUT_DEBUG_IACK(...)
 #else
@@ -113,6 +117,7 @@ void DMAC::warm_reset(bool por)
 
 	m_busreq = 0;
 	m_interrupt = 0;
+	m_intr_mask = 0;
 	m_now_iack = false;
 
 	for(int i=0; i<END_OF_EVENT_IDS; i++) {
@@ -162,6 +167,10 @@ void DMAC::write_io_n(uint32_t addr, uint32_t data, int width)
 		if (data & CSR_ERR) {
 			dma->cer = 0;
 		}
+		if (!(dma->csr & CSR_INTMASK)) {
+			// clear interrupt
+			update_irq(channel, false);
+		}
 
 		break;
 	case 0x04:
@@ -191,12 +200,13 @@ void DMAC::write_io_n(uint32_t addr, uint32_t data, int width)
 		break;
 	case 0x06:
 		{
+			bool access_ccr = false;
 			uint8_t prev = dma->ccr;
 			if (width == 1) {
 				if (addr & 1) {
 					// Channel Control Register (A7)
 					OUT_DEBUG_REGW(channel, _T("DMAC %08X W CCR ch:%d data:%04X width:%d"), addr, channel, data, width);
-
+					access_ccr = true;
 					dma->ccr |= (data & CCR_OPERATE_MASK);
 					dma->ccr = (data & CCR_TOGGLE_MASK) | (dma->ccr & CCR_OPERATE_MASK);
 				} else {
@@ -209,37 +219,48 @@ void DMAC::write_io_n(uint32_t addr, uint32_t data, int width)
 			} else {
 				// Channel Control Register (A7)
 				OUT_DEBUG_REGW(channel, _T("DMAC %08X W SCR.CCR ch:%d data:%04X width:%d"), addr, channel, data, width);
+				access_ccr = true;
 
-				if (data & CCR_STR) {
-					// cannot start transfer when write to it by word access.
-					error_transfer(channel, CER_OPERATION_TIMING);
-					break;
-				}
+				// Sequence Control Register (A6)
+				dma->scr = ((data >> 8) & SCR_MASK);
 
 				dma->ccr |= (data & CCR_OPERATE_MASK);
 				dma->ccr = (data & CCR_TOGGLE_MASK) | (dma->ccr & CCR_OPERATE_MASK);
+			}
 
-				// Sequence Control Register (A6)
-				data >>= 8;
-				dma->scr = (data & SCR_MASK);
-			}
-			if (((prev ^ data) & data & CCR_STR) != 0) {
-				// check whether valid operation or not
-				if (!prestart_transfer(dma, channel)) {
+			if (access_ccr) {
+				uint8_t modify = (prev ^ data);
+				OUT_DEBUG_REGW(channel, _T("DMAC W CCR: ch:%d prev:%X data:%X now:%X"), channel, prev, data, dma->ccr);
+
+				if ((modify & data & CCR_SAB) != 0) {
+					// abort by software
+					abort_transfer(channel);
 					break;
 				}
-			}
-			if (((prev ^ data) & data & CCR_CNT) != 0) {
-				// check continue mode
-				if ((dma->csr & CSR_ACT) != 0 && (dma->ocr & OCR_ARRAY_CHAIN) != 0) {
-					// cannot set it while processing on chain mode
-					error_transfer(channel, CER_OPERATION_TIMING);
-					break;
+				if (modify & CCR_INT) {
+					// update interrput mask
+					update_irq_mask(channel, (data & CCR_INT) != 0);
 				}
-			}
-			if (((prev ^ data) & data & CCR_SAB) != 0) {
-				// abort by software
-				abort_transfer(channel);
+				if ((modify & data & CCR_STR) != 0) {
+					if (width == 1) {
+						// check whether valid operation or not
+						if (!prestart_transfer(dma, channel)) {
+							break;
+						}
+					} else {
+						// cannot start transfer when write to it by word access.
+						error_transfer(channel, CER_OPERATION_TIMING);
+						break;
+					}
+				}
+				if ((modify & data & CCR_CNT) != 0) {
+					// check continue mode
+					if ((dma->csr & CSR_ACT) != 0 && (dma->ocr & OCR_ARRAY_CHAIN) != 0) {
+						// cannot set it while processing on chain mode
+						error_transfer(channel, CER_OPERATION_TIMING);
+						break;
+					}
+				}
 			}
 		}
 		break;
@@ -361,7 +382,7 @@ uint32_t DMAC::read_io_n(uint32_t addr, int width)
 		channel = -1;
 		int pri = 4;
 		for(int ch=0; ch<4; ch++) {
-			if (m_interrupt & (1 << ch)) {
+			if (m_interrupt & m_intr_mask & (1 << ch)) {
 				// priority
 				if (pri > m_dma[ch].cpr) {
 					channel = ch;
@@ -385,7 +406,7 @@ uint32_t DMAC::read_io_n(uint32_t addr, int width)
 			data = dma->niv;
 		}
 
-		OUT_DEBUG_IACK(channel, _T("clk: %d DMAC ch:%d IACK vector:%02X"), (int)get_current_clock(), channel, data);
+		OUT_DEBUG_IACK(channel, _T("clk:%lu DMAC ch:%d IACK vector:%02X"), (uint32_t)get_current_clock(), channel, data);
 
 		// clear interrupt
 		update_irq(channel, false);
@@ -784,8 +805,8 @@ void DMAC::start_transfer(int channel)
 		break;
 	}
 
-	OUT_DEBUG_TRANS(channel, _T("clk:%d DMAC ch%d START TRANSFER CCR:%02X OCR:%02X MAR:%08X MTC:%04X DAR:%08X")
-		, (int)get_current_clock()
+	OUT_DEBUG_TRANS(channel, _T("clk:%lu DMAC ch%d START TRANSFER CCR:%02X OCR:%02X MAR:%08X MTC:%04X DAR:%08X")
+		, (uint32_t)get_current_clock()
 		, channel
 		, dma->ccr, dma->ocr, dma->mar, dma->mtc, dma->dar);
 
@@ -1275,8 +1296,8 @@ void DMAC::finish_transfer(struct st_dma_regs *dma, int channel)
 	dma->csr &= ~(CSR_ACT);
 	dma->csr |= CSR_COC; //| CSR_BTC); do not set BTC on finished transfer
 
-	OUT_DEBUG_RES(channel, _T("clk:%d DMAC ch%d FINISH TRANSFER CSR:%02X CER:%02X OCR:%02X MAR:%08X MTC:%04X DAR:%08X")
-		, (int)get_current_clock()
+	OUT_DEBUG_RES(channel, _T("clk:%lu DMAC ch%d FINISH TRANSFER CSR:%02X CER:%02X OCR:%02X MAR:%08X MTC:%04X DAR:%08X")
+		, (uint32_t)get_current_clock()
 		, channel
 		, dma->csr, dma->cer
 		, dma->ocr, dma->mar, dma->mtc, dma->dar);
@@ -1291,9 +1312,7 @@ void DMAC::finish_transfer(struct st_dma_regs *dma, int channel)
 	}
 
 	// interrupt
-	if (dma->ccr & CCR_INT) {
-		update_irq(channel, true);
-	}
+	update_irq(channel, true);
 }
 
 void DMAC::continue_transfer(struct st_dma_regs *dma, int channel, int clock)
@@ -1301,8 +1320,8 @@ void DMAC::continue_transfer(struct st_dma_regs *dma, int channel, int clock)
 	dma->ccr &= ~CCR_CNT;	// reset continue flag
 	dma->csr |= CSR_BTC;
 
-	OUT_DEBUG_CNT(channel, _T("clk:%d DMAC ch%d CONTINUE TRANSFER CSR:%02X CER:%02X OCR:%02X MAR:%06X MTC:%04X MFC:%02X")
-		,(int)get_current_clock()
+	OUT_DEBUG_CNT(channel, _T("clk:%lu DMAC ch%d CONTINUE TRANSFER CSR:%02X CER:%02X OCR:%02X MAR:%06X MTC:%04X MFC:%02X")
+		,(uint32_t)get_current_clock()
 		, channel
 		, dma->csr, dma->cer
 		, dma->ocr, dma->mar, dma->mtc, dma->mfc);
@@ -1317,9 +1336,7 @@ void DMAC::continue_transfer(struct st_dma_regs *dma, int channel, int clock)
 	}
 
 	// interrupt
-	if (dma->ccr & CCR_INT) {
-		update_irq(channel, true);
-	}
+	update_irq(channel, true);
 
 	// start next transfer
 	next_transfer(dma, channel, clock);
@@ -1355,8 +1372,8 @@ void DMAC::abort_transfer(int channel)
 	dma->cer |= CER_SOFTWARE_ABORT;
 	dma->ccr &= ~(CCR_OPE_ALL);
 
-	OUT_DEBUG_RES(channel, _T("clk:%d DMAC ch%d ABORT TRANSFER CSR:%02X CER:%02X OCR:%02X MAR:%08X MTC:%04X DAR:%08X")
-		, (int)get_current_clock()
+	OUT_DEBUG_RES(channel, _T("clk:%lu DMAC ch%d ABORT TRANSFER CSR:%02X CER:%02X OCR:%02X MAR:%08X MTC:%04X DAR:%08X")
+		, (uint32_t)get_current_clock()
 		, channel
 		, dma->csr, dma->cer
 		, dma->ocr, dma->mar, dma->mtc, dma->dar);
@@ -1371,9 +1388,7 @@ void DMAC::abort_transfer(int channel)
 	}
 
 	// interrupt
-	if (dma->ccr & CCR_INT) {
-		update_irq(channel, true);
-	}
+	update_irq(channel, true);
 }
 
 void DMAC::error_transfer(int channel, uint8_t reason)
@@ -1385,8 +1400,8 @@ void DMAC::error_transfer(int channel, uint8_t reason)
 	dma->cer = reason;
 	dma->ccr &= ~(CCR_OPE_ALL);
 
-	OUT_DEBUG_RES(channel, _T("clk:%d DMAC ch%d ERROR TRANSFER CSR:%02X CER:%02X OCR:%02X MAR:%08X MTC:%04X DAR:%08X")
-		, (int)get_current_clock()
+	OUT_DEBUG_RES(channel, _T("clk:%lu DMAC ch%d ERROR TRANSFER CSR:%02X CER:%02X OCR:%02X MAR:%08X MTC:%04X DAR:%08X")
+		, (uint32_t)get_current_clock()
 		, channel
 		, dma->csr, dma->cer
 		, dma->ocr, dma->mar, dma->mtc, dma->dar);
@@ -1401,9 +1416,7 @@ void DMAC::error_transfer(int channel, uint8_t reason)
 	}
 
 	// interrupt
-	if (dma->ccr & CCR_INT) {
-		update_irq(channel, true);
-	}
+	update_irq(channel, true);
 }
 
 void DMAC::processed(int channel)
@@ -1416,8 +1429,30 @@ void DMAC::processed(int channel)
 
 void DMAC::update_irq(int channel, bool onoff)
 {
+#ifdef _DEBUG_INTR
+	uint8_t prev = m_interrupt;
+#endif
 	BIT_ONOFF(m_interrupt, (1 << channel), onoff);
-	write_signals(&outputs_irq, m_interrupt ? 0xffffffff : 0);
+	write_signals(&outputs_irq, (m_interrupt & m_intr_mask) ? 0xffffffff : 0);
+#ifdef _DEBUG_INTR
+	if (prev != m_interrupt) {
+		OUT_DEBUG_INTR(channel, _T("DMAC INTR:%X & %X => %X"), m_interrupt, m_intr_mask, m_interrupt & m_intr_mask);
+	}
+#endif
+}
+
+void DMAC::update_irq_mask(int channel, bool mask_onoff)
+{
+#ifdef _DEBUG_INTR
+	uint8_t prev = m_intr_mask;
+#endif
+	BIT_ONOFF(m_intr_mask, (1 << channel), mask_onoff);
+	write_signals(&outputs_irq, (m_interrupt & m_intr_mask) ? 0xffffffff : 0);
+#ifdef _DEBUG_INTR
+	if (prev != m_intr_mask) {
+		OUT_DEBUG_INTR(channel, _T("DMAC INTR:%X & %X => %X"), m_interrupt, m_intr_mask, m_interrupt & m_intr_mask);
+	}
+#endif
 }
 
 void DMAC::update_breq(int channel, bool onoff)
@@ -1508,7 +1543,7 @@ void DMAC::save_state(FILEIO *fio)
 
 	SET_Byte(m_gcr);
 	SET_Byte(m_busreq);	   ///< asserting bus request (bit3-0: each asserting channel, b7-b4:request signal)
-	SET_Byte(m_interrupt); ///< asserting interrupt 
+	SET_Byte(m_interrupt); ///< asserting interrupt
 	SET_Bool(m_now_iack);  ///< receiving IACK
 
 	for(int i=0; i<15 && i<END_OF_EVENT_IDS; i++) {
@@ -1534,6 +1569,7 @@ bool DMAC::load_state(FILEIO *fio)
 
 	READ_STATE_CHUNK(fio, vm_state_i, vm_state);
 
+	m_intr_mask = 0;
 	for(int i=0; i<4; i++) {
 		GET_Byte(m_dma[i].csr);
 		GET_Byte(m_dma[i].cer);
@@ -1559,6 +1595,10 @@ bool DMAC::load_state(FILEIO *fio)
 
 		m_dma[i].next_pointer = Uint32_LE(vm_state.m_param[i].next_pointer);
 		m_dma[i].next_clock = Int32_LE(vm_state.m_param[i].next_clock);
+
+		if (m_dma[i].ccr & CCR_INT) {
+			m_intr_mask |= (1 << i);
+		}
 	}
 
 	GET_Byte(m_gcr);
@@ -1596,5 +1636,7 @@ void DMAC::debug_regs_info(_TCHAR *buffer, size_t buffer_len)
 			_T("     MTC:%04X MAR:%06X DAR:%06X BTC:%04X BAR:%06X\n"),
 			dma->mtc, dma->mar, dma->dar, dma->btc, dma->bar);
 	}
+	UTILITY::sntprintf(buffer, buffer_len,
+		_T(" Interrupt:%X & %X => %X\n"), m_interrupt, m_intr_mask, m_interrupt & m_intr_mask);
 }
 #endif /* USE_DEBUGGER */

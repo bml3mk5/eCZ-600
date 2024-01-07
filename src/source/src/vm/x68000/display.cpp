@@ -37,6 +37,8 @@
 #define OUT_DEBUG_BRIGHT(...)
 #endif
 
+static const int c_priority[4] = { 0, 1, 2, 1 };
+
 void DISPLAY::initialize()
 {
 	vm_pause = emu->get_pause_ptr();
@@ -231,14 +233,17 @@ void DISPLAY::write_io_m(uint32_t addr, uint32_t data, uint32_t mask)
 			int n;
 			for(n=0; n<4; n++) m_vc_priscrn[n] = -1;
 			n = (m_vc_regs[VC_PRIORITY] & VC_PR_TX_MASK) >> VC_PR_TX_SFT;
+			n = c_priority[n];
 			while (m_vc_priscrn[n] >= 0 && n < 4) n++;
 			m_vc_priority[PR_TX] = n;
 			m_vc_priscrn[n] = PR_TX;
 			n = (m_vc_regs[VC_PRIORITY] & VC_PR_SP_MASK) >> VC_PR_SP_SFT;
+			n = c_priority[n];
 			while (m_vc_priscrn[n] >= 0 && n < 4) n++;
 			m_vc_priority[PR_SP] = n;
 			m_vc_priscrn[n] = PR_SP;
 			n = (m_vc_regs[VC_PRIORITY] & VC_PR_GR_MASK) >> VC_PR_GR_SFT;
+			n = c_priority[n];
 			while (m_vc_priscrn[n] >= 0 && n < 4) n++;
 			m_vc_priority[PR_GR] = n;
 			m_vc_priscrn[n] = PR_GR;

@@ -15,12 +15,12 @@
 #define APP_NAME		"SHARP X68000 Emulator 'eCZ-600'"
 #define APP_FILENAME	"x68000.exe"
 #define APP_INTERNAME	"eCZ-600"
-#define APP_COPYRIGHT	"Copyright (C) 2011,2012-2023 Common Source Code Project, Sasaji"
-#define APP_VERSION		"0.0.1.259"
+#define APP_COPYRIGHT	"Copyright (C) 2011,2012-2024 Common Source Code Project, Sasaji"
+#define APP_VERSION		"0.0.1.262"
 #define APP_VER_MAJOR	0
 #define APP_VER_MINOR	0
 #define APP_VER_REV		1
-#define APP_VER_BUILD	259
+#define APP_VER_BUILD	262
 
 #if defined(__MINGW32__)
 #if defined(x86_64) || defined(__x86_64)
