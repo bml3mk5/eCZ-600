@@ -17,12 +17,12 @@ LD:=g++
 
 # FFMPEGDIR:=$(HOME)/Devel/ffmpeg
 
-MACMINVER:=-mmacosx-version-min=10.7
+MACMINVER:=-mmacosx-version-min=10.9
 
 # COMMONCFLAGS:=-I/usr/local/include -I/usr/X11/include -I$(FFMPEGDIR) -I./include
 COMMONCFLAGS:=-I/usr/local/include -I/usr/X11/include -I./include
 
-COMMONLDFLAGS:=-lm -lz -lbz2 -liconv -Wl,-framework,OpenGL -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,CoreAudio -Wl,-framework,IOKit -Wl,-framework,AudioUnit -Wl,-framework,ForceFeedback -Wl,-framework,QTKit -Wl,-framework,AVFoundation -Wl,-framework,CoreMedia -Wl,-framework,CoreVideo -Wl,-framework,AudioToolbox
+COMMONLDFLAGS:=-lm -lz -lbz2 -liconv -Wl,-framework,OpenGL -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,CoreAudio -Wl,-framework,IOKit -Wl,-framework,AudioUnit -Wl,-framework,ForceFeedback -Wl,-framework,QTKit -Wl,-framework,AVFoundation -Wl,-framework,CoreMedia -Wl,-framework,CoreVideo -Wl,-framework,AudioToolbox -Wl,-framework,Metal
 
 CFLAGS:=$(CFLAGS) $(COMMONCFLAGS) $(MACMINVER)
 CXXFLAGS:=$(CXXFLAGS) $(COMMONCFLAGS) $(MACMINVER)
@@ -192,6 +192,7 @@ GUIOBJSAGAR:=$(SRCGUIAGAR)/ag_gui_base.o \
 GUIOBJSCOCOA:=$(SRCGUICOCOA)/cocoa_gui.o \
 	$(SRCGUICOCOA)/cocoa_basepanel.o \
 	$(SRCGUICOCOA)/cocoa_volumepanel.o \
+	$(SRCGUICOCOA)/cocoa_keybindctrl.o \
 	$(SRCGUICOCOA)/cocoa_keybindpanel.o \
 	$(SRCGUICOCOA)/cocoa_recaudpanel.o \
 	$(SRCGUICOCOA)/cocoa_recvidpanel.o \

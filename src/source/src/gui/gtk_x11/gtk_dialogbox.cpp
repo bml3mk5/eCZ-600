@@ -16,81 +16,92 @@
 namespace GUI_GTK_X11
 {
 
-DialogBox::DialogBox(GUI *new_gui)
-{
-	gui = new_gui;
-	window = NULL;
-	dialog = NULL;
+//
+//
+//
 
+Box::Box()
+{
 	cellspace = 4;
 }
 
-DialogBox::~DialogBox()
+Box::~Box()
 {
-	if (dialog) gtk_widget_destroy(dialog);
 }
 
-bool DialogBox::Show(GtkWidget *parent_window)
+GtkWidget *Box::create_hbox(GtkWidget *parent, int cell_space)
 {
-	window = parent_window;
-	return true;
+//	g_print("create_hbox\n");
+	int cs = (cell_space >= 0 ? cell_space : cellspace);
+#if GTK_CHECK_VERSION(3,0,0)
+	GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,cs);
+#else
+	GtkWidget *box = gtk_hbox_new(FALSE, cs);
+#endif
+	add_widget(parent, box);
+	return box;
 }
 
-void DialogBox::Hide()
+GtkWidget *Box::create_vbox(GtkWidget *parent, int cell_space)
 {
-	if (dialog) {
-		gtk_widget_destroy(dialog);
-		dialog = NULL;
+//	g_print("create_vbox\n");
+	int cs = (cell_space >= 0 ? cell_space : cellspace);
+#if GTK_CHECK_VERSION(3,0,0)
+	GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL,cs);
+#else
+	GtkWidget *box = gtk_vbox_new(FALSE, cs);
+#endif
+	add_widget(parent, box);
+	return box;
+}
+
+void Box::add_widget(GtkWidget *parent, GtkWidget *child)
+{
+	if (!parent || !child) return;
+	if (GTK_IS_BOX(parent)) {
+		gtk_box_pack_start(GTK_BOX(parent), child, FALSE, FALSE, cellspace);
+#if !GTK_CHECK_VERSION(3,8,0)
+	} else if (GTK_IS_SCROLLED_WINDOW(parent)) {
+		gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW(parent), child);
+#endif
+	} else {
+		gtk_container_add(GTK_CONTAINER(parent), child);
 	}
 }
 
+
 //
-GtkWidget *DialogBox::create_dialog(GtkWidget *parent, const char *title)
+
+Control::Control()
 {
-	int flags = GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT;
-	dialog = gtk_dialog_new_with_buttons(title, GTK_WINDOW(parent),
-		(GtkDialogFlags)flags,
-		NULL,
-		NULL);
-	return dialog;
+	cellspace = 4;
 }
-GtkWidget *DialogBox::create_dialog(GtkWidget *parent, CMsg::Id titleid)
+
+Control::~Control()
 {
-	const char *title = CMSGV(titleid);
-	return create_dialog(parent, title);
-}
-GtkWidget *DialogBox::add_accept_button(CMsg::Id labelid)
-{
-	const char *label = CMSGV(labelid);
-	return gtk_dialog_add_button(GTK_DIALOG(dialog), label, GTK_RESPONSE_ACCEPT);
-}
-GtkWidget *DialogBox::add_reject_button(CMsg::Id labelid)
-{
-	const char *label = CMSGV(labelid);
-	return gtk_dialog_add_button(GTK_DIALOG(dialog), label, GTK_RESPONSE_REJECT);
 }
 
 //
-GtkWidget *DialogBox::create_notebook(GtkWidget *parent)
+GtkWidget *Control::create_notebook(GtkWidget *parent)
 {
 	GtkWidget *nb = gtk_notebook_new();
 	add_widget(parent, nb);
 	return nb;
 }
 
-void DialogBox::add_note(GtkWidget *parent, GtkWidget *child, const char *label)
+void Control::add_note(GtkWidget *parent, GtkWidget *child, const char *label)
 {
 	GtkWidget *lbl = gtk_label_new(label);
 	gtk_notebook_append_page(GTK_NOTEBOOK(parent), child, lbl);
 }
-void DialogBox::add_note(GtkWidget *parent, GtkWidget *child, CMsg::Id labelid)
+void Control::add_note(GtkWidget *parent, GtkWidget *child, CMsg::Id labelid)
 {
 	const char *label = CMSGV(labelid);
 	add_note(parent, child, label);
 }
 
 //
-GtkWidget *DialogBox::create_frame(GtkWidget *parent, const char *label, GtkWidget **vbox, GtkWidget **hbox)
+GtkWidget *Control::create_frame(GtkWidget *parent, const char *label, GtkWidget **vbox, GtkWidget **hbox)
 {
 //	g_print("create_frame: %s\n",label);
 	GtkWidget *frm = gtk_frame_new(label);
@@ -104,14 +115,14 @@ GtkWidget *DialogBox::create_frame(GtkWidget *parent, const char *label, GtkWidg
 	}
 	return frm;
 }
-GtkWidget *DialogBox::create_frame(GtkWidget *parent, CMsg::Id labelid, GtkWidget **vbox, GtkWidget **hbox)
+GtkWidget *Control::create_frame(GtkWidget *parent, CMsg::Id labelid, GtkWidget **vbox, GtkWidget **hbox)
 {
 	const char *label = CMSGV(labelid);
 	return create_frame(parent, label, vbox, hbox);
 }
 
 //
-GtkWidget *DialogBox::create_check_box(GtkWidget *parent, const char *label, bool chkd, int num, GCallback handler)
+GtkWidget *Control::create_check_box(GtkWidget *parent, const char *label, bool chkd, int num, GCallback handler)
 {
 //	g_print("create_check_box: %s\n",label);
 	GtkWidget *chk = gtk_check_button_new_with_label(label);
@@ -124,16 +135,16 @@ GtkWidget *DialogBox::create_check_box(GtkWidget *parent, const char *label, boo
 	return chk;
 }
 //
-GtkWidget *DialogBox::create_check_box(GtkWidget *parent, const CMsg::Id labelid, bool chkd, int num, GCallback handler)
+GtkWidget *Control::create_check_box(GtkWidget *parent, const CMsg::Id labelid, bool chkd, int num, GCallback handler)
 {
 	const char *label = CMSGV(labelid);
 	return create_check_box(parent, label, chkd, num, handler);
 }
-bool DialogBox::get_check_state(GtkWidget *check)
+bool Control::get_check_state(GtkWidget *check)
 {
 	return (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check)) == TRUE ? true : false);
 }
-int DialogBox::get_check_state_num(GtkWidget **checks, int cnt)
+int Control::get_check_state_num(GtkWidget **checks, int cnt)
 {
 	int bit = 0;
 	for(int idx = 0; idx < cnt; idx++) {
@@ -141,13 +152,13 @@ int DialogBox::get_check_state_num(GtkWidget **checks, int cnt)
 	}
 	return bit;
 }
-void DialogBox::set_check_state(GtkWidget *check, bool value)
+void Control::set_check_state(GtkWidget *check, bool value)
 {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check), value ? TRUE : FALSE);
 }
 
 //
-GtkWidget *DialogBox::create_radio_box(GtkWidget *parent, GtkWidget **gradio, const char *label, int num, int sel_num, GCallback handler)
+GtkWidget *Control::create_radio_box(GtkWidget *parent, GtkWidget **gradio, const char *label, int num, int sel_num, GCallback handler)
 {
 //	g_print("create_radio_box 1: %s\n",label);
 	GtkWidget *radio;
@@ -164,12 +175,12 @@ GtkWidget *DialogBox::create_radio_box(GtkWidget *parent, GtkWidget **gradio, co
 	}
 	return radio;
 }
-GtkWidget *DialogBox::create_radio_box(GtkWidget *parent, GtkWidget **gradio, const CMsg::Id labelid, int num, int sel_num, GCallback handler)
+GtkWidget *Control::create_radio_box(GtkWidget *parent, GtkWidget **gradio, const CMsg::Id labelid, int num, int sel_num, GCallback handler)
 {
 	const char *label = CMSGV(labelid);
 	return create_radio_box(parent, gradio, label, num, sel_num, handler);
 }
-void DialogBox::create_radio_box(GtkWidget *parent, const char **list, int cnt, GtkWidget **radio, int sel_num)
+void Control::create_radio_box(GtkWidget *parent, const char **list, int cnt, GtkWidget **radio, int sel_num)
 {
 //	g_print("create_radio_box 2\n");
 	if (list == NULL || radio == NULL) return;
@@ -183,7 +194,7 @@ void DialogBox::create_radio_box(GtkWidget *parent, const char **list, int cnt, 
 	}
 	set_radio_state(radio[sel_num], true);
 }
-void DialogBox::create_radio_box(GtkWidget *parent, const CMsg::Id *list, int cnt, GtkWidget **radio, int sel_num)
+void Control::create_radio_box(GtkWidget *parent, const CMsg::Id *list, int cnt, GtkWidget **radio, int sel_num)
 {
 //	g_print("create_radio_box 2\n");
 	if (list == NULL || radio == NULL) return;
@@ -198,11 +209,11 @@ void DialogBox::create_radio_box(GtkWidget *parent, const CMsg::Id *list, int cn
 	}
 	set_radio_state(radio[sel_num], true);
 }
-bool DialogBox::get_radio_state(GtkWidget *radio)
+bool Control::get_radio_state(GtkWidget *radio)
 {
 	return (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radio)) == TRUE ? true : false);
 }
-int DialogBox::get_radio_state_idx(GtkWidget **radios, int cnt)
+int Control::get_radio_state_idx(GtkWidget **radios, int cnt)
 {
 	int idx = 0;
 	for(; idx < cnt && radios[idx] != NULL; idx++) {
@@ -210,13 +221,13 @@ int DialogBox::get_radio_state_idx(GtkWidget **radios, int cnt)
 	}
 	return idx;
 }
-void DialogBox::set_radio_state(GtkWidget *radio, bool value)
+void Control::set_radio_state(GtkWidget *radio, bool value)
 {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio), value ? TRUE : FALSE);
 }
 
 //
-GtkWidget *DialogBox::create_combo_box(GtkWidget *parent, const char *label, const char **list, int sel_num)
+GtkWidget *Control::create_combo_box(GtkWidget *parent, const char *label, const char **list, int sel_num)
 {
 //	g_print("create_combo_box: %s\n",label);
 	GtkWidget *lbl = gtk_label_new(label);
@@ -236,12 +247,12 @@ GtkWidget *DialogBox::create_combo_box(GtkWidget *parent, const char *label, con
 	set_combo_sel_num(com,sel_num);
 	return com;
 }
-GtkWidget *DialogBox::create_combo_box(GtkWidget *parent, CMsg::Id labelid, const char **list, int sel_num)
+GtkWidget *Control::create_combo_box(GtkWidget *parent, CMsg::Id labelid, const char **list, int sel_num)
 {
 	const char *label = CMSGV(labelid);
 	return create_combo_box(parent, label, list, sel_num);
 }
-GtkWidget *DialogBox::create_combo_box(GtkWidget *parent, const char *label, const CMsg::Id *ids, int sel_num, int appendnum, CMsg::Id appendstr)
+GtkWidget *Control::create_combo_box(GtkWidget *parent, const char *label, const CMsg::Id *ids, int sel_num, int appendnum, CMsg::Id appendstr)
 {
 	GtkWidget *lbl = gtk_label_new(label);
 #if GTK_CHECK_VERSION(3,0,0)
@@ -274,12 +285,12 @@ GtkWidget *DialogBox::create_combo_box(GtkWidget *parent, const char *label, con
 	set_combo_sel_num(com,sel_num);
 	return com;
 }
-GtkWidget *DialogBox::create_combo_box(GtkWidget *parent, CMsg::Id labelid, const CMsg::Id *ids, int sel_num, int appendnum, CMsg::Id appendstr)
+GtkWidget *Control::create_combo_box(GtkWidget *parent, CMsg::Id labelid, const CMsg::Id *ids, int sel_num, int appendnum, CMsg::Id appendstr)
 {
 	const char *label = CMSGV(labelid);
 	return create_combo_box(parent, label, ids, sel_num, appendnum, appendstr);
 }
-GtkWidget *DialogBox::create_combo_box(GtkWidget *parent, const char *label, const CPtrList<CTchar> &list, int sel_num)
+GtkWidget *Control::create_combo_box(GtkWidget *parent, const char *label, const CPtrList<CTchar> &list, int sel_num)
 {
 	GtkWidget *lbl = gtk_label_new(label);
 #if GTK_CHECK_VERSION(3,0,0)
@@ -298,23 +309,23 @@ GtkWidget *DialogBox::create_combo_box(GtkWidget *parent, const char *label, con
 	set_combo_sel_num(com,sel_num);
 	return com;
 }
-GtkWidget *DialogBox::create_combo_box(GtkWidget *parent, CMsg::Id labelid, const CPtrList<CTchar> &list, int sel_num)
+GtkWidget *Control::create_combo_box(GtkWidget *parent, CMsg::Id labelid, const CPtrList<CTchar> &list, int sel_num)
 {
 	const char *label = CMSGV(labelid);
 	return create_combo_box(parent, label, list, sel_num);
 }
 
-int DialogBox::get_combo_sel_num(GtkWidget *combo)
+int Control::get_combo_sel_num(GtkWidget *combo)
 {
 	return gtk_combo_box_get_active(GTK_COMBO_BOX(combo));
 }
-void DialogBox::set_combo_sel_num(GtkWidget *combo, int sel_num)
+void Control::set_combo_sel_num(GtkWidget *combo, int sel_num)
 {
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo),sel_num);
 }
 
 //
-GtkWidget *DialogBox::create_text(GtkWidget *parent, const char *text, int len)
+GtkWidget *Control::create_text(GtkWidget *parent, const char *text, int len)
 {
 //	g_print("create_text:\n");
 	GtkWidget *txt = gtk_entry_new();
@@ -323,7 +334,7 @@ GtkWidget *DialogBox::create_text(GtkWidget *parent, const char *text, int len)
 	add_widget(parent, txt);
 	return txt;
 }
-GtkWidget *DialogBox::create_text_with_label(GtkWidget *parent, const char *label, const char *text, int len)
+GtkWidget *Control::create_text_with_label(GtkWidget *parent, const char *label, const char *text, int len)
 {
 //	g_print("create_text_with_label: %s\n",label);
 	GtkWidget *lbl = gtk_label_new(label);
@@ -334,17 +345,17 @@ GtkWidget *DialogBox::create_text_with_label(GtkWidget *parent, const char *labe
 	add_widget(parent, txt);
 	return txt;
 }
-GtkWidget *DialogBox::create_text_with_label(GtkWidget *parent, CMsg::Id labelid, const char *text, int len)
+GtkWidget *Control::create_text_with_label(GtkWidget *parent, CMsg::Id labelid, const char *text, int len)
 {
 	const char *label = CMSGV(labelid);
 	return create_text_with_label(parent, label, text, len);
 }
 
-const char *DialogBox::get_text(GtkWidget *entry)
+const char *Control::get_text(GtkWidget *entry)
 {
 	return gtk_entry_get_text(GTK_ENTRY(entry));
 }
-void DialogBox::set_text(GtkWidget *entry, const char *text)
+void Control::set_text(GtkWidget *entry, const char *text)
 {
 	if (GTK_IS_ENTRY(entry)) {
 		gtk_entry_set_text(GTK_ENTRY(entry), text ? text : "");
@@ -352,21 +363,35 @@ void DialogBox::set_text(GtkWidget *entry, const char *text)
 }
 
 //
-GtkWidget *DialogBox::create_label(GtkWidget *parent, const char *label)
+GtkWidget *Control::create_spin(GtkWidget *parent, int range_min, int range_max, int val)
+{
+	GtkWidget *spin = gtk_spin_button_new_with_range((gdouble)range_min, (gdouble)range_max, 1.0);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(spin), (gdouble)val);
+	gtk_spin_button_set_digits(GTK_SPIN_BUTTON(spin), 0);
+	add_widget(parent, spin);
+	return spin;
+}
+gdouble Control::get_spin_value(GtkWidget *spin)
+{
+	return gtk_spin_button_get_value(GTK_SPIN_BUTTON(spin));
+}
+
+//
+GtkWidget *Control::create_label(GtkWidget *parent, const char *label)
 {
 //	g_print("create_label: %s\n",label);
 	GtkWidget *lbl = gtk_label_new(label);
 	add_widget(parent, lbl);
 	return lbl;
 }
-GtkWidget *DialogBox::create_label(GtkWidget *parent, CMsg::Id labelid)
+GtkWidget *Control::create_label(GtkWidget *parent, CMsg::Id labelid)
 {
 	const char *label = CMSGV(labelid);
 	return create_label(parent, label);
 }
 
 //
-GtkWidget *DialogBox::create_button(GtkWidget *parent, const char *label, GCallback handler)
+GtkWidget *Control::create_button(GtkWidget *parent, const char *label, GCallback handler)
 {
 //	g_print("create_button: %s\n",label);
 	GtkWidget *btn = gtk_button_new_with_label(label);
@@ -374,14 +399,14 @@ GtkWidget *DialogBox::create_button(GtkWidget *parent, const char *label, GCallb
 	if (handler) g_signal_connect(G_OBJECT(btn), "clicked", handler, (gpointer)this);
 	return btn;
 }
-GtkWidget *DialogBox::create_button(GtkWidget *parent, CMsg::Id labelid, GCallback handler)
+GtkWidget *Control::create_button(GtkWidget *parent, CMsg::Id labelid, GCallback handler)
 {
 	const char *label = CMSGV(labelid);
 	return create_button(parent, label, handler);
 }
 
 //
-GtkWidget *DialogBox::create_volume_box(GtkWidget *parent, int val, int num, GCallback handler)
+GtkWidget *Control::create_volume_box(GtkWidget *parent, int val, int num, GCallback handler)
 {
 #if GTK_CHECK_VERSION(3,2,0)
 	GtkWidget *vol = gtk_scale_new_with_range(GTK_ORIENTATION_VERTICAL, 0.0, 100.0, 1.0);
@@ -397,13 +422,13 @@ GtkWidget *DialogBox::create_volume_box(GtkWidget *parent, int val, int num, GCa
 	add_widget(parent, vol);
 	return vol;
 }
-gdouble DialogBox::get_volume_value(GtkWidget *volume)
+gdouble Control::get_volume_value(GtkWidget *volume)
 {
 	return gtk_range_get_value(GTK_RANGE(volume));
 }
 
 //
-GtkWidget *DialogBox::create_scale_box(GtkWidget *parent, int range_min, int range_max, int val, bool vertical, int num, GCallback handler)
+GtkWidget *Control::create_scale_box(GtkWidget *parent, int range_min, int range_max, int val, bool vertical, int num, GCallback handler)
 {
 	GtkWidget *vol = NULL;
 #if GTK_CHECK_VERSION(3,2,0)
@@ -424,12 +449,12 @@ GtkWidget *DialogBox::create_scale_box(GtkWidget *parent, int range_min, int ran
 	add_widget(parent, vol);
 	return vol;
 }
-gdouble DialogBox::get_scale_value(GtkWidget *scale)
+gdouble Control::get_scale_value(GtkWidget *scale)
 {
 	return gtk_range_get_value(GTK_RANGE(scale));
 }
 
-GtkWidget *DialogBox::create_hbox(GtkWidget *parent, int cell_space)
+GtkWidget *Control::create_hbox(GtkWidget *parent, int cell_space)
 {
 //	g_print("create_hbox\n");
 	int cs = (cell_space >= 0 ? cell_space : cellspace);
@@ -442,7 +467,7 @@ GtkWidget *DialogBox::create_hbox(GtkWidget *parent, int cell_space)
 	return box;
 }
 
-GtkWidget *DialogBox::create_vbox(GtkWidget *parent, int cell_space)
+GtkWidget *Control::create_vbox(GtkWidget *parent, int cell_space)
 {
 //	g_print("create_vbox\n");
 	int cs = (cell_space >= 0 ? cell_space : cellspace);
@@ -455,7 +480,7 @@ GtkWidget *DialogBox::create_vbox(GtkWidget *parent, int cell_space)
 	return box;
 }
 
-GtkWidget *DialogBox::create_grid(GtkWidget *parent)
+GtkWidget *Control::create_grid(GtkWidget *parent)
 {
 //	g_print("create_grid\n");
 #if GTK_CHECK_VERSION(3,4,0)
@@ -471,7 +496,7 @@ GtkWidget *DialogBox::create_grid(GtkWidget *parent)
 #endif
 }
 
-void DialogBox::attach_to_grid(GtkWidget *grid, GtkWidget *child, int col, int row)
+void Control::attach_to_grid(GtkWidget *grid, GtkWidget *child, int col, int row)
 {
 #if GTK_CHECK_VERSION(3,4,0)
 	gtk_grid_attach(GTK_GRID(grid),child,col,row,1,1);
@@ -480,7 +505,7 @@ void DialogBox::attach_to_grid(GtkWidget *grid, GtkWidget *child, int col, int r
 #endif
 }
 
-GtkWidget *DialogBox::create_scroll_win(GtkWidget *parent, int width, int height)
+GtkWidget *Control::create_scroll_win(GtkWidget *parent, int width, int height)
 {
 //	g_print("create_scroll_win\n");
 	GtkWidget *swin = gtk_scrolled_window_new(NULL, NULL);
@@ -490,7 +515,7 @@ GtkWidget *DialogBox::create_scroll_win(GtkWidget *parent, int width, int height
 	return swin;
 }
 
-void DialogBox::add_widget(GtkWidget *parent, GtkWidget *child)
+void Control::add_widget(GtkWidget *parent, GtkWidget *child)
 {
 	if (!parent || !child) return;
 	if (GTK_IS_BOX(parent)) {
@@ -504,9 +529,65 @@ void DialogBox::add_widget(GtkWidget *parent, GtkWidget *child)
 	}
 }
 
-void DialogBox::set_enable(GtkWidget *widget, bool enable)
+void Control::set_enable(GtkWidget *widget, bool enable)
 {
 	gtk_widget_set_sensitive(widget, enable);
+}
+
+//
+//
+//
+
+DialogBox::DialogBox(GUI *new_gui)
+	:Control()
+{
+	gui = new_gui;
+	window = NULL;
+	dialog = NULL;
+}
+
+DialogBox::~DialogBox()
+{
+	if (dialog) gtk_widget_destroy(dialog);
+}
+
+bool DialogBox::Show(GtkWidget *parent_window)
+{
+	window = parent_window;
+	return true;
+}
+
+void DialogBox::Hide()
+{
+	if (dialog) {
+		gtk_widget_destroy(dialog);
+		dialog = NULL;
+	}
+}
+
+GtkWidget *DialogBox::create_dialog(GtkWidget *parent, const char *title)
+{
+	int flags = GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT;
+	dialog = gtk_dialog_new_with_buttons(title, GTK_WINDOW(parent),
+		(GtkDialogFlags)flags,
+		NULL,
+		NULL);
+	return dialog;
+}
+GtkWidget *DialogBox::create_dialog(GtkWidget *parent, CMsg::Id titleid)
+{
+	const char *title = CMSGV(titleid);
+	return create_dialog(parent, title);
+}
+GtkWidget *DialogBox::add_accept_button(CMsg::Id labelid)
+{
+	const char *label = CMSGV(labelid);
+	return gtk_dialog_add_button(GTK_DIALOG(dialog), label, GTK_RESPONSE_ACCEPT);
+}
+GtkWidget *DialogBox::add_reject_button(CMsg::Id labelid)
+{
+	const char *label = CMSGV(labelid);
+	return gtk_dialog_add_button(GTK_DIALOG(dialog), label, GTK_RESPONSE_REJECT);
 }
 
 }; /* namespace GUI_GTK_X11 */

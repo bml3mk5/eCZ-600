@@ -10,6 +10,7 @@
  */
 
 #import "cocoa_vkeyboard.h"
+#import "cocoa_basepanel.h"
 #import "../../emu.h"
 #import "../gui.h"
 #import "cocoa_key_trans.h"
@@ -43,7 +44,7 @@ extern GUI *gui;
 {
 	if (img != nil) {
 //		[img drawInRect:dirtyRect];
-		[img drawInRect:dirtyRect fromRect:dirtyRect operation:NSCompositeCopy fraction:1.0 respectFlipped:NO hints:nil];
+		[img drawInRect:dirtyRect fromRect:dirtyRect operation:NSCompositingOperationCopy fraction:1.0 respectFlipped:NO hints:nil];
 	}
 	[self setNeedsDisplay:NO];
 }
@@ -117,8 +118,8 @@ extern GUI *gui;
 
 	// window style
 	NSUInteger style = [self styleMask];
-	style |= (NSTitledWindowMask | NSMiniaturizableWindowMask | NSClosableWindowMask);
-	style &= ~(NSFullScreenWindowMask | NSResizableWindowMask); // | NSFullSizeContentViewWindowMask);
+	style |= (NSWindowStyleMaskTitled | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskClosable);
+	style &= ~(NSWindowStyleMaskFullScreen | NSWindowStyleMaskResizable); // | NSWindowStyleMaskFullSizeContentView);
 	[self setStyleMask:style];
 
 	// set delegate

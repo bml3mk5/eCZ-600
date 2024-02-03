@@ -147,19 +147,32 @@ void MEMORY::release()
 /// @note reset() is called when processing power off and on.
 void MEMORY::reset()
 {
+	int val = 0;
+
 	// read rom image from file
 	load_rom_files();
 
 	// resize main ram size and (re)allocate it
 	set_main_ram();
 
+	switch(pConfig->ram_initialize) {
+	case 1:
+		val = 0xff;
+		/* :through: */
+	case 2:
+		memset(m_ram , val, m_ram_size * sizeof(uint16_t));
+		break;
+	default:
+		clear_ram(m_ram, m_ram_size);
+		break;
+	}
 	memset(m_gvram , 0xff, sizeof(m_gvram));
-//	memset(u_gvram , 0x00, sizeof(u_gvram));
 	memset(m_tvram , 0xff, sizeof(m_tvram));
-	memset(u_tvram , 0x00, sizeof(u_tvram));
 	memset(m_spram , 0xff, sizeof(m_spram));
-//	memset(u_spram , 0x00, sizeof(u_spram));
+	memset(u_tvram , 0x00, sizeof(u_tvram));
 	memset(u_pcg , 0x00, sizeof(u_pcg));
+//	memset(u_gvram , 0x00, sizeof(u_gvram));
+//	memset(u_spram , 0x00, sizeof(u_spram));
 //	memset(u_bg , 0x00, sizeof(u_bg));
 
 	if (pConfig->now_power_off) {
@@ -193,6 +206,23 @@ void MEMORY::warm_reset(bool por)
 
 	m_area_set = 0;
 	AREA_SET_SIZE; // words
+}
+
+/// @param[in] buf  : buffer
+/// @param[in] size : size in words
+void MEMORY::clear_ram(uint16_t *buf, size_t size)
+{
+	for(size_t i=0; i<size; i+=8) {
+		for(size_t n=i; n<(i+2) && n<size; n++) {
+			buf[n] = 0xffff;
+		}
+		for(size_t n=(i+2); n<(i+6) && n<size; n++) {
+			buf[n] = 0;
+		}
+		for(size_t n=(i+6); n<(i+8) && n<size; n++) {
+			buf[n] = 0xffff;
+		}
+	}
 }
 
 void MEMORY::load_rom_files()
@@ -1633,9 +1663,6 @@ void MEMORY::set_main_ram(uint32_t size)
 			m_ram = new uint16_t[size];
 			m_ram_size = size;
 		}
-	}
-	for(uint32_t i=0; i<m_ram_size; i++) {
-		m_ram[i] = 0xffff;
 	}
 }
 

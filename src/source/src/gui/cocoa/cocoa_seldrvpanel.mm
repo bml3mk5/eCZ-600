@@ -14,6 +14,7 @@
 #import "../../config.h"
 #import "../../emu.h"
 #import "../../clocale.h"
+#import "../../utility.h"
 
 extern EMU *emu;
 
@@ -35,9 +36,9 @@ extern EMU *emu;
 	for(int drv=0; drv<MAX_DRIVE; drv++) {
 		char label[64];
 		if (prefix) {
-			sprintf(label, "%s%d", prefix, drv);
+			UTILITY::sprintf(label, sizeof(label), "%s%d", prefix, drv);
 		} else {
-			sprintf(label, "%s%d", CMSG(Drive), drv);
+			UTILITY::sprintf(label, sizeof(label), "%s%d", CMSG(Drive), drv);
 		}
 		CocoaButton *btn = [CocoaButton createT:box_all title:label action:@selector(dialogOk:) width:80];
 		[btn setRelatedObject:(id)(intptr_t)drv];
@@ -58,7 +59,7 @@ extern EMU *emu;
 
 - (void)close
 {
-	[NSApp stopModalWithCode:NSOKButton];
+	[NSApp stopModalWithCode:NSModalResponseOK];
 	[super close];
 }
 

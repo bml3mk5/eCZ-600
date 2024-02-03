@@ -15,6 +15,7 @@
 #include "../fileio.h"
 #include "../utility.h"
 #include <math.h>
+#include <stdlib.h>
 
 extern EMU *emu;
 

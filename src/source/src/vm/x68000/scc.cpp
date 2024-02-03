@@ -14,9 +14,11 @@
 #include "../../fileio.h"
 #include "../../utility.h"
 
+//#define SCC_TX_BUFF_2BYTES
+
 #ifdef _DEBUG
-//#define DEBUG_CH(ch) (ch == 0)
-#define DEBUG_CH(ch) (ch == 1)
+#define DEBUG_CH(ch) (ch == 0)
+//#define DEBUG_CH(ch) (ch == 1)
 //#define DEBUG_CH(ch) (true)
 //#define OUT_DEBUG_REGW(ch, ...) if (DEBUG_CH(ch)) logging->out_debugf(__VA_ARGS__)
 #define OUT_DEBUG_REGW(...)
@@ -552,7 +554,7 @@ void SCC::start_xmit(int ch)
 
 void SCC::write_to_xmit_data(int ch, uint8_t data)
 {
-	OUT_DEBUG_REGW(ch, _T("SCC %c WRITE DATA:%02X"), ch + 0x41, data);
+	OUT_DEBUG_TX(ch, _T("SCC %c WRITE DATA:%02X RR0:%02X"), ch + 0x41, data, m_regs[ch][SCC_RR0]);
 
 	if (m_regs[ch][SCC_RR0] & RR0_TXB_EMPTY) {
 		m_regs[ch][SCC_WR8] = data;
@@ -580,10 +582,12 @@ void SCC::load_xmit_data_from_reg(int ch)
 
 		start_xmit(ch);
 
+#ifdef SCC_TX_BUFF_2BYTES
 		m_regs[ch][SCC_RR0] |= RR0_TXB_EMPTY;
 
 		// interrupt
 		update_intr_for_tx(ch);
+#endif
 	}
 }
 
@@ -861,6 +865,7 @@ void SCC::event_callback(int event_id, int err)
 		ch = event_id - EVENT_SCC_TXDA;
 		// send data
 		data = shift_xmit_buff(ch);
+#ifdef SCC_TX_BUFF_2BYTES
 		if (!(m_regs[ch][SCC_RR0] & RR0_TXB_EMPTY)) {
 			load_xmit_data_from_reg(ch);
 		}
@@ -868,7 +873,15 @@ void SCC::event_callback(int event_id, int err)
 		if (d_devices[ch]) {
 			d_devices[ch]->write_signal(SCC::SIG_TXDA + ch, data, 0xff);
 		}
+#else
+		if (d_devices[ch]) {
+			d_devices[ch]->write_signal(SCC::SIG_TXDA + ch, data, 0xff);
+		}
+		m_regs[ch][SCC_RR0] |= RR0_TXB_EMPTY;
 
+		// interrupt
+		update_intr_for_tx(ch);
+#endif
 		OUT_DEBUG_TX(ch, _T("SCC %c TX sent data:%02X RR0:%02X"), ch + 0x41, data, m_regs[ch][SCC_RR0]);
 	}
 }

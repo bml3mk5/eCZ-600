@@ -578,7 +578,7 @@ bool MsgBoard::set_sys_font(CMsg::Id title, const _TCHAR *name, int pt, TTF_Font
 	fpath.Add(new CNchar(sbuf.buf));
 	emu->application_path(sbuf.buf, _MAX_PATH);
 	fpath.Add(new CNchar(sbuf.buf));
-	sprintf(sbuf.buf, "%s/.fonts/", getenv("HOME"));
+	UTILITY::sprintf(sbuf.buf, _MAX_PATH, "%s/.fonts/", getenv("HOME"));
 	fpath.Add(new CNchar(sbuf.buf));
 	fpath.Add(new CNchar("/usr/share/fonts/*"));
 	fpath.Add(new CNchar("/usr/X11R6/lib/X11/fonts/*"));
@@ -598,7 +598,7 @@ bool MsgBoard::set_sys_font(CMsg::Id title, const _TCHAR *name, int pt, TTF_Font
 	fpath.Add(new CNchar(sbuf.buf));
 	emu->application_path(sbuf.buf, _MAX_PATH);
 	fpath.Add(new CNchar(sbuf.buf));
-	sprintf(sbuf.buf, "%s/Library/Fonts/", getenv("HOME"));
+	UTILITY::sprintf(sbuf.buf, _MAX_PATH, "%s/Library/Fonts/", getenv("HOME"));
 	fpath.Add(new CNchar(sbuf.buf));
 	fpath.Add(new CNchar("/System/Library/Fonts/"));
 	fpath.Add(new CNchar("/Library/Fonts/"));
@@ -618,7 +618,7 @@ bool MsgBoard::set_sys_font(CMsg::Id title, const _TCHAR *name, int pt, TTF_Font
 	fpath.Add(new CNchar(sbuf.buf));
 	emu->application_path(sbuf.buf, _MAX_PATH);
 	fpath.Add(new CNchar(sbuf.buf));
-	sprintf(sbuf.buf, "%s/.fonts/", getenv("HOME"));
+	UTILITY::sprintf(sbuf.buf, _MAX_PATH, "%s/.fonts/", getenv("HOME"));
 	fpath.Add(new CNchar(sbuf.buf));
 	fpath.Add(new CNchar("/usr/share/fonts/*"));
 	fpath.Add(new CNchar("/usr/local/lib/X11/fonts/*"));

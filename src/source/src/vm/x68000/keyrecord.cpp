@@ -435,13 +435,13 @@ void KEYRECORD::recording_key(int code, bool pressed)
 
 #ifdef USE_KEY_RECORD
 	if (pressed && vm_key_recr_stat[code] == 0) {
-		sprintf(rec_key_tmp_buff,"%llu:1:%04x:1\n"
+		UTILITY::sprintf(rec_key_tmp_buff,sizeof(rec_key_tmp_buff),"%llu:1:%04x:1\n"
 			, (unsigned long long int)d_event->get_current_clock(), code);
 		fkro->Fwrite(rec_key_tmp_buff, strlen(rec_key_tmp_buff), 1);
 		vm_key_recr_stat[code] = 1;
 
 	} else if (!pressed && vm_key_recr_stat[code] != 0) {
-		sprintf(rec_key_tmp_buff,"%llu:1:%04x:0\n"
+		UTILITY::sprintf(rec_key_tmp_buff,sizeof(rec_key_tmp_buff),"%llu:1:%04x:0\n"
 			, (unsigned long long int)d_event->get_current_clock(), code);
 		fkro->Fwrite(rec_key_tmp_buff, strlen(rec_key_tmp_buff), 1);
 		vm_key_recr_stat[code] = 0;
@@ -540,7 +540,7 @@ void KEYRECORD::recording_system_keys(int code, bool pressed)
 
 	code |= KEY_RECORD_SYSTEM_CODE;
 	if (code < KEY_RECORD_MAX) {
-		sprintf(rec_key_tmp_buff,"%llu:1:%04x:%d\n"
+		UTILITY::sprintf(rec_key_tmp_buff, sizeof(rec_key_tmp_buff), "%llu:1:%04x:%d\n"
 			, (unsigned long long int)d_event->get_current_clock()
 			, code, pressed ? 1 : 0);
 		fkro->Fwrite(rec_key_tmp_buff, strlen(rec_key_tmp_buff), 1);
@@ -584,7 +584,7 @@ void KEYRECORD::recording_mouse_status(const int *mstat)
 {
 #ifdef USE_KEY_RECORD
 	if (memcmp(mstat, mouse_recr_stat, sizeof(mouse_recr_stat)) != 0) {
-		sprintf(rec_key_tmp_buff,"%llu:3:%d:%d:%d\n"
+		UTILITY::sprintf(rec_key_tmp_buff, sizeof(rec_key_tmp_buff), "%llu:3:%d:%d:%d\n"
 			, (unsigned long long int)d_event->get_current_clock()
 			,mstat[0], mstat[1], mstat[2]
 		);
@@ -642,7 +642,7 @@ void KEYRECORD::recording_joypia_status(int num, const uint32_t *joystat, int si
 	}
 	bool modified = (memcmp(joypia_recr_stat[num], code, sizeof(code)) != 0);
 	if (modified) {
-		sprintf(rec_key_tmp_buff,"%llu:4:%d:%x:%x:%x\n"
+		UTILITY::sprintf(rec_key_tmp_buff, sizeof(rec_key_tmp_buff), "%llu:4:%d:%x:%x:%x\n"
 			, (unsigned long long int)d_event->get_current_clock()
 			, num, code[0], code[1], code[2]
 		);
@@ -893,14 +893,14 @@ bool KEYRECORD::record_reckey(const _TCHAR* filename)
 		UTILITY::get_dir_and_basename(filename, base_path, NULL);
 
 		// write header
-		sprintf(rec_key_tmp_buff, "%s\n", KEY_RECORD_HEADER);
+		UTILITY::sprintf(rec_key_tmp_buff, sizeof(rec_key_tmp_buff), "%s\n", KEY_RECORD_HEADER);
 		fkro->Fwrite(rec_key_tmp_buff, strlen(rec_key_tmp_buff), 1);
-		sprintf(rec_key_tmp_buff, "Version:%d\n", 1);
+		UTILITY::sprintf(rec_key_tmp_buff, sizeof(rec_key_tmp_buff), "Version:%d\n", 1);
 		fkro->Fwrite(rec_key_tmp_buff, strlen(rec_key_tmp_buff), 1);
-		sprintf(rec_key_tmp_buff, "StartClock:%llu\n"
+		UTILITY::sprintf(rec_key_tmp_buff, sizeof(rec_key_tmp_buff), "StartClock:%llu\n"
 			, (unsigned long long int)d_event->get_current_clock());
 		fkro->Fwrite(rec_key_tmp_buff, strlen(rec_key_tmp_buff), 1);
-		sprintf(rec_key_tmp_buff, "EmulatorVersion:%d.%d.%d\n", APP_VER_MAJOR, APP_VER_MINOR, APP_VER_REV);
+		UTILITY::sprintf(rec_key_tmp_buff, sizeof(rec_key_tmp_buff), "EmulatorVersion:%d.%d.%d\n", APP_VER_MAJOR, APP_VER_MINOR, APP_VER_REV);
 		fkro->Fwrite(rec_key_tmp_buff, strlen(rec_key_tmp_buff), 1);
 
 		set_relative_path("StateFile", base_path, pConfig->saved_state_path);
@@ -918,17 +918,17 @@ bool KEYRECORD::record_reckey(const _TCHAR* filename)
 #endif
 #ifdef USE_FD1
 		for(int drv = 0; drv < MAX_DRIVE; drv++) {
-			sprintf(keyname, "Disk%dFile", drv);
+			UTILITY::sprintf(keyname, sizeof(keyname), "Disk%dFile", drv);
 			set_relative_path(keyname, base_path, pConfig->opened_disk_path[drv]);
 		}
 #endif
 #ifdef USE_HD1
 		for(int drv = 0; drv < MAX_HARD_DISKS; drv++) {
-			sprintf(keyname, "HardDisk%dFile", drv);
+			UTILITY::sprintf(keyname, sizeof(keyname), "HardDisk%dFile", drv);
 			set_relative_path(keyname, base_path, pConfig->opened_hard_disk_path[drv]);
 		}
 #endif
-		sprintf(rec_key_tmp_buff, "\n");
+		UTILITY::sprintf(rec_key_tmp_buff, sizeof(rec_key_tmp_buff), "\n");
 		fkro->Fwrite(rec_key_tmp_buff, strlen(rec_key_tmp_buff), 1);
 
 		// clear buffer
@@ -965,7 +965,7 @@ bool KEYRECORD::set_relative_path(const char *key, const _TCHAR *base_path, CRec
 	UTILITY::make_relative_path(base_path, npath);
 	if (path.num > 0) pConfig->set_number_in_path(npath, _MAX_PATH, path.num);
 	UTILITY::cconv_from_native_path(npath, mpath, _MAX_PATH);
-	sprintf(rec_key_tmp_buff, "%s:%s\n", key, mpath);
+	UTILITY::sprintf(rec_key_tmp_buff, sizeof(rec_key_tmp_buff), "%s:%s\n", key, mpath);
 
 	fkro->Fwrite(rec_key_tmp_buff, strlen(rec_key_tmp_buff), 1);
 

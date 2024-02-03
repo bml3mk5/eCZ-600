@@ -15,6 +15,7 @@
 #import "../../emu.h"
 #import "../../labels.h"
 #import "../../clocale.h"
+#import "../../utility.h"
 
 extern EMU *emu;
 
@@ -48,14 +49,14 @@ extern EMU *emu;
 		}
 
 		vbox = [hbox addBox:VerticalBox];
-		[CocoaLabel createI:vbox title:LABELS::volume[i] align:NSCenterTextAlignment width:80 height:32];
+		[CocoaLabel createI:vbox title:LABELS::volume[i] align:NSTextAlignmentCenter width:80 height:32];
 
 		CocoaSlider *slider = [CocoaSlider createN:vbox index:n action:@selector(changeSlider:) value:[self volume:n] width:80 height:120];
 		if (NSAppKitVersionNumber > 1349.0 /* NSAppKitVersionNumber10_10_Max */) {
 			[slider.cell setVertical:YES];
 		}
 
-		p_lbl[n] = [CocoaLabel createT:vbox title:"00" align:NSCenterTextAlignment width:80 height:16];
+		p_lbl[n] = [CocoaLabel createT:vbox title:"00" align:NSTextAlignmentCenter width:80 height:16];
 		[self setVolumeText:n];
 
 		[CocoaCheckBox createI:vbox title:CMsg::Mute index:n action:@selector(changeMute:) value:[self mute:n] width:80 height:32];
@@ -83,7 +84,7 @@ extern EMU *emu;
 
 - (void)close
 {
-	[NSApp stopModalWithCode:NSOKButton];
+	[NSApp stopModalWithCode:NSModalResponseOK];
 	[super close];
 }
 
@@ -112,7 +113,7 @@ extern EMU *emu;
 - (void)setVolumeText:(int)idx
 {
 	char str[8];
-	sprintf(str, "%02d", [self volume:idx]);
+	UTILITY::sprintf(str, sizeof(str), "%02d", [self volume:idx]);
 	[p_lbl[idx] setStringValue:[NSString stringWithUTF8String:str]];
 }
 

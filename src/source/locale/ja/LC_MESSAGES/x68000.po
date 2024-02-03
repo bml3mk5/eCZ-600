@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: x68000\n"
-"POT-Creation-Date: 2023-02-08 21:30+0900\n"
-"PO-Revision-Date: 2023-02-08 21:30+0900\n"
+"POT-Creation-Date: 2024-02-02 20:23+0900\n"
+"PO-Revision-Date: 2024-02-02 20:23+0900\n"
 "Last-Translator: Sasaji <s-sasaji@ddo.jp>\n"
 "Language-Team: Sasaji <sasaji@s-sasaji.ddo.jp>\n"
 "Language: Japanese\n"
@@ -18,11 +18,11 @@ msgstr ""
 "X-Source-Language: C\n"
 "X-Poedit-SearchPath-0: src\n"
 
-#: src/msgs.cpp:28 src/res/windows/x68000_gui.rc:200
+#: src/msgs.cpp:28 src/res/windows/x68000_gui.rc:193
 msgid "None"
 msgstr "なし"
 
-#: src/msgs.cpp:29 src/res/windows/x68000_gui.rc:430
+#: src/msgs.cpp:29 src/res/windows/x68000_gui.rc:441
 msgid "None\tAlt+U"
 msgstr "なし\tAlt+U"
 
@@ -30,7 +30,7 @@ msgstr "なし\tAlt+U"
 msgid "Point"
 msgstr "点"
 
-#: src/msgs.cpp:31 src/res/windows/x68000_gui.rc:431
+#: src/msgs.cpp:31 src/res/windows/x68000_gui.rc:442
 msgid "Point\tAlt+U"
 msgstr "ポイント\tAlt+U"
 
@@ -42,7 +42,7 @@ msgstr "メモリウェイトなし"
 msgid "Memory With Wait"
 msgstr "メモリウェイトあり"
 
-#: src/msgs.cpp:34 src/res/windows/x68000_gui.rc:472
+#: src/msgs.cpp:34 src/res/windows/x68000_gui.rc:483
 msgid "Filter..."
 msgstr "フィルタ..."
 
@@ -50,11 +50,11 @@ msgstr "フィルタ..."
 msgid "Filter Type"
 msgstr "フィルタ種類"
 
-#: src/msgs.cpp:36 src/res/windows/x68000_gui.rc:428
+#: src/msgs.cpp:36 src/res/windows/x68000_gui.rc:439
 msgid "Direct3D Filter"
 msgstr "Direct3Dフィルタ"
 
-#: src/msgs.cpp:37 src/res/windows/x68000_gui.rc:438
+#: src/msgs.cpp:37 src/res/windows/x68000_gui.rc:449
 msgid "OpenGL Filter"
 msgstr "OpenGLフィルタ"
 
@@ -102,7 +102,7 @@ msgstr "* プログラムの再起動が必要。"
 msgid "* Need restart program or \"PowerOn\"."
 msgstr "* プログラムの再起動か\"パワーオン\"が必要。"
 
-#: src/msgs.cpp:49 src/res/windows/x68000_gui.rc:167
+#: src/msgs.cpp:49 src/res/windows/x68000_gui.rc:160
 msgid "CPU Speed"
 msgstr "CPUスピード"
 
@@ -130,27 +130,27 @@ msgstr "CPU 8倍"
 msgid "CPU x16"
 msgstr "CPU 16倍"
 
-#: src/msgs.cpp:56 src/res/windows/x68000_gui.rc:169
+#: src/msgs.cpp:56 src/res/windows/x68000_gui.rc:162
 msgid "CPU x0.5\tAlt+9"
 msgstr "CPU 0.5倍\tAlt+9"
 
-#: src/msgs.cpp:57 src/res/windows/x68000_gui.rc:170
+#: src/msgs.cpp:57 src/res/windows/x68000_gui.rc:163
 msgid "CPU x1\tAlt+1"
 msgstr "CPU 1倍\tAlt+1"
 
-#: src/msgs.cpp:58 src/res/windows/x68000_gui.rc:171
+#: src/msgs.cpp:58 src/res/windows/x68000_gui.rc:164
 msgid "CPU x2\tAlt+2"
 msgstr "CPU 2倍\tAlt+2"
 
-#: src/msgs.cpp:59 src/res/windows/x68000_gui.rc:172
+#: src/msgs.cpp:59 src/res/windows/x68000_gui.rc:165
 msgid "CPU x4\tAlt+3"
 msgstr "CPU 4倍\tAlt+3"
 
-#: src/msgs.cpp:60 src/res/windows/x68000_gui.rc:173
+#: src/msgs.cpp:60 src/res/windows/x68000_gui.rc:166
 msgid "CPU x8\tAlt+4"
 msgstr "CPU 8倍\tAlt+4"
 
-#: src/msgs.cpp:61 src/res/windows/x68000_gui.rc:174
+#: src/msgs.cpp:61 src/res/windows/x68000_gui.rc:167
 msgid "CPU x16\tAlt+5"
 msgstr "CPU 16倍\tAlt+5"
 
@@ -160,12 +160,12 @@ msgid "CPU x%d"
 msgstr "CPU %d倍"
 
 #: src/msgs.cpp:63
-msgid "Sync Machine Speed With CPU Speed"
-msgstr "全体をCPUスピードと同期"
+msgid "Synchronize Device Speed With CPU Speed"
+msgstr "デバイススピードをCPUスピードと同期"
 
 #: src/msgs.cpp:64
-msgid "Async Machine Speed With CPU Speed"
-msgstr "全体をCPUスピードと非同期"
+msgid "Asynchronize Device Speed With CPU Speed"
+msgstr "デバイススピードをCPUスピードと非同期"
 
 #: src/msgs.cpp:65
 msgid "Checker Drawing"
@@ -377,2506 +377,2570 @@ msgstr "ジョイパッド有効（キー割当）"
 msgid "Enable Joypad (Port Connected)"
 msgstr "ジョイパッド有効（ポート接続）"
 
-#: src/msgs.cpp:117 src/res/windows/x68000_gui.rc:526
+#: src/msgs.cpp:117 src/res/windows/x68000_gui.rc:536
 msgid "Enable Key to Joypad"
 msgstr "キーtoジョイパッド有効"
 
-#: src/msgs.cpp:118
+#: src/msgs.cpp:118 src/res/windows/x68000_gui.rc:540
+msgid "Enable Joypad to Key"
+msgstr "ジョイパッドtoキー有効"
+
+#: src/msgs.cpp:119
 msgid "Disable Joypad"
 msgstr "ジョイパッド無効"
 
-#: src/msgs.cpp:119
+#: src/msgs.cpp:120
 msgid "Enable Lightpen"
 msgstr "ライトペン有効"
 
-#: src/msgs.cpp:120
+#: src/msgs.cpp:121
 msgid "Disable Lightpen"
 msgstr "ライトペン無効"
 
-#: src/msgs.cpp:121
+#: src/msgs.cpp:122
 msgid "Enable Mouse"
 msgstr "マウス有効"
 
-#: src/msgs.cpp:122
+#: src/msgs.cpp:123
 msgid "Disable Mouse"
 msgstr "マウス無効"
 
-#: src/msgs.cpp:123
+#: src/msgs.cpp:124
 msgid "Enable DirectInput"
 msgstr "DirectInput有効"
 
-#: src/msgs.cpp:124
+#: src/msgs.cpp:125
 msgid "Disable DirectInput"
 msgstr "DirectInput無効"
 
-#: src/msgs.cpp:125
+#: src/msgs.cpp:126
 msgid "(no label)"
 msgstr "(ラベルなし)"
 
-#: src/msgs.cpp:126
+#: src/msgs.cpp:127
 msgid "Change Side to A"
 msgstr "A面に変更"
 
-#: src/msgs.cpp:127
+#: src/msgs.cpp:128
 msgid "Change Side to B"
 msgstr "B面に変更"
 
-#: src/msgs.cpp:128
+#: src/msgs.cpp:129
 msgid "Floppy Disk Drive"
 msgstr "フロッピーディスクドライブ"
 
-#: src/msgs.cpp:129
+#: src/msgs.cpp:130
 msgid "Hard Disk Drive"
 msgstr "ハードディスクドライブ"
 
-#: src/msgs.cpp:130
+#: src/msgs.cpp:131
 msgid "When start up, mount disk at:"
 msgstr "起動時にマウントするディスク:"
 
-#: src/msgs.cpp:131
+#: src/msgs.cpp:132
 msgid "Ignore delays to find sector."
 msgstr "セクタ検索時の遅延を無視する。"
 
-#: src/msgs.cpp:132
+#: src/msgs.cpp:133
 msgid "Ignore delays to seek track."
 msgstr "トラックシーク時の遅延を無視する。"
 
-#: src/msgs.cpp:133
+#: src/msgs.cpp:134
 msgid "Suppress checking for density."
 msgstr "密度のチェックを抑制する。"
 
-#: src/msgs.cpp:134
+#: src/msgs.cpp:135
 msgid "Suppress checking for media type."
 msgstr "メディア種類のチェックを抑制する。"
 
-#: src/msgs.cpp:135
+#: src/msgs.cpp:136
 msgid "Save a plain disk image as it is."
 msgstr "ベタディスクイメージをそのまま保存する。"
 
-#: src/msgs.cpp:136
+#: src/msgs.cpp:137
 msgid "Drive"
 msgstr "ドライブ"
 
-#: src/msgs.cpp:137 src/res/windows/x68000_gui.rc:125
+#: src/msgs.cpp:138 src/res/windows/x68000_gui.rc:125
 msgid "Select Drive"
 msgstr "ドライブ選択"
 
-#: src/msgs.cpp:138
+#: src/msgs.cpp:139
 msgid "FDD Type"
 msgstr "FDDタイプ"
 
-#: src/msgs.cpp:139
+#: src/msgs.cpp:140
 msgid "FDD Type (*)"
 msgstr "FDDタイプ (*)"
 
-#: src/msgs.cpp:140
+#: src/msgs.cpp:141
 msgid "Non FDD"
 msgstr "FDDなし"
 
-#: src/msgs.cpp:141
+#: src/msgs.cpp:142
 msgid "3inch compact FDD"
 msgstr "3インチコンパクトFDD"
 
-#: src/msgs.cpp:142
+#: src/msgs.cpp:143
 msgid "3inch compact FDD (for L3)"
 msgstr "3インチコンパクトFDD(L3用)"
 
-#: src/msgs.cpp:143
+#: src/msgs.cpp:144
 msgid "5.25inch mini FDD"
 msgstr "5.25インチミニFDD"
 
-#: src/msgs.cpp:144
+#: src/msgs.cpp:145
 msgid "5.25inch mini FDD (2D Type)"
 msgstr "5.25インチミニFDD(2Dタイプ)"
 
-#: src/msgs.cpp:145
+#: src/msgs.cpp:146
 msgid "5.25inch mini FDD (2HD Type)"
 msgstr "5.25インチミニFDD(2HDタイプ)"
 
-#: src/msgs.cpp:146
+#: src/msgs.cpp:147
 msgid "8inch standard FDD"
 msgstr "8インチ標準FDD"
 
-#: src/msgs.cpp:147
+#: src/msgs.cpp:148
 msgid "Unsupported FDD"
 msgstr "サポートされていないFDD"
 
-#: src/msgs.cpp:148
+#: src/msgs.cpp:149
 msgid "Control"
 msgstr "操作"
 
-#: src/msgs.cpp:149
+#: src/msgs.cpp:150
 msgid "PowerOn\tAlt+F3"
 msgstr "パワーオン\tAlt+F3"
 
-#: src/msgs.cpp:150 src/res/windows/x68000_gui.rc:146
+#: src/msgs.cpp:151 src/res/windows/x68000_gui.rc:148
 msgid "Power Switch\tAlt+F3"
 msgstr "電源スイッチ\tAlt+F3"
 
-#: src/msgs.cpp:151
+#: src/msgs.cpp:152
 msgid "Power Off Forcely\tAlt+F3"
 msgstr "強制電源Off\tAlt+F3"
 
-#: src/msgs.cpp:152
+#: src/msgs.cpp:153
 msgid "Power Switch"
 msgstr "電源スイッチ"
 
-#: src/msgs.cpp:153 src/res/windows/x68000_gui.rc:148
+#: src/msgs.cpp:154 src/res/windows/x68000_gui.rc:150
 msgid "Power Off Forcely"
 msgstr "強制電源Off"
 
-#: src/msgs.cpp:154 src/res/windows/x68000_gui.rc:150
+#: src/msgs.cpp:155 src/res/windows/x68000_gui.rc:152
 msgid "Do it"
 msgstr "実行する"
 
-#: src/msgs.cpp:155
+#: src/msgs.cpp:156
 msgid "MODE Switch"
 msgstr "モードスイッチ"
 
-#: src/msgs.cpp:156
+#: src/msgs.cpp:157
 msgid "MODE Switch "
 msgstr "モードスイッチ"
 
-#: src/msgs.cpp:157
+#: src/msgs.cpp:158
 msgid "MODE Switch\tAlt+M"
 msgstr "モードスイッチ\tAlt+M"
 
-#: src/msgs.cpp:158
+#: src/msgs.cpp:159
 msgid "Reset Switch"
 msgstr "リセットスイッチ"
 
-#: src/msgs.cpp:159 src/res/windows/x68000_gui.rc:154
+#: src/msgs.cpp:160 src/res/windows/x68000_gui.rc:155
 msgid "Reset Switch\tAlt+R"
 msgstr "リセットスイッチ\tAlt+R"
 
-#: src/msgs.cpp:160 src/res/windows/x68000_gui.rc:155
+#: src/msgs.cpp:161 src/res/windows/x68000_gui.rc:156
 msgid "Interrupt Switch"
 msgstr "割込みスイッチ"
 
-#: src/msgs.cpp:161
+#: src/msgs.cpp:162
 msgid "Interrupt Switch\tAlt+N"
 msgstr "割込みスイッチ\tAlt+N"
 
-#: src/msgs.cpp:162
+#: src/msgs.cpp:163
 msgid "System Mode"
 msgstr "システムモード"
 
-#: src/msgs.cpp:163
+#: src/msgs.cpp:164
 msgid "System Mode (*)"
 msgstr "システムモード (*)"
 
-#: src/msgs.cpp:164
+#: src/msgs.cpp:165
 msgid "B Mode (L3)"
 msgstr "Bモード (L3)"
 
-#: src/msgs.cpp:165
+#: src/msgs.cpp:166
 msgid "A Mode (S1)"
 msgstr "Aモード (S1)"
 
-#: src/msgs.cpp:166
+#: src/msgs.cpp:167
 msgid "A Mode (S1)\tAlt+M"
 msgstr "Aモード (S1)\tAlt+M"
 
-#: src/msgs.cpp:167
+#: src/msgs.cpp:168
 msgid "B Mode (L3)\tAlt+M"
 msgstr "Bモード (L3)\tAlt+M"
 
-#: src/msgs.cpp:168
+#: src/msgs.cpp:169
 msgid "NEWON7"
 msgstr ""
 
-#: src/msgs.cpp:169
+#: src/msgs.cpp:170
 msgid "No FDD\tAlt+F"
 msgstr "FDDなし\tAlt+F"
 
-#: src/msgs.cpp:170
+#: src/msgs.cpp:171
 msgid "3inch compact FDD\tAlt+F"
 msgstr "3インチコンパクトFDD\tAlt+F"
 
-#: src/msgs.cpp:171
+#: src/msgs.cpp:172
 msgid "5.25inch mini FDD (2D Type)\tAlt+F"
 msgstr "5.25インチミニFDD(2Dタイプ)\tAlt+F"
 
-#: src/msgs.cpp:172
+#: src/msgs.cpp:173
 msgid "5.25inch mini FDD (2HD Type)\tAlt+F"
 msgstr "5.25インチミニFDD(2HDタイプ)\tAlt+F"
 
-#: src/msgs.cpp:173
+#: src/msgs.cpp:174
 msgid "5.25inch mini FDD\tAlt+F"
 msgstr "5.25インチミニFDD\tAlt+F"
 
-#: src/msgs.cpp:174
+#: src/msgs.cpp:175
 msgid "8inch standard FDD\tAlt+F"
 msgstr "8インチ標準FDD\tAlt+F"
 
-#: src/msgs.cpp:175 src/res/windows/x68000_gui.rc:165
+#: src/msgs.cpp:176 src/res/windows/x68000_gui.rc:158
 msgid "Pause\tAlt+Q"
 msgstr "ポーズ\tAlt+Q"
 
-#: src/msgs.cpp:176
-msgid "Sync With CPU Speed"
-msgstr "CPUスピードと同期"
+#: src/msgs.cpp:177
+msgid "Sync Devices With CPU Speed"
+msgstr "デバイスをCPUスピードと同期"
 
-#: src/msgs.cpp:177 src/res/windows/x68000_gui.rc:176
-msgid "Sync With CPU Speed\tAlt+0"
-msgstr "CPUスピードと同期\tAlt+0"
+#: src/msgs.cpp:178 src/res/windows/x68000_gui.rc:169
+msgid "Sync Devices With CPU Speed\tAlt+0"
+msgstr "デバイスをCPUスピードと同期\tAlt+0"
 
-#: src/msgs.cpp:178 src/res/windows/x68000_gui.rc:179
+#: src/msgs.cpp:179 src/res/windows/x68000_gui.rc:172
 msgid "Auto Key"
 msgstr "オートキー"
 
-#: src/msgs.cpp:179
+#: src/msgs.cpp:180
 msgid "Open"
 msgstr "開く"
 
-#: src/msgs.cpp:180 src/res/windows/x68000_gui.rc:181
+#: src/msgs.cpp:181 src/res/windows/x68000_gui.rc:174
 msgid "Open..."
 msgstr "開く..."
 
-#: src/msgs.cpp:181 src/res/windows/x68000_gui.rc:182
+#: src/msgs.cpp:182 src/res/windows/x68000_gui.rc:175
 msgid "Paste"
 msgstr "貼り付け"
 
-#: src/msgs.cpp:182 src/res/windows/x68000_gui.rc:91
+#: src/msgs.cpp:183 src/res/windows/x68000_gui.rc:91
 msgid "Start"
 msgstr "開始"
 
-#: src/msgs.cpp:183 src/res/windows/x68000_gui.rc:183
+#: src/msgs.cpp:184 src/res/windows/x68000_gui.rc:176
 msgid "Stop"
 msgstr "停止"
 
-#: src/msgs.cpp:184 src/res/windows/x68000_gui.rc:186
+#: src/msgs.cpp:185 src/res/windows/x68000_gui.rc:179
 msgid "Record Key"
 msgstr "キーを記録"
 
-#: src/msgs.cpp:185 src/res/windows/x68000_gui.rc:188
+#: src/msgs.cpp:186 src/res/windows/x68000_gui.rc:181
 msgid "Play...\tAlt+E"
 msgstr "再生...\tAlt+E"
 
-#: src/msgs.cpp:186 src/res/windows/x68000_gui.rc:189
+#: src/msgs.cpp:187 src/res/windows/x68000_gui.rc:182
 msgid "Stop Playing"
 msgstr "再生を停止"
 
-#: src/msgs.cpp:187 src/res/windows/x68000_gui.rc:191
+#: src/msgs.cpp:188 src/res/windows/x68000_gui.rc:184
 msgid "Record..."
 msgstr "記録..."
 
-#: src/msgs.cpp:188 src/res/windows/x68000_gui.rc:192
+#: src/msgs.cpp:189 src/res/windows/x68000_gui.rc:185
 msgid "Stop Recording"
 msgstr "記録を停止"
 
-#: src/msgs.cpp:189
+#: src/msgs.cpp:190
 msgid "Load State..."
 msgstr "状態をロード..."
 
-#: src/msgs.cpp:190 src/res/windows/x68000_gui.rc:195
+#: src/msgs.cpp:191 src/res/windows/x68000_gui.rc:188
 msgid "Load State...\tAlt+O"
 msgstr "状態をロード...\tAlt+O"
 
-#: src/msgs.cpp:191 src/res/windows/x68000_gui.rc:196
+#: src/msgs.cpp:192 src/res/windows/x68000_gui.rc:189
 msgid "Save State..."
 msgstr "状態を保存..."
 
-#: src/msgs.cpp:192 src/res/windows/x68000_gui.rc:198
+#: src/msgs.cpp:193 src/res/windows/x68000_gui.rc:191
 msgid "Recent State Files"
 msgstr "最近使用した状態ファイル"
 
-#: src/msgs.cpp:193
+#: src/msgs.cpp:194
 msgid "Exit"
 msgstr "終了"
 
-#: src/msgs.cpp:194 src/res/windows/x68000_gui.rc:203
+#: src/msgs.cpp:195 src/res/windows/x68000_gui.rc:196
 msgid "Exit\tAlt+F4"
 msgstr "終了\tAlt+F4"
 
-#: src/msgs.cpp:195
+#: src/msgs.cpp:196
 msgid "Tape"
 msgstr "テープ"
 
-#: src/msgs.cpp:196
+#: src/msgs.cpp:197
 msgid "Play...\tAlt+F7"
 msgstr "再生...\tAlt+F7"
 
-#: src/msgs.cpp:197 src/res/windows/x68000_gui.rc:209
+#: src/msgs.cpp:198 src/res/windows/x68000_gui.rc:202
 msgid "Rec..."
 msgstr "録音..."
 
-#: src/msgs.cpp:198 src/res/windows/x68000_gui.rc:210
+#: src/msgs.cpp:199 src/res/windows/x68000_gui.rc:203
 msgid "Eject"
 msgstr "取り出し"
 
-#: src/msgs.cpp:199
+#: src/msgs.cpp:200
 msgid "Rewind"
 msgstr "巻き戻し"
 
-#: src/msgs.cpp:200 src/res/windows/x68000_gui.rc:214
+#: src/msgs.cpp:201 src/res/windows/x68000_gui.rc:207
 msgid "Rewind\tAlt+F5"
 msgstr "巻き戻し\tAlt+F5"
 
-#: src/msgs.cpp:201
+#: src/msgs.cpp:202
 msgid "F.F."
 msgstr "早送り"
 
-#: src/msgs.cpp:202 src/res/windows/x68000_gui.rc:215
+#: src/msgs.cpp:203 src/res/windows/x68000_gui.rc:208
 msgid "F.F.\tAlt+F8"
 msgstr "早送り\tAlt+F8"
 
-#: src/msgs.cpp:203 src/res/windows/x68000_gui.rc:216
+#: src/msgs.cpp:204 src/res/windows/x68000_gui.rc:209
 msgid "Stop\tAlt+F6"
 msgstr "停止\tAlt+F6"
 
-#: src/msgs.cpp:204 src/res/windows/x68000_gui.rc:218
+#: src/msgs.cpp:205 src/res/windows/x68000_gui.rc:211
 msgid "Real Mode"
 msgstr "リアルモード"
 
-#: src/msgs.cpp:205 src/res/windows/x68000_gui.rc:220
+#: src/msgs.cpp:206 src/res/windows/x68000_gui.rc:213
 msgid "Recent Files"
 msgstr "最近使用したファイル"
 
-#: src/msgs.cpp:206
+#: src/msgs.cpp:207
 #, c-format
 msgid "Insert...\tAlt+F%d"
 msgstr "挿入...\tAlt+F%d"
 
-#: src/msgs.cpp:207 src/res/windows/x68000_gui.rc:232
+#: src/msgs.cpp:208 src/res/windows/x68000_gui.rc:225
 msgid "New"
 msgstr "新規"
 
-#: src/msgs.cpp:208
+#: src/msgs.cpp:209
 msgid "Insert Blank 2D..."
 msgstr "ブランク2Dを挿入..."
 
-#: src/msgs.cpp:209 src/res/windows/x68000_gui.rc:235
+#: src/msgs.cpp:210 src/res/windows/x68000_gui.rc:228
 msgid "Insert Blank 2HD..."
 msgstr "ブランク2HDを挿入..."
 
-#: src/msgs.cpp:210 src/res/windows/x68000_gui.rc:238
+#: src/msgs.cpp:211 src/res/windows/x68000_gui.rc:231
 msgid "Write Protect"
 msgstr "書き込み禁止"
 
-#: src/msgs.cpp:211 src/res/windows/x68000_gui.rc:240
+#: src/msgs.cpp:212 src/res/windows/x68000_gui.rc:233
 msgid "Multi Volume"
 msgstr "マルチボリューム"
 
-#: src/msgs.cpp:212
+#: src/msgs.cpp:213
 #, c-format
 msgid "FDD%d"
 msgstr ""
 
-#: src/msgs.cpp:213 src/res/windows/x68000_gui.rc:335
+#: src/msgs.cpp:214 src/res/windows/x68000_gui.rc:328
 msgid "Mount Blank 10MB..."
 msgstr "ブランク10MBをマウント..."
 
-#: src/msgs.cpp:214 src/res/windows/x68000_gui.rc:336
+#: src/msgs.cpp:215 src/res/windows/x68000_gui.rc:329
 msgid "Mount Blank 20MB..."
 msgstr "ブランク20MBをマウント..."
 
-#: src/msgs.cpp:215 src/res/windows/x68000_gui.rc:337
+#: src/msgs.cpp:216 src/res/windows/x68000_gui.rc:330
 msgid "Mount Blank 40MB..."
 msgstr "ブランク40MBをマウント..."
 
-#: src/msgs.cpp:216 src/res/windows/x68000_gui.rc:349
+#: src/msgs.cpp:217 src/res/windows/x68000_gui.rc:360
 msgid "Frame Rate"
 msgstr "フレームレート"
 
-#: src/msgs.cpp:217 src/res/windows/x68000_gui.rc:351
+#: src/msgs.cpp:218 src/res/windows/x68000_gui.rc:362
 msgid "Auto"
 msgstr "自動"
 
-#: src/msgs.cpp:218
+#: src/msgs.cpp:219
 msgid "60fps"
 msgstr ""
 
-#: src/msgs.cpp:219
+#: src/msgs.cpp:220
 msgid "30fps"
 msgstr ""
 
-#: src/msgs.cpp:220
+#: src/msgs.cpp:221
 msgid "20fps"
 msgstr ""
 
-#: src/msgs.cpp:221
+#: src/msgs.cpp:222
 msgid "15fps"
 msgstr ""
 
-#: src/msgs.cpp:222
+#: src/msgs.cpp:223
 msgid "12fps"
 msgstr ""
 
-#: src/msgs.cpp:223
+#: src/msgs.cpp:224
 msgid "10fps"
 msgstr ""
 
-#: src/msgs.cpp:224 src/res/windows/x68000_gui.rc:352
+#: src/msgs.cpp:225 src/res/windows/x68000_gui.rc:363
 msgid "1/1fps"
 msgstr ""
 
-#: src/msgs.cpp:225 src/res/windows/x68000_gui.rc:353
+#: src/msgs.cpp:226 src/res/windows/x68000_gui.rc:364
 msgid "1/2fps"
 msgstr ""
 
-#: src/msgs.cpp:226 src/res/windows/x68000_gui.rc:354
+#: src/msgs.cpp:227 src/res/windows/x68000_gui.rc:365
 msgid "1/3fps"
 msgstr ""
 
-#: src/msgs.cpp:227 src/res/windows/x68000_gui.rc:355
+#: src/msgs.cpp:228 src/res/windows/x68000_gui.rc:366
 msgid "1/4fps"
 msgstr ""
 
-#: src/msgs.cpp:228 src/res/windows/x68000_gui.rc:356
+#: src/msgs.cpp:229 src/res/windows/x68000_gui.rc:367
 msgid "1/5fps"
 msgstr ""
 
-#: src/msgs.cpp:229 src/res/windows/x68000_gui.rc:357
+#: src/msgs.cpp:230 src/res/windows/x68000_gui.rc:368
 msgid "1/6fps"
 msgstr ""
 
-#: src/msgs.cpp:230 src/res/windows/x68000_gui.rc:86
+#: src/msgs.cpp:231 src/res/windows/x68000_gui.rc:86
 msgid "Record Screen"
 msgstr "録画"
 
-#: src/msgs.cpp:231
+#: src/msgs.cpp:232
 msgid "Rec 60fps"
 msgstr "60fpsで録画"
 
-#: src/msgs.cpp:232
+#: src/msgs.cpp:233
 msgid "Rec 30fps"
 msgstr "30fpsで録画"
 
-#: src/msgs.cpp:233
+#: src/msgs.cpp:234
 msgid "Rec 20fps"
 msgstr "20fpsで録画"
 
-#: src/msgs.cpp:234
+#: src/msgs.cpp:235
 msgid "Rec 15fps"
 msgstr "15fpsで録画"
 
-#: src/msgs.cpp:235
+#: src/msgs.cpp:236
 msgid "Rec 12fps"
 msgstr "12fpsで録画"
 
-#: src/msgs.cpp:236
+#: src/msgs.cpp:237
 msgid "Rec 10fps"
 msgstr "10fpsで録画"
 
-#: src/msgs.cpp:237 src/res/windows/x68000_gui.rc:373
+#: src/msgs.cpp:238 src/res/windows/x68000_gui.rc:384
 msgid "Capture"
 msgstr "キャプチャ"
 
-#: src/msgs.cpp:238 src/res/windows/x68000_gui.rc:376
+#: src/msgs.cpp:239 src/res/windows/x68000_gui.rc:387
 msgid "Window"
 msgstr "ウィンドウ"
 
-#: src/msgs.cpp:239 src/res/windows/x68000_gui.rc:385
+#: src/msgs.cpp:240 src/res/windows/x68000_gui.rc:396
 msgid "Display"
 msgstr "ディスプレイ"
 
-#: src/msgs.cpp:240 src/res/windows/x68000_gui.rc:380
+#: src/msgs.cpp:241 src/res/windows/x68000_gui.rc:391
 msgid "Fullscreen"
 msgstr "フルスクリーン"
 
-#: src/msgs.cpp:241
+#: src/msgs.cpp:242
 msgid "Stretch Screen"
 msgstr "画面を引き伸ばす"
 
-#: src/msgs.cpp:242 src/res/windows/x68000_gui.rc:382
+#: src/msgs.cpp:243 src/res/windows/x68000_gui.rc:393
 msgid "Stretch Screen\tAlt+X"
 msgstr "画面を引き伸ばす\tAlt+X"
 
-#: src/msgs.cpp:243
+#: src/msgs.cpp:244
 msgid "Cutout Screen"
 msgstr "画面の余白を切る"
 
-#: src/msgs.cpp:244 src/res/windows/x68000_gui.rc:383
+#: src/msgs.cpp:245 src/res/windows/x68000_gui.rc:394
 msgid "Cutout Screen\tAlt+X"
 msgstr "画面の余白を切る\tAlt+X"
 
-#: src/msgs.cpp:245 src/res/windows/x68000_gui.rc:387
+#: src/msgs.cpp:246 src/res/windows/x68000_gui.rc:398
 msgid "Aspect Ratio"
 msgstr "アスペクト比"
 
-#: src/msgs.cpp:246 src/res/windows/x68000_gui.rc:392
+#: src/msgs.cpp:247 src/res/windows/x68000_gui.rc:403
 msgid "Drawing Mode"
 msgstr "描画モード"
 
-#: src/msgs.cpp:247
+#: src/msgs.cpp:248
 msgid "Drawing Method"
 msgstr "描画方法"
 
-#: src/msgs.cpp:248
+#: src/msgs.cpp:249
 msgid "Full Draw"
 msgstr "フル描画"
 
-#: src/msgs.cpp:249 src/res/windows/x68000_gui.rc:394
+#: src/msgs.cpp:250 src/res/windows/x68000_gui.rc:405
 msgid "Full Draw\tAlt+S"
 msgstr "フル描画\tAlt+S"
 
-#: src/msgs.cpp:250
+#: src/msgs.cpp:251
 msgid "Scanline"
 msgstr "走査線"
 
-#: src/msgs.cpp:251 src/res/windows/x68000_gui.rc:395
+#: src/msgs.cpp:252 src/res/windows/x68000_gui.rc:406
 msgid "Scanline\tAlt+S"
 msgstr "走査線\tAlt+S"
 
-#: src/msgs.cpp:252
+#: src/msgs.cpp:253
 msgid "Stripe"
 msgstr "縞模様"
 
-#: src/msgs.cpp:253 src/res/windows/x68000_gui.rc:396
+#: src/msgs.cpp:254 src/res/windows/x68000_gui.rc:407
 msgid "Stripe\tAlt+S"
 msgstr "縞模様\tAlt+S"
 
-#: src/msgs.cpp:254
+#: src/msgs.cpp:255
 msgid "Stripe Strongly"
 msgstr "強い縞模様"
 
-#: src/msgs.cpp:255 src/res/windows/x68000_gui.rc:397
+#: src/msgs.cpp:256 src/res/windows/x68000_gui.rc:408
 msgid "Stripe Strongly\tAlt+S"
 msgstr "強い縞模様\tAlt+S"
 
-#: src/msgs.cpp:256
+#: src/msgs.cpp:257
 msgid "Checker"
 msgstr "市松模様"
 
-#: src/msgs.cpp:257
+#: src/msgs.cpp:258
 msgid "Checker\tAlt+S"
 msgstr "市松模様\tAlt+S"
 
-#: src/msgs.cpp:258
+#: src/msgs.cpp:259
 msgid "Afterimage1"
 msgstr "残像モード1"
 
-#: src/msgs.cpp:259 src/res/windows/x68000_gui.rc:401
+#: src/msgs.cpp:260 src/res/windows/x68000_gui.rc:412
 msgid "Afterimage1\tAlt+T"
 msgstr "残像モード1\tAlt+T"
 
-#: src/msgs.cpp:260
+#: src/msgs.cpp:261
 msgid "Afterimage2"
 msgstr "残像モード2"
 
-#: src/msgs.cpp:261 src/res/windows/x68000_gui.rc:402
+#: src/msgs.cpp:262 src/res/windows/x68000_gui.rc:413
 msgid "Afterimage2\tAlt+T"
 msgstr "残像モード2\tAlt+T"
 
-#: src/msgs.cpp:262 src/res/windows/x68000_gui.rc:406
+#: src/msgs.cpp:263 src/res/windows/x68000_gui.rc:417
 msgid "Keepimage1"
 msgstr "画面保持モード1"
 
-#: src/msgs.cpp:263 src/res/windows/x68000_gui.rc:407
+#: src/msgs.cpp:264 src/res/windows/x68000_gui.rc:418
 msgid "Keepimage2"
 msgstr "画面保持モード2"
 
-#: src/msgs.cpp:264
+#: src/msgs.cpp:265
 msgid "Digital RGB"
 msgstr "デジタルRGB"
 
-#: src/msgs.cpp:265
+#: src/msgs.cpp:266
 msgid "Analog RGB"
 msgstr "アナログRGB"
 
-#: src/msgs.cpp:266 src/res/windows/x68000_gui.rc:410
+#: src/msgs.cpp:267 src/res/windows/x68000_gui.rc:421
 msgid "Show Screen"
 msgstr "画面表示"
 
-#: src/msgs.cpp:267
+#: src/msgs.cpp:268
 msgid "Graphic0"
 msgstr "グラフィック0"
 
-#: src/msgs.cpp:268 src/res/windows/x68000_gui.rc:412
+#: src/msgs.cpp:269 src/res/windows/x68000_gui.rc:423
 msgid "Graphic0\tAlt+Shift+1"
 msgstr "グラフィック0\tAlt+Shift+1"
 
-#: src/msgs.cpp:269
+#: src/msgs.cpp:270
 msgid "Graphic1"
 msgstr "グラフィック1"
 
-#: src/msgs.cpp:270 src/res/windows/x68000_gui.rc:413
+#: src/msgs.cpp:271 src/res/windows/x68000_gui.rc:424
 msgid "Graphic1\tAlt+Shift+2"
 msgstr "グラフィック1\tAlt+Shift+2"
 
-#: src/msgs.cpp:271
+#: src/msgs.cpp:272
 msgid "Graphic2"
 msgstr "グラフィック2"
 
-#: src/msgs.cpp:272 src/res/windows/x68000_gui.rc:414
+#: src/msgs.cpp:273 src/res/windows/x68000_gui.rc:425
 msgid "Graphic2\tAlt+Shift+3"
 msgstr "グラフィック2\tAlt+Shift+3"
 
-#: src/msgs.cpp:273
+#: src/msgs.cpp:274
 msgid "Graphic3"
 msgstr "グラフィック3"
 
-#: src/msgs.cpp:274 src/res/windows/x68000_gui.rc:415
+#: src/msgs.cpp:275 src/res/windows/x68000_gui.rc:426
 msgid "Graphic3\tAlt+Shift+4"
 msgstr "グラフィック3\tAlt+Shift+4"
 
-#: src/msgs.cpp:275
+#: src/msgs.cpp:276
 msgid "Graphic4"
 msgstr "グラフィック4"
 
-#: src/msgs.cpp:276 src/res/windows/x68000_gui.rc:416
+#: src/msgs.cpp:277 src/res/windows/x68000_gui.rc:427
 msgid "Graphic4\tAlt+Shift+5"
 msgstr "グラフィック4\tAlt+Shift+5"
 
-#: src/msgs.cpp:277
+#: src/msgs.cpp:278
 msgid "Text"
 msgstr "テキスト"
 
-#: src/msgs.cpp:278 src/res/windows/x68000_gui.rc:417
+#: src/msgs.cpp:279 src/res/windows/x68000_gui.rc:428
 msgid "Text\tAlt+Shift+6"
 msgstr "テキスト\tAlt+Shift+6"
 
-#: src/msgs.cpp:279
+#: src/msgs.cpp:280
 msgid "Sprite"
 msgstr "スプライト"
 
-#: src/msgs.cpp:280 src/res/windows/x68000_gui.rc:418
+#: src/msgs.cpp:281 src/res/windows/x68000_gui.rc:429
 msgid "Sprite\tAlt+Shift+7"
 msgstr "スプライト\tAlt+Shift+7"
 
-#: src/msgs.cpp:281
+#: src/msgs.cpp:282
 msgid "BG0"
 msgstr "BG0"
 
-#: src/msgs.cpp:282 src/res/windows/x68000_gui.rc:419
+#: src/msgs.cpp:283 src/res/windows/x68000_gui.rc:430
 msgid "BG0\tAlt+Shift+8"
 msgstr "BG0\tAlt+Shift+8"
 
-#: src/msgs.cpp:283
+#: src/msgs.cpp:284
 msgid "BG1"
 msgstr "BG1"
 
-#: src/msgs.cpp:284 src/res/windows/x68000_gui.rc:420
+#: src/msgs.cpp:285 src/res/windows/x68000_gui.rc:431
 msgid "BG1\tAlt+Shift+9"
 msgstr "BG1\tAlt+Shift+9"
 
-#: src/msgs.cpp:285
+#: src/msgs.cpp:286
 msgid "Use Direct3D(Sync)"
 msgstr "Direct3Dを使用(同期)"
 
-#: src/msgs.cpp:286 src/res/windows/x68000_gui.rc:426
+#: src/msgs.cpp:287 src/res/windows/x68000_gui.rc:437
 msgid "Use Direct3D(Sync)\tAlt+Y"
 msgstr "Direct3Dを使用(同期)\tAlt+Y"
 
-#: src/msgs.cpp:287
+#: src/msgs.cpp:288
 msgid "Use Direct3D(Async)"
 msgstr "Direct3Dを使用(非同期)"
 
-#: src/msgs.cpp:288 src/res/windows/x68000_gui.rc:427
+#: src/msgs.cpp:289 src/res/windows/x68000_gui.rc:438
 msgid "Use Direct3D(Async)\tAlt+Y"
 msgstr "Direct3Dを使用(非同期)\tAlt+Y"
 
-#: src/msgs.cpp:289
+#: src/msgs.cpp:290
 msgid "Use OpenGL(Sync)"
 msgstr "OpenGLを使用(同期)"
 
-#: src/msgs.cpp:290 src/res/windows/x68000_gui.rc:436
+#: src/msgs.cpp:291 src/res/windows/x68000_gui.rc:447
 msgid "Use OpenGL(Sync)\tAlt+Y"
 msgstr "OpenGLを使用(同期)\tAlt+Y"
 
-#: src/msgs.cpp:291
+#: src/msgs.cpp:292
 msgid "Use OpenGL(Async)"
 msgstr "OpenGLを使用(非同期)"
 
-#: src/msgs.cpp:292 src/res/windows/x68000_gui.rc:437
+#: src/msgs.cpp:293 src/res/windows/x68000_gui.rc:448
 msgid "Use OpenGL(Async)\tAlt+Y"
 msgstr "OpenGLを使用(非同期)\tAlt+Y"
 
-#: src/msgs.cpp:293
+#: src/msgs.cpp:294
 msgid "Nearest Neighbour"
 msgstr "ニアレストネイバー"
 
-#: src/msgs.cpp:294 src/res/windows/x68000_gui.rc:440
+#: src/msgs.cpp:295 src/res/windows/x68000_gui.rc:451
 msgid "Nearest Neighbour\tAlt+U"
 msgstr "ニアレストネイバー\tAlt+U"
 
-#: src/msgs.cpp:295
+#: src/msgs.cpp:296
 msgid "Linear"
 msgstr "リニア"
 
-#: src/msgs.cpp:296 src/res/windows/x68000_gui.rc:432
+#: src/msgs.cpp:297 src/res/windows/x68000_gui.rc:443
 msgid "Linear\tAlt+U"
 msgstr "リニア\tAlt+U"
 
-#: src/msgs.cpp:297
+#: src/msgs.cpp:298
 msgid "Sound"
 msgstr "サウンド"
 
-#: src/msgs.cpp:298
+#: src/msgs.cpp:299
 msgid "Volume..."
 msgstr "ボリューム..."
 
-#: src/msgs.cpp:299 src/res/windows/x68000_gui.rc:447
+#: src/msgs.cpp:300 src/res/windows/x68000_gui.rc:458
 msgid "Volume...\tAlt+V"
 msgstr "ボリューム...\tAlt+V"
 
-#: src/msgs.cpp:300 src/res/windows/x68000_gui.rc:97
+#: src/msgs.cpp:301 src/res/windows/x68000_gui.rc:97
 msgid "Record Sound"
 msgstr "録音"
 
-#: src/msgs.cpp:301
+#: src/msgs.cpp:302
 msgid "Frequency"
 msgstr "周波数"
 
-#: src/msgs.cpp:302
+#: src/msgs.cpp:303
 msgid "2000Hz"
 msgstr ""
 
-#: src/msgs.cpp:303
+#: src/msgs.cpp:304
 msgid "4000Hz"
 msgstr ""
 
-#: src/msgs.cpp:304 src/res/windows/x68000_gui.rc:457
+#: src/msgs.cpp:305 src/res/windows/x68000_gui.rc:468
 msgid "8000Hz"
 msgstr ""
 
-#: src/msgs.cpp:305 src/res/windows/x68000_gui.rc:458
+#: src/msgs.cpp:306 src/res/windows/x68000_gui.rc:469
 msgid "11025Hz"
 msgstr ""
 
-#: src/msgs.cpp:306 src/res/windows/x68000_gui.rc:459
+#: src/msgs.cpp:307 src/res/windows/x68000_gui.rc:470
 msgid "22050Hz"
 msgstr ""
 
-#: src/msgs.cpp:307 src/res/windows/x68000_gui.rc:460
+#: src/msgs.cpp:308 src/res/windows/x68000_gui.rc:471
 msgid "44100Hz"
 msgstr ""
 
-#: src/msgs.cpp:308 src/res/windows/x68000_gui.rc:461
+#: src/msgs.cpp:309 src/res/windows/x68000_gui.rc:472
 msgid "48000Hz"
 msgstr ""
 
-#: src/msgs.cpp:309 src/res/windows/x68000_gui.rc:462
+#: src/msgs.cpp:310 src/res/windows/x68000_gui.rc:473
 msgid "96000Hz"
 msgstr ""
 
-#: src/msgs.cpp:310
+#: src/msgs.cpp:311
 msgid "Latency"
 msgstr "待ち時間"
 
-#: src/msgs.cpp:311 src/res/windows/x68000_gui.rc:464
+#: src/msgs.cpp:312 src/res/windows/x68000_gui.rc:475
 msgid "50msec."
 msgstr "50ミリ秒"
 
-#: src/msgs.cpp:312 src/res/windows/x68000_gui.rc:465
+#: src/msgs.cpp:313 src/res/windows/x68000_gui.rc:476
 msgid "75msec."
 msgstr "75ミリ秒"
 
-#: src/msgs.cpp:313 src/res/windows/x68000_gui.rc:466
+#: src/msgs.cpp:314 src/res/windows/x68000_gui.rc:477
 msgid "100msec."
 msgstr "100ミリ秒"
 
-#: src/msgs.cpp:314 src/res/windows/x68000_gui.rc:467
+#: src/msgs.cpp:315 src/res/windows/x68000_gui.rc:478
 msgid "200msec."
 msgstr "200ミリ秒"
 
-#: src/msgs.cpp:315 src/res/windows/x68000_gui.rc:468
+#: src/msgs.cpp:316 src/res/windows/x68000_gui.rc:479
 msgid "300msec."
 msgstr "300ミリ秒"
 
-#: src/msgs.cpp:316 src/res/windows/x68000_gui.rc:469
+#: src/msgs.cpp:317 src/res/windows/x68000_gui.rc:480
 msgid "400msec."
 msgstr "400ミリ秒"
 
-#: src/msgs.cpp:317 src/res/windows/x68000_gui.rc:451
+#: src/msgs.cpp:318 src/res/windows/x68000_gui.rc:462
 msgid "Start..."
 msgstr "開始..."
 
-#: src/msgs.cpp:318
+#: src/msgs.cpp:319
 msgid "Devices"
 msgstr "デバイス"
 
-#: src/msgs.cpp:319
+#: src/msgs.cpp:320
 msgid "Save"
 msgstr "保存"
 
-#: src/msgs.cpp:320 src/res/windows/x68000_gui.rc:479
+#: src/msgs.cpp:321 src/res/windows/x68000_gui.rc:490
 msgid "Save..."
 msgstr "保存..."
 
-#: src/msgs.cpp:321 src/res/windows/x68000_gui.rc:480
+#: src/msgs.cpp:322 src/res/windows/x68000_gui.rc:491
 msgid "Print to mpprinter"
 msgstr "mpprinterに印刷"
 
-#: src/msgs.cpp:322 src/res/windows/x68000_gui.rc:481
+#: src/msgs.cpp:323 src/res/windows/x68000_gui.rc:492
 msgid "Clear"
 msgstr "クリア"
 
-#: src/msgs.cpp:323
+#: src/msgs.cpp:324
 msgid "Direct Send to mpprinter"
 msgstr "mpprinterに直接送信"
 
-#: src/msgs.cpp:324 src/res/windows/x68000_gui.rc:485
+#: src/msgs.cpp:325 src/res/windows/x68000_gui.rc:496
 msgid "Send to mpprinter concurrently"
 msgstr "mpprinterに同時送信"
 
-#: src/msgs.cpp:325 src/res/windows/x68000_gui.rc:483
+#: src/msgs.cpp:326 src/res/windows/x68000_gui.rc:494
 msgid "Online"
 msgstr "オンライン"
 
-#: src/msgs.cpp:326 src/res/windows/x68000_gui.rc:490
+#: src/msgs.cpp:327 src/res/windows/x68000_gui.rc:501
 msgid "Enable Server"
 msgstr "サーバを有効"
 
-#: src/msgs.cpp:327 src/res/windows/x68000_gui.rc:491
+#: src/msgs.cpp:328 src/res/windows/x68000_gui.rc:502
 msgid "Connect"
 msgstr "接続"
 
-#: src/msgs.cpp:328 src/res/windows/x68000_gui.rc:493
+#: src/msgs.cpp:329 src/res/windows/x68000_gui.rc:504
 msgid "Ethernet"
 msgstr "イーサネット"
 
-#: src/msgs.cpp:329
+#: src/msgs.cpp:330
 msgid "Comm With Byte Data"
 msgstr "バイトデータで通信"
 
-#: src/msgs.cpp:330 src/res/windows/x68000_gui.rc:498
+#: src/msgs.cpp:331 src/res/windows/x68000_gui.rc:509
 msgid "Options For Telnet"
 msgstr "Telnet用オプション"
 
-#: src/msgs.cpp:331 src/res/windows/x68000_gui.rc:500
+#: src/msgs.cpp:332 src/res/windows/x68000_gui.rc:511
 msgid "Binary Mode"
 msgstr "バイナリモード"
 
-#: src/msgs.cpp:332 src/res/windows/x68000_gui.rc:502
+#: src/msgs.cpp:333 src/res/windows/x68000_gui.rc:513
 msgid "Send WILL ECHO"
 msgstr "WILL ECHO 送信"
 
-#: src/msgs.cpp:333
+#: src/msgs.cpp:334
 msgid "Options"
 msgstr "オプション"
 
-#: src/msgs.cpp:334 src/res/windows/x68000_gui.rc:508
+#: src/msgs.cpp:335 src/res/windows/x68000_gui.rc:519
 msgid "Show LED\tAlt+L"
 msgstr "LEDを表示\tAlt+L"
 
-#: src/msgs.cpp:335 src/res/windows/x68000_gui.rc:509
+#: src/msgs.cpp:336 src/res/windows/x68000_gui.rc:520
 msgid "Inside LED\tAlt+L"
 msgstr "LEDは画面内\tAlt+L"
 
-#: src/msgs.cpp:336 src/res/windows/x68000_gui.rc:510
+#: src/msgs.cpp:337 src/res/windows/x68000_gui.rc:521
 msgid "Show Message\tAlt+Z"
 msgstr "メッセージを表示\tAlt+Z"
 
-#: src/msgs.cpp:337 src/res/windows/x68000_gui.rc:512
+#: src/msgs.cpp:338 src/res/windows/x68000_gui.rc:523
 msgid "Show Performance Meter"
 msgstr "パフォーマンスメータ表示"
 
-#: src/msgs.cpp:338
+#: src/msgs.cpp:339
 msgid "Use DirectInput"
 msgstr "DirectInputを使用"
 
-#: src/msgs.cpp:339
+#: src/msgs.cpp:340
 msgid "Use Joypad (Key Assigned)"
 msgstr "ジョイパッド使用（キー割当）"
 
-#: src/msgs.cpp:340 src/res/windows/x68000_gui.rc:520
+#: src/msgs.cpp:341
 msgid "Use Joypad (Key Assigned)\tAlt+J"
 msgstr "ジョイパッド使用（キー割当）\tAlt+J"
 
-#: src/msgs.cpp:341
+#: src/msgs.cpp:342
 msgid "Use Joypad (Port Connected)"
 msgstr "ジョイパッドを使用（ポート接続）"
 
-#: src/msgs.cpp:342 src/res/windows/x68000_gui.rc:522
+#: src/msgs.cpp:343
 msgid "Use Joypad (Port Connected)\tAlt+J"
 msgstr "ジョイパッドを使用（ポート接続）\tAlt+J"
 
-#: src/msgs.cpp:343
+#: src/msgs.cpp:344
 msgid "Enable Lightpen\tAlt+Ctrl"
 msgstr "ライトペン有効\tAlt+Ctrl"
 
-#: src/msgs.cpp:344 src/res/windows/x68000_gui.rc:516
+#: src/msgs.cpp:345 src/res/windows/x68000_gui.rc:527
 msgid "Use Mouse\tAlt+Ctrl"
 msgstr "マウスを使用\tAlt+Ctrl"
 
-#: src/msgs.cpp:345
+#: src/msgs.cpp:346
 msgid "Loosen Key Stroke (For Game)"
 msgstr "キー入力を鈍くする(ゲーム用)"
 
-#: src/msgs.cpp:346 src/res/windows/x68000_gui.rc:77
+#: src/msgs.cpp:347 src/res/windows/x68000_gui.rc:77
 msgid "Keybind"
 msgstr "キー割り当て"
 
-#: src/msgs.cpp:347
+#: src/msgs.cpp:348
 msgid "Keybind..."
 msgstr "キー割り当て..."
 
-#: src/msgs.cpp:348 src/res/windows/x68000_gui.rc:542
+#: src/msgs.cpp:349 src/res/windows/x68000_gui.rc:555
 msgid "Keybind...\tAlt+K"
 msgstr "キー割り当て...\tAlt+K"
 
-#: src/msgs.cpp:349 src/res/windows/x68000.rc:109
+#: src/msgs.cpp:350 src/res/windows/x68000.rc:109
 msgid "Virtual Keyboard"
 msgstr "仮想キーボード"
 
-#: src/msgs.cpp:350 src/res/windows/x68000_gui.rc:532
+#: src/msgs.cpp:351 src/res/windows/x68000_gui.rc:545
 msgid "Virtual Keyboard..."
 msgstr "仮想キーボード..."
 
-#: src/msgs.cpp:351
+#: src/msgs.cpp:352
 msgid "Start Debugger"
 msgstr "デバッガを開始"
 
-#: src/msgs.cpp:352 src/res/windows/x68000_gui.rc:535
+#: src/msgs.cpp:353 src/res/windows/x68000_gui.rc:548
 msgid "Start Debugger\tAlt+D"
 msgstr "デバッガを開始\tAlt+D"
 
-#: src/msgs.cpp:353 src/res/windows/x68000_gui.rc:536
+#: src/msgs.cpp:354 src/res/windows/x68000_gui.rc:549
 msgid "Stop Debugger"
 msgstr "デバッガを停止"
 
-#: src/msgs.cpp:354 src/res/windows/x68000_gui.rc:68
+#: src/msgs.cpp:355 src/res/windows/x68000_gui.rc:68
 msgid "Configure"
 msgstr "設定"
 
-#: src/msgs.cpp:355
+#: src/msgs.cpp:356
 msgid "Configure..."
 msgstr "設定..."
 
-#: src/msgs.cpp:356 src/res/windows/x68000_gui.rc:543
+#: src/msgs.cpp:357 src/res/windows/x68000_gui.rc:556
 msgid "Configure...\tAlt+C"
 msgstr "設定...\tAlt+C"
 
-#: src/msgs.cpp:357 src/res/windows/x68000_gui.rc:132
+#: src/msgs.cpp:358 src/res/windows/x68000_gui.rc:132
 msgid "Joypad Setting"
 msgstr "ジョイパッド設定"
 
-#: src/msgs.cpp:358 src/res/windows/x68000_gui.rc:540
+#: src/msgs.cpp:359 src/res/windows/x68000_gui.rc:553
 msgid "Joypad Setting..."
 msgstr "ジョイパッド設定..."
 
-#: src/msgs.cpp:359
+#: src/msgs.cpp:360
 msgid "64KB"
 msgstr ""
 
-#: src/msgs.cpp:360
+#: src/msgs.cpp:361
 msgid "128KB"
 msgstr ""
 
-#: src/msgs.cpp:361
+#: src/msgs.cpp:362
 msgid "256KB"
 msgstr ""
 
-#: src/msgs.cpp:362
+#: src/msgs.cpp:363
 msgid "512KB"
 msgstr ""
 
-#: src/msgs.cpp:363
+#: src/msgs.cpp:364
 msgid "1MB"
 msgstr ""
 
-#: src/msgs.cpp:364
+#: src/msgs.cpp:365
 msgid "2MB"
 msgstr ""
 
-#: src/msgs.cpp:365
+#: src/msgs.cpp:366
 msgid "4MB"
 msgstr ""
 
-#: src/msgs.cpp:366
+#: src/msgs.cpp:367
 msgid "8MB"
 msgstr ""
 
-#: src/msgs.cpp:367
+#: src/msgs.cpp:368
 msgid "10MB"
 msgstr ""
 
-#: src/msgs.cpp:368
+#: src/msgs.cpp:369
 msgid "NMI"
 msgstr ""
 
-#: src/msgs.cpp:369
+#: src/msgs.cpp:370
 msgid "IRQ"
 msgstr ""
 
-#: src/msgs.cpp:370
+#: src/msgs.cpp:371
 msgid "FIRQ"
 msgstr ""
 
-#: src/msgs.cpp:371
+#: src/msgs.cpp:372
 msgid " (Now "
 msgstr " (現在 "
 
-#: src/msgs.cpp:372
+#: src/msgs.cpp:373
 msgid "Help"
 msgstr "ヘルプ"
 
-#: src/msgs.cpp:373 src/res/windows/x68000_gui.rc:547
+#: src/msgs.cpp:374 src/res/windows/x68000_gui.rc:560
 msgid "About..."
 msgstr "バージョン情報..."
 
-#: src/msgs.cpp:374
+#: src/msgs.cpp:375
 msgid "Mode"
 msgstr "モード"
 
-#: src/msgs.cpp:375
+#: src/msgs.cpp:376
 msgid "Screen"
 msgstr "画面"
 
-#: src/msgs.cpp:376
+#: src/msgs.cpp:377
 msgid "Tape, FDD"
 msgstr "テープ, FDD"
 
-#: src/msgs.cpp:377
+#: src/msgs.cpp:378
 msgid "FDD, HDD"
 msgstr ""
 
-#: src/msgs.cpp:378
+#: src/msgs.cpp:379
 msgid "Network"
 msgstr "ネットワーク"
 
-#: src/msgs.cpp:379
+#: src/msgs.cpp:380
 msgid "CPU, Memory"
 msgstr "CPU, メモリ"
 
-#: src/msgs.cpp:380
+#: src/msgs.cpp:381
 msgid "PowerOff"
 msgstr "パワーオフ"
 
-#: src/msgs.cpp:381
+#: src/msgs.cpp:382
 msgid "PowerOn"
 msgstr "パワーオン"
 
-#: src/msgs.cpp:382
+#: src/msgs.cpp:383
+msgid "Behavior of Power On/Off"
+msgstr "パワーオン/オフのふるまい"
+
+#: src/msgs.cpp:384
 msgid "Enable the state of power off"
 msgstr "パワーオフの状態を有効"
 
-#: src/msgs.cpp:383
+#: src/msgs.cpp:385
+msgid "Power State When Start Up"
+msgstr "起動時の電源状態"
+
+#: src/msgs.cpp:386
+msgid "Inherit the state when shut down"
+msgstr "終了時の状態を引き継ぐ"
+
+#: src/msgs.cpp:387
+msgid "Always power on"
+msgstr "常にパワーオン"
+
+#: src/msgs.cpp:388
+msgid "Always power off"
+msgstr "常にパワーオフ"
+
+#: src/msgs.cpp:389
 msgid "I/O Port Address (*)"
 msgstr "I/Oポートアドレス (*)"
 
-#: src/msgs.cpp:384
+#: src/msgs.cpp:390
 msgid "5.25inch FDC  $FF00 - $FF04"
 msgstr "5.25インチFDC  $FF00 - $FF04"
 
-#: src/msgs.cpp:385
+#: src/msgs.cpp:391
 msgid "3inch FDC  $FF18 - $FF20"
 msgstr "3インチFDC  $FF18 - $FF20"
 
-#: src/msgs.cpp:386
+#: src/msgs.cpp:392
 msgid "3inch FDC (for L3)  $FF18 - $FF20"
 msgstr "3インチFDC (L3用)  $FF18 - $FF20"
 
-#: src/msgs.cpp:387
+#: src/msgs.cpp:393
 msgid "6voice PSG  $FF30 - $FF33"
 msgstr "6声PSG  $FF30 - $FF33"
 
-#: src/msgs.cpp:388
+#: src/msgs.cpp:394
 msgid "6voice PSG (for L3)  $FF30 - $FF33"
 msgstr "6声PSG (L3用)  $FF30 - $FF33"
 
-#: src/msgs.cpp:389
+#: src/msgs.cpp:395
 msgid "Ex LPT Port  $FF3C - $FF3F"
 msgstr "拡張プリンタポート  $FF3C - $FF3F"
 
-#: src/msgs.cpp:390
+#: src/msgs.cpp:396
 msgid "Ex COM Port  $FF40 - $FF41"
 msgstr "拡張通信ポート  $FF40 - $FF41"
 
-#: src/msgs.cpp:391
+#: src/msgs.cpp:397
 msgid "9voice PSG  $FF70 - $FF7F"
 msgstr "9声PSG  $FF70 - $FF7F"
 
-#: src/msgs.cpp:392
+#: src/msgs.cpp:398
 msgid "9voice PSG (for L3)  $FF70 - $FF7F"
 msgstr "9声PSG (L3用)  $FF70 - $FF7F"
 
-#: src/msgs.cpp:393
+#: src/msgs.cpp:399
 msgid "KANJI ROM  $FF75 - $FF76"
 msgstr "漢字ROM  $FF75 - $FF76"
 
-#: src/msgs.cpp:394
+#: src/msgs.cpp:400
 msgid "Ex PSG (for S1)  $FFE6 - $FFE7"
 msgstr "拡張PSG (S1用)  $FFE6 - $FFE7"
 
-#: src/msgs.cpp:395
+#: src/msgs.cpp:401
 msgid "OS-9 Ex Card  $FE11"
 msgstr "OS-9拡張カード  $FE11"
 
-#: src/msgs.cpp:396
+#: src/msgs.cpp:402
 msgid "Communication Card  $FF77"
 msgstr "通信カード  $FF77"
 
-#: src/msgs.cpp:397
+#: src/msgs.cpp:403
 msgid "Keyboard  $FFE0 - $FFE1"
 msgstr "キーボード  $FFE0 - $FFE1"
 
-#: src/msgs.cpp:398
+#: src/msgs.cpp:404
 msgid "Mouse  $FFDC - $FFDF"
 msgstr "マウス  $FFDC - $FFDF"
 
-#: src/msgs.cpp:399
+#: src/msgs.cpp:405
 msgid "FM Synthesis Card  $FF1E - $FF1F"
 msgstr "FM音源カード  $FF1E - $FF1F"
 
-#: src/msgs.cpp:400
+#: src/msgs.cpp:406
 msgid "Disable ROM BASIC (Limelight)  $FFCE"
 msgstr "ROM BASIC無効(来夢来人)  $FFCE"
 
-#: src/msgs.cpp:401
+#: src/msgs.cpp:407
 msgid "Disable IG  $FFE9"
 msgstr "IG無効  $FFE9"
 
-#: src/msgs.cpp:402
+#: src/msgs.cpp:408
 msgid "Disable IG (Limelight)  $FFE9"
 msgstr "IG無効(来夢来人)  $FFE9"
 
-#: src/msgs.cpp:403
+#: src/msgs.cpp:409
 msgid "Real Time Clock  $FF38-$FF3A"
 msgstr "リアルタイムクロック  $FF38-$FF3A"
 
-#: src/msgs.cpp:404
+#: src/msgs.cpp:410
 msgid "Z80B Card  $FF7F"
 msgstr "Z80Bカード  $FF7F"
 
-#: src/msgs.cpp:405
+#: src/msgs.cpp:411
 msgid "DIP Switch (*)"
 msgstr "DIPスイッチ (*)"
 
-#: src/msgs.cpp:406
+#: src/msgs.cpp:412
 msgid "Boot Device"
 msgstr "起動デバイス"
 
-#: src/msgs.cpp:407
+#: src/msgs.cpp:413
 msgid "Drawing"
 msgstr "描画"
 
-#: src/msgs.cpp:408
+#: src/msgs.cpp:414
 msgid "Method"
 msgstr "方法"
 
-#: src/msgs.cpp:409
+#: src/msgs.cpp:415
 msgid "Method (*)"
 msgstr "方法 (*)"
 
-#: src/msgs.cpp:410
+#: src/msgs.cpp:416
 msgid "Use (*)"
 msgstr "使用する (*)"
 
-#: src/msgs.cpp:411
+#: src/msgs.cpp:417
 msgid "CRTC"
 msgstr ""
 
-#: src/msgs.cpp:412
+#: src/msgs.cpp:418
 msgid "Disptmg Skew"
 msgstr "Disptmgスキュー"
 
-#: src/msgs.cpp:413
+#: src/msgs.cpp:419
 msgid "Curdisp Skew"
 msgstr "Curdispスキュー"
 
-#: src/msgs.cpp:414
+#: src/msgs.cpp:420
 msgid "Raster Interrupt Skew"
 msgstr "ラスター割込みスキュー"
 
-#: src/msgs.cpp:415
+#: src/msgs.cpp:421
 msgid "Vertical Disp Skew"
 msgstr "垂直表示スキュー"
 
-#: src/msgs.cpp:416
+#: src/msgs.cpp:422
 msgid "BMP"
 msgstr ""
 
-#: src/msgs.cpp:417
+#: src/msgs.cpp:423
 msgid "PNG"
 msgstr ""
 
-#: src/msgs.cpp:418
+#: src/msgs.cpp:424
 msgid "OFF"
 msgstr ""
 
-#: src/msgs.cpp:419
+#: src/msgs.cpp:425
 msgid "ON"
 msgstr ""
 
-#: src/msgs.cpp:420 src/res/windows/x68000_gui.rc:56
+#: src/msgs.cpp:426 src/res/windows/x68000_gui.rc:56
 msgid "OK"
 msgstr ""
 
-#: src/msgs.cpp:421 src/res/windows/x68000_gui.rc:92
+#: src/msgs.cpp:427 src/res/windows/x68000_gui.rc:92
 msgid "Cancel"
 msgstr "キャンセル"
 
-#: src/msgs.cpp:422 src/res/windows/x68000_gui.rc:120
+#: src/msgs.cpp:428 src/res/windows/x68000_gui.rc:120
 msgid "Close"
 msgstr "閉じる"
 
-#: src/msgs.cpp:423
+#: src/msgs.cpp:429
 msgid "No"
 msgstr "いいえ"
 
-#: src/msgs.cpp:424
+#: src/msgs.cpp:430
 msgid "Yes"
 msgstr "はい"
 
-#: src/msgs.cpp:425
+#: src/msgs.cpp:431
 msgid "Yes(sync)"
 msgstr "はい(同期)"
 
-#: src/msgs.cpp:426
+#: src/msgs.cpp:432
 msgid "Yes(async)"
 msgstr "はい(非同期)"
 
-#: src/msgs.cpp:427
+#: src/msgs.cpp:433
 msgid "Hostname"
 msgstr "ホスト名"
 
-#: src/msgs.cpp:428
+#: src/msgs.cpp:434
 #, c-format
 msgid "LPT%d"
 msgstr ""
 
-#: src/msgs.cpp:429
+#: src/msgs.cpp:435
 #, c-format
 msgid "COM%d"
 msgstr ""
 
-#: src/msgs.cpp:430
+#: src/msgs.cpp:436
 #, c-format
 msgid "LPT%d Hostname"
 msgstr "LPT%d ホスト名"
 
-#: src/msgs.cpp:431
+#: src/msgs.cpp:437
 #, c-format
 msgid "COM%d Hostname"
 msgstr "COM%d ホスト名"
 
-#: src/msgs.cpp:432 src/res/windows/x68000_gui.rc:477
+#: src/msgs.cpp:438 src/res/windows/x68000_gui.rc:488
 msgid "Printer"
 msgstr " プリンター"
 
-#: src/msgs.cpp:433 src/res/windows/x68000_gui.rc:488
+#: src/msgs.cpp:439 src/res/windows/x68000_gui.rc:499
 msgid "Communication"
 msgstr "通信"
 
-#: src/msgs.cpp:434
+#: src/msgs.cpp:440
 msgid "Printer Hostname"
 msgstr "プリンター ホスト名"
 
-#: src/msgs.cpp:435
+#: src/msgs.cpp:441
 msgid "Communication Hostname"
 msgstr "通信 ホスト名"
 
-#: src/msgs.cpp:436
+#: src/msgs.cpp:442
 msgid " Port"
 msgstr "ポート"
 
-#: src/msgs.cpp:437
+#: src/msgs.cpp:443
 msgid " Print Delay"
 msgstr " 印刷遅延"
 
-#: src/msgs.cpp:438
+#: src/msgs.cpp:444
 msgid "msec."
 msgstr "ミリ秒"
 
-#: src/msgs.cpp:439
+#: src/msgs.cpp:445
 msgid "S:300baud/F:1200baud"
 msgstr "S:300ボー/F:1200ボー"
 
-#: src/msgs.cpp:440
+#: src/msgs.cpp:446
 msgid "S:600baud/F:2400baud"
 msgstr "S:600ボー/F:2400ボー"
 
-#: src/msgs.cpp:441
+#: src/msgs.cpp:447
 msgid "S:1200baud/F:4800baud"
 msgstr "S:1200ボー/F:4800ボー"
 
-#: src/msgs.cpp:442
+#: src/msgs.cpp:448
 msgid "S:2400baud/F:9600baud"
 msgstr "S:2400ボー/F:9600ボー"
 
-#: src/msgs.cpp:443
+#: src/msgs.cpp:449
 msgid "Connectable host to Debugger"
 msgstr "デバッガに接続可能なホスト"
 
-#: src/msgs.cpp:444
+#: src/msgs.cpp:450
 msgid "Settings of serial ports on host"
 msgstr "ホスト上のシリアルポートの設定"
 
-#: src/msgs.cpp:445
+#: src/msgs.cpp:451
 msgid "Need re-connect to serial port when modified this."
 msgstr "これを変更した場合はシリアルポートの再接続が必要です。"
 
-#: src/msgs.cpp:446
+#: src/msgs.cpp:452
 msgid "Baud Rate"
 msgstr "ボーレート"
 
-#: src/msgs.cpp:447
+#: src/msgs.cpp:453
 msgid "Data Bit"
 msgstr "データビット"
 
-#: src/msgs.cpp:448
+#: src/msgs.cpp:454
 msgid "Parity"
 msgstr "パリティ"
 
-#: src/msgs.cpp:449
+#: src/msgs.cpp:455
 msgid "Odd"
 msgstr "奇数"
 
-#: src/msgs.cpp:450
+#: src/msgs.cpp:456
 msgid "Even"
 msgstr "偶数"
 
-#: src/msgs.cpp:451
+#: src/msgs.cpp:457
 msgid "Stop Bit"
 msgstr "ストップビット"
 
-#: src/msgs.cpp:452
+#: src/msgs.cpp:458
 msgid "Flow Control"
 msgstr "フロー制御"
 
-#: src/msgs.cpp:453
+#: src/msgs.cpp:459
 msgid "Xon/Xoff"
 msgstr ""
 
-#: src/msgs.cpp:454
+#: src/msgs.cpp:460
 msgid "Hardware"
 msgstr "ハードウェア"
 
-#: src/msgs.cpp:455
+#: src/msgs.cpp:461
 msgid "SI/SO"
 msgstr ""
 
-#: src/msgs.cpp:456
+#: src/msgs.cpp:462
 msgid "Xon/Xoff and SI/SO"
 msgstr ""
 
-#: src/msgs.cpp:457
+#: src/msgs.cpp:463
 msgid "ROM Path"
 msgstr "ROMパス"
 
-#: src/msgs.cpp:458
+#: src/msgs.cpp:464
 msgid "ROM Path (*)"
 msgstr "ROMパス (*)"
 
-#: src/msgs.cpp:459
+#: src/msgs.cpp:465
 msgid "Use Extended Memory (64KB)"
 msgstr "拡張メモリ(64KB)を使用する"
 
-#: src/msgs.cpp:460
+#: src/msgs.cpp:466
 msgid "ROM Start Address (Hex)"
 msgstr "ROM開始アドレス(Hex)"
 
-#: src/msgs.cpp:461
+#: src/msgs.cpp:467
 msgid "RAM"
 msgstr ""
 
-#: src/msgs.cpp:462
+#: src/msgs.cpp:468
 msgid "RAM Size (Hex)"
 msgstr "RAMサイズ(Hex)"
 
-#: src/msgs.cpp:463
+#: src/msgs.cpp:469
 msgid "RAM Size (*)"
 msgstr "RAMサイズ(*)"
 
-#: src/msgs.cpp:464
+#: src/msgs.cpp:470
 msgid "No overwrite RAM size on SRAM."
 msgstr "RAMサイズをSRAMに上書きしない。"
 
-#: src/msgs.cpp:465
+#: src/msgs.cpp:471
 msgid "No wait to access the main memory."
 msgstr "メインメモリのアクセスをウェイトなしにする。"
 
-#: src/msgs.cpp:466
+#: src/msgs.cpp:472
 msgid "CPU"
 msgstr "CPU"
 
-#: src/msgs.cpp:467
+#: src/msgs.cpp:473
 msgid "Show message when the CPU fetches undefined opcode."
 msgstr "CPUが未定義命令を読み込んだ時にメッセージを表示する。"
 
-#: src/msgs.cpp:468
+#: src/msgs.cpp:474
 msgid "Show message when the address error occured in the CPU."
 msgstr "CPUでアドレスエラーが発生した時にメッセージを表示する。"
 
-#: src/msgs.cpp:469
+#: src/msgs.cpp:475
 msgid "Clock of FM Synthesis Card (*)"
 msgstr "FM音源カードのクロック (*)"
 
-#: src/msgs.cpp:470
+#: src/msgs.cpp:476
 msgid "Connect interrupt signal of FM Synthesis to (*)"
 msgstr "FM音源の割り込み信号接続先 (*)"
 
-#: src/msgs.cpp:471
+#: src/msgs.cpp:477
 msgid "Use FM Synthesis on Extended PSG port."
 msgstr "拡張PSGポートでFM音源を使用する。"
 
-#: src/msgs.cpp:472
+#: src/msgs.cpp:478
 msgid "Connect interrupt signal of Z80B Card to (*)"
 msgstr "Z80Bカードの割り込み信号接続先 (*)"
 
-#: src/msgs.cpp:473
+#: src/msgs.cpp:479
 msgid "Behavior"
 msgstr "ふるまい"
 
-#: src/msgs.cpp:474
+#: src/msgs.cpp:480
 msgid "SRAM"
 msgstr ""
 
-#: src/msgs.cpp:475
+#: src/msgs.cpp:481
 msgid "Clear SRAM when power on."
 msgstr "パワーオン時にSRAMを消去する。"
 
-#: src/msgs.cpp:476
+#: src/msgs.cpp:482
 msgid "Save SRAM when power off."
 msgstr "パワーオフ時にSRAMを保存する。"
 
-#: src/msgs.cpp:477
+#: src/msgs.cpp:483
 msgid "Show message when boot device was changed."
 msgstr "起動デバイスが変更された時にメッセージを表示する。"
 
-#: src/msgs.cpp:478
+#: src/msgs.cpp:484
 msgid "Setting of boot device in SRAM was changed."
 msgstr "SRAM内の起動デバイスの設定が変更されました。"
 
-#: src/msgs.cpp:479
+#: src/msgs.cpp:485
 msgid "Parameters in SRAM:"
 msgstr "SRAM内のパラメータ:"
 
-#: src/msgs.cpp:480
+#: src/msgs.cpp:486
 msgid "SRAM Start Address (Hex)"
 msgstr "SRAM開始アドレス(Hex)"
 
-#: src/msgs.cpp:481
+#: src/msgs.cpp:487
 msgid "RS-232C"
 msgstr ""
 
-#: src/msgs.cpp:482
+#: src/msgs.cpp:488
 msgid "Set gray color on the border area."
 msgstr "境界領域を灰色に設定する。"
 
-#: src/msgs.cpp:483
+#: src/msgs.cpp:489
 msgid "Enable alarm"
 msgstr "アラーム有効"
 
-#: src/msgs.cpp:484
+#: src/msgs.cpp:490
 msgid "Alarm Time (Hex)"
 msgstr "アラーム時間(Hex)"
 
-#: src/msgs.cpp:485
+#: src/msgs.cpp:491
 msgid "Alarm Duration"
 msgstr "アラーム持続時間"
 
-#: src/msgs.cpp:486
+#: src/msgs.cpp:492
 msgid "Contrast on Monitor"
 msgstr "モニタのコントラスト"
 
-#: src/msgs.cpp:487
+#: src/msgs.cpp:493
 msgid "Eject FD when power off."
 msgstr "パワーオフ時にFDを吐き出す。"
 
-#: src/msgs.cpp:488
+#: src/msgs.cpp:494
 msgid "Purpose of SRAM free area"
 msgstr "SRAM空き領域の用途"
 
-#: src/msgs.cpp:489
+#: src/msgs.cpp:495
 msgid "Unused"
 msgstr "未使用"
 
-#: src/msgs.cpp:490
+#: src/msgs.cpp:496
 msgid "SRAMDISK"
 msgstr ""
 
-#: src/msgs.cpp:491
+#: src/msgs.cpp:497
 msgid "Program"
 msgstr "プログラム"
 
-#: src/msgs.cpp:492
+#: src/msgs.cpp:498
 msgid "Key Repeat Delay"
 msgstr "キーリピート開始"
 
-#: src/msgs.cpp:493
+#: src/msgs.cpp:499
 msgid "Key Repeat Rate"
 msgstr "キーリピート間隔"
 
-#: src/msgs.cpp:494
+#: src/msgs.cpp:500
+msgid "Status of Key LED when power on"
+msgstr "パワーオン時のキーLEDの状態"
+
+#: src/msgs.cpp:501
+msgid "Kana"
+msgstr "かな"
+
+#: src/msgs.cpp:502
+msgid "Roma-ji"
+msgstr "ローマ字"
+
+#: src/msgs.cpp:503
+msgid "Code Input"
+msgstr "コード入力"
+
+#: src/msgs.cpp:504
+msgid "CAPS"
+msgstr ""
+
+#: src/msgs.cpp:505
+msgid "INS"
+msgstr ""
+
+#: src/msgs.cpp:506
+msgid "Hiragana"
+msgstr "ひらがな"
+
+#: src/msgs.cpp:507
+msgid "Zenkaku"
+msgstr "全角"
+
+#: src/msgs.cpp:508
+msgid "Number of HDDs"
+msgstr "HDDの数"
+
+#: src/msgs.cpp:509
 msgid "MsgBoard: OK"
 msgstr "MsgBoard: OK"
 
-#: src/msgs.cpp:495
+#: src/msgs.cpp:510
 msgid "MsgBoard: Failed"
 msgstr "MsgBoard: 失敗"
 
-#: src/msgs.cpp:496
+#: src/msgs.cpp:511
 #, c-format
 msgid "MsgBoard: Use \"%s\" for %s."
 msgstr "MsgBoard: \"%s\"を%s用に使用します。"
 
-#: src/msgs.cpp:497
+#: src/msgs.cpp:512
 #, c-format
 msgid "MsgBoard: Couldn't load font %s."
 msgstr "MsgBoard: フォント %s をロードできませんでした。"
 
-#: src/msgs.cpp:498
+#: src/msgs.cpp:513
 #, c-format
 msgid "MsgBoard: Couldn't find fonts for %s."
 msgstr "MsgBoard: %s用のフォントが見つかりませんでした。"
 
-#: src/msgs.cpp:499
+#: src/msgs.cpp:514
 #, c-format
 msgid "MsgBoard: Couldn't load font \"%s\" for message."
 msgstr "MsgBoard: フォント\"%s\"をメッセージ用にロードできませんでした。"
 
-#: src/msgs.cpp:500
+#: src/msgs.cpp:515
 #, c-format
 msgid "MsgBoard: Couldn't load font \"%s\" for info."
 msgstr "MsgBoard: フォント\"%s\"を情報用にロードできませんでした。"
 
-#: src/msgs.cpp:501
+#: src/msgs.cpp:516
 msgid "info"
 msgstr "情報"
 
-#: src/msgs.cpp:502
+#: src/msgs.cpp:517
 msgid "message"
 msgstr "メッセージ"
 
-#: src/msgs.cpp:503
+#: src/msgs.cpp:518
 msgid "Select a folder to save snapshot images."
 msgstr "スナップショットを保存するフォルダを選択してください。"
 
-#: src/msgs.cpp:504
+#: src/msgs.cpp:519
 msgid "Select a font file for showing messages."
 msgstr "メッセージ表示用のフォントファイルを選択してください。"
 
-#: src/msgs.cpp:505
+#: src/msgs.cpp:520
 msgid "Select a font folder for showing messages."
 msgstr "メッセージ表示用のフォントがあるフォルダを選択してください。"
 
-#: src/msgs.cpp:506
+#: src/msgs.cpp:521
 msgid "Select a folder containing the rom images."
 msgstr "ROMイメージのあるフォルダを選択してください。"
 
-#: src/msgs.cpp:507
+#: src/msgs.cpp:522
 msgid "Select a font."
 msgstr "フォントを選択してください。"
 
-#: src/msgs.cpp:508
+#: src/msgs.cpp:523
 msgid "File..."
 msgstr "ファイル..."
 
-#: src/msgs.cpp:509
+#: src/msgs.cpp:524
 msgid "File Type :"
 msgstr "ファイル種類:"
 
-#: src/msgs.cpp:510
+#: src/msgs.cpp:525
 msgid "Play Data Recorder Tape"
 msgstr "テープを再生"
 
-#: src/msgs.cpp:511
+#: src/msgs.cpp:526
 msgid "Record Data Recorder Tape"
 msgstr "テープに録音"
 
-#: src/msgs.cpp:512
+#: src/msgs.cpp:527
 msgid "Play ["
 msgstr "再生 ["
 
-#: src/msgs.cpp:513 src/res/windows/x68000_gui.rc:208
+#: src/msgs.cpp:528 src/res/windows/x68000_gui.rc:201
 msgid "Play..."
 msgstr "再生..."
 
-#: src/msgs.cpp:514
+#: src/msgs.cpp:529
 msgid "Rec ["
 msgstr "録音 ["
 
-#: src/msgs.cpp:515
+#: src/msgs.cpp:530
 #, c-format
 msgid "Open Floppy Disk %d"
 msgstr "フロッピー%dを開く"
 
-#: src/msgs.cpp:516
+#: src/msgs.cpp:531
 msgid "FDD"
 msgstr "FDD"
 
-#: src/msgs.cpp:517
+#: src/msgs.cpp:532
 #, c-format
 msgid "New Floppy Disk %d"
 msgstr "新規フロッピー%d"
 
-#: src/msgs.cpp:518
+#: src/msgs.cpp:533
 msgid "Insert ["
 msgstr "挿入 ["
 
-#: src/msgs.cpp:519 src/res/windows/x68000_gui.rc:229
+#: src/msgs.cpp:534 src/res/windows/x68000_gui.rc:222
 msgid "Insert..."
 msgstr "挿入..."
 
-#: src/msgs.cpp:520
+#: src/msgs.cpp:535
 msgid "HDD"
 msgstr "HDD"
 
-#: src/msgs.cpp:521
+#: src/msgs.cpp:536
 #, c-format
 msgid "Open Hard Disk %d"
 msgstr "ハードディスク%dを開く"
 
-#: src/msgs.cpp:522
+#: src/msgs.cpp:537
 #, c-format
 msgid "New Hard Disk %d"
 msgstr "新規ハードディスク%d"
 
-#: src/msgs.cpp:523
+#: src/msgs.cpp:538
 msgid "Mount ["
 msgstr "マウント ["
 
-#: src/msgs.cpp:524 src/res/windows/x68000_gui.rc:331
+#: src/msgs.cpp:539 src/res/windows/x68000_gui.rc:324
 msgid "Mount..."
 msgstr "マウント..."
 
-#: src/msgs.cpp:525 src/res/windows/x68000_gui.rc:332
+#: src/msgs.cpp:540 src/res/windows/x68000_gui.rc:325
 msgid "Unmount"
 msgstr "アンマウント"
 
-#: src/msgs.cpp:526
+#: src/msgs.cpp:541
 #, c-format
 msgid "SASI%d"
 msgstr ""
 
-#: src/msgs.cpp:527
+#: src/msgs.cpp:542
 msgid "Open HuCARD"
 msgstr ""
 
-#: src/msgs.cpp:528
+#: src/msgs.cpp:543
 msgid "Open Cartridge"
 msgstr ""
 
-#: src/msgs.cpp:529
+#: src/msgs.cpp:544
 msgid "Open Quick Disk"
 msgstr ""
 
-#: src/msgs.cpp:530
+#: src/msgs.cpp:545
 msgid "Open Media"
 msgstr ""
 
-#: src/msgs.cpp:531
+#: src/msgs.cpp:546
 msgid "Load RAM Pack Cartridge"
 msgstr ""
 
-#: src/msgs.cpp:532
+#: src/msgs.cpp:547
 msgid "Load Memory Dump"
 msgstr ""
 
-#: src/msgs.cpp:533
+#: src/msgs.cpp:548
 msgid "Save RAM Pack Cartridge"
 msgstr ""
 
-#: src/msgs.cpp:534
+#: src/msgs.cpp:549
 msgid "Save Memory Dump"
 msgstr ""
 
-#: src/msgs.cpp:535
+#: src/msgs.cpp:550
 msgid "Open Text File"
 msgstr "テキストファイルを開く"
 
-#: src/msgs.cpp:536
+#: src/msgs.cpp:551
 msgid "Save Status Data"
 msgstr "状態を保存"
 
-#: src/msgs.cpp:537
+#: src/msgs.cpp:552
 msgid "Load Status Data"
 msgstr "状態データをロード"
 
-#: src/msgs.cpp:538
+#: src/msgs.cpp:553
 msgid "Play Recorded Keys"
 msgstr "記録したキー情報を再生"
 
-#: src/msgs.cpp:539
+#: src/msgs.cpp:554
 msgid "Record Input Keys"
 msgstr "入力キーを記録"
 
-#: src/msgs.cpp:540
+#: src/msgs.cpp:555
 msgid "Save Printing Data"
 msgstr "印刷データを保存"
 
-#: src/msgs.cpp:541
+#: src/msgs.cpp:556
 msgid "Supported Files"
 msgstr "サポートファイル"
 
-#: src/msgs.cpp:542
+#: src/msgs.cpp:557
 msgid "All Files"
 msgstr "全てのファイル"
 
-#: src/msgs.cpp:543
+#: src/msgs.cpp:558
 msgid "File"
 msgstr "ファイル"
 
-#: src/msgs.cpp:544
+#: src/msgs.cpp:559
 msgid "Supported Files (*.ttf;*.otf)"
 msgstr "サポートファイル (*.ttf;*.otf)"
 
-#: src/msgs.cpp:545
+#: src/msgs.cpp:560
 msgid "Supported Files (*.cas;*.cmt;*.t88)"
 msgstr "テープファイル (*.cas;*.cmt;*.t88)"
 
-#: src/msgs.cpp:546
+#: src/msgs.cpp:561
 msgid "Supported Files (*.cas;*.cmt)"
 msgstr "テープファイル (*.cas;*.cmt)"
 
-#: src/msgs.cpp:547
+#: src/msgs.cpp:562
 msgid "Supported Files (*.wav;*.cas;*.tap)"
 msgstr "テープファイル (*.wav;*.cas;*.tap)"
 
-#: src/msgs.cpp:548
+#: src/msgs.cpp:563
 msgid "Supported Files (*.wav;*.cas;*.mzt;*.m12)"
 msgstr "テープファイル (*.wav;*.cas;*.mzt;*.m12)"
 
-#: src/msgs.cpp:550
+#: src/msgs.cpp:565
 msgid "Supported Files (*.wav;*.cas)"
 msgstr "テープファイル (*.wav;*.cas)"
 
-#: src/msgs.cpp:567
+#: src/msgs.cpp:582
 msgid "Supported Files (*.rom;*.bin;*.hex;*.gg;*.col)"
 msgstr "サポートファイル (*.rom;*.bin;*.hex;*.gg;*.col)"
 
-#: src/msgs.cpp:568
+#: src/msgs.cpp:583
 msgid "Supported Files (*.rom;*.bin;*.hex;*.sms)"
 msgstr "サポートファイル (*.rom;*.bin;*.hex;*.sms)"
 
-#: src/msgs.cpp:569
+#: src/msgs.cpp:584
 msgid "Supported Files (*.rom;*.bin;*.hex;*.60)"
 msgstr "サポートファイル (*.rom;*.bin;*.hex;*.60)"
 
-#: src/msgs.cpp:570
+#: src/msgs.cpp:585
 msgid "Supported Files (*.rom;*.bin;*.hex;*.pce)"
 msgstr "サポートファイル (*.rom;*.bin;*.hex;*.pce)"
 
-#: src/msgs.cpp:571
+#: src/msgs.cpp:586
 msgid "Supported Files (*.rom;*.bin;*.hex)"
 msgstr "サポートファイル (*.rom;*.bin;*.hex)"
 
-#: src/msgs.cpp:572
+#: src/msgs.cpp:587
 msgid "Supported Files (*.mzt;*.q20;*.qdf)"
 msgstr "サポートファイル (*.mzt;*.q20;*.qdf)"
 
-#: src/msgs.cpp:573
+#: src/msgs.cpp:588
 msgid "Supported Files (*.bin)"
 msgstr "サポートファイル (*.bin)"
 
-#: src/msgs.cpp:574
+#: src/msgs.cpp:589
 msgid "Supported Files (*.ram;*.bin;*.hex)"
 msgstr "サポートファイル (*.ram;*.bin;*.hex)"
 
-#: src/msgs.cpp:575
+#: src/msgs.cpp:590
 msgid "All Files (*.*)"
 msgstr "全てのファイル (*.*)"
 
-#: src/msgs.cpp:576
+#: src/msgs.cpp:591
 msgid "(Pause)"
 msgstr "(ポーズ)"
 
-#: src/msgs.cpp:577
+#: src/msgs.cpp:592
 msgid "(Mouse On/Off)"
 msgstr "(マウスOn/Off)"
 
-#: src/msgs.cpp:578
+#: src/msgs.cpp:593
 msgid "num INS/DEL"
 msgstr "テンキー INS/DEL"
 
-#: src/msgs.cpp:579
+#: src/msgs.cpp:594
 msgid "KATA/HIRA"
 msgstr "KATA/HIRA"
 
-#: src/msgs.cpp:580
+#: src/msgs.cpp:595
 msgid "HENKAN"
 msgstr "変換"
 
-#: src/msgs.cpp:581
+#: src/msgs.cpp:596
 msgid "MUHENKAN"
 msgstr "無変換"
 
-#: src/msgs.cpp:582
+#: src/msgs.cpp:597
 msgid "KANA"
 msgstr "かな"
 
-#: src/msgs.cpp:583
+#: src/msgs.cpp:598
 msgid "ROMA-JI"
 msgstr "ローマ字"
 
-#: src/msgs.cpp:584
+#: src/msgs.cpp:599
 msgid "CODE INPUT"
 msgstr "コード入力"
 
-#: src/msgs.cpp:585
+#: src/msgs.cpp:600
 msgid "HIRAGANA"
 msgstr "ひらがな"
 
-#: src/msgs.cpp:586
+#: src/msgs.cpp:601
 msgid "ZENKAKU"
 msgstr "全角"
 
-#: src/msgs.cpp:587
+#: src/msgs.cpp:602
 msgid "KIGOU INPUT"
 msgstr "記号入力"
 
-#: src/msgs.cpp:588
+#: src/msgs.cpp:603
 msgid "TOUROKU"
 msgstr "登録"
 
-#: src/msgs.cpp:590
+#: src/msgs.cpp:605
 msgid "Allow RIGHT"
 msgstr "→"
 
-#: src/msgs.cpp:591
+#: src/msgs.cpp:606
 msgid "Allow LEFT"
 msgstr "←"
 
-#: src/msgs.cpp:592
+#: src/msgs.cpp:607
 msgid "Allow UP"
 msgstr "↑"
 
-#: src/msgs.cpp:593
+#: src/msgs.cpp:608
 msgid "Allow DOWN"
 msgstr "↓"
 
-#: src/msgs.cpp:594
+#: src/msgs.cpp:609
 msgid "SPACE"
 msgstr "スペース"
 
-#: src/msgs.cpp:595
+#: src/msgs.cpp:610
 msgid "num ,"
 msgstr "テンキー ,"
 
-#: src/msgs.cpp:596
+#: src/msgs.cpp:611
 msgid "num *"
 msgstr "テンキー *"
 
-#: src/msgs.cpp:597
+#: src/msgs.cpp:612
 msgid "num +"
 msgstr "テンキー +"
 
-#: src/msgs.cpp:598
+#: src/msgs.cpp:613
 msgid "num ?"
 msgstr "テンキー ?"
 
-#: src/msgs.cpp:599
+#: src/msgs.cpp:614
 msgid "num -"
 msgstr "テンキー -"
 
-#: src/msgs.cpp:600
+#: src/msgs.cpp:615
 msgid "num ."
 msgstr "テンキー ."
 
-#: src/msgs.cpp:601
+#: src/msgs.cpp:616
 msgid "num /"
 msgstr "テンキー /"
 
-#: src/msgs.cpp:602
+#: src/msgs.cpp:617
 msgid "num enter"
 msgstr "テンキー enter"
 
-#: src/msgs.cpp:603
+#: src/msgs.cpp:618
 msgid "num ="
 msgstr "テンキー ="
 
-#: src/msgs.cpp:604
+#: src/msgs.cpp:619
 msgid "num 0"
 msgstr "テンキー 0"
 
-#: src/msgs.cpp:605
+#: src/msgs.cpp:620
 #, c-format
 msgid "num %c"
 msgstr "テンキー %c"
 
-#: src/msgs.cpp:606
+#: src/msgs.cpp:621
 #, c-format
 msgid "num %d"
 msgstr "テンキー %d"
 
-#: src/msgs.cpp:607
+#: src/msgs.cpp:622
 #, c-format
 msgid "PF%d"
 msgstr ""
 
-#: src/msgs.cpp:608
+#: src/msgs.cpp:623
 #, c-format
 msgid "F%d"
 msgstr ""
 
-#: src/msgs.cpp:609
+#: src/msgs.cpp:624
 msgid "space"
 msgstr "スペース"
 
-#: src/msgs.cpp:610
+#: src/msgs.cpp:625
 msgid "up"
 msgstr "↑"
 
-#: src/msgs.cpp:611
+#: src/msgs.cpp:626
 msgid "up+right"
 msgstr "↑→"
 
-#: src/msgs.cpp:612
+#: src/msgs.cpp:627
 msgid "right"
 msgstr "→"
 
-#: src/msgs.cpp:613
+#: src/msgs.cpp:628
 msgid "down+right"
 msgstr "↓→"
 
-#: src/msgs.cpp:614
+#: src/msgs.cpp:629
 msgid "down"
 msgstr "↓"
 
-#: src/msgs.cpp:615
+#: src/msgs.cpp:630
 msgid "down+left"
 msgstr "←↓"
 
-#: src/msgs.cpp:616
+#: src/msgs.cpp:631
 msgid "left"
 msgstr "←"
 
-#: src/msgs.cpp:617
+#: src/msgs.cpp:632
 msgid "up+left"
 msgstr "←↑"
 
-#: src/msgs.cpp:618
+#: src/msgs.cpp:633
 msgid "YA up"
 msgstr "別 ↑"
 
-#: src/msgs.cpp:619
+#: src/msgs.cpp:634
 msgid "YA up+right"
 msgstr "別 ↑→"
 
-#: src/msgs.cpp:620
+#: src/msgs.cpp:635
 msgid "YA right"
 msgstr "別 →"
 
-#: src/msgs.cpp:621
+#: src/msgs.cpp:636
 msgid "YA down+right"
 msgstr "別 ↓→"
 
-#: src/msgs.cpp:622
+#: src/msgs.cpp:637
 msgid "YA down"
 msgstr "別 ↓"
 
-#: src/msgs.cpp:623
+#: src/msgs.cpp:638
 msgid "YA down+left"
 msgstr "別 ←↓"
 
-#: src/msgs.cpp:624
+#: src/msgs.cpp:639
 msgid "YA left"
 msgstr "別 ←"
 
-#: src/msgs.cpp:625
+#: src/msgs.cpp:640
 msgid "YA up+left"
 msgstr "別 ←↑"
 
-#: src/msgs.cpp:626
+#: src/msgs.cpp:641
 msgid "Y up"
 msgstr "Y ↑"
 
-#: src/msgs.cpp:627
+#: src/msgs.cpp:642
 msgid "YX up+right"
 msgstr "YX ↑→"
 
-#: src/msgs.cpp:628
+#: src/msgs.cpp:643
 msgid "X right"
 msgstr "X →"
 
-#: src/msgs.cpp:629
+#: src/msgs.cpp:644
 msgid "YX down+right"
 msgstr "YX ↓→"
 
-#: src/msgs.cpp:630
+#: src/msgs.cpp:645
 msgid "Y down"
 msgstr "Y ↓"
 
-#: src/msgs.cpp:631
+#: src/msgs.cpp:646
 msgid "YX down+left"
 msgstr "YX ←↓"
 
-#: src/msgs.cpp:632
+#: src/msgs.cpp:647
 msgid "X left"
 msgstr "X ←"
 
-#: src/msgs.cpp:633
+#: src/msgs.cpp:648
 msgid "YX up+left"
 msgstr "YX ←↑"
 
-#: src/msgs.cpp:634
+#: src/msgs.cpp:649
 msgid "R up"
 msgstr "R ↑"
 
-#: src/msgs.cpp:635
+#: src/msgs.cpp:650
 msgid "RZ up+right"
 msgstr "RZ ↑→"
 
-#: src/msgs.cpp:636
+#: src/msgs.cpp:651
 msgid "Z right"
 msgstr "Z →"
 
-#: src/msgs.cpp:637
+#: src/msgs.cpp:652
 msgid "RZ down+right"
 msgstr "RZ ↓→"
 
-#: src/msgs.cpp:638
+#: src/msgs.cpp:653
 msgid "R down"
 msgstr "R ↓"
 
-#: src/msgs.cpp:639
+#: src/msgs.cpp:654
 msgid "RZ down+left"
 msgstr "RZ ←↓"
 
-#: src/msgs.cpp:640
+#: src/msgs.cpp:655
 msgid "Z left"
 msgstr "Z ←"
 
-#: src/msgs.cpp:641
+#: src/msgs.cpp:656
 msgid "RZ up+left"
 msgstr "RZ ←↑"
 
-#: src/msgs.cpp:642
+#: src/msgs.cpp:657
 msgid "V up"
 msgstr "V ↑"
 
-#: src/msgs.cpp:643
+#: src/msgs.cpp:658
 msgid "VU up+right"
 msgstr "VU ↑→"
 
-#: src/msgs.cpp:644
+#: src/msgs.cpp:659
 msgid "U right"
 msgstr "U →"
 
-#: src/msgs.cpp:645
+#: src/msgs.cpp:660
 msgid "VU down+right"
 msgstr "VU ↓→"
 
-#: src/msgs.cpp:646
+#: src/msgs.cpp:661
 msgid "V down"
 msgstr "V ↓"
 
-#: src/msgs.cpp:647
+#: src/msgs.cpp:662
 msgid "VU down+left"
 msgstr "VU ←↓"
 
-#: src/msgs.cpp:648
+#: src/msgs.cpp:663
 msgid "U left"
 msgstr "U ←"
 
-#: src/msgs.cpp:649
+#: src/msgs.cpp:664
 msgid "VU up+left"
 msgstr "VU ←↑"
 
-#: src/msgs.cpp:650
+#: src/msgs.cpp:665
 msgid "POV up"
 msgstr "POV ↑"
 
-#: src/msgs.cpp:651
+#: src/msgs.cpp:666
 msgid "POV up+right"
 msgstr "POV ↑→"
 
-#: src/msgs.cpp:652
+#: src/msgs.cpp:667
 msgid "POV right"
 msgstr "POV →"
 
-#: src/msgs.cpp:653
+#: src/msgs.cpp:668
 msgid "POV down+right"
 msgstr "POV ↓→"
 
-#: src/msgs.cpp:654
+#: src/msgs.cpp:669
 msgid "POV down"
 msgstr "POV ↓"
 
-#: src/msgs.cpp:655
+#: src/msgs.cpp:670
 msgid "POV down+left"
 msgstr "POV ←↓"
 
-#: src/msgs.cpp:656
+#: src/msgs.cpp:671
 msgid "POV left"
 msgstr "POV ←"
 
-#: src/msgs.cpp:657
+#: src/msgs.cpp:672
 msgid "POV up+left"
 msgstr "POV ←↑"
 
-#: src/msgs.cpp:658
+#: src/msgs.cpp:673
 msgid "button"
 msgstr "ボタン"
 
-#: src/msgs.cpp:659
+#: src/msgs.cpp:674
 msgid "button A"
 msgstr "ボタンA"
 
-#: src/msgs.cpp:660
+#: src/msgs.cpp:675
 msgid "button B"
 msgstr "ボタンB"
 
-#: src/msgs.cpp:661
+#: src/msgs.cpp:676
 msgid "button C"
 msgstr "ボタンC"
 
-#: src/msgs.cpp:662
+#: src/msgs.cpp:677
 msgid "button D, X"
 msgstr "ボタンD, X"
 
-#: src/msgs.cpp:663
+#: src/msgs.cpp:678
 msgid "button E1, Y"
 msgstr "ボタンE1, Y"
 
-#: src/msgs.cpp:664
+#: src/msgs.cpp:679
 msgid "button E2, Z"
 msgstr "ボタンE2, Z"
 
-#: src/msgs.cpp:665
+#: src/msgs.cpp:680
 msgid "button L"
 msgstr "ボタンL"
 
-#: src/msgs.cpp:666
+#: src/msgs.cpp:681
 msgid "button R"
 msgstr "ボタンR"
 
-#: src/msgs.cpp:667
+#: src/msgs.cpp:682
 #, c-format
 msgid "button %c"
 msgstr "ボタン %c"
 
-#: src/msgs.cpp:668
+#: src/msgs.cpp:683
 #, c-format
 msgid "trigger %c"
 msgstr "トリガ%c"
 
-#: src/msgs.cpp:669
+#: src/msgs.cpp:684
 #, c-format
 msgid "bit %d"
 msgstr "ビット %d"
 
-#: src/msgs.cpp:670
+#: src/msgs.cpp:685
 msgid "select"
 msgstr "セレクト"
 
-#: src/msgs.cpp:671
+#: src/msgs.cpp:686
 msgid "start"
 msgstr "スタート"
 
-#: src/msgs.cpp:672
+#: src/msgs.cpp:687
 msgid "Left Analog X"
 msgstr "左アナログX"
 
-#: src/msgs.cpp:673
+#: src/msgs.cpp:688
 msgid "Left Analog Y"
 msgstr "左アナログY"
 
-#: src/msgs.cpp:674
+#: src/msgs.cpp:689
 msgid "Right Analog X"
 msgstr "右アナログX"
 
-#: src/msgs.cpp:675
+#: src/msgs.cpp:690
 msgid "Right Analog Y"
 msgstr "右アナログY"
 
-#: src/msgs.cpp:676
+#: src/msgs.cpp:691
 msgid "Analog X"
 msgstr "アナログX"
 
-#: src/msgs.cpp:677
+#: src/msgs.cpp:692
 msgid "Analog Y"
 msgstr "アナログY"
 
-#: src/msgs.cpp:678
+#: src/msgs.cpp:693
 msgid "Analog Z"
 msgstr "アナログZ"
 
-#: src/msgs.cpp:679
+#: src/msgs.cpp:694
 msgid "Analog R"
 msgstr "アナログR"
 
-#: src/msgs.cpp:680
+#: src/msgs.cpp:695
 msgid "Analog U"
 msgstr "アナログU"
 
-#: src/msgs.cpp:681
+#: src/msgs.cpp:696
 msgid "Analog V"
 msgstr "アナログV"
 
-#: src/msgs.cpp:682
+#: src/msgs.cpp:697
 msgid "Analog X (Rev.)"
 msgstr "アナログX (反転)"
 
-#: src/msgs.cpp:683
+#: src/msgs.cpp:698
 msgid "Analog Y (Rev.)"
 msgstr "アナログY (反転)"
 
-#: src/msgs.cpp:684
+#: src/msgs.cpp:699
 msgid "Analog Z (Rev.)"
 msgstr "アナログZ (反転)"
 
-#: src/msgs.cpp:685
+#: src/msgs.cpp:700
 msgid "Analog R (Rev.)"
 msgstr "アナログR (反転)"
 
-#: src/msgs.cpp:686
+#: src/msgs.cpp:701
 msgid "Analog U (Rev.)"
 msgstr "アナログU (反転)"
 
-#: src/msgs.cpp:687
+#: src/msgs.cpp:702
 msgid "Analog V (Rev.)"
 msgstr "アナログV (反転)"
 
-#: src/msgs.cpp:688
+#: src/msgs.cpp:703
 msgid "Enable X-axis"
 msgstr "X軸有効"
 
-#: src/msgs.cpp:689
+#: src/msgs.cpp:704
 msgid "Enable Y-axis"
 msgstr "Y軸有効"
 
-#: src/msgs.cpp:690
+#: src/msgs.cpp:705
 msgid "Enable Z-axis"
 msgstr "Z軸有効"
 
-#: src/msgs.cpp:691
+#: src/msgs.cpp:706
 msgid "Enable R-axis"
 msgstr "R軸有効"
 
-#: src/msgs.cpp:692
+#: src/msgs.cpp:707
 msgid "Enable U-axis"
 msgstr "U軸有効"
 
-#: src/msgs.cpp:693
+#: src/msgs.cpp:708
 msgid "Enable V-axis"
 msgstr "V軸有効"
 
-#: src/msgs.cpp:694
+#: src/msgs.cpp:709
 msgid "X-axis"
 msgstr "X軸"
 
-#: src/msgs.cpp:695
+#: src/msgs.cpp:710
 msgid "Y-axis"
 msgstr "Y軸"
 
-#: src/msgs.cpp:696
+#: src/msgs.cpp:711
 msgid "Z-axis"
 msgstr "Z軸"
 
-#: src/msgs.cpp:697
+#: src/msgs.cpp:712
 msgid "R-axis"
 msgstr "R軸"
 
-#: src/msgs.cpp:698
+#: src/msgs.cpp:713
 msgid "U-axis"
 msgstr "U軸"
 
-#: src/msgs.cpp:699
+#: src/msgs.cpp:714
 msgid "V-axis"
 msgstr "V軸"
 
-#: src/msgs.cpp:700
+#: src/msgs.cpp:715
 msgid "kanji"
 msgstr "漢字"
 
-#: src/msgs.cpp:701
+#: src/msgs.cpp:716
 msgid "henkan"
 msgstr "変換"
 
-#: src/msgs.cpp:702
+#: src/msgs.cpp:717
 msgid "muhenkan"
 msgstr "無変換"
 
-#: src/msgs.cpp:703
+#: src/msgs.cpp:718
 msgid "katakana"
 msgstr "カタカナ"
 
-#: src/msgs.cpp:704
+#: src/msgs.cpp:719
 msgid "eisu"
 msgstr "英数"
 
-#: src/msgs.cpp:705
+#: src/msgs.cpp:720
 msgid "kana"
 msgstr "カナ"
 
-#: src/msgs.cpp:706
+#: src/msgs.cpp:721
 msgid "roma-ji"
 msgstr ""
 
-#: src/msgs.cpp:707
+#: src/msgs.cpp:722
 msgid "right shift"
 msgstr "右shift"
 
-#: src/msgs.cpp:708
+#: src/msgs.cpp:723
 msgid "left shift"
 msgstr "左shift"
 
-#: src/msgs.cpp:709
+#: src/msgs.cpp:724
 msgid "right ctrl"
 msgstr "右ctrl"
 
-#: src/msgs.cpp:710
+#: src/msgs.cpp:725
 msgid "left ctrl"
 msgstr "左ctrl"
 
-#: src/msgs.cpp:711
+#: src/msgs.cpp:726
 msgid "right option"
 msgstr "右option"
 
-#: src/msgs.cpp:712
+#: src/msgs.cpp:727
 msgid "right alt"
 msgstr "右alt"
 
-#: src/msgs.cpp:713
+#: src/msgs.cpp:728
 msgid "left option"
 msgstr "左option"
 
-#: src/msgs.cpp:714
+#: src/msgs.cpp:729
 msgid "left alt"
 msgstr "左alt"
 
-#: src/msgs.cpp:715
+#: src/msgs.cpp:730
 msgid "right command"
 msgstr "右command"
 
-#: src/msgs.cpp:716
+#: src/msgs.cpp:731
 msgid "right meta"
 msgstr "右meta"
 
-#: src/msgs.cpp:717
+#: src/msgs.cpp:732
 msgid "left command"
 msgstr "左command"
 
-#: src/msgs.cpp:718
+#: src/msgs.cpp:733
 msgid "left meta"
 msgstr "左meta"
 
-#: src/msgs.cpp:719
+#: src/msgs.cpp:734
 msgid "right win"
 msgstr "右win"
 
-#: src/msgs.cpp:720
+#: src/msgs.cpp:735
 msgid "left win"
 msgstr "左win"
 
-#: src/msgs.cpp:721
+#: src/msgs.cpp:736
 msgid "Next"
 msgstr "次"
 
-#: src/msgs.cpp:722
+#: src/msgs.cpp:737
 msgid "Prev"
 msgstr "前"
 
-#: src/msgs.cpp:723
+#: src/msgs.cpp:738
 msgid "Bind"
 msgstr "割り当て"
 
-#: src/msgs.cpp:724
+#: src/msgs.cpp:739
 #, c-format
 msgid "Bind%d"
 msgstr "割り当て%d"
 
-#: src/msgs.cpp:729
+#: src/msgs.cpp:744
 msgid "X68000 Key"
 msgstr ""
 
-#: src/msgs.cpp:730
+#: src/msgs.cpp:745
 msgid "X68000 Port"
 msgstr "X68000ポート"
 
-#: src/msgs.cpp:731
+#: src/msgs.cpp:746
 msgid "Keyboard"
 msgstr "キーボード"
 
-#: src/msgs.cpp:732
+#: src/msgs.cpp:747
 msgid "Joypad"
 msgstr "ジョイパッド"
 
-#: src/msgs.cpp:733
+#: src/msgs.cpp:748
 msgid "Joypad (Key Assigned)"
 msgstr "ジョイパッド（キー割当）"
 
-#: src/msgs.cpp:734
+#: src/msgs.cpp:749
 msgid "Joypad (Port Connected)"
 msgstr "ジョイパッド（ポート接続）"
 
-#: src/msgs.cpp:735
+#: src/msgs.cpp:750
 msgid "Key to Joypad"
 msgstr "キーtoジョイパッド"
 
-#: src/msgs.cpp:736
+#: src/msgs.cpp:751
+msgid "Joypad to Key"
+msgstr "ジョイパッドtoキー"
+
+#: src/msgs.cpp:752
 #, c-format
 msgid "Joypad%d"
 msgstr "ジョイパッド%d"
 
-#: src/msgs.cpp:737
+#: src/msgs.cpp:753
 msgid "Signals are negative logic"
 msgstr "信号は負論理"
 
-#: src/msgs.cpp:738
+#: src/msgs.cpp:754
 msgid "Recognize as another key when pressed two buttons"
 msgstr "2つのボタンを押したとき、別のキーと認識する"
 
-#: src/msgs.cpp:739
+#: src/msgs.cpp:755
 msgid "Load Default"
 msgstr "デフォルトをロード"
 
-#: src/msgs.cpp:740
+#: src/msgs.cpp:756
 msgid "Load Preset 1"
 msgstr "プリセット1をロード"
 
-#: src/msgs.cpp:741
+#: src/msgs.cpp:757
 msgid "Load Preset 2"
 msgstr "プリセット2をロード"
 
-#: src/msgs.cpp:742
+#: src/msgs.cpp:758
 msgid "Load Preset 3"
 msgstr "プリセット3をロード"
 
-#: src/msgs.cpp:743
+#: src/msgs.cpp:759
 msgid "Load Preset 4"
 msgstr "プリセット4をロード"
 
-#: src/msgs.cpp:744
+#: src/msgs.cpp:760
 #, c-format
 msgid "Load Preset %d"
 msgstr "プリセット%dをロード"
 
-#: src/msgs.cpp:745
+#: src/msgs.cpp:761
 msgid "Save Preset 1"
 msgstr "プリセット1に保存"
 
-#: src/msgs.cpp:746
+#: src/msgs.cpp:762
 msgid "Save Preset 2"
 msgstr "プリセット2に保存"
 
-#: src/msgs.cpp:747
+#: src/msgs.cpp:763
 msgid "Save Preset 3"
 msgstr "プリセット3に保存"
 
-#: src/msgs.cpp:748
+#: src/msgs.cpp:764
 msgid "Save Preset 4"
 msgstr "プリセット4に保存"
 
-#: src/msgs.cpp:749
+#: src/msgs.cpp:765
 #, c-format
 msgid "Save Preset %d"
 msgstr "プリセット%dに保存"
 
-#: src/msgs.cpp:750
+#: src/msgs.cpp:766
 msgid "Button Mashing Speed"
 msgstr "連射スピード"
 
-#: src/msgs.cpp:751
+#: src/msgs.cpp:767
 msgid "Analog to Digital Threshold"
 msgstr "アナログ→デジタル しきい値"
 
-#: src/msgs.cpp:752
+#: src/msgs.cpp:768
 msgid "Analog to Digital Sensitivity"
 msgstr "アナログ→デジタル 感度"
 
-#: src/msgs.cpp:753 src/res/windows/x68000_gui.rc:61
+#: src/msgs.cpp:769 src/res/windows/x68000_gui.rc:61
 msgid "Volume"
 msgstr "ボリューム"
 
-#: src/msgs.cpp:754
+#: src/msgs.cpp:770
 msgid "Master"
 msgstr "マスター"
 
-#: src/msgs.cpp:755
+#: src/msgs.cpp:771
 msgid "Beep"
 msgstr ""
 
-#: src/msgs.cpp:756
+#: src/msgs.cpp:772
 msgid "PSG"
 msgstr ""
 
-#: src/msgs.cpp:757
+#: src/msgs.cpp:773
 msgid ""
 "6voice\n"
 "PSG"
@@ -2884,7 +2948,7 @@ msgstr ""
 "6声\n"
 "PSG"
 
-#: src/msgs.cpp:758
+#: src/msgs.cpp:774
 msgid ""
 "9voice\n"
 "PSG"
@@ -2892,153 +2956,153 @@ msgstr ""
 "9声\n"
 "PSG"
 
-#: src/msgs.cpp:759
+#: src/msgs.cpp:775
 msgid "Relay"
 msgstr "リレー"
 
-#: src/msgs.cpp:760
+#: src/msgs.cpp:776
 msgid "CMT"
 msgstr ""
 
-#: src/msgs.cpp:761
+#: src/msgs.cpp:777
 msgid ""
 "ExPSG\n"
 "FM"
 msgstr ""
 
-#: src/msgs.cpp:762
+#: src/msgs.cpp:778
 msgid ""
 "ExPSG\n"
 "SSG"
 msgstr ""
 
-#: src/msgs.cpp:763
+#: src/msgs.cpp:779
 msgid ""
 "OPN\n"
 "FM"
 msgstr ""
 
-#: src/msgs.cpp:764
+#: src/msgs.cpp:780
 msgid ""
 "OPN\n"
 "SSG"
 msgstr ""
 
-#: src/msgs.cpp:765
+#: src/msgs.cpp:781
 msgid "FM OPM"
 msgstr ""
 
-#: src/msgs.cpp:766
+#: src/msgs.cpp:782
 msgid "ADPCM"
 msgstr ""
 
-#: src/msgs.cpp:767
+#: src/msgs.cpp:783
 msgid "Mute"
 msgstr "ミュート"
 
-#: src/msgs.cpp:768
+#: src/msgs.cpp:784
 msgid "Standard"
 msgstr "標準"
 
-#: src/msgs.cpp:769
+#: src/msgs.cpp:785
 msgid "MegaDrive 3 Buttons"
 msgstr "メガドライブ 3ボタン"
 
-#: src/msgs.cpp:770
+#: src/msgs.cpp:786
 msgid "MegaDrive 6 Buttons"
 msgstr "メガドライブ 6ボタン"
 
-#: src/msgs.cpp:771
+#: src/msgs.cpp:787
 msgid "Power Stick Fighter"
 msgstr "パワースティックファイター"
 
-#: src/msgs.cpp:772
+#: src/msgs.cpp:788
 msgid "Power Stick Fighter MD"
 msgstr "パワースティックファイターMD"
 
-#: src/msgs.cpp:773
+#: src/msgs.cpp:789
 msgid "Twin Plus (XPD-1LR)"
 msgstr "ツインプラス(XPD-1LR)"
 
-#: src/msgs.cpp:774
+#: src/msgs.cpp:790
 msgid "Cyber Stick"
 msgstr "サイバースティック"
 
-#: src/msgs.cpp:776
+#: src/msgs.cpp:792
 #, c-format
 msgid "%s was loaded."
 msgstr "%sがロードされました。"
 
-#: src/msgs.cpp:777
+#: src/msgs.cpp:793
 #, c-format
 msgid "%s couldn't be loaded."
 msgstr "%sをロードできませんでした。"
 
-#: src/msgs.cpp:778
+#: src/msgs.cpp:794
 #, c-format
 msgid "%s is invalid file."
 msgstr "%sは不正なファイルです。"
 
-#: src/msgs.cpp:779
+#: src/msgs.cpp:795
 #, c-format
 msgid "%s is invalid version."
 msgstr "%sは不正なバージョンです。"
 
-#: src/msgs.cpp:780
+#: src/msgs.cpp:796
 #, c-format
 msgid "%s is old version."
 msgstr "%sは古いバージョンです。"
 
-#: src/msgs.cpp:781
+#: src/msgs.cpp:797
 #, c-format
 msgid "%s was saved."
 msgstr "%sが保存されました。"
 
-#: src/msgs.cpp:782
+#: src/msgs.cpp:798
 #, c-format
 msgid "%s couldn't be saved."
 msgstr "%sを保存できませんでした。"
 
-#: src/msgs.cpp:783
+#: src/msgs.cpp:799
 #, c-format
 msgid "%s is not compatible. use default setting."
 msgstr "%sは互換がありません。デフォルト設定を使用します。"
 
-#: src/msgs.cpp:784
+#: src/msgs.cpp:800
 msgid "Floppy image couldn't be opened."
 msgstr "フロッピーイメージをオープンできませんでした。"
 
-#: src/msgs.cpp:785
+#: src/msgs.cpp:801
 #, c-format
 msgid "Floppy image on drive %d couldn't be opened."
 msgstr "ドライブ%dのフロッピーイメージをオープンできませんでした。"
 
-#: src/msgs.cpp:786
+#: src/msgs.cpp:802
 #, c-format
 msgid "Floppy image on drive %d couldn't be saved."
 msgstr "ドライブ%dのフロッピーイメージを保存できませんでした。"
 
-#: src/msgs.cpp:787
+#: src/msgs.cpp:803
 #, c-format
 msgid "Floppy image on drive %d is saved as the new file: %s."
 msgstr "ドライブ%dのフロッピーイメージは新しいファイル%sで保存されます。"
 
-#: src/msgs.cpp:788
+#: src/msgs.cpp:804
 #, c-format
 msgid "There is the same disk in drive %d and %d."
 msgstr "ドライブ%dと%dに同じディスクが入っています。"
 
-#: src/msgs.cpp:789
+#: src/msgs.cpp:805
 #, c-format
 msgid "The density in track %d, side %d is different from specified one."
 msgstr "トラック%d, サイド%dの密度が指定されたものと異なります。"
 
-#: src/msgs.cpp:790
+#: src/msgs.cpp:806
 #, c-format
 msgid "The media type in drive %d is different from specified one."
 msgstr "ドライブ%dのメディア種類が指定されたものと異なります。"
 
-#: src/msgs.cpp:791
+#: src/msgs.cpp:807
 #, c-format
 msgid ""
 "Eject switch is locked on drive %d. Reselect the menu in order to eject the "
@@ -3047,287 +3111,287 @@ msgstr ""
 "ドライブ%dのイジェクトスイッチはロックされています。 ディスクを強制的に取り出"
 "すにはメニューを再度選択します。"
 
-#: src/msgs.cpp:792
+#: src/msgs.cpp:808
 #, c-format
 msgid "The disk on drive %d was ejected forcely."
 msgstr "ドライブ%dのディスクが強制的に排出されました。"
 
-#: src/msgs.cpp:793
+#: src/msgs.cpp:809
 #, c-format
 msgid "Hard disk image on unit %d couldn't be opened."
 msgstr "ユニット%dのハードディスクイメージをオープンできませんでした。"
 
-#: src/msgs.cpp:794
+#: src/msgs.cpp:810
 msgid "Tape image couldn't be opened."
 msgstr "テープイメージをオープンできませんでした。"
 
-#: src/msgs.cpp:795
+#: src/msgs.cpp:811
 msgid "Tape image couldn't be saved."
 msgstr "テープイメージを保存できませんでした。"
 
-#: src/msgs.cpp:796
+#: src/msgs.cpp:812
 msgid "Print image couldn't be saved."
 msgstr "印刷イメージを保存できませんでした。"
 
-#: src/msgs.cpp:797
+#: src/msgs.cpp:813
 msgid "Status image couldn't be saved."
 msgstr "状態イメージを保存できませんでした。"
 
-#: src/msgs.cpp:798
+#: src/msgs.cpp:814
 msgid "Status image couldn't be loaded."
 msgstr "状態イメージをロードできませんでした。"
 
-#: src/msgs.cpp:799
+#: src/msgs.cpp:815
 msgid "Load State: Cannot open."
 msgstr "状態ロード：オープンできません。"
 
-#: src/msgs.cpp:800
+#: src/msgs.cpp:816
 msgid "Load State: Unsupported file."
 msgstr "状態ロード：サポートされていないファイルです。"
 
-#: src/msgs.cpp:801
+#: src/msgs.cpp:817
 msgid "Load State: Invalid version."
 msgstr "状態ロード：不正なバージョン。"
 
-#: src/msgs.cpp:802
+#: src/msgs.cpp:818
 #, c-format
 msgid "Load State: No longer support a status file for %s."
 msgstr "状態ロード：%s用の状態ファイルはもうサポートされません。"
 
-#: src/msgs.cpp:803
+#: src/msgs.cpp:819
 msgid "Auto key file couldn't be opened."
 msgstr "オートキーファイルをオープンできませんでした。"
 
-#: src/msgs.cpp:804
+#: src/msgs.cpp:820
 msgid "Record key file couldn't be saved."
 msgstr "キー記録ファイルを保存できませんでした。"
 
-#: src/msgs.cpp:805
+#: src/msgs.cpp:821
 #, c-format
 msgid "%s is %d bytes smaller than assumed one."
 msgstr "%sは想定されているものより%dバイト小さいサイズです。"
 
-#: src/msgs.cpp:806
+#: src/msgs.cpp:822
 #, c-format
 msgid "%s is different image from assumed one."
 msgstr "%sは想定されているものとイメージが異なります。"
 
-#: src/msgs.cpp:807
+#: src/msgs.cpp:823
 msgid "This is not record key file."
 msgstr "これはキー記録ファイルではありません。"
 
-#: src/msgs.cpp:808
+#: src/msgs.cpp:824
 msgid "Record key file is invalid version."
 msgstr "キー記録ファイルは不正なバージョンです。"
 
-#: src/msgs.cpp:809
+#: src/msgs.cpp:825
 msgid "Record key file has invalid parameter."
 msgstr "キー記録ファイルに不正なパラメータがあります。"
 
-#: src/msgs.cpp:810
+#: src/msgs.cpp:826
 msgid "The record key file is not supported."
 msgstr "キー記録ファイルはサポートされていません。"
 
-#: src/msgs.cpp:811
+#: src/msgs.cpp:827
 #, c-format
 msgid "The record key file for %s is no longer supported."
 msgstr "%s用のキー記録ファイルはもうサポートされません。"
 
-#: src/msgs.cpp:812
+#: src/msgs.cpp:828
 #, c-format
 msgid "The version of the emulator used for recording is %d.%d.%d."
 msgstr "記録に使用したエミュレータのバージョンは%d.%d.%dです。"
 
-#: src/msgs.cpp:813
+#: src/msgs.cpp:829
 msgid "Couldn't start recording audio."
 msgstr "録音を開始できませんでした。"
 
-#: src/msgs.cpp:814
+#: src/msgs.cpp:830
 msgid "Couldn't start recording video."
 msgstr "録画を開始できませんでした。"
 
-#: src/msgs.cpp:815
+#: src/msgs.cpp:831
 msgid "Now saving video file..."
 msgstr "ビデオファイルを保存中..."
 
-#: src/msgs.cpp:816
+#: src/msgs.cpp:832
 msgid "Video file was saved."
 msgstr "ビデオファイルが保存されました。"
 
-#: src/msgs.cpp:817
+#: src/msgs.cpp:833
 msgid "Screen was saved successfully."
 msgstr "画面が正常に保存されました。"
 
-#: src/msgs.cpp:818
+#: src/msgs.cpp:834
 msgid "Select a sample rate on sound menu in advance."
 msgstr "あらかじめサウンドメニューでサンプルレートを選択してください。"
 
-#: src/msgs.cpp:819
+#: src/msgs.cpp:835
 msgid "You can set properties after pressing start button."
 msgstr "開始ボタンを押した後に設定できます。"
 
-#: src/msgs.cpp:820
+#: src/msgs.cpp:836
 msgid "! Need install library."
 msgstr "! ライブラリをインストールする必要があります。"
 
-#: src/msgs.cpp:821
+#: src/msgs.cpp:837
 msgid "Codec Type"
 msgstr "コーデック"
 
-#: src/msgs.cpp:822
+#: src/msgs.cpp:838
 msgid "Quality"
 msgstr "品質"
 
-#: src/msgs.cpp:823
+#: src/msgs.cpp:839
 msgid "Max (368Kbps)"
 msgstr "最大 (368Kbps)"
 
-#: src/msgs.cpp:824
+#: src/msgs.cpp:840
 msgid "High (256Kbps)"
 msgstr "高 (256Kbps)"
 
-#: src/msgs.cpp:825
+#: src/msgs.cpp:841
 msgid "Normal (128Kbps)"
 msgstr "普通 (128Kbps)"
 
-#: src/msgs.cpp:826
+#: src/msgs.cpp:842
 msgid "Low (96Kbps)"
 msgstr "低 (96Kbps)"
 
-#: src/msgs.cpp:827
+#: src/msgs.cpp:843
 msgid "Min (64Kbps)"
 msgstr "最小 (64Kbps)"
 
-#: src/msgs.cpp:828
+#: src/msgs.cpp:844
 msgid "Max (50Mbps)"
 msgstr "最大 (50Mbps)"
 
-#: src/msgs.cpp:829
+#: src/msgs.cpp:845
 msgid "High (10Mbps)"
 msgstr "高 (10Mbps)"
 
-#: src/msgs.cpp:830
+#: src/msgs.cpp:846
 msgid "Normal (1Mbps)"
 msgstr "普通 (1Mbps)"
 
-#: src/msgs.cpp:831
+#: src/msgs.cpp:847
 msgid "Low (500Kbps)"
 msgstr "低 (500Kbps)"
 
-#: src/msgs.cpp:832
+#: src/msgs.cpp:848
 msgid "Min (100Kbps)"
 msgstr "最小 (100Kbps)"
 
-#: src/msgs.cpp:833
+#: src/msgs.cpp:849
 msgid "Max"
 msgstr "最大"
 
-#: src/msgs.cpp:834
+#: src/msgs.cpp:850
 msgid "High"
 msgstr "高"
 
-#: src/msgs.cpp:835
+#: src/msgs.cpp:851
 msgid "Normal"
 msgstr "普通"
 
-#: src/msgs.cpp:836
+#: src/msgs.cpp:852
 msgid "Middle"
 msgstr "中"
 
-#: src/msgs.cpp:837
+#: src/msgs.cpp:853
 msgid "Low"
 msgstr "低"
 
-#: src/msgs.cpp:838
+#: src/msgs.cpp:854
 msgid "Min"
 msgstr "最小"
 
-#: src/msgs.cpp:839
+#: src/msgs.cpp:855
 msgid "Debugger was started."
 msgstr "デバッガを開始しました。"
 
-#: src/msgs.cpp:840
+#: src/msgs.cpp:856
 msgid "Cannot start debugger."
 msgstr "デバッガを開始できません。"
 
-#: src/msgs.cpp:841
+#: src/msgs.cpp:857
 msgid "Debugger was stopped."
 msgstr "デバッガを停止しました。"
 
-#: src/msgs.cpp:842
+#: src/msgs.cpp:858
 #, c-format
 msgid "Save to: %s"
 msgstr "保存先: %s"
 
-#: src/msgs.cpp:843 src/gui/cocoa/cocoa_gui.mm:2454
+#: src/msgs.cpp:859 src/gui/cocoa/cocoa_gui.mm:2457
 msgid "About bml3mk5"
 msgstr "bml3mk5について"
 
-#: src/msgs.cpp:844 src/gui/cocoa/cocoa_gui.mm:2450
+#: src/msgs.cpp:860 src/gui/cocoa/cocoa_gui.mm:2453
 msgid "About mbs1"
 msgstr "mbs1について"
 
-#: src/msgs.cpp:845 src/gui/cocoa/cocoa_gui.mm:2454
+#: src/msgs.cpp:861 src/gui/cocoa/cocoa_gui.mm:2457
 msgid "Hide bml3mk5"
 msgstr "bml3mk5を隠す"
 
-#: src/msgs.cpp:846 src/gui/cocoa/cocoa_gui.mm:2450
+#: src/msgs.cpp:862 src/gui/cocoa/cocoa_gui.mm:2453
 msgid "Hide mbs1"
 msgstr "mbs1を隠す"
 
-#: src/msgs.cpp:847 src/gui/cocoa/cocoa_gui.mm:2454
+#: src/msgs.cpp:863 src/gui/cocoa/cocoa_gui.mm:2457
 msgid "Quit bml3mk5"
 msgstr "bml3mk5を終了"
 
-#: src/msgs.cpp:848 src/gui/cocoa/cocoa_gui.mm:2450
+#: src/msgs.cpp:864 src/gui/cocoa/cocoa_gui.mm:2453
 msgid "Quit mbs1"
 msgstr "mbs1を終了"
 
-#: src/msgs.cpp:849 src/gui/cocoa/cocoa_gui.mm:2450
-#: src/gui/cocoa/cocoa_gui.mm:2452 src/gui/cocoa/cocoa_gui.mm:2454
+#: src/msgs.cpp:865 src/gui/cocoa/cocoa_gui.mm:2453
+#: src/gui/cocoa/cocoa_gui.mm:2455 src/gui/cocoa/cocoa_gui.mm:2457
 msgid "Hide Others"
 msgstr "ほかを隠す"
 
-#: src/msgs.cpp:850 src/gui/cocoa/cocoa_gui.mm:2450
-#: src/gui/cocoa/cocoa_gui.mm:2452 src/gui/cocoa/cocoa_gui.mm:2454
+#: src/msgs.cpp:866 src/gui/cocoa/cocoa_gui.mm:2453
+#: src/gui/cocoa/cocoa_gui.mm:2455 src/gui/cocoa/cocoa_gui.mm:2457
 msgid "Show All"
 msgstr "すべてを表示"
 
-#: src/msgs.cpp:851 src/res/windows/x68000_gui.rc:422
+#: src/msgs.cpp:867 src/res/windows/x68000_gui.rc:433
 msgid "Show All\tAlt+Shift+0"
 msgstr "全て表示\tAlt+Shift+0"
 
-#: src/msgs.cpp:852 src/gui/cocoa/cocoa_gui.mm:2450
-#: src/gui/cocoa/cocoa_gui.mm:2452 src/gui/cocoa/cocoa_gui.mm:2454
+#: src/msgs.cpp:868 src/gui/cocoa/cocoa_gui.mm:2453
+#: src/gui/cocoa/cocoa_gui.mm:2455 src/gui/cocoa/cocoa_gui.mm:2457
 msgid "Services"
 msgstr "サービス"
 
-#: src/msgs.cpp:853
+#: src/msgs.cpp:869
 msgid "Preferences..."
 msgstr "環境設定..."
 
-#: src/msgs.cpp:854
+#: src/msgs.cpp:870
 msgid "Language (*)"
 msgstr "言語 (*)"
 
-#: src/msgs.cpp:855
+#: src/msgs.cpp:871
 msgid "Default"
 msgstr "デフォルト"
 
-#: src/gui/cocoa/cocoa_gui.mm:2450 src/gui/cocoa/cocoa_gui.mm:2452
-#: src/gui/cocoa/cocoa_gui.mm:2454
+#: src/gui/cocoa/cocoa_gui.mm:2453 src/gui/cocoa/cocoa_gui.mm:2455
+#: src/gui/cocoa/cocoa_gui.mm:2457
 msgid "Preferences…"
 msgstr "環境設定..."
 
-#: src/gui/cocoa/cocoa_gui.mm:2452
+#: src/gui/cocoa/cocoa_gui.mm:2455
 msgid "About x68000"
 msgstr "x68000について"
 
-#: src/gui/cocoa/cocoa_gui.mm:2452
+#: src/gui/cocoa/cocoa_gui.mm:2455
 msgid "Hide x68000"
 msgstr "x68000を隠す"
 
-#: src/gui/cocoa/cocoa_gui.mm:2452
+#: src/gui/cocoa/cocoa_gui.mm:2455
 msgid "Quit x68000"
 msgstr "x68000を終了"
 
@@ -3351,77 +3415,88 @@ msgstr ""
 msgid "OUT"
 msgstr ""
 
-#: src/res/windows/x68000_gui.rc:144
+#: src/res/windows/x68000_gui.rc:146
 msgid "&Control"
 msgstr "操作"
 
-#: src/res/windows/x68000_gui.rc:206
+#: src/res/windows/x68000_gui.rc:199
 msgid "&Tape"
 msgstr "テープ"
 
-#: src/res/windows/x68000_gui.rc:227
+#: src/res/windows/x68000_gui.rc:220
 msgid "FDD&0"
 msgstr ""
 
-#: src/res/windows/x68000_gui.rc:252
+#: src/res/windows/x68000_gui.rc:245
 msgid "FDD&1"
 msgstr ""
 
-#: src/res/windows/x68000_gui.rc:277
+#: src/res/windows/x68000_gui.rc:270
 msgid "FDD&2"
 msgstr ""
 
-#: src/res/windows/x68000_gui.rc:302
+#: src/res/windows/x68000_gui.rc:295
 msgid "FDD&3"
 msgstr ""
 
-#: src/res/windows/x68000_gui.rc:327
+#: src/res/windows/x68000_gui.rc:320
 msgid "&HDD"
 msgstr ""
 
-#: src/res/windows/x68000_gui.rc:329
+#: src/res/windows/x68000_gui.rc:322
 msgid "SASI0"
 msgstr ""
 
-#: src/res/windows/x68000_gui.rc:347
+#: src/res/windows/x68000_gui.rc:339
+msgid "SASI1"
+msgstr ""
+
+#: src/res/windows/x68000_gui.rc:358
 msgid "&Screen"
 msgstr "画面"
 
-#: src/res/windows/x68000_gui.rc:362
+#: src/res/windows/x68000_gui.rc:373
 msgid "640x480"
 msgstr ""
 
-#: src/res/windows/x68000_gui.rc:363
+#: src/res/windows/x68000_gui.rc:374
 msgid "768x512"
 msgstr ""
 
-#: src/res/windows/x68000_gui.rc:378
+#: src/res/windows/x68000_gui.rc:389
 msgid "x1"
 msgstr ""
 
-#: src/res/windows/x68000_gui.rc:389
+#: src/res/windows/x68000_gui.rc:400
 msgid "Square"
 msgstr "正方形"
 
-#: src/res/windows/x68000_gui.rc:445
+#: src/res/windows/x68000_gui.rc:456
 msgid "So&und"
 msgstr "サウンド"
 
-#: src/res/windows/x68000_gui.rc:475
+#: src/res/windows/x68000_gui.rc:486
 msgid "&Devices"
 msgstr "デバイス"
 
-#: src/res/windows/x68000_gui.rc:506
+#: src/res/windows/x68000_gui.rc:517
 msgid "&Options"
 msgstr "オプション"
 
-#: src/res/windows/x68000_gui.rc:530
+#: src/res/windows/x68000_gui.rc:532
+msgid "Enable Joypad (Port Connected)\tAlt+J"
+msgstr "ジョイパッド有効（ポート接続）\tAlt+J"
+
+#: src/res/windows/x68000_gui.rc:543
 msgid "Use DirectInput For Key In"
 msgstr "キー入力にDirectInputを使用"
 
-#: src/res/windows/x68000_gui.rc:545
+#: src/res/windows/x68000_gui.rc:558
 msgid "&Help"
 msgstr "ヘルプ"
+
+#~ msgid "Use Joypad to Key\tAlt+J"
+#~ msgstr "ジョイパッドtoキー使用\tAlt+J"
 
 #~ msgid "trigger A"
 #~ msgstr "トリガA"
@@ -3497,9 +3572,6 @@ msgstr "ヘルプ"
 
 #~ msgid "Joypad (PIA Type)"
 #~ msgstr "ジョイパッド（PIA接続）"
-
-#~ msgid "Use Joypad\tAlt+J"
-#~ msgstr "ジョイパッド使用\tAlt+J"
 
 #~ msgid "Use Joypad (PIA Type)"
 #~ msgstr "ジョイパッド使用（PIA接続）"

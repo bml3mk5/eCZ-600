@@ -1,6 +1,6 @@
 #
 # SDL2 + WinAPI
-# for Windows + MinGW + MSYS
+# for Windows + MSYS2 + MinGW64
 #
 export
 
@@ -32,26 +32,34 @@ endif
 #ARCH:=-m32
 #ARCH:=-m64
 
-SDL_CFLAGS:=$(shell sdl2-config --cflags)
+SH_LOCALDIR:=/mingw64
+ST_LOCALDIR:=/D/Devel/mingw64
+#ST_LOCALDIR:=/mingw64
 
-SH_CFLAGS:=$(ARCH) -Wall -O2 $(SDL_CFLAGS)
-ST_CFLAGS:=$(ARCH) -Wall -O2 $(SDL_CFLAGS)
-DBG_CFLAGS:=$(ARCH) -g -Wall -O0 $(SDL_CFLAGS)
+SH_SDL_CFLAGS:=$(shell $(SH_LOCALDIR)/bin/sdl2-config --cflags)
+ST_SDL_CFLAGS:=$(shell $(ST_LOCALDIR)/bin/sdl2-config --cflags)
 
-LOCALLIBDIR:=/usr/local/lib
+SH_CFLAGS:=$(ARCH) -Wall -O2 $(SH_SDL_CFLAGS)
+ST_CFLAGS:=$(ARCH) -Wall -O2 $(ST_SDL_CFLAGS)
+DBG_CFLAGS:=$(ARCH) -g -Wall -O0 $(ST_SDL_CFLAGS)
+
+LOCALLIBDIR:=$(ST_LOCALDIR)/lib
 # SDLLIBS:=$(LOCALLIBDIR)/libSDL2main.a $(LOCALLIBDIR)/libSDL2.a $(LOCALLIBDIR)/libSDL2_ttf.a $(LOCALLIBDIR)/libSDL2_net.a
 SDLLIBS:=$(LOCALLIBDIR)/libSDL2main.a $(LOCALLIBDIR)/libSDL2.a $(LOCALLIBDIR)/libSDL2_ttf.a
-LOCALLIBS:=$(LOCALLIBDIR)/libfreetype.a
-MINGWLIBS:=-lole32 -lws2_32 -liphlpapi -lShlwapi -lversion -limm32 -lopengl32 -lwinmm -lz -lvfw32 -lgdiplus -loleaut32 -lsetupapi -luuid
+#LOCALLIBS:=$(LOCALLIBDIR)/libfreetype.a $(LOCALLIBDIR)/libharfbuzz.a $(LOCALLIBDIR)/libpng.a $(LOCALLIBDIR)/libbz2.a $(LOCALLIBDIR)/libgraphite2.a $(LOCALLIBDIR)/libbrotlidec.a $(LOCALLIBDIR)/libbrotlicommon.a
+LOCALLIBS:=
+MINGWLIBS:=-lole32 -lws2_32 -liphlpapi -lShlwapi -lversion -limm32 -lopengl32 -lwinmm -lz -lvfw32 -lgdiplus -loleaut32 -lsetupapi -luuid -lrpcrt4
 ifneq ($(USE_GETTEXT),)
 #	GETTEXTLIBS:= $(LOCALLIBDIR)/libintl.a
 #	GETTEXTLDFLAGS:=-lintl
 endif
 
-# SH_LDFLAGS:=-s $(shell sdl2-config --libs) -lSDL2_ttf -lSDL2_net $(GETTEXTLDFLAGS)
-SH_LDFLAGS:=-s $(shell sdl2-config --libs) -lSDL2_ttf $(GETTEXTLDFLAGS)
-ST_LDFLAGS:=-s -static $(shell sdl2-config --libs)
-DBG_LDFLAGS:=-static $(shell sdl2-config --libs)
+SH_SDL_LDFLAGS:=$(shell $(SH_LOCALDIR)/bin/sdl2-config --libs)
+ST_SDL_LDFLAGS:=$(shell $(ST_LOCALDIR)/bin/sdl2-config --libs)
+
+SH_LDFLAGS:=-s $(SH_SDL_LDFLAGS) -lSDL2_ttf
+ST_LDFLAGS:=-s -static $(ST_SDL_LDFLAGS)
+DBG_LDFLAGS:=-static $(ST_SDL_LDFLAGS)
 
 LIBS_BASE:=$(SDLLIBS) $(LOCALLIBS) $(MINGWLIBS) $(GETTEXTLIBS)
 

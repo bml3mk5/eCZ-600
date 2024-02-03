@@ -1,8 +1,8 @@
 ==============================================================================
     SHARP X68000 Emulator 'eCZ-600'
         SDL2 + Mac Cocoa edition
-                                                                 build 262
-                                                                2024/01/07
+                                                                 build 291
+                                                                2024/02/03
 
 Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 ==============================================================================
@@ -178,7 +178,7 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
          :
     「CPU 16倍(CPU x16)」
 
-    「CPUスピードと同期(Sync With CPU Speed)」 ..........
+    「デバイスをCPUスピードと同期(Sync Devices With CPU Speed)」 ..........
           チェックすると全体のスピードをCPUスピードに合わせます。
           チェックを外すとCPUスピードのみ変化します。
 
@@ -225,7 +225,7 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
           ディスクに書き込んだデータは、取り出し操作を行うか、約5秒無操作で
         実際のディスクイメージファイルに保存されます。
 
-  【注意】ベタのディスクイメージはd68(d88)形式に変換して保存することができます。
+  【注意】ベタのディスクイメージはd88(d68)形式に変換して保存することができます。
         これは設定で変更できます。
 
   「新規(New)」 ................. 新規にディスクイメージを作成し開きます。
@@ -250,7 +250,7 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 
 
 「HDD」メニュー
-  「SASI0」 ........ SASIハードディスクに関するメニュー
+  「SASI0/SASI1」 ........ SASIハードディスクに関するメニュー
     「マウント...(Mount...)」 ........ ハードディスクイメージを開きます。
 
     【注意】動作確認しているのはベタ(hdf)イメージのみです。
@@ -263,6 +263,9 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
       「ブランク40MBをマウント(Mount Blank 40MB)」
 
   【注意】別途フォーマットを行う必要があります。
+          フォーマットはSASI0側のハードディスクに対して行ってください。
+
+  ※ SASI0 ... ID=0 Unit=0, SASI1 ... ID=0 Unit=1 となります。
 
 
 「画面(Screen)」メニュー
@@ -414,12 +417,12 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
   「メッセージ表示(Show Message)」 ... 画面内にメッセージを表示するかを
           切り替えます。
   「マウスを使用(Use Mouse)」......... マウスを使用可能にします。
-  「ジョイパッドを使用(キー割当)」.... ジョイスティックの方向キーや各ボタンを
-          キーボードのキーに割り当てて使用します。
   「ジョイパッドを使用(ポート接続)」.. ジョイスティックを使用可能にします。
   「キーtoジョイパッド有効」 ......... キー入力をジョイスティックとして使用
-          します。
+          します(JoyKeyモード)。
 
+  「ジョイパッドtoキー」.............. ジョイスティックの方向キーや各ボタンを
+          キーボードのキーに割り当てて使用します。
   「仮想キーボード(Virtual Keyboard)」.. 仮想キーボードウィンドウを開きます。
 
   「ジョイパッド設定...(Joypad Setting...)」.. ジョイパッドの種類およびボタンの
@@ -482,9 +485,7 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
     LEDは画面内(Inside LED)                option + L (Show LEDと切替)
     メッセージ表示(Show Message)           option + Z
     ジョイパッド使用(ポート接続)(Enable Joypad(Port Connected))
-                                           option + J (キー割当と切替)
-    ジョイパッド使用(キー割当)(Enable Joypad(Key Assigned))
-                                           option + J (ポート接続と切替)
+                                           option + J
     マウス有効(Enable Mouse)               option + Ctrl / F13
     キー割り当て...(Keybind...)            option + K
     設定...(Configure...)                  option + C
@@ -525,6 +526,25 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 
   アナログスティックを十字キーとして使用する場合にその感度を設定します。
 
+  ■ジョイパッド(ポート接続)(Joypad (Port Connected))
+
+  ジョイスティックの十字キーおよびボタン1～28をポートに対応付けします。
+
+  ダイアログ左側にある枠内の変更したい部分をクリックしてください。
+  割り当てたいボタンをジョイパッドから入力してください。
+  割り当てたキーを消去するにはマウスの左ボタンをダブルクリックしてください。
+
+  【注意】このダイアログを開く前にメニューの「ジョイパッドを使用(ポート接続)」に
+          チェックを入れて使用する状態にしてください。
+
+  ■キーtoジョイパッド(Key to Joypad)
+
+  キー入力をジョイスティックの方向キーやボタンとして使用します。
+
+  ダイアログ左側にある枠内の変更したい部分をクリックしてください。
+  割り当てたいキーをキーボードから入力してください。
+  割り当てたキーを消去するにはマウスの左ボタンをダブルクリックしてください。
+
 
 ○ キー割り当てダイアログ(Keybind...)
 
@@ -553,10 +573,14 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
   【注意】一部の特殊なキーは割り当てても反応しない、または押しっぱなしになる
           などの問題があります。
 
-  ■ジョイパッド(キー割当)(Joypad (Key Assigned))
+  ■ジョイパッドtoキー(Joypad to Key)
 
   ジョイスティックの十字キーおよびボタン1～28をキーに割り当てることができます。
-  キーボードの場合と同様に操作してください。
+
+  ダイアログ左側にある枠内の変更したい部分をクリックしてください。
+  割り当てたいボタンをジョイパッドから入力してください。
+  割り当てたキーを消去するにはマウスの左ボタンをダブルクリックしてください。
+
   ジョイスティック2台まで対応しています。
 
   ダイアログ下部にある「2つのボタンを押したとき、別のキーと認識する(Recognize as
@@ -572,19 +596,9 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
           チェックを入れて使用する状態にしてください。
 
   ■ジョイパッド(ポート接続)(Joypad (Port Connected))
-
-  ジョイスティックの十字キーおよびボタン1～28をポートに対応付けします。
-  キーボードの場合と同様に操作してください。
-  入力デバイスの種類は「ジョイパッド設定...(Joypad Setting...)」で設定して
-  ください。
-
-  【注意】このダイアログを開く前にメニューの「ジョイパッドを使用(ポート接続)」に
-          チェックを入れて使用する状態にしてください。
-
   ■キーtoジョイパッド(Key to Joypad)
 
-  キー入力をジョイスティックの方向キーやボタンとして使用します。
-  キーボードの場合と同様に操作してください。
+  ジョイパッド設定ダイアログ(Joypad Setting...)を参照してください。
 
 
 ○ 設定ダイアログ(Configure...)
@@ -608,6 +622,10 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
       チェックを入れると、メニューの操作(Control) -> 電源スイッチ(Power Switch)
     でパワーオン/オフの状態を切り替えることができるようになります。
       チェックを外すと、常にパワーオン状態となります。
+
+   ●起動時の電源状態(Power State When Start Up)
+      このソフト起動時にパワーオンするかオフするかを選択します。
+    ※パワーオフの状態を有効にしていない場合は常にパワーオンになります。
 
   ■SRAMタブ
 
@@ -700,7 +718,7 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
     これにチェックを入れると2Dと2HDの違いを無視します。
 
    ●ベタディスクイメージをそのまま保存する。(Save a plain disk image as it is.)
-    チェックをはずすとベタのディスクイメージはd68(d88)形式に変換して保存します。
+    チェックをはずすとベタのディスクイメージはd88(d68)形式に変換して保存します。
 
   【ハードディスク】
 
@@ -777,7 +795,7 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 
  ○ ディスクイメージについて
 
-  d68(d88)形式での使用を前提にしています。
+  d88(d68)形式での使用を前提にしています。
   ベタ(xdf,hdm)形式はHuman68K標準のフォーマット以外は動作確認していません。
   上記以外のディスクイメージには対応していません。
 

@@ -12,6 +12,7 @@
 
 #include "adpcm.h"
 #include <math.h>
+#include <stdlib.h>
 #include "../../utility.h"
 #include "../../fileio.h"
 #include "../../logging.h"
@@ -23,12 +24,15 @@
 #define OUT_DEBUG_SIGW(...)
 //#define OUT_DEBUG_REGW logging->out_debugf
 #define OUT_DEBUG_REGW(...)
+//#define OUT_DEBUG_REGCMDW logging->out_debugf
+#define OUT_DEBUG_REGCMDW(...)
 //#define OUT_DEBUG_CLKC logging->out_debugf
 #define OUT_DEBUG_CLKC(...)
 #else
 #define OUT_DEBUG_CALC(...)
 #define OUT_DEBUG_SIGW(...)
 #define OUT_DEBUG_REGW(...)
+#define OUT_DEBUG_REGCMDW(...)
 #define OUT_DEBUG_CLKC(...)
 #endif
 
@@ -195,6 +199,8 @@ void ADPCM::write_io8(uint32_t addr, uint32_t data)
 
 //			}
 		}
+		OUT_DEBUG_REGCMDW(_T("ADPCM CMDW reg:%02X sts:%02X %s"), data, m_reg_sts
+			, (m_reg_sts == 1 ? _T("Play") : (m_reg_sts == 2 ? _T("Rec") : _T("Stop"))));
 		break;
 	}
 }
@@ -237,7 +243,8 @@ void ADPCM::write_signal(int id, uint32_t data, uint32_t mask)
 		m_pan_right = (data & 0x01) ? 0 : 0xffffffff;
 		m_pan_left  = (data & 0x02) ? 0 : 0xffffffff;
 
-		OUT_DEBUG_SIGW(_T("ADPCM: WRITE FREQ clk:%d prescale:%d period:%f"), m_base_clock * m_clock_mag, m_prescaler, m_period);
+		OUT_DEBUG_SIGW(_T("ADPCM: WRITE FREQ clk:%d prescale:%d period:%f pan:%c%c"), m_base_clock * m_clock_mag, m_prescaler, m_period
+			, (data & 1) ? _T('-') : _T('R'), (data & 2) ? _T('-') : _T('L'));
 		break;
 	case SIG_SEL_CLOCK:
 		nval = 2 - (data & mask & 1);

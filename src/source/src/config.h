@@ -163,6 +163,8 @@ public:
 private:
 	void Set(const CDirPath &) {}
 	void Set(const _TCHAR *, int) {}
+	CDirPath &operator=(const CTchar &src);
+	CDirPath &operator=(const _TCHAR *src_str);
 };
 
 /// file path
@@ -230,8 +232,8 @@ public:
 #endif
 #ifdef USE_HD1
 	CDirPath initial_hard_disk_path;
-	CRecentPathList recent_hard_disk_path[1];
-	CRecentPath opened_hard_disk_path[1];
+	CRecentPathList recent_hard_disk_path[MAX_HARD_DISKS];
+	CRecentPath opened_hard_disk_path[MAX_HARD_DISKS];
 #endif
 #ifdef USE_DATAREC
 	CDirPath initial_datarec_path;
@@ -273,6 +275,7 @@ public:
 	int cpu_power;
 	bool now_power_off;
 	bool use_power_off;
+	int power_state_when_start_up;
 #ifdef USE_FD1
 	bool ignore_crc;
 	int  mount_fdd;
@@ -321,6 +324,7 @@ public:
 
 #if defined(_X68000)
 	uint8_t main_ram_size_num;
+	uint8_t ram_initialize;
 	int raster_int_skew;
 	int vdisp_skew;
 #endif

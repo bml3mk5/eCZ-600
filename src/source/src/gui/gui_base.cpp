@@ -906,6 +906,9 @@ int GUI_BASE::ProcessCommand(int id, void *data1, void *data2)
 			return 0;
 		HD_MENU_PREITEMS(0, ID_OPEN_HD1, ID_CLOSE_HD1, ID_OPEN_BLANK_10MB_HD1, ID_OPEN_BLANK_20MB_HD1, ID_OPEN_BLANK_40MB_HD1)
 #endif
+#ifdef USE_HD2
+		HD_MENU_PREITEMS(1, ID_OPEN_HD2, ID_CLOSE_HD2, ID_OPEN_BLANK_10MB_HD2, ID_OPEN_BLANK_20MB_HD2, ID_OPEN_BLANK_40MB_HD2)
+#endif
 #ifdef USE_DATAREC
 		case ID_PLAY_DATAREC:
 			ShowLoadDataRecDialog();
@@ -1444,6 +1447,9 @@ int GUI_BASE::ProcessCommand(int id, void *data1, void *data2)
 #define HD_MENU_RECENT(drv, ID_RECENT_HD) \
 			MENU_RECENT_WITH_DRV(drv, ID_RECENT_HD, PostEtOpenRecentHardDiskMessage)
 			HD_MENU_RECENT(0, ID_RECENT_HD1)
+#ifdef USE_HD2
+			HD_MENU_RECENT(1, ID_RECENT_HD2)
+#endif
 #endif
 #ifdef USE_CART1
 			MENU_RECENT_WITH_DRV(0, ID_RECENT_CART, PostEtOpenRecentCartridgeMessage)
@@ -3006,7 +3012,7 @@ void GUI_BASE::ChangeUseJoypad(int num)
 	if (num > 0 && emu->is_enable_joypad(num)) num = 0;
 	emu->change_use_joypad(num);
 	if (emu->is_enable_joypad(1)) {
-		emu->out_info_x(CMsg::Enable_Joypad_Key_Assigned);
+		emu->out_info_x(CMsg::Enable_Joypad_to_Key);
 	} else if (emu->is_enable_joypad(2)) {
 		emu->out_info_x(CMsg::Enable_Joypad);
 	} else {

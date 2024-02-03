@@ -84,6 +84,7 @@ bool CNchar::MatchSubString(const char *value) const
 	}
 	return false;
 }
+#if 0
 /// @brief 文字列を代入
 /// @param[in] src 値
 /// @return 文字列
@@ -100,6 +101,7 @@ CNchar &CNchar::operator=(const char *src_str)
 	CCharTemp<char>::Set(src_str, src_str ? (int)strlen(src_str) : 0);
 	return *this;
 }
+#endif
 /// @brief 文字列を返す
 /// @return 文字列
 const char *CNchar::GetN() const
@@ -320,6 +322,7 @@ bool CWchar::MatchSubString(const wchar_t *value) const
 	}
 	return false;
 }
+#if 0
 /// @brief 文字列を代入
 /// @param[in] src 値
 /// @return 文字列
@@ -336,6 +339,7 @@ CWchar &CWchar::operator=(const wchar_t *src_str)
 	CCharTemp<wchar_t>::Set(src_str, src_str ? (int)wcslen(src_str) : 0);
 	return *this;
 }
+#endif
 const wchar_t *CWchar::GetM() const
 {
 	return Get();

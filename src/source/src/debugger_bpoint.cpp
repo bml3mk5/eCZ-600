@@ -132,7 +132,7 @@ void BreakPoint::RegValue(_TCHAR *buffer, size_t buffer_len) const
 
 	UTILITY::tcscat(buffer, buffer_len, _T(" (value: "));
 	UTILITY::sntprintf(buffer, buffer_len, _T("%02X"), regval);
-	if (regmask != ~0) UTILITY::sntprintf(buffer, buffer_len, _T(" & %02X"), regmask);
+	if (regmask != ~0U) UTILITY::sntprintf(buffer, buffer_len, _T(" & %02X"), regmask);
 	UTILITY::tcscat(buffer, buffer_len, _T(")"));
 }
 

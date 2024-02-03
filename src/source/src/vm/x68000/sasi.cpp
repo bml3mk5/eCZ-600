@@ -48,16 +48,20 @@ SASI::SASI(VM* parent_vm, EMU* parent_emu, const char* identifier)
 	set_class_name("SASI");
 	init_output_signals(&outputs_irq);
 	init_output_signals(&outputs_drq);
+
+	d_ctrls = new SASI_CTRLS();
 }
 
 SASI::~SASI()
 {
+	delete d_ctrls;
 }
 
 void SASI::initialize()
 {
-	for(int id=0; id<CONTROL_NUMS; id++) {
-		d_ctrl[id] = new SASI_CTRL(vm, emu, this, id);
+	int max_id = MAX_HARD_DISKS / SASI_CTRL::UNITS_PER_CTRL;
+	for(int id=0; id<max_id; id++) {
+		d_ctrls->push_back(new SASI_CTRL(vm, emu, this, id));
 	}
 	d_selected_ctrl = NULL;
 
@@ -70,9 +74,8 @@ void SASI::initialize()
 void SASI::release()
 {
 //  devices are released on destractor of VM
-//	for(int id=0; id<CONTROL_NUMS; id++) {
-//		delete d_ctrl[id];
-//		d_ctrl[id] = NULL;
+//	for(int id=0; id<(int)d_ctrls->size(); id++) {
+//		delete d_ctrls->Item(id);
 //	}
 }
 
@@ -86,8 +89,8 @@ void SASI::reset()
 void SASI::warm_reset(bool por)
 {
 	if (!por) {
-		for(int id=0; id<CONTROL_NUMS; id++) {
-			d_ctrl[id]->warm_reset(por);
+		for(int id=0; id<(int)d_ctrls->size(); id++) {
+			d_ctrls->at(id)->warm_reset(por);
 		}
 	}
 	d_selected_ctrl = NULL;
@@ -164,10 +167,10 @@ void SASI::select_control(uint32_t data)
 	m_signal_status |= SIGSTAT_SEL;
 	d_selected_ctrl = NULL;
 	int id = 0;
-	for(; id<CONTROL_NUMS; id++) {
+	for(; id<(int)d_ctrls->size(); id++) {
 		if ((data & 0xff) == (uint32_t)(1 << id)) {
 			// select ID
-			d_selected_ctrl = d_ctrl[id];
+			d_selected_ctrl = d_ctrls->at(id);
 			break;
 		}
 	}
@@ -281,8 +284,8 @@ bool SASI::load_state(FILEIO *fio)
 	READ_STATE_CHUNK(fio, vm_state_i, vm_state);
 
 	int ctrl_id = Int32_LE(vm_state.m_selected_ctrl_id);
-	if (ctrl_id >= 0 && ctrl_id < CONTROL_NUMS) {
-		d_selected_ctrl = d_ctrl[ctrl_id];
+	if (ctrl_id >= 0 && ctrl_id < (int)d_ctrls->size()) {
+		d_selected_ctrl = d_ctrls->at(ctrl_id);
 	} else {
 		d_selected_ctrl = NULL;
 	}
@@ -298,37 +301,38 @@ bool SASI::load_state(FILEIO *fio)
 
 bool SASI::open_disk(int drv, const _TCHAR *path, uint32_t flags)
 {
-	if(drv<CONTROL_NUMS) {
-		return d_ctrl[drv]->open_disk(path, flags);
-	} else {
-		return false;
-	}
+	int id = (drv / SASI_CTRL::UNITS_PER_CTRL);
+	if (id >= (int)d_ctrls->size()) return false;
+	int unit_num = (drv % SASI_CTRL::UNITS_PER_CTRL);
+	return d_ctrls->at(id)->open_disk(unit_num, path, flags);
 }
 
 bool SASI::close_disk(int drv, uint32_t flags)
 {
-	if(drv<CONTROL_NUMS) {
-		return d_ctrl[drv]->close_disk(flags);
-	} else {
-		return false;
-	}
+	int id = (drv / SASI_CTRL::UNITS_PER_CTRL);
+	if (id >= (int)d_ctrls->size()) return false;
+	int unit_num = (drv % SASI_CTRL::UNITS_PER_CTRL);
+	return d_ctrls->at(id)->close_disk(unit_num, flags);
 }
 
 bool SASI::disk_mounted(int drv)
 {
-	if(drv<CONTROL_NUMS) {
-		return d_ctrl[drv]->disk_mounted();
-	} else {
-		return false;
-	}
+	int id = (drv / SASI_CTRL::UNITS_PER_CTRL);
+	if (id >= (int)d_ctrls->size()) return false;
+	int unit_num = (drv % SASI_CTRL::UNITS_PER_CTRL);
+	return d_ctrls->at(id)->disk_mounted(unit_num);
 }
 
 bool SASI::is_same_disk(int drv, const _TCHAR *path)
 {
+	int curr_id = (drv / SASI_CTRL::UNITS_PER_CTRL);
+	int curr_unit = (drv % SASI_CTRL::UNITS_PER_CTRL);
 	bool match = false;
-	for(int id=0; id<CONTROL_NUMS && !match; id++) {
-		if (drv == id) continue;
-		match = d_ctrl[id]->is_same_disk(path);
+	for(int id=0; id<(int)d_ctrls->size() && !match; id++) {
+		for(int unit_num=0; unit_num<SASI_CTRL::UNITS_PER_CTRL && !match; unit_num++) {
+			if (curr_id == id && curr_unit == unit_num) continue;
+			match = d_ctrls->at(id)->is_same_disk(unit_num, path);
+		}
 	}
 	return match;
 }
@@ -417,10 +421,15 @@ SASI_CTRL::SASI_CTRL(VM* parent_vm, EMU* parent_emu, SASI *host, int ctrl_id)
 {
 	d_host = host;
 	m_ctrl_id = ctrl_id;
-	d_disk = new HARDDISK(ctrl_id);
+
+	// can connect two units per control
+	d_units = new SASI_UNITS(UNITS_PER_CTRL);
+	for(int i=m_ctrl_id*UNITS_PER_CTRL; i<MAX_HARD_DISKS && i<(m_ctrl_id+1)*UNITS_PER_CTRL; i++) {
+		d_units->Add(new HARDDISK(ctrl_id));
+	}
 
 	char s_identifier[32];
-	sprintf(s_identifier, "%d", ctrl_id);
+	UTILITY::sprintf(s_identifier, sizeof(s_identifier), "%d", ctrl_id);
 	set_identifier(s_identifier);
 
 	clear();
@@ -428,7 +437,7 @@ SASI_CTRL::SASI_CTRL(VM* parent_vm, EMU* parent_emu, SASI *host, int ctrl_id)
 
 SASI_CTRL::~SASI_CTRL()
 {
-	delete d_disk;
+	delete d_units;
 }
 
 void SASI_CTRL::clear()
@@ -456,6 +465,8 @@ void SASI_CTRL::clear()
 	for(int i=0; i<EVENT_ARGS_MAX; i++) {
 		m_event_arg[i] = 0;
 	}
+
+	d_current_disk = get_disk_unit(m_unit_number);
 }
 
 void SASI_CTRL::initialize()
@@ -486,7 +497,7 @@ bool SASI_CTRL::select()
 {
 	clear();
 
-	bool mounted = d_disk->mounted();
+	bool mounted = unit_mounted_at_least();
 	if (mounted) {
 		// set busy
 		update_signal(
@@ -500,7 +511,7 @@ bool SASI_CTRL::select()
 /// @brief selected this disk
 void SASI_CTRL::selected(uint32_t data)
 {
-	bool mounted = d_disk->mounted();
+	bool mounted = unit_mounted_at_least();
 	if (mounted) {
 		// go to command phase
 		update_signal(
@@ -575,8 +586,10 @@ void SASI_CTRL::write_control(uint32_t data)
 		break;
 	case 1:
 		// logical unit number and address (h)
-		m_unit_number = (data & 0xe0);
+		m_unit_number = ((data & 0xe0) >> 5);
 		m_curr_block = ((data & 0x1f) << 16);
+
+		d_current_disk = get_disk_unit(m_unit_number);
 		break;
 	case 2:
 		// logical unit address (m)
@@ -750,7 +763,7 @@ void SASI_CTRL::process_command()
 		break;
 	default:
 		// unsupport command, so go to status phase
-		OUT_DEBUG_CMD(_T("SASI: CMD:Unknown Unit:%d"), (m_unit_number >> 5));
+		OUT_DEBUG_CMD(_T("SASI: CMD:Unknown Unit:%d"), m_unit_number );
 		send_status(STA_COMPLETE, ERR_NO_STATUS);
 		break;
 	}
@@ -758,9 +771,9 @@ void SASI_CTRL::process_command()
 
 void SASI_CTRL::test_drive_ready()
 {
-	OUT_DEBUG_CMD(_T("SASI: CMD:TEST_DRIVE_READY Unit:%d"), (m_unit_number >> 5));
+	OUT_DEBUG_CMD(_T("SASI: CMD:TEST_DRIVE_READY Unit:%d"), m_unit_number);
 
-	bool rc = d_disk->mounted();
+	bool rc = unit_mounted(m_unit_number);
 	if (!rc) {
 		send_status(STA_ERROR, ERR_DRIVE_NOT_READY);
 		return;
@@ -770,20 +783,25 @@ void SASI_CTRL::test_drive_ready()
 
 void SASI_CTRL::recalibrate()
 {
-	OUT_DEBUG_CMD(_T("SASI: CMD:RECALIBRATE Unit:%d"), (m_unit_number >> 5));
+	OUT_DEBUG_CMD(_T("SASI: CMD:RECALIBRATE Unit:%d"), m_unit_number);
 
-	bool rc = d_disk->seek(0);
+	if (!d_current_disk) {
+		send_status(STA_ERROR, ERR_DRIVE_NOT_READY);
+		return;
+	}
+
+	bool rc = d_current_disk->seek(0);
 	if (!rc) {
 		send_status(STA_ERROR, ERR_NO_SEEK_COMPLETE);
 		return;
 	}
 	
-	int sum = d_disk->get_cylinder_diff(0);
+	int sum = d_current_disk->get_cylinder_diff(0);
 	play_seek_sound(sum);
 
 	int delay = DELAY_TRANSFER_PHASE;
 	if (!FLG_DELAY_HDSEEK) {
-		delay += d_disk->calc_access_time(sum);
+		delay += d_current_disk->calc_access_time(sum);
 	}
 	send_status_delay(delay, STA_COMPLETE, ERR_NO_STATUS);
 }
@@ -804,10 +822,10 @@ void SASI_CTRL::send_sense()
 	m_send_data[2] = (m_curr_block >> 8) & 0xff;
 	m_send_data[3] = m_curr_block & 0xff;
 
-	OUT_DEBUG_CMD(_T("SASI: CMD:REQUEST_SENSE Unit:%d Code:%02X"), (m_unit_number >> 5), m_send_error);
+	OUT_DEBUG_CMD(_T("SASI: CMD:REQUEST_SENSE Unit:%d Code:%02X"), m_unit_number, m_send_error);
 }
 
-void SASI_CTRL::send_disk_data(int cylinder_sum)
+void SASI_CTRL::send_disk_data(HARDDISK *disk, int cylinder_sum)
 {
 	// go to transfer phase
 	update_signal(
@@ -820,8 +838,8 @@ void SASI_CTRL::send_disk_data(int cylinder_sum)
 	m_send_data_len = 256;
 
 	// read from hard disk
-	bool rc = d_disk->read_buffer(m_curr_block, m_send_data_len, m_send_data);
-	OUT_DEBUG_CMD(_T("SASI: CMD:READ Unit:%d Block:%d Read Result:%s"), (m_unit_number >> 5), m_curr_block, rc ? _T("OK") : _T("NG"));
+	bool rc = disk->read_buffer(m_curr_block, m_send_data_len, m_send_data);
+	OUT_DEBUG_CMD(_T("SASI: CMD:READ Unit:%d Block:%d Read Result:%s"), m_unit_number, m_curr_block, rc ? _T("OK") : _T("NG"));
 	if (!rc) {
 		// read error
 		send_status(STA_ERROR, ERR_NO_SEEK_COMPLETE);
@@ -830,7 +848,7 @@ void SASI_CTRL::send_disk_data(int cylinder_sum)
 
 	int delay = DELAY_TRANSFER_PHASE;
 	if (!FLG_DELAY_HDSEEK) {
-		delay += d_disk->calc_access_time(cylinder_sum);
+		delay += disk->calc_access_time(cylinder_sum);
 	}
 	play_seek_sound(cylinder_sum);
 
@@ -840,9 +858,14 @@ void SASI_CTRL::send_disk_data(int cylinder_sum)
 
 void SASI_CTRL::send_first_disk_data()
 {
-	int sum = d_disk->get_cylinder_diff(m_curr_block);
-	OUT_DEBUG_CMD(_T("SASI: CMD:READ Unit:%d Block:%d Start (Sum:%d)"), (m_unit_number >> 5), m_curr_block, sum);
-	send_disk_data(sum);
+	if (!d_current_disk) {
+		send_status(STA_ERROR, ERR_DRIVE_NOT_READY);
+		return;
+	}
+
+	int sum = d_current_disk->get_cylinder_diff(m_curr_block);
+	OUT_DEBUG_CMD(_T("SASI: CMD:READ Unit:%d Block:%d Start (Sum:%d)"), m_unit_number, m_curr_block, sum);
+	send_disk_data(d_current_disk, sum);
 }
 
 void SASI_CTRL::send_next_disk_data()
@@ -850,21 +873,26 @@ void SASI_CTRL::send_next_disk_data()
 	// one block was read
 	clr_drq();
 
+	if (!d_current_disk) {
+		send_status(STA_ERROR, ERR_DRIVE_NOT_READY);
+		return;
+	}
+
 	m_num_blocks--;
 	if (m_num_blocks > 0) {
 		// next block
 		m_curr_block++;
-		int sum = d_disk->get_cylinder_diff(m_curr_block);
-		OUT_DEBUG_CMD(_T("SASI: CMD:READ Unit:%d Block:%d Next (Sum:%d)"), (m_unit_number >> 5), m_curr_block, sum);
-		send_disk_data(sum);
+		int sum = d_current_disk->get_cylinder_diff(m_curr_block);
+		OUT_DEBUG_CMD(_T("SASI: CMD:READ Unit:%d Block:%d Next (Sum:%d)"), m_unit_number, m_curr_block, sum);
+		send_disk_data(d_current_disk, sum);
 	} else {
 		// complete
-		OUT_DEBUG_CMD(_T("SASI: CMD:READ Unit:%d Block:%d Finish"), (m_unit_number >> 5), m_curr_block);
+		OUT_DEBUG_CMD(_T("SASI: CMD:READ Unit:%d Block:%d Finish"), m_unit_number, m_curr_block);
 		send_status(STA_COMPLETE, ERR_NO_STATUS);
 	}
 }
 
-void SASI_CTRL::recv_disk_data(int cylinder_sum)
+void SASI_CTRL::recv_disk_data(HARDDISK *disk, int cylinder_sum)
 {
 	// go to transfer phase
 	update_signal(
@@ -881,16 +909,21 @@ void SASI_CTRL::recv_disk_data(int cylinder_sum)
 
 	// set drq and request to write
 	if (!FLG_DELAY_HDSEEK) {
-		delay += d_disk->calc_access_time(cylinder_sum);
+		delay += disk->calc_access_time(cylinder_sum);
 	}
 	set_drq_delay(delay);
 }
 
 void SASI_CTRL::recv_first_disk_data()
 {
-	int sum = d_disk->get_cylinder_diff(m_curr_block);
-	OUT_DEBUG_CMD(_T("SASI: CMD:WRITE Unit:%d Block:%d Start (Sum:%d)"), (m_unit_number >> 5), m_curr_block, sum);
-	recv_disk_data(sum);
+	if (!d_current_disk) {
+		send_status(STA_ERROR, ERR_DRIVE_NOT_READY);
+		return;
+	}
+
+	int sum = d_current_disk->get_cylinder_diff(m_curr_block);
+	OUT_DEBUG_CMD(_T("SASI: CMD:WRITE Unit:%d Block:%d Start (Sum:%d)"), m_unit_number, m_curr_block, sum);
+	recv_disk_data(d_current_disk, sum);
 }
 
 void SASI_CTRL::recv_next_disk_data()
@@ -898,16 +931,21 @@ void SASI_CTRL::recv_next_disk_data()
 	// one block was written
 	clr_drq();
 
+	if (!d_current_disk) {
+		send_status(STA_ERROR, ERR_DRIVE_NOT_READY);
+		return;
+	}
+
 	// write to hard disk
-	bool rc = d_disk->is_write_protected();
+	bool rc = d_current_disk->is_write_protected();
 	if (rc) {
 		// write protected
 		send_status(STA_ERROR, ERR_WRITE_FAULT);
 		return;
 	}
 
-	rc = d_disk->write_buffer(m_curr_block, m_recv_data_len, m_recv_data);
-	OUT_DEBUG_CMD(_T("SASI: CMD:WRITE Unit:%d Block:%d Wrote Result:%s"), (m_unit_number >> 5), m_curr_block, rc ? _T("OK") : _T("NG"));
+	rc = d_current_disk->write_buffer(m_curr_block, m_recv_data_len, m_recv_data);
+	OUT_DEBUG_CMD(_T("SASI: CMD:WRITE Unit:%d Block:%d Wrote Result:%s"), m_unit_number, m_curr_block, rc ? _T("OK") : _T("NG"));
 	if (!rc) {
 		// write error
 		send_status(STA_ERROR, ERR_WRITE_FAULT);
@@ -919,40 +957,50 @@ void SASI_CTRL::recv_next_disk_data()
 	if (m_num_blocks > 0) {
 		// next block
 		m_curr_block++;
-		int sum = d_disk->get_cylinder_diff(m_curr_block);
-		OUT_DEBUG_CMD(_T("SASI: CMD:WRITE Unit:%d Block:%d Next (Sum:%d)"), (m_unit_number >> 5), m_curr_block, sum);
-		recv_disk_data(sum);
+		int sum = d_current_disk->get_cylinder_diff(m_curr_block);
+		OUT_DEBUG_CMD(_T("SASI: CMD:WRITE Unit:%d Block:%d Next (Sum:%d)"), m_unit_number, m_curr_block, sum);
+		recv_disk_data(d_current_disk, sum);
 	} else {
 		// complete
-		OUT_DEBUG_CMD(_T("SASI: CMD:WRITE Unit:%d Block:%d Finish"), (m_unit_number >> 5), m_curr_block);
+		OUT_DEBUG_CMD(_T("SASI: CMD:WRITE Unit:%d Block:%d Finish"), m_unit_number, m_curr_block);
 		send_status(STA_COMPLETE, ERR_NO_STATUS);
 	}
 }
 
 void SASI_CTRL::seek()
 {
-	bool rc = d_disk->seek(m_curr_block);
-	OUT_DEBUG_CMD(_T("SASI: CMD:SEEK Unit:%d Block:%d Result:%s"), (m_unit_number >> 5), m_curr_block, rc ? _T("OK") : _T("NG"));
+	if (!d_current_disk) {
+		send_status(STA_ERROR, ERR_DRIVE_NOT_READY);
+		return;
+	}
+
+	bool rc = d_current_disk->seek(m_curr_block);
+	OUT_DEBUG_CMD(_T("SASI: CMD:SEEK Unit:%d Block:%d Result:%s"), m_unit_number, m_curr_block, rc ? _T("OK") : _T("NG"));
 	if (!rc) {
 		// error
 		send_status(STA_ERROR, ERR_NO_SEEK_COMPLETE);
 		return;
 	}
 
-	int sum = d_disk->get_cylinder_diff(m_curr_block);
+	int sum = d_current_disk->get_cylinder_diff(m_curr_block);
 	play_seek_sound(sum);
 
 	int delay = DELAY_TRANSFER_PHASE;
 	if (!FLG_DELAY_HDSEEK) {
-		delay += d_disk->calc_access_time(sum);
+		delay += d_current_disk->calc_access_time(sum);
 	}
 	send_status_delay(delay, STA_COMPLETE, ERR_NO_STATUS);
 }
 
 void SASI_CTRL::format_disk()
 {
-	OUT_DEBUG_CMD(_T("SASI: CMD:FORMAT_DRIVE Unit:%d"), (m_unit_number >> 5));
-	d_disk->format_disk();
+	if (!d_current_disk) {
+		send_status(STA_ERROR, ERR_DRIVE_NOT_READY);
+		return;
+	}
+
+	OUT_DEBUG_CMD(_T("SASI: CMD:FORMAT_DRIVE Unit:%d"), m_unit_number);
+	d_current_disk->format_disk();
 	send_status(STA_COMPLETE, ERR_NO_STATUS);
 }
 
@@ -964,15 +1012,20 @@ void SASI_CTRL::format_track()
 		SASI::SIGSTAT_REQ
 	);
 
-	int sum = d_disk->get_cylinder_diff(m_curr_block);
+	if (!d_current_disk) {
+		send_status(STA_ERROR, ERR_DRIVE_NOT_READY);
+		return;
+	}
+
+	int sum = d_current_disk->get_cylinder_diff(m_curr_block);
 	play_seek_sound(sum);
 
-	OUT_DEBUG_CMD(_T("SASI: CMD:FORMAT_TRACK Unit:%d Block:%d Start (Sum:%d)"), (m_unit_number >> 5), m_curr_block, sum);
-	d_disk->format_track(m_curr_block);
+	OUT_DEBUG_CMD(_T("SASI: CMD:FORMAT_TRACK Unit:%d Block:%d Start (Sum:%d)"), m_unit_number, m_curr_block, sum);
+	d_current_disk->format_track(m_curr_block);
 
 	int delay = DELAY_TRANSFER_PHASE;
 	if (!FLG_DELAY_HDSEEK) {
-		delay += d_disk->calc_access_time(sum);
+		delay += d_current_disk->calc_access_time(sum);
 	}
 	send_status_delay(delay, STA_COMPLETE, ERR_NO_STATUS);
 }
@@ -989,7 +1042,16 @@ void SASI_CTRL::recv_extended_args()
 	m_recv_data_pos = 0;
 	m_recv_data_len = 10;
 
-	OUT_DEBUG_CMD(_T("SASI: CMD:C2(Unknown) Unit:%d"), (m_unit_number >> 5));
+	OUT_DEBUG_CMD(_T("SASI: CMD:C2(Unknown) Unit:%d"), m_unit_number);
+
+	if (!d_current_disk) {
+		send_status(STA_ERROR, ERR_DRIVE_NOT_READY);
+		return;
+	}
+	if (!unit_mounted(m_unit_number)) {
+		send_status(STA_ERROR, ERR_DRIVE_NOT_READY);
+		return;
+	}
 
 	set_drq_delay(DELAY_TRANSFER_PHASE);
 }
@@ -998,7 +1060,7 @@ void SASI_CTRL::finish_extended_args()
 {
 	clr_drq();
 
-	OUT_DEBUG_CMD(_T("SASI: CMD:C2(Unknown) Unit:%d Finished"), (m_unit_number >> 5));
+	OUT_DEBUG_CMD(_T("SASI: CMD:C2(Unknown) Unit:%d Finished"), m_unit_number);
 #ifdef _DEBUG
 	for(int i=0; i<10; i++) {
 		OUT_DEBUG_CMD(_T("SASI: CMD:C2(Unknown) Data:%d:%02X"), i, m_recv_data[i]);
@@ -1011,7 +1073,7 @@ void SASI_CTRL::finish_extended_args()
 void SASI_CTRL::diagnostic()
 {
 	// unknown
-	OUT_DEBUG_CMD(_T("SASI: CMD:E0(Unknown) Unit:%d"), (m_unit_number >> 5));
+	OUT_DEBUG_CMD(_T("SASI: CMD:E0(Unknown) Unit:%d"), m_unit_number);
 
 	send_status_delay(DELAY_TRANSFER_PHASE, STA_COMPLETE, ERR_NO_STATUS);
 }
@@ -1029,11 +1091,11 @@ void SASI_CTRL::send_status(uint8_t error_occured, uint8_t error_code)
 
 	m_send_data_pos = 0;
 	m_send_data_len = 1;
-	m_send_data[0] = (m_unit_number | error_occured) & 0x7f;
+	m_send_data[0] = ((m_unit_number << 5) | error_occured) & 0x7f;
 	m_send_message = MSG_COMPLETE;
 	m_send_error = ((m_command_class << 4) | error_code);
 
-	OUT_DEBUG_STAT(_T("SASI: Unit:%d Status:%02X"), (m_unit_number >> 5), m_send_data[0]);
+	OUT_DEBUG_STAT(_T("SASI: Unit:%d Status:%02X"), m_unit_number, m_send_data[0]);
 }
 
 void SASI_CTRL::send_message()
@@ -1076,7 +1138,7 @@ void SASI_CTRL::play_seek_sound(int sum)
 	if (sum > 0) {
 		d_host->play_seek_sound();
 		if (sum > 1 && !FLG_DELAY_HDSEEK) {
-			register_seek_sound(sum, d_disk->get_cylinder_to_cylinder_delay());
+			register_seek_sound(sum, HARDDISK::get_cylinder_to_cylinder_delay());
 		}
 	}
 }
@@ -1242,30 +1304,72 @@ bool SASI_CTRL::load_state(FILEIO *fio)
 	m_recv_data_len = Int32_LE(vm_state.m_recv_data_len);
 	memcpy(m_recv_data, vm_state.m_recv_data, sizeof(m_recv_data));
 
+	d_current_disk = get_disk_unit(m_unit_number);
+
 	return true;
 }
 
 // ----------------------------------------------------------------------------
 
-bool SASI_CTRL::open_disk(const _TCHAR *path, uint32_t flags)
+bool SASI_CTRL::open_disk(int unit_num, const _TCHAR *path, uint32_t flags)
 {
-	return d_disk->open(path, 256, flags);
+	HARDDISK *disk = get_disk_unit(unit_num);
+	if (!disk) {
+		return false;
+	}
+	return disk->open(path, 256, flags);
 }
 
-bool SASI_CTRL::close_disk(uint32_t flags)
+bool SASI_CTRL::close_disk(int unit_num, uint32_t flags)
 {
-	d_disk->close();
+	HARDDISK *disk = get_disk_unit(unit_num);
+	if (!disk) {
+		return false;
+	}
+	disk->close();
 	return true;
 }
 
-bool SASI_CTRL::disk_mounted()
+bool SASI_CTRL::disk_mounted(int unit_num) const
 {
-	return d_disk->mounted();
+	return unit_mounted(unit_num);
 }
 
-bool SASI_CTRL::is_same_disk(const _TCHAR *path)
+bool SASI_CTRL::is_same_disk(int unit_num, const _TCHAR *path)
 {
-	return d_disk->is_same_file(path);
+	HARDDISK *disk = get_disk_unit(unit_num);
+	if (!disk) {
+		return false;
+	}
+	return disk->is_same_file(path);
+}
+
+// ----------------------------------------------------------------------------
+
+HARDDISK *SASI_CTRL::get_disk_unit(int unit_num) const
+{
+	if (d_units->Count() <= unit_num) {
+		return NULL;
+	}
+	return d_units->Item(unit_num);
+}
+
+bool SASI_CTRL::unit_mounted(int unit_num) const
+{
+	HARDDISK *disk = get_disk_unit(unit_num);
+	if (!disk) {
+		return false;
+	}
+	return disk->mounted();
+}
+
+bool SASI_CTRL::unit_mounted_at_least() const
+{
+	bool rc = false;
+	for(int unit=0; unit<d_units->Count(); unit++) {
+		rc |= d_units->Item(unit)->mounted();
+	}
+	return rc;
 }
 
 // ----------------------------------------------------------------------------
@@ -1318,3 +1422,21 @@ void SASI_CTRL::debug_regs_info(_TCHAR *buffer, size_t buffer_len)
 	);
 }
 #endif
+
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
+
+SASI_CTRLS::SASI_CTRLS()
+	: std::vector<SASI_CTRL *>()
+{
+}
+
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
+
+SASI_UNITS::SASI_UNITS(int alloc_size)
+	: CPtrList<HARDDISK>(alloc_size)
+{
+}

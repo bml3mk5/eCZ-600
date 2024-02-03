@@ -49,7 +49,7 @@ extern GUI *gui;
 
 	NSTabViewItem *tab;
 	CocoaView *tab_view;
-	CocoaBox *grp;
+//	CocoaBox *grp;
 //	CocoaLabel *lbl;
 	CocoaButton *btn;
 
@@ -83,7 +83,7 @@ extern GUI *gui;
 
 #if defined(_X68000)
 	bbox = [box_one addBox:BoxViewBox :0 :COCOA_DEFAULT_MARGIN :_T("RAM")];
-	grp = [CocoaBox createI:bbox :CMsg::RAM :260 :1];
+	[CocoaBox createI:bbox :CMsg::RAM :260 :1];
 
 	vbox = [bbox addBox:VerticalBox :0 :0 :_T("RAM1")];
 
@@ -103,7 +103,7 @@ extern GUI *gui;
 
 	// CPU
 	bbox = [box_one addBox:BoxViewBox :0 :COCOA_DEFAULT_MARGIN :_T("CPU0")];
-	grp = [CocoaBox createI:bbox :CMsg::CPU :260 :1];
+	[CocoaBox createI:bbox :CMsg::CPU :260 :1];
 
 	vbox = [bbox addBox:VerticalBox :0 :0 :_T("CPU1")];
 	hbox = [vbox addBox:HorizontalBox :MiddlePos :0 :_T("CPU11")];
@@ -111,8 +111,18 @@ extern GUI *gui;
 	chkAddrErr = [CocoaCheckBox createI:hbox title:CMsg::Show_message_when_the_address_error_occured_in_the_CPU action:nil value:FLG_SHOWMSG_ADDRERR != 0];
 #endif
 
+	// power status
+	bbox = [box_one addBox:BoxViewBox :0 :COCOA_DEFAULT_MARGIN :_T("Power")];
+	[CocoaBox createI:bbox :CMsg::Behavior_of_Power_On_Off :260 :1];
+	vbox = [bbox addBox:VerticalBox :0 :0 :_T("Power1")];
+
 	// power off
-	chkPowerOff = [CocoaCheckBox createI:box_one title:CMsg::Enable_the_state_of_power_off action:nil value:pConfig->use_power_off];
+	chkPowerOff = [CocoaCheckBox createI:vbox title:CMsg::Enable_the_state_of_power_off action:nil value:pConfig->use_power_off];
+
+	// power state when start up
+	hbox = [vbox addBox:HorizontalBox :MiddlePos :0 :_T("PowerS")];
+	[CocoaLabel createI:hbox title:CMsg::Power_State_When_Start_Up];
+	popPowerState = [CocoaPopUpButton createI:hbox items:LABELS::power_state action:nil selidx:pConfig->power_state_when_start_up width:240];
 
 	[CocoaLabel createI:box_one title:CMsg::Need_restart_program_or_PowerOn];
 
@@ -129,7 +139,7 @@ extern GUI *gui;
 #if defined(_X68000)
 	// behavior
 	bbox = [box_one addBox:BoxViewBox :0 :COCOA_DEFAULT_MARGIN :_T("SRAM")];
-	grp = [CocoaBox createI:bbox :CMsg::Behavior :260 :1];
+	[CocoaBox createI:bbox :CMsg::Behavior :260 :1];
 
 	vbox = [bbox addBox:VerticalBox :0 :0 :_T("SRAM1")];
 	hbox = [vbox addBox:HorizontalBox :MiddlePos :0 :_T("SRAM11")];
@@ -187,9 +197,15 @@ extern GUI *gui;
 	valuei = vm->get_sram_boot_device();
 	popSramBootDevice = [CocoaPopUpButton createT:hbox items:LABELS::boot_devices action:nil selidx:valuei];
 
+	// number of SASI HDDs
+	hbox = [lbox addBox:HorizontalBox :0 :0 :_T("numhdd")];
+	[CocoaLabel createI:hbox title:CMsg::Number_of_HDDs];
+	valuei = vm->get_sram_sasi_hdd_nums();
+	stpSramNumHdds = [CocoaStepper createN:hbox min:0 max:15 value:valuei width:80];
+
 	// RS-232C
 	bbox = [lbox addBox:BoxViewBox :0 :COCOA_DEFAULT_MARGIN :_T("RS232C")];
-	grp = [CocoaBox createI:bbox :CMsg::RS_232C :260 :1];
+	[CocoaBox createI:bbox :CMsg::RS_232C :260 :1];
 	valueu = vm->get_sram_rs232c();
 
 	vbox = [bbox addBox:VerticalBox :0 :0 :_T("RS232CV")];
@@ -222,9 +238,8 @@ extern GUI *gui;
 
 	// alarm
 	hbox = [rbox addBox:HorizontalBox :0 :0 :_T("alarm")];
-	valuei = vm->get_sram_alarm_onoff();
-	CocoaCheckBox *chk = [CocoaCheckBox createI:hbox title:CMsg::Enable_alarm action:nil value:valuei == 0];
-	[chk setEnabled:FALSE];
+	chkSramAlarm = [CocoaCheckBox createI:hbox title:CMsg::Enable_alarm action:nil value:vm->get_sram_alarm_onoff()];
+//	[chk setEnabled:FALSE];
 
 	// alarm time
 	hbox = [rbox addBox:HorizontalBox :0 :0 :_T("alarmst")];
@@ -247,7 +262,7 @@ extern GUI *gui;
 	hbox = [rbox addBox:HorizontalBox :0 :0 :_T("contrast")];
 	valuei = vm->get_sram_contrast();
 	[CocoaLabel createI:hbox title:CMsg::Contrast_on_Monitor];
-	txtSramContrast = [CocoaTextField createN:hbox num:valuei action:nil width:80];
+	stpSramContrast = [CocoaStepper createN:hbox min:0 max:15 value:valuei width:80];
 
 	// eject fd
 	hbox = [rbox addBox:HorizontalBox :0 :0 :_T("ejectfd")];
@@ -271,6 +286,21 @@ extern GUI *gui;
 	[CocoaLabel createI:hbox title:CMsg::Key_Repeat_Rate];
 	valuei = vm->get_sram_key_repeat_rate();
 	popSramKRRate = [CocoaPopUpButton createT:hbox items:LABELS::key_repeat_rate action:nil selidx:valuei];
+
+	// key LED
+	bbox = [rbox addBox:BoxViewBox :0 :COCOA_DEFAULT_MARGIN :_T("keyLED")];
+	[CocoaBox createI:bbox :CMsg::Status_of_Key_LED_when_power_on :260 :1];
+	valuei = vm->get_sram_key_led();
+	vbox = [bbox addBox:VerticalBox :0 :0 :_T("keyLEDV")];
+	hbox = [vbox addBox:HorizontalBox :0 :0 :_T("keyLEDh1")];
+	chkSramKLEDkana = [CocoaCheckBox createI:hbox title:CMsg::Kana action:nil value:(valuei & 1) != 0];
+	chkSramKLEDromaji = [CocoaCheckBox createI:hbox title:CMsg::Roma_ji action:nil value:(valuei & 2) != 0];
+	chkSramKLEDcinput = [CocoaCheckBox createI:hbox title:CMsg::Code_Input action:nil value:(valuei & 4) != 0];
+	hbox = [vbox addBox:HorizontalBox :0 :0 :_T("keyLEDh2")];
+	chkSramKLEDcaps = [CocoaCheckBox createI:hbox title:CMsg::CAPS action:nil value:(valuei & 8) != 0];
+	chkSramKLEDins = [CocoaCheckBox createI:hbox title:CMsg::INS action:nil value:(valuei & 16) != 0];
+	chkSramKLEDhira = [CocoaCheckBox createI:hbox title:CMsg::Hiragana action:nil value:(valuei & 32) != 0];
+	chkSramKLEDzen = [CocoaCheckBox createI:hbox title:CMsg::Zenkaku action:nil value:(valuei & 64) != 0];
 #endif
 
 
@@ -287,7 +317,7 @@ extern GUI *gui;
 
 	// OpenGL
 	bbox = [lbox addBox:BoxViewBox :0 :COCOA_DEFAULT_MARGIN :_T("OpenGLB")];
-	grp = [CocoaBox createI:bbox :CMsg::Drawing :260 :1];
+	[CocoaBox createI:bbox :CMsg::Drawing :260 :1];
 
 	vbox = [bbox addBox:VerticalBox :0 :0 :_T("OpenGLV")];
 
@@ -307,7 +337,7 @@ extern GUI *gui;
 	rbox = [sbox addBox:VerticalBox :0 :0 :_T("CRTCR")];
 
 	bbox = [rbox addBox:BoxViewBox :0 :COCOA_DEFAULT_MARGIN :_T("CRTCB")];
-	grp = [CocoaBox createI:bbox :CMsg::CRTC :260 :1];
+	[CocoaBox createI:bbox :CMsg::CRTC :260 :1];
 
 	vbox = [bbox addBox:VerticalBox :0 :0 :_T("CRTCV")];
 
@@ -397,7 +427,7 @@ extern GUI *gui;
 
 	// Load wave
 	bbox = [lbox addBox:BoxViewBox :0 :COCOA_DEFAULT_MARGIN :_T("LoadWavB")];
-	grp = [CocoaBox createI:bbox :CMsg::Load_Wav_File_from_Tape :300 :1];
+	[CocoaBox createI:bbox :CMsg::Load_Wav_File_from_Tape :300 :1];
 
 	vbox = [bbox addBox:VerticalBox :0 :0 :_T("LoadWavV")];
 
@@ -420,7 +450,7 @@ extern GUI *gui;
 	rbox = [sbox addBox:VerticalBox :0 :0 :_T("TapeR")];
 
 	bbox = [rbox addBox:BoxViewBox :0 :COCOA_DEFAULT_MARGIN :_T("SaveWavB")];
-	grp = [CocoaBox createI:bbox :CMsg::Save_Wav_File_to_Tape :260 :1];
+	[CocoaBox createI:bbox :CMsg::Save_Wav_File_to_Tape :260 :1];
 
 	vbox = [bbox addBox:VerticalBox :0 :0 :_T("SaveWavV")];
 
@@ -436,7 +466,7 @@ extern GUI *gui;
 	// FDD
 #ifdef USE_FD1
 	bbox = [box_one addBox:BoxViewBox :0 :COCOA_DEFAULT_MARGIN :_T("Fdd2B")];
-	grp = [CocoaBox createI:bbox :CMsg::Floppy_Disk_Drive :320 :1];
+	[CocoaBox createI:bbox :CMsg::Floppy_Disk_Drive :320 :1];
 
 	vbox = [bbox addBox:VerticalBox :0 :0 :_T("Fdd2V")];
 
@@ -445,7 +475,7 @@ extern GUI *gui;
 	[CocoaLabel createI:hbox title:CMsg::When_start_up_mount_disk_at_];
 	for(i=0; i<MAX_DRIVE; i++) {
 		char name[4];
-		sprintf(name, "%d ", i);
+		UTILITY::sprintf(name, sizeof(name), "%d ", i);
 		chkFddMount[i] = [CocoaCheckBox createT:hbox title:name action:nil value:(pConfig->mount_fdd & (1 << i))];
 	}
 
@@ -459,7 +489,7 @@ extern GUI *gui;
 	// HDD
 #ifdef USE_HD1
 	bbox = [box_one addBox:BoxViewBox :0 :COCOA_DEFAULT_MARGIN :_T("Hdd2B")];
-	grp = [CocoaBox createI:bbox :CMsg::Hard_Disk_Drive :320 :1];
+	[CocoaBox createI:bbox :CMsg::Hard_Disk_Drive :320 :1];
 
 	vbox = [bbox addBox:VerticalBox :0 :0 :_T("Hdd2V")];
 
@@ -468,7 +498,7 @@ extern GUI *gui;
 	[CocoaLabel createI:hbox title:CMsg::When_start_up_mount_disk_at_];
 	for(i=0; i<MAX_HARD_DISKS; i++) {
 		char name[4];
-		sprintf(name, "%d ", i);
+		UTILITY::sprintf(name, sizeof(name), "%d ", i);
 		chkHddMount[i] = [CocoaCheckBox createT:hbox title:name action:nil value:(pConfig->mount_hdd & (1 << i))];
 	}
 
@@ -487,36 +517,36 @@ extern GUI *gui;
 #ifdef MAX_PRINTER
 	for(i=0; i<MAX_PRINTER; i++) {
 		char name[128];
-		sprintf(name, CMSG(Printer_Hostname), i);
+		UTILITY::sprintf(name, sizeof(name), CMSG(Printer_Hostname), i);
 
-		_stprintf(bname, _T("LPT%d"), i);
+		UTILITY::stprintf(bname, sizeof(bname), _T("LPT%d"), i);
 		hbox = [box_one addBox:HorizontalBox :MiddlePos :0 :bname];
 		[CocoaLabel createT:hbox title:name width:120];
 		txtLPTHost[i] = [CocoaTextField createT:hbox text:pConfig->printer_server_host[i] action:nil width:140];
 
-		[CocoaLabel createI:hbox title:CMsg::_Port align:NSRightTextAlignment];
-		txtLPTPort[i] = [CocoaTextField createN:hbox num:pConfig->printer_server_port[i] action:nil align:NSRightTextAlignment width:80];
+		[CocoaLabel createI:hbox title:CMsg::_Port align:NSTextAlignmentRight];
+		txtLPTPort[i] = [CocoaTextField createN:hbox num:pConfig->printer_server_port[i] action:nil align:NSTextAlignmentRight width:80];
 
-		[CocoaLabel createI:hbox title:CMsg::_Print_delay align:NSRightTextAlignment];
+		[CocoaLabel createI:hbox title:CMsg::_Print_delay align:NSTextAlignmentRight];
 		char delay[128];
-		sprintf(delay, "%.1f", pConfig->printer_delay[i]);
-		txtLPTDelay[i] = [CocoaTextField createT:hbox text:delay action:nil align:NSRightTextAlignment width:80];
+		UTILITY::sprintf(delay, sizeof(delay), "%.1f", pConfig->printer_delay[i]);
+		txtLPTDelay[i] = [CocoaTextField createT:hbox text:delay action:nil align:NSTextAlignmentRight width:80];
 
-		[CocoaLabel createI:hbox title:CMsg::msec align:NSRightTextAlignment];
+		[CocoaLabel createI:hbox title:CMsg::msec align:NSTextAlignmentRight];
 	}
 #endif
 #ifdef MAX_COMM
 	for(i=0; i<MAX_COMM; i++) {
 		char name[128];
-		sprintf(name, CMSG(Communication_Hostname), i);
+		UTILITY::sprintf(name, sizeof(name), CMSG(Communication_Hostname), i);
 
-		_stprintf(bname, _T("COM%d"), i);
+		UTILITY::stprintf(bname, sizeof(bname), _T("COM%d"), i);
 		hbox = [box_one addBox:HorizontalBox :0 :0 :bname];
 		[CocoaLabel createT:hbox title:name width:120];
 		txtCOMHost[i] = [CocoaTextField createT:hbox text:pConfig->comm_server_host[i] action:nil width:140];
 
-		[CocoaLabel createI:hbox title:CMsg::_Port align:NSRightTextAlignment];
-		txtCOMPort[i] = [CocoaTextField createN:hbox num:pConfig->comm_server_port[i] action:nil align:NSRightTextAlignment width:80];
+		[CocoaLabel createI:hbox title:CMsg::_Port align:NSTextAlignmentRight];
+		txtCOMPort[i] = [CocoaTextField createN:hbox num:pConfig->comm_server_port[i] action:nil align:NSTextAlignmentRight width:80];
 
 //		popCOMDipswitch[i] = [CocoaPopUpButton createI:hbox items:LABELS::comm_baud action:nil selidx:(pConfig->comm_dipswitch[i]-1)];
 	}
@@ -527,8 +557,8 @@ extern GUI *gui;
 	[CocoaLabel createI:hbox title:CMsg::Connectable_host_to_Debugger];
 	txtDbgrHost = [CocoaTextField createT:hbox text:pConfig->debugger_server_host action:nil width:140];
 
-	[CocoaLabel createI:hbox title:CMsg::_Port align:NSRightTextAlignment];
-	txtDbgrPort = [CocoaTextField createN:hbox num:pConfig->debugger_server_port action:nil align:NSRightTextAlignment width:80];
+	[CocoaLabel createI:hbox title:CMsg::_Port align:NSTextAlignmentRight];
+	txtDbgrPort = [CocoaTextField createN:hbox num:pConfig->debugger_server_port action:nil align:NSTextAlignmentRight width:80];
 #endif
 	// uart
 	int uart_baud_index = 0;
@@ -539,7 +569,7 @@ extern GUI *gui;
 		}
 	}
 	bbox = [box_one addBox:BoxViewBox :0 :COCOA_DEFAULT_MARGIN :_T("UART")];
-	grp = [CocoaBox createI:bbox :CMsg::Settings_of_serial_ports_on_host :260 :1];
+	[CocoaBox createI:bbox :CMsg::Settings_of_serial_ports_on_host :260 :1];
 
 	vbox = [bbox addBox:VerticalBox :0 :0 :_T("UARTV")];
 
@@ -587,7 +617,7 @@ extern GUI *gui;
 
 - (void)close
 {
-	[NSApp stopModalWithCode:NSCancelButton];
+	[NSApp stopModalWithCode:NSModalResponseCancel]; //NSCancelButton
 	[super close];
 }
 
@@ -599,6 +629,9 @@ extern GUI *gui;
 
 	// set data
 	pConfig->use_power_off = ([chkPowerOff state] == NSOnState);
+
+	// power state when start up
+	pConfig->power_state_when_start_up = (int)[popPowerState indexOfSelectedItem];
 
 	pConfig->rom_path.Set([[txtROMPath stringValue] UTF8String]);
 
@@ -746,16 +779,22 @@ extern GUI *gui;
 	BIT_ONOFF(pConfig->original, MSK_ORIG_SRAM_SAVE_PWROFF, [chkSRAMSave state] == NSOnState);
 	BIT_ONOFF(pConfig->original, MSK_ORIG_SRAM_CHG_BOOT_DEV, [chkSRAMChanged state] == NSOnState);
 	
+	// ROM start address
 	valueu = (uint32_t)strtol([[txtSramRomStartAddr stringValue] UTF8String], &endptr, 16);
 	if (endptr && *endptr == 0) {
 		vm->set_sram_rom_start_address(valueu);
 	}
+
+	// SRAM start address
 	valueu = (uint32_t)strtol([[txtSramRamStartAddr stringValue] UTF8String], &endptr, 16);
 	if (endptr && *endptr == 0) {
 		vm->set_sram_sram_start_address(valueu);
 	}
+
+	// boot device
 	vm->set_sram_boot_device((int)[popSramBootDevice indexOfSelectedItem]);
 
+	// RS-232C
 	valueu = 0;
 	valueu |= vm->conv_sram_rs232c_baud_rate((int)[popSramRS232CBaud indexOfSelectedItem]);
 	valueu |= vm->conv_sram_rs232c_databit((int)[popSramRS232CDataBit indexOfSelectedItem]);
@@ -764,14 +803,43 @@ extern GUI *gui;
 	valueu |= vm->conv_sram_rs232c_flowctrl((int)[popSramRS232CFlowCtrl indexOfSelectedItem]);
 	vm->set_sram_rs232c(valueu);
 
-	valuel = (int)strtol([[txtSramContrast stringValue] UTF8String], &endptr, 10);
-	if (endptr && *endptr == 0 && valuel >= 0 && valuel <= 15) {
+	// alarm
+	vm->set_sram_alarm_onoff([chkSramAlarm state] == NSOnState);
+
+	// contrast
+	valuel = [stpSramContrast intValue];
+	if (valuel >= 0 && valuel <= 15) {
 		vm->set_sram_contrast(valuel);
 	}
+
+	// eject fd
 	vm->set_sram_fd_eject([chkSramFdEject state] == NSOnState ? 1 : 0);
+
+	// purpose of SRAM free area
 	vm->set_sram_purpose((int)[popSramPurpose indexOfSelectedItem]);
+
+	// key repeat delay
 	vm->set_sram_key_repeat_delay((int)[popSramKRDelay indexOfSelectedItem]);
+
+	// key repeat rate
 	vm->set_sram_key_repeat_rate((int)[popSramKRRate indexOfSelectedItem]);
+
+	// key LED
+	valuel = 0;
+	valuel |= [chkSramKLEDkana state] == NSOnState ? 1 : 0;
+	valuel |= [chkSramKLEDromaji state] == NSOnState ? 2 : 0;
+	valuel |= [chkSramKLEDcinput state] == NSOnState ? 4 : 0;
+	valuel |= [chkSramKLEDcaps state] == NSOnState ? 8 : 0;
+	valuel |= [chkSramKLEDins state] == NSOnState ? 16 : 0;
+	valuel |= [chkSramKLEDhira state] == NSOnState ? 32 : 0;
+	valuel |= [chkSramKLEDzen state] == NSOnState ? 64 : 0;
+	vm->set_sram_key_led(valuel);
+
+	// number of SASI HDDs
+	valuel = [stpSramNumHdds intValue];
+	if (valuel >= 0 && valuel <= 15) {
+		vm->set_sram_sasi_hdd_nums(valuel);
+	}
 #endif
 
 	// set message font
@@ -792,7 +860,7 @@ extern GUI *gui;
 #endif
 
 	// OK button is pushed
-	[NSApp stopModalWithCode:NSOKButton];
+	[NSApp stopModalWithCode:NSModalResponseOK]; // NSOKButton
 	[super close];
 }
 
@@ -821,7 +889,7 @@ extern GUI *gui;
 	// Display modal dialog
 	result = [panel runModal];
 
-	if(result == NSOKButton) {
+	if(result == NSModalResponseOK) { // OK
 		// get file path (use NSURL)
 		NSURL *filePath = [panel URL];
 
@@ -854,7 +922,7 @@ extern GUI *gui;
 	// Display modal dialog
 	result = [panel runModal];
 
-	if(result == NSOKButton) {
+	if(result == NSModalResponseOK) { // OK
 		// get file path (use NSURL)
 		NSURL *filePath = [panel URL];
 		NSArray *arr = [filePath pathComponents];
@@ -864,7 +932,7 @@ extern GUI *gui;
 
 - (void)showFontPanel:(id)sender
 {
-	NSInteger result;
+//	NSInteger result;
 
 	CocoaObjectStructure *obj = [sender relatedObject];
 	if (obj == nil) return;
@@ -881,10 +949,10 @@ extern GUI *gui;
 	[panel setPanelFont:font isMultiple:NO];
 
 	// Display modal dialog
-	result = [panel runModal];
+	[panel runModal];
 
-	if(result == NSOKButton) {
-	}
+//	if(result == NSModalResponseOK) {
+//	}
 //	[[NSFontManager sharedFontManager]orderFrontFontPanel:self];
 }
 

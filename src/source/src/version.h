@@ -16,11 +16,11 @@
 #define APP_FILENAME	"x68000.exe"
 #define APP_INTERNAME	"eCZ-600"
 #define APP_COPYRIGHT	"Copyright (C) 2011,2012-2024 Common Source Code Project, Sasaji"
-#define APP_VERSION		"0.0.1.262"
+#define APP_VERSION		"0.0.1.291"
 #define APP_VER_MAJOR	0
 #define APP_VER_MINOR	0
 #define APP_VER_REV		1
-#define APP_VER_BUILD	262
+#define APP_VER_BUILD	291
 
 #if defined(__MINGW32__)
 #if defined(x86_64) || defined(__x86_64)
@@ -45,12 +45,14 @@
 #define PLATFORM "Linux"
 #endif
 #elif defined(__APPLE__) && defined(__MACH__)
-#ifdef __x86_64
-#define PLATFORM "MacOSX 64bit"
+#ifdef __arm64
+#define PLATFORM "MacOS Arm 64bit"
+#elif __x86_64
+#define PLATFORM "MacOS Intel 64bit"
 #elif __i386
-#define PLATFORM "MacOSX 32bit"
+#define PLATFORM "MacOS Intel 32bit"
 #else
-#define PLATFORM "MacOSX"
+#define PLATFORM "MacOS"
 #endif
 #elif defined(__FreeBSD__)
 #ifdef __x86_64

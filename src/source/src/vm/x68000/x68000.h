@@ -295,6 +295,7 @@ public:
 		SRAM_ALARM_DURATION = 0x14,
 		SRAM_BOOT_DEVICE = 0x18,
 		SRAM_RS232C = 0x1a,
+		SRAM_KEY_LED = 0x1c,
 		SRAM_ALARM_ON_TIME = 0x22,
 		SRAM_ALARM_ON_OFF = 0x26,
 		SRAM_CONTRAST = 0x28,
@@ -302,6 +303,7 @@ public:
 		SRAM_PURPOSE = 0x2d,
 		SRAM_KEY_REPEAT_DELAY = 0x3a,
 		SRAM_KEY_REPEAT_RATE = 0x3b,
+		SRAM_SASI_HDD_NUMS = 0x5a,
 	};
 	uint32_t get_sram_ram_size() const;
 	uint32_t get_sram_rom_start_address() const;
@@ -375,7 +377,8 @@ public:
 	};
 	int get_sram_rs232c_flowctrl(uint32_t value) const;
 	uint32_t conv_sram_rs232c_flowctrl(int pos) const;
-	int get_sram_alarm_onoff() const;
+	bool get_sram_alarm_onoff() const;
+	void set_sram_alarm_onoff(bool val);
 	uint32_t get_sram_alarm_time() const;
 	int get_sram_alarm_duration() const;
 	int get_sram_contrast() const;
@@ -388,6 +391,10 @@ public:
 	void set_sram_key_repeat_delay(int pos);
 	int get_sram_key_repeat_rate() const;
 	void set_sram_key_repeat_rate(int pos);
+	int get_sram_key_led() const;
+	void set_sram_key_led(int val);
+	int get_sram_sasi_hdd_nums() const;
+	void set_sram_sasi_hdd_nums(int val);
 	//@}
 
 	// ----------------------------------------

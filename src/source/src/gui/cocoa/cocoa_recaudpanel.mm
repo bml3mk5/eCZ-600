@@ -15,6 +15,7 @@
 #import "../../config.h"
 #import "../../emu.h"
 #import "../../clocale.h"
+#import "../../utility.h"
 
 extern EMU *emu;
 
@@ -86,35 +87,35 @@ static const int type_ids[] = {
 
 	NSTabViewItem *tab;
 	CocoaView *tab_view;
-	CocoaLabel *label;
+//	CocoaLabel *label;
 
 	CocoaLayout *vbox;
 	CocoaLayout *hbox;
 
 	for(i=0; type_ids[i] != 0; i++) {
-		tab = [tabView addTabItem:_tgettext(type_label[i])];
+		tab = [tabView addTabItemT:_tgettext(type_label[i])];
 		tab_view = (CocoaView *)[tab view];
 		[box_tab setContentView:tab_view];
 
 		enables[i] = emu->rec_sound_enabled(type_ids[i]);
 
-		_TCHAR name[10];
-		_stprintf(name, _T("V%d"), i);
+		char name[10];
+		UTILITY::sprintf(name, sizeof(name), "V%d", i);
 		vbox = [box_tab addBox:VerticalBox :0 :0 :name];
-		_stprintf(name, _T("H%d"), i);
+		UTILITY::sprintf(name, sizeof(name), "H%d", i);
 		hbox = [vbox addBox:HorizontalBox :CenterPos | MiddlePos :0 :name];
 
 		switch(type_ids[i]) {
 		case RECORD_AUDIO_TYPE_WAVE:
-			label = [CocoaLabel createI:hbox title:CMsg::Select_a_sample_rate_on_sound_menu_in_advance];
+			[CocoaLabel createI:hbox title:CMsg::Select_a_sample_rate_on_sound_menu_in_advance];
 			break;
 		default:
-			label = [CocoaLabel createI:hbox title:CMsg::Codec_Type width:120];
+			[CocoaLabel createI:hbox title:CMsg::Codec_Type width:120];
 
 			const char **codlbl = emu->get_rec_sound_codec_list(type_ids[i]);
 			codbtn[i] = [CocoaPopUpButton createT:hbox items:codlbl action:nil selidx:codnums[i] width:160];
 
-//			label = [CocoaLabel create:re titleid:CMsg::Quality];
+//			[CocoaLabel create:re titleid:CMsg::Quality];
 
 //			const char **qualbl = emu->get_rec_audio_quality_list(type_ids[i]);
 //			quabtn[i] = [CocoaPopUpButton create:re items:qualbl action:nil selidx:quanums[i]];
@@ -123,7 +124,7 @@ static const int type_ids[] = {
 
 		if (!enables[i]) {
 			hbox = [vbox addBox:HorizontalBox :0 :0 :_T("Hlib")];
-			label = [CocoaLabel createI:hbox title:CMsg::Need_install_library];
+			[CocoaLabel createI:hbox title:CMsg::Need_install_library];
 		}
 	}
 
@@ -140,12 +141,12 @@ static const int type_ids[] = {
 
 - (NSInteger)runModal
 {
-	return type_ids[0] ? [NSApp runModalForWindow:self] : NSCancelButton;
+	return type_ids[0] ? [NSApp runModalForWindow:self] : NSModalResponseCancel;
 }
 
 - (void)close
 {
-	[NSApp stopModalWithCode:NSCancelButton];
+	[NSApp stopModalWithCode:NSModalResponseCancel];
 	[super close];
 }
 
@@ -159,7 +160,7 @@ static const int type_ids[] = {
 //	emu->set_parami(VM::ParamRecAudioQuality, quanum);
 
     // OK button is pushed
-	[NSApp stopModalWithCode:NSOKButton];
+	[NSApp stopModalWithCode:NSModalResponseOK];
 	[super close];
 }
 

@@ -52,10 +52,16 @@ public:
 	virtual void Set(const TYPE *src_str, int src_len) {
 		CopyData(src_str, src_len);
 	}
+#if 0
 	virtual CCharTemp<TYPE> &operator=(const CCharTemp<TYPE> &src) {
-		CopyData(src.str, src.len);
+		Set(src.str, src.len);
 		return *this;
 	}
+	virtual CCharTemp<TYPE> &operator=(const TYPE *src_str) {
+		Set(src_str);
+		return *this;
+	}
+#endif
 	virtual const TYPE *Get() const {
 		return str;
 	}
@@ -139,9 +145,9 @@ public:
 	virtual void SetM(const char *src_str);
 	virtual CWchar GetWM() const;
 
-private:
-	virtual CNchar &operator=(const CNchar &src);
-	virtual CNchar &operator=(const char *src_str);
+//protected:
+//	virtual CNchar &operator=(const CNchar &src);
+//	virtual CNchar &operator=(const char *src_str);
 };
 
 /// @brief 文字列ワイド
@@ -172,9 +178,9 @@ public:
 	virtual void SetM(const wchar_t *src_str);
 	virtual const wchar_t *GetWM() const;
 
-private:
-	virtual CWchar &operator=(const CWchar &src);
-	virtual CWchar &operator=(const wchar_t *src_str);
+//protected:
+//	virtual CWchar &operator=(const CWchar &src);
+//	virtual CWchar &operator=(const wchar_t *src_str);
 };
 
 #if defined(_UNICODE)

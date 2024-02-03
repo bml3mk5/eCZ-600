@@ -18,10 +18,14 @@
 //#include "../../config.h"
 #include "../sound_base.h"
 #include "../noise.h"
+#include "../harddisk.h"
+#include "../../cptrlist.h"
+#include <vector>
 
 class EMU;
+class SASI_CTRLS;
 class SASI_CTRL;
-class HARDDISK;
+class SASI_UNITS;
 
 /**
 	@brief SASI (shugart associates system interface)
@@ -51,13 +55,8 @@ public:
 	};
 
 private:
-	enum en_constants {
-		CONTROL_NUMS = 1,
-	};
-
-private:
 	DEVICE *d_memory;
-	SASI_CTRL *d_ctrl[CONTROL_NUMS];
+	SASI_CTRLS *d_ctrls;
 	SASI_CTRL *d_selected_ctrl;
 
 	uint32_t m_signal_status;	///< communication signals and status
@@ -159,6 +158,10 @@ public:
 		PHASE_MESSAGE,
 		PHASE_UNKNOWN
 	};
+	/// @breif max number of units which controller can process
+	enum en_units_per_ctrl {
+		UNITS_PER_CTRL = 2
+	};
 
 private:
 	/// @brief events on SASI_CTRL
@@ -180,7 +183,7 @@ private:
 
 private:
 	SASI *d_host;
-	HARDDISK *d_disk;
+	SASI_UNITS *d_units;
 	int m_ctrl_id;
 
 	// event
@@ -211,7 +214,8 @@ private:
 	static const uint8_t c_command_table[32];
 	uint8_t m_command_len;
 
-	uint8_t m_unit_number;	///< b5-b7
+	uint8_t m_unit_number;	///< b2-b0
+	HARDDISK *d_current_disk;
 	int m_curr_block;
 	int m_num_blocks;
 
@@ -277,7 +281,7 @@ private:
 		uint8_t m_command_class;
 		uint8_t m_command_code;
 		uint8_t m_command_len;
-		uint8_t m_unit_number;	///< b5-b7
+		uint8_t m_unit_number;	///< b2-b0
 		uint8_t m_send_message;
 		uint8_t m_send_error;
 		char reserved0[2];
@@ -305,10 +309,10 @@ private:
 	inline void test_drive_ready();
 	inline void recalibrate();
 	inline void send_sense();
-	inline void send_disk_data(int cylinder_sum);
+	inline void send_disk_data(HARDDISK *disk, int cylinder_sum);
 	inline void send_first_disk_data();
 	inline void send_next_disk_data();
-	inline void recv_disk_data(int cylinder_sum);
+	inline void recv_disk_data(HARDDISK *disk, int cylinder_sum);
 	inline void recv_first_disk_data();
 	inline void recv_next_disk_data();
 	inline void seek();
@@ -333,6 +337,10 @@ private:
 	inline void cancel_my_event(int event_id);
 	inline void register_my_event(int event_id, int wait);
 
+	inline HARDDISK *get_disk_unit(int unit_num) const;
+	inline bool unit_mounted(int unit_num) const;
+	inline bool unit_mounted_at_least() const;
+
 public:
 	SASI_CTRL(VM* parent_vm, EMU* parent_emu, SASI *host, int ctrl_id);
 	~SASI_CTRL();
@@ -352,16 +360,34 @@ public:
 	int get_ctrl_id() const { return m_ctrl_id; }
 
 	// user interface
-	bool open_disk(const _TCHAR *path, uint32_t flags);
-	bool close_disk(uint32_t flags);
-	bool disk_mounted();
-	bool is_same_disk(const _TCHAR *path);
+	bool open_disk(int unit_num, const _TCHAR *path, uint32_t flags);
+	bool close_disk(int unit_num, uint32_t flags);
+	bool disk_mounted(int unit_num) const;
+	bool is_same_disk(int unit_num, const _TCHAR *path);
 
 #ifdef USE_DEBUGGER
 	void debug_write_data(uint32_t data);
 	uint32_t debug_read_data();
 	void debug_regs_info(_TCHAR *buffer, size_t buffer_len);
 #endif
+};
+
+/**
+	@brief SASI (shugart associates system interface) controll list
+*/
+class SASI_CTRLS : public std::vector<SASI_CTRL *>
+{
+public:
+	SASI_CTRLS();
+};
+
+/**
+	@brief SASI (shugart associates system interface) unit list
+*/
+class SASI_UNITS : public CPtrList<HARDDISK>
+{
+public:
+	SASI_UNITS(int alloc_size);
 };
 
 #endif /* SASI_H */

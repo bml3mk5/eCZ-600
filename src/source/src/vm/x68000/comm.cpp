@@ -114,6 +114,18 @@ void COMM::send_data(uint32_t data)
 			m_send_buff[m_send_buff_w_pos++] = (data & 0xff) | 0x30;
 		}
 	}
+	if (m_send_buff_r_pos < m_send_buff_w_pos) {
+#ifdef USE_SOCKET
+		if (m_client_ch >= 0) {
+			emu->send_data_tcp(m_client_ch);
+		}
+#endif
+#ifdef USE_UART
+		if (m_uart_ch >= 0) {
+			emu->send_uart_data(m_uart_ch);
+		}
+#endif
+	}
 }
 
 uint32_t COMM::recv_data()
@@ -123,7 +135,7 @@ uint32_t COMM::recv_data()
 		if (m_through) {
 			data = m_recv_buff[m_recv_buff_r_pos++];
 		} else {
-			data = (m_recv_buff[m_send_buff_r_pos++] & 1);
+			data = (m_recv_buff[m_recv_buff_r_pos++] & 1);
 		}
 	}
 	return data;
@@ -152,6 +164,7 @@ void COMM::cancel_my_event()
 
 void COMM::event_frame()
 {
+#if 0
 	if (m_send_buff_r_pos < m_send_buff_w_pos) {
 #ifdef USE_SOCKET
 		if (m_client_ch >= 0) {
@@ -164,6 +177,7 @@ void COMM::event_frame()
 		}
 #endif
 	}
+#endif
 	if (m_recv_buff_r_pos > 0 && m_recv_buff_r_pos < m_recv_buff_w_pos) {
 		memcpy(&m_recv_buff[0], &m_recv_buff[m_recv_buff_r_pos], m_recv_buff_w_pos - m_recv_buff_r_pos);
 		m_recv_buff_w_pos -= m_recv_buff_r_pos;

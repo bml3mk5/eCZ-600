@@ -692,9 +692,9 @@ void EMU::change_sync_irq()
 	pConfig->sync_irq = !pConfig->sync_irq;
 
 	if (pConfig->sync_irq) {
-		out_info_x(CMsg::Sync_Machine_Speed_With_CPU_Speed);
+		out_info_x(CMsg::Synchronize_Device_Speed_With_CPU_Speed);
 	} else {
-		out_info_x(CMsg::Async_Machine_Speed_With_CPU_Speed);
+		out_info_x(CMsg::Asynchronize_Device_Speed_With_CPU_Speed);
 	}
 	update_config();
 }
@@ -1400,8 +1400,10 @@ void EMU::change_use_joypad(int num)
 #if defined(USE_JOYSTICK)
 	if (num < 0) {
 #ifdef USE_PIAJOYSTICK
-		num = (FLG_USEJOYSTICK ? 1 : (FLG_USEPIAJOYSTICK ? 2 : 0));
-		num = (num + 1) % 3;
+		num = (FLG_USEPIAJOYSTICK ? 2 : 0);
+		num = 2 - num;
+//		num = (FLG_USEJOYSTICK ? 1 : (FLG_USEPIAJOYSTICK ? 2 : 0));
+//		num = (num + 1) % 3;
 #else
 		num = (FLG_USEJOYSTICK ? 1 : 0);
 		num = (num + 1) % 2;

@@ -46,13 +46,23 @@
 	CocoaPopUpButton *popSramRS232CParity;
 	CocoaPopUpButton *popSramRS232CStopBit;
 	CocoaPopUpButton *popSramRS232CFlowCtrl;
-	CocoaTextField *txtSramContrast;
+	CocoaStepper *stpSramContrast;
 	CocoaCheckBox *chkSramFdEject;
 	CocoaPopUpButton *popSramPurpose;
 	CocoaPopUpButton *popSramKRDelay;
 	CocoaPopUpButton *popSramKRRate;
+	CocoaCheckBox *chkSramAlarm;
+	CocoaStepper *stpSramNumHdds;
+	CocoaCheckBox *chkSramKLEDkana;
+	CocoaCheckBox *chkSramKLEDromaji;
+	CocoaCheckBox *chkSramKLEDcinput;
+	CocoaCheckBox *chkSramKLEDcaps;
+	CocoaCheckBox *chkSramKLEDins;
+	CocoaCheckBox *chkSramKLEDhira;
+	CocoaCheckBox *chkSramKLEDzen;
 #endif
 	CocoaCheckBox *chkPowerOff;
+	CocoaPopUpButton *popPowerState;
 
 	CocoaPopUpButton *popUseOpenGL;
 	CocoaPopUpButton *popGLFilter;

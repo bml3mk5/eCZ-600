@@ -1389,9 +1389,14 @@ uint32_t VM::conv_sram_rs232c_flowctrl(int pos) const
 	return ((pos & 0x3) << 8);
 }
 
-int VM::get_sram_alarm_onoff() const
+bool VM::get_sram_alarm_onoff() const
 {
-	return memory->get_sram8(SRAM_ALARM_ON_OFF);
+	return memory->get_sram8(SRAM_ALARM_ON_OFF) == 0;
+}
+
+void VM::set_sram_alarm_onoff(bool val)
+{
+	memory->set_sram8(SRAM_ALARM_ON_OFF, val ? 0 : 7);
 }
 
 uint32_t VM::get_sram_alarm_time() const
@@ -1452,6 +1457,26 @@ int VM::get_sram_key_repeat_rate() const
 void VM::set_sram_key_repeat_rate(int pos)
 {
 	memory->set_sram8(SRAM_KEY_REPEAT_RATE, pos & 0xf);
+}
+
+int VM::get_sram_key_led() const
+{
+	return memory->get_sram8(SRAM_KEY_LED) & 0x7f;
+}
+
+void VM::set_sram_key_led(int val)
+{
+	memory->set_sram8(SRAM_KEY_LED, val & 0x7f);
+}
+
+int VM::get_sram_sasi_hdd_nums() const
+{
+	return memory->get_sram8(SRAM_SASI_HDD_NUMS) & 0xf;
+}
+
+void VM::set_sram_sasi_hdd_nums(int val)
+{
+	memory->set_sram8(SRAM_SASI_HDD_NUMS, val & 0xf);
 }
 
 // ----------------------------------------------------------------------------

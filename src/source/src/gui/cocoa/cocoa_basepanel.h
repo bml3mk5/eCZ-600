@@ -19,6 +19,30 @@
 
 #define COCOA_DEFAULT_MARGIN 5
 
+#ifndef MAC_OS_X_VERSION_10_11
+#define NSModalResponseOK NSOKButton
+#define NSModalResponseCancel NSCancelButton
+#endif
+
+#ifndef MAC_OS_X_VERSION_10_12
+#define NSTextAlignmentLeft NSLeftTextAlignment
+#define NSTextAlignmentCenter NSCenterTextAlignment
+#define NSTextAlignmentRight NSRightTextAlignment
+
+#define NSWindowStyleMaskTitled NSTitledWindowMask
+#define NSWindowStyleMaskClosable NSClosableWindowMask
+#define NSWindowStyleMaskMiniaturizable NSMiniaturizableWindowMask
+#define NSWindowStyleMaskFullScreen NSFullScreenWindowMask
+#define NSWindowStyleMaskResizable NSResizableWindowMask
+
+#define NSWindowStyleMaskFullSizeContentView NSFullSizeContentViewWindowMask
+
+#define NSCompositingOperationCopy NSCompositeCopy
+
+#define NSEventModifierFlagOption NSAlternateKeyMask
+#define NSEventModifierFlagShift NSShiftKeyMask
+#endif
+
 @class CocoaLayout;
 
 /**
@@ -228,6 +252,20 @@
 @end
 
 /**
+	@brief Stepper control
+*/
+@interface CocoaStepper : NSStepper
+{
+	CocoaTextField *text;
+}
+@property (retain) CocoaTextField *text;
++ (CocoaStepper *)createMin:(int)min_val max:(int)max_val value:(int)value;
++ (CocoaStepper *)createN:(CocoaLayout *)layout min:(int)min_val max:(int)max_val value:(int)value;
++ (CocoaStepper *)createN:(CocoaLayout *)layout min:(int)min_val max:(int)max_val value:(int)value width:(int)width;
++ (CocoaStepper *)createN:(CocoaLayout *)layout min:(int)min_val max:(int)max_val value:(int)value width:(int)width height:(int)height;
+@end
+
+/**
 	@brief Tab view
 */
 @interface CocoaTabView : NSTabView
@@ -244,7 +282,8 @@
 + (CocoaTabView *)createI:(CocoaLayout *)layout tabs:(const CMsg::Id *)tabids width:(int)width height:(int)height;
 - (void)addTabItemsT:(const char **)tabs;
 - (void)addTabItemsI:(const CMsg::Id *)tabids;
-- (NSTabViewItem *)addTabItem:(const char *)label;
+- (NSTabViewItem *)addTabItemT:(const char *)label;
+- (NSTabViewItem *)addTabItemI:(CMsg::Id)label_id;
 #ifdef COCOA_USE_OLDSTYLE_LAYOUT
 - (NSRect)adjustFrameSize:(NSRect)re;
 #endif
@@ -344,6 +383,7 @@ enum enAlign {
 	int w;
 	int h;
 	CocoaLayoutControls *next;
+	CocoaLayoutControls *prev;
 }
 @property (retain) CocoaLayout *box;
 @property (retain) NSView *ctrl;
@@ -354,6 +394,7 @@ enum enAlign {
 @property int w;
 @property int h;
 @property (retain) CocoaLayoutControls *next;
+@property (retain) CocoaLayoutControls *prev;
 + (CocoaLayoutControls *)create:(CocoaLayout *)box_ :(NSView *)ctrl_ :(int)x_ :(int)y_ :(int)px_ :(int)py_ :(int)w_ :(int)h_;
 @end
 

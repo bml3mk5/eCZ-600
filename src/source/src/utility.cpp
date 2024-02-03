@@ -1230,7 +1230,7 @@ const char *concat(const char *src, ...) {
 void concatv(char *dst, size_t max_len, const char *src, va_list ap) {
 	const char *src2;
 	if (dst != src) UTILITY::strcpy(dst, max_len, src);
-	for(size_t i=1; (src2 = va_arg(ap, const char *)) != NULL; i++) {
+	for(size_t i=1; (src2 = va_arg(ap, const char *)) != NULL && i<256; i++) {
 		if (strlen(dst) + strlen(src2) >= max_len) break;
 		UTILITY::strcat(dst, max_len, src2);
 	}

@@ -16,13 +16,15 @@
 #include "../../labels.h"
 #include "../gui_keybinddata.h"
 #include "../../utility.h"
+#include "../../keycode.h"
 
 extern EMU *emu;
 
 namespace GUI_GTK_X11
 {
 
-JoySettingBox::JoySettingBox(GUI *new_gui) : DialogBox(new_gui)
+JoySettingBox::JoySettingBox(GUI *new_gui)
+		: KeybindControlBox(new_gui)
 {
 }
 
@@ -32,7 +34,7 @@ JoySettingBox::~JoySettingBox()
 
 bool JoySettingBox::Show(GtkWidget *parent_window)
 {
-	DialogBox::Show(parent_window);
+	KeybindControlBox::Show(parent_window);
 
 	if (dialog) return true;
 
@@ -41,40 +43,46 @@ bool JoySettingBox::Show(GtkWidget *parent_window)
 	add_reject_button(CMsg::Cancel);
 
 	GtkWidget *cont = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-	GtkWidget *boxall;
-	GtkWidget *hboxall;
-	GtkWidget *vbox;
+	GtkWidget *nb;
+	GtkWidget *vboxall;
+//	GtkWidget *vboxbox;
 	GtkWidget *hbox;
+	GtkWidget *vbox;
+	GtkWidget *btn;
 	GtkWidget *lbl;
-	_TCHAR label[64];
+
+	char label[128];
+
+	GtkWidget *boxall = create_vbox(cont);
+	GtkWidget *hboxall = create_hbox(boxall);
+
 	int tx = 80;
-	int sx = 256;
-	int sy = 24;
+	int sx = 160;
+	int sy = 16;
+	int cs = 0;
 
 	//
 
 #if defined(USE_JOYSTICK) || defined(USE_KEY2JOYSTICK)
-
-	boxall = create_vbox(cont);
-	hboxall = create_hbox(boxall);
-
 	for(int i=0; i<MAX_JOYSTICKS; i++) {
-		vbox = create_vbox(hboxall);
+		vbox = create_vbox(hboxall, cs);
 
-		hbox = create_hbox(vbox);
-		UTILITY::stprintf(label, 64, CMSG(JoypadVDIGIT), i + 1);
+		UTILITY::sprintf(label, sizeof(label), CMSG(JoypadVDIGIT), i + 1);
+		create_label(vbox, label);
 		int val;
+		hbox = create_hbox(vbox, cs);
 #ifdef USE_JOYSTICK_TYPE
 		val = pConfig->joy_type[i];
-		com[i] = create_combo_box(hbox, label, LABELS::joypad_type, val);
+		com[i] = create_combo_box(hbox, "", LABELS::joypad_type, val);
 #endif
-
-		hbox = create_hbox(vbox);
+		hbox = create_hbox(vbox, cs);
 		create_label(hbox, CMsg::Button_Mashing_Speed);
-		lbl = create_label(hbox, _T(" "));
+		lbl = create_label(hbox, " ");
 		gtk_widget_set_size_request(lbl, 32, sy);
-		create_label(hbox, _T("0 <-> 3"));
+		create_label(hbox, "0 <-> 3");
 
+		GtkWidget *scroll = create_scroll_win(vbox, 240, 280);
+		GtkWidget *svbox = create_vbox(scroll, cs);
 		for(int k=0; k<KEYBIND_JOY_BUTTONS; k++) {
 			int kk = k + VM_JOY_LABEL_BUTTON_A;
 			if (kk >= VM_JOY_LABELS_MAX) {
@@ -82,7 +90,7 @@ bool JoySettingBox::Show(GtkWidget *parent_window)
 				continue;
 			}
 			
-			hbox = create_hbox(vbox);
+			hbox = create_hbox(svbox, cs);
 			CMsg::Id id = (CMsg::Id)cVmJoyLabels[kk].id;
 			lbl = create_label(hbox, id);
 			gtk_widget_set_size_request(lbl, tx, sy);
@@ -93,14 +101,16 @@ bool JoySettingBox::Show(GtkWidget *parent_window)
 			gtk_widget_set_size_request(scale[i][k], sx, sy);
 		}
 
-		hbox = create_hbox(vbox);
+		hbox = create_hbox(vbox, cs);
 		create_label(hbox, CMsg::Analog_to_Digital_Sensitivity);
-		lbl = create_label(hbox, _T(" "));
+		lbl = create_label(hbox, " ");
 		gtk_widget_set_size_request(lbl, 32, sy);
-		create_label(hbox, _T("0 <-> 10"));
+		create_label(hbox, "0 <-> 10");
 
+		scroll = create_scroll_win(vbox, 240, 180);
+		svbox = create_vbox(scroll, cs);
 		for(int k=0; k<6; k++) {
-			hbox = create_hbox(vbox);
+			hbox = create_hbox(svbox, cs);
 			CMsg::Id id = LABELS::joypad_axis[k];
 			lbl = create_label(hbox, id);
 			gtk_widget_set_size_request(lbl, tx, sy);
@@ -114,10 +124,47 @@ bool JoySettingBox::Show(GtkWidget *parent_window)
 
 #endif
 
-	//
+	// create notebook tab
+	vboxall = create_vbox(hboxall);
+	nb = create_notebook(vboxall);
 
-	gtk_widget_show_all(dialog);
-	g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(OnResponse), (gpointer)this);
+	int tab_offset = KeybindData::TAB_JOY2JOY;
+	for(int tab_num=tab_offset; tab_num < KeybindData::TABS_MAX; tab_num++) {
+		KeybindDataControl *kc = new KeybindDataControl();
+		ctrls.Add(kc);
+
+		// add note(tab) to notebook
+		GtkWidget *vboxtab = create_vbox(NULL);
+		add_note(nb, vboxtab, LABELS::keybind_tab[tab_num]);
+//		vboxbox = create_vbox(vboxall);
+
+		kc->Create(this, vboxtab, tab_num, 280, 320
+			, G_CALLBACK(OnKeyDown), G_CALLBACK(OnDoubleClick), G_CALLBACK(OnFocusIn));
+
+		hbox = create_hbox(vboxtab, cs);
+		vbox = create_vbox(hbox, cs);
+		btn = create_button(vbox, CMsg::Load_Default, G_CALLBACK(OnClickLoadDefault));
+		g_object_set_data(G_OBJECT(btn), "ctrl", (gpointer)kc);
+		hbox = create_hbox(vboxtab, cs);
+		vbox = create_vbox(hbox, cs);
+		for(int i=0; i<KEYBIND_PRESETS; i++) {
+			UTILITY::sprintf(label, sizeof(label), CMSG(Load_Preset_VDIGIT), i+1);
+			btn = create_button(vbox, label, G_CALLBACK(OnClickLoadPreset));
+			g_object_set_data(G_OBJECT(btn), "ctrl", (gpointer)kc);
+			g_object_set_data(G_OBJECT(btn), "num", (gpointer)(intptr_t)i);
+		}
+		vbox = create_vbox(hbox, cs);
+		for(int i=0; i<KEYBIND_PRESETS; i++) {
+			UTILITY::sprintf(label, sizeof(label), CMSG(Save_Preset_VDIGIT), i+1);
+			btn = create_button(vbox, label, G_CALLBACK(OnClickSavePreset));
+			g_object_set_data(G_OBJECT(btn), "ctrl", (gpointer)kc);
+			g_object_set_data(G_OBJECT(btn), "num", (gpointer)(intptr_t)i);
+		}
+//		if (LABELS::keybind_combi[tab] != CMsg::Null) {
+//			kc->chkCombi = create_check_box(vboxall, LABELS::keybind_combi[tab_num], kc->GetCombi() != 0);
+//		}
+	}
+	ShowAfter(vboxall);
 
 	emu->set_pause(1, true);
 
@@ -126,12 +173,15 @@ bool JoySettingBox::Show(GtkWidget *parent_window)
 
 void JoySettingBox::Hide()
 {
-	DialogBox::Hide();
+	KeybindControlBox::Hide();
+
 	emu->set_pause(1, false);
 }
 
-void JoySettingBox::SetData()
+bool JoySettingBox::SetData()
 {
+	KeybindControlBox::SetData();
+
 #if defined(USE_JOYSTICK) || defined(USE_KEY2JOYSTICK)
 	for(int i=0; i<MAX_JOYSTICKS; i++) {
 #ifdef USE_JOYSTICK_TYPE
@@ -155,6 +205,7 @@ void JoySettingBox::SetData()
 	emumsg.Send(EMUMSG_ID_MODIFY_JOYTYPE);
 #endif
 #endif
+	return true;
 }
 
 #if 0
@@ -170,13 +221,6 @@ void JoySettingBox::OnChangeValue(GtkWidget *widget, gpointer user_data)
 #endif
 }
 #endif
-
-void JoySettingBox::OnResponse(GtkWidget *widget, gint response_id, gpointer user_data)
-{
-	JoySettingBox *obj = (JoySettingBox *)user_data;
-	obj->SetData();
-	obj->Hide();
-}
 
 }; /* namespace GUI_GTK_X11 */
 

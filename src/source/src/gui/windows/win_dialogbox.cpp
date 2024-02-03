@@ -1521,7 +1521,7 @@ CBox::CBox(int orient, int align, int margin, const _TCHAR *name)
 
 	memset(this->name, 0, sizeof(this->name));
 	if (name) {
-		_tcsncpy(this->name, name, 9);
+		UTILITY::tcsncpy(this->name, sizeof(this->name)/sizeof(_TCHAR), name, 9);
 	}
 
 	tab_items = NULL;

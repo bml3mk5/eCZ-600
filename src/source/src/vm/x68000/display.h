@@ -180,6 +180,7 @@ private:
 		MX_TXSPBG_SPRITE_PRIORITY	= 0x3000,	///< SPRITE and BG priority
 		MX_TXSPBG_SPRITE_PRIORITY_SFT = 12,
 		MX_TXSPBG_SPBG_PALETTE	 = 0x01ff,
+		MX_TXSPBG_PALETTE_MASK	 = 0x00ff,
 		MX_TXSPBG_PALETTE_L4	 = 0x000f,
 //		MX_TXSPBG_WIDTH = 768,
 		MX_TXSPBG_WIDTH_SFT = 10
@@ -334,10 +335,10 @@ private:
 	inline void mix_render_text_sprite_bg_one_line_sub_tx_sp(int width, int src_left, int src_y, int dst_y);
 	inline void mix_render_text_sprite_bg_one_line(int width, int src_y, int dst_y);
 	inline void mix_render_text_sprite_bg(int width, int height);
-	inline void mix_render_bg0_one_line_sub(int width, int src_left, int src_x_limit, int src_y, int dst_y);
-	inline void mix_render_bg1_one_line_sub(int width, int src_left, int src_x_limit, int src_y, int dst_y);
-	inline void mix_render_bg0_one_line(int size512, int width, int src_y, int dst_y);
-	inline void mix_render_bg1_one_line(int size512, int width, int src_y, int dst_y);
+	inline void mix_render_bg0_one_line_sub(int width, int src_left, int src_x_limit, int disp_left, int src_y, int dst_y);
+	inline void mix_render_bg1_one_line_sub(int width, int src_left, int src_x_limit, int disp_left, int src_y, int dst_y);
+	inline void mix_render_bg0_one_line(int size512, int width, int disp_left, int disp_top, int src_y, int dst_y);
+	inline void mix_render_bg1_one_line(int size512, int width, int disp_left, int disp_top, int src_y, int dst_y);
 	inline void mix_render_sprite_bg_one_line(int step_y, int src_y, int dst_y);
 #ifdef USE_SPRITE_RENDER
 	inline void mix_render_sprite_cell_one_line_sub(int sp_num, uint32_t bg_priority, int src_left, int src_y, int dst_left, int dst_right, int dst_y);
@@ -345,7 +346,7 @@ private:
 	inline void mix_render_sprite_cell_one_line_sub(int ptn_num, int hv, uint32_t bg_priority, int src_left, int src_y, int dst_left, int dst_right, int dst_y);
 #endif
 	inline void mix_render_sprite_cell_one_line(int size512, int width, int sp_num, int disp_left, int disp_top, int step_y, int dst_y);
-	inline void mix_render_sprite_one_line(int size512, int width, int step_y, int dst_y);
+	inline void mix_render_sprite_one_line(int size512, int width, int disp_left, int disp_top, int step_y, int dst_y);
 	inline void expand_pcg_one_line_sub_ad(uint32_t src_addr, uint8_t *buffer_n, uint8_t *buffer_h);
 	inline void expand_pcg_one_line_sub(uint32_t src_addr, uint32_t bg_palette, bool h_reverse, uint16_t *buffer);
 	inline void expand_pcg_one_data_ad(uint32_t src_addr, int width, uint8_t *buffer_n, uint8_t *buffer_h, uint8_t *buffer_v, uint8_t *buffer_hv);

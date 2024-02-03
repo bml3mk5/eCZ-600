@@ -94,7 +94,8 @@
 #define USE_DRIVE		2
 
 #define USE_HD1
-#define MAX_HARD_DISKS	1
+#define USE_HD2
+#define MAX_HARD_DISKS	2
 
 #define USE_SOCKET
 #define USE_UART

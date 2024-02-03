@@ -49,14 +49,14 @@
 
 - (void)close
 {
-	[NSApp stopModalWithCode:NSCancelButton];
+	[NSApp stopModalWithCode:NSModalResponseCancel];
 	[super close];
 }
 
 - (void)dialogOk:(id)sender
 {
 	// OK button is pushed
-	[NSApp stopModalWithCode:NSOKButton];
+	[NSApp stopModalWithCode:NSModalResponseOK];
 	[super close];
 }
 

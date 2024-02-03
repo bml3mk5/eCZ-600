@@ -67,9 +67,9 @@ static NSWindow *get_main_window()
 {
 	GUI *gui = emu->get_gui();
 	char name[128],ver[256],libver[256];
-	sprintf(name, "%s", APP_NAME);
+	UTILITY::sprintf(name, sizeof(name), "%s", APP_NAME);
 	// version
-	sprintf(ver, "Version: %s \"%s\""
+	UTILITY::sprintf(ver, sizeof(ver), "Version: %s \"%s\""
 			,APP_VERSION,PLATFORM);
 #ifdef _DEBUG
 	strcat(ver, " (DEBUG Version)");
@@ -162,7 +162,7 @@ static NSWindow *get_main_window()
 
 	menuItem = [[CocoaMenuItem alloc] initWithTitle:title action:new_action drv:new_drv num:new_num keyEquivalent:accl];
 
-	[menuItem setKeyEquivalentModifierMask:(NSAlternateKeyMask | (with_shift_key ? NSShiftKeyMask : 0))];
+	[menuItem setKeyEquivalentModifierMask:(NSEventModifierFlagOption | (with_shift_key ? NSEventModifierFlagShift : 0))];
 	[menuItem setTarget:new_target];
     [self addItem:menuItem];
 	//  [menuItem release];
@@ -215,7 +215,7 @@ static NSWindow *get_main_window()
 }
 - (BOOL)menuHasKeyEquivalent:(NSMenu *)menu forEvent:(NSEvent *)event target:(id *)new_target action:(SEL *)new_action
 {
-	if ([event modifierFlags] & NSAlternateKeyMask) {
+	if ([event modifierFlags] & NSEventModifierFlagOption) {
 		if (new_target != nil) *new_target = nil;
 		if (new_action != nil) *new_action = nil;
 		return YES;
@@ -913,7 +913,7 @@ static NSWindow *get_main_window()
 		if (gui->GetRecordVideoSurfaceNum() == num) {
 			state = NSOnState;
 		}
-		if (gui->NowRecordingVideo() | gui->NowRecordingSound()) {
+		if (gui->NowRecordingVideo() || gui->NowRecordingSound()) {
 			enable = FALSE;
 		}
 	} else if (act == @selector(ShowRecordVideoDialog:)) {
@@ -921,11 +921,11 @@ static NSWindow *get_main_window()
 		if (gui->GetRecordVideoFrameNum() == num) {
 			state = NSOnState;
 		}
-		if (gui->NowRecordingVideo() | gui->NowRecordingSound()) {
+		if (gui->NowRecordingVideo() || gui->NowRecordingSound()) {
 			enable = FALSE;
 		}
 //	} else if (act == @selector(StopRecordVideo:)) {
-//		if (!(gui->NowRecordingVideo() | gui->NowRecordingSound())) {
+//		if (!(gui->NowRecordingVideo() || gui->NowRecordingSound())) {
 //			enable = FALSE;
 //		}
 	} else if (act == @selector(ChangeWindowMode:)) {
@@ -1002,12 +1002,12 @@ static NSWindow *get_main_window()
 			state = NSOnState;
 		}
 	} else if (act == @selector(ShowRecordAudioDialog:)) {
-		if (gui->NowRecordingVideo() | gui->NowRecordingSound()) {
+		if (gui->NowRecordingVideo() || gui->NowRecordingSound()) {
 			state = NSOnState;
 			enable = FALSE;
 		}
 //	} else if (act == @selector(StopRecordSound:)) {
-//		if (!(gui->NowRecordingVideo() | gui->NowRecordingSound())) {
+//		if (!(gui->NowRecordingVideo() || gui->NowRecordingSound())) {
 //			enable = FALSE;
 //		}
 	} else if (act == @selector(ChangeSoundFrequency:)) {
@@ -1409,7 +1409,7 @@ void GUI::setup_menu(void)
 	[cpuSpeedMenu add_menu_item_by_id:CMsg::CPU_x8:recv:@selector(CPUPower:):0:4:'4' ];
 	[cpuSpeedMenu add_menu_item_by_id:CMsg::CPU_x16:recv:@selector(CPUPower:):0:5:'5'];
 	[cpuSpeedMenu addItem:[NSMenuItem separatorItem]];
-	[cpuSpeedMenu add_menu_item_by_id:CMsg::Sync_With_CPU_Speed:recv:@selector(ToggleSyncIRQ:):0:0:'0'];
+	[cpuSpeedMenu add_menu_item_by_id:CMsg::Sync_Devices_With_CPU_Speed:recv:@selector(ToggleSyncIRQ:):0:0:'0'];
 	[controlMenu add_sub_menu_by_id:cpuSpeedMenu:CMsg::CPU_Speed];
 
 	[controlMenu addItem:[NSMenuItem separatorItem]];
@@ -1484,7 +1484,7 @@ void GUI::setup_menu(void)
 	// fdd menu
 
 	for(drv = 0; drv < USE_DRIVE; drv++) {
-		sprintf(name, CMSG(FDDVDIGIT), drv);
+		UTILITY::sprintf(name, sizeof(name), CMSG(FDDVDIGIT), drv);
 
 		CocoaMenu *fddMenu = [CocoaMenu create_menu:name];
 
@@ -1526,19 +1526,20 @@ void GUI::setup_menu(void)
 	CocoaMenu *hddMenu = [CocoaMenu create_menu_by_id:CMsg::HDD];
 
 	for(drv = 0; drv < MAX_HARD_DISKS; drv++) {
-		sprintf(name, CMSG(SASIVDIGIT), drv);
+		UTILITY::sprintf(name, sizeof(name), CMSG(SASIVDIGIT), drv);
 
 		CocoaMenu *hddSubMenu = [CocoaMenu create_menu:name];
 
 		[hddSubMenu add_menu_item_by_id:CMsg::Mount_:recv:@selector(ShowOpenHardDiskDialog:):drv:0:0];
 		[hddSubMenu add_menu_item_by_id:CMsg::Unmount:recv:@selector(CloseHardDisk:):drv:0:0];
 
-		CocoaMenu *newBMenu = [CocoaMenu create_menu_by_id:CMsg::New];
-		[newBMenu add_menu_item_by_id:CMsg::Mount_Blank_10MB_:recv:@selector(ShowOpenBlankHardDiskDialog:):drv:0:0];
-		[newBMenu add_menu_item_by_id:CMsg::Mount_Blank_20MB_:recv:@selector(ShowOpenBlankHardDiskDialog:):drv:1:0];
-		[newBMenu add_menu_item_by_id:CMsg::Mount_Blank_40MB_:recv:@selector(ShowOpenBlankHardDiskDialog:):drv:2:0];
-		[hddSubMenu add_sub_menu_by_id:newBMenu:CMsg::New];
-
+		if (drv == 0) {
+			CocoaMenu *newBMenu = [CocoaMenu create_menu_by_id:CMsg::New];
+			[newBMenu add_menu_item_by_id:CMsg::Mount_Blank_10MB_:recv:@selector(ShowOpenBlankHardDiskDialog:):drv:0:0];
+			[newBMenu add_menu_item_by_id:CMsg::Mount_Blank_20MB_:recv:@selector(ShowOpenBlankHardDiskDialog:):drv:1:0];
+			[newBMenu add_menu_item_by_id:CMsg::Mount_Blank_40MB_:recv:@selector(ShowOpenBlankHardDiskDialog:):drv:2:0];
+			[hddSubMenu add_sub_menu_by_id:newBMenu:CMsg::New];
+		}
 		[hddSubMenu addItem:[NSMenuItem separatorItem]];
 
 #ifdef USE_DELEGATE
@@ -1706,7 +1707,7 @@ void GUI::setup_menu(void)
 	CocoaMenu *deviceMenu = [CocoaMenu create_menu_by_id:CMsg::Devices];
 
 	for(drv = 0; drv < MAX_PRINTER; drv++) {
-		sprintf(name, CMSG(Printer), drv);
+		UTILITY::sprintf(name, sizeof(name), CMSG(Printer), drv);
 		CocoaMenu *lptMenu = [CocoaMenu create_menu:name];
 		[lptMenu add_menu_item_by_id:CMsg::Save_:recv:@selector(ShowSavePrinterDialog:):drv:0:0];
 		[lptMenu add_menu_item_by_id:CMsg::Print_to_mpprinter:recv:@selector(PrintPrinter:):drv:0:0];
@@ -1719,7 +1720,7 @@ void GUI::setup_menu(void)
 	}
 	[deviceMenu addItem:[NSMenuItem separatorItem]];
 	for(drv = 0; drv < MAX_COMM; drv++) {
-		sprintf(name, CMSG(Communication), drv);
+		UTILITY::sprintf(name, sizeof(name), CMSG(Communication), drv);
 		CocoaMenu *comMenu = [CocoaMenu create_menu:name];
 		[comMenu add_menu_item_by_id:CMsg::Enable_Server:recv:@selector(EnableCommServer:):drv:0:0];
 		CocoaMenu *comConnectMenu = [CocoaMenu create_menu_by_id:CMsg::Connect];
@@ -1757,15 +1758,17 @@ void GUI::setup_menu(void)
 #endif
 #ifdef USE_JOYSTICK
 	[optionMenu addItem:[NSMenuItem separatorItem]];
-	[optionMenu add_menu_item_by_id:CMsg::Use_Joypad_Key_Assigned:recv:@selector(ChangeUseJoypad:):0:1:'j'];
 #ifdef USE_PIAJOYSTICK
-	[optionMenu add_menu_item_by_id:CMsg::Use_Joypad_Port_Connected:recv:@selector(ChangeUseJoypad:):0:2:'j'];
+	[optionMenu add_menu_item_by_id:CMsg::Enable_Joypad_Port_Connected:recv:@selector(ChangeUseJoypad:):0:2:'j'];
 #endif
 #ifdef USE_KEY2JOYSTICK
 	[optionMenu add_menu_item_by_id:CMsg::Enable_Key_to_Joypad:recv:@selector(ToggleEnableKey2Joypad:):0:0:0];
 #endif
 #endif
 	[optionMenu addItem:[NSMenuItem separatorItem]];
+#ifdef USE_JOYSTICK
+	[optionMenu add_menu_item_by_id:CMsg::Enable_Joypad_to_Key:recv:@selector(ChangeUseJoypad:):0:1:0];
+#endif
 	[optionMenu add_menu_item_by_id:CMsg::Virtual_Keyboard_:recv:@selector(ShowVirtualKeyboard:):0:0:0];
 #ifdef USE_DEBUGGER
 	[optionMenu addItem:[NSMenuItem separatorItem]];
@@ -1831,7 +1834,7 @@ bool GUI::ShowLoadDataRecDialog(void)
 	// Display modal dialog
 	result = [panel runModal];
 
-	if(result == NSOKButton) {
+	if(result == NSModalResponseOK) {
 		// get file path (use NSURL)
 		NSURL *filePath = [panel URL];
 
@@ -1840,7 +1843,7 @@ bool GUI::ShowLoadDataRecDialog(void)
 		PostEtSystemPause(false);
 	}
 	SetFocusToMainWindow();
-	return (result == NSOKButton);
+	return (result == NSModalResponseOK);
 }
 
 bool GUI::ShowSaveDataRecDialog(void)
@@ -1856,7 +1859,7 @@ bool GUI::ShowSaveDataRecDialog(void)
 	// Display modal dialog
 	result = [panel runModal];
 
-	if(result == NSOKButton) {
+	if(result == NSModalResponseOK) {
 		// get file path (use NSURL)
 		NSURL *filePath = [panel URL];
 
@@ -1865,7 +1868,7 @@ bool GUI::ShowSaveDataRecDialog(void)
 		PostEtSystemPause(false);
 	}
 	SetFocusToMainWindow();
-	return (result == NSOKButton);
+	return (result == NSModalResponseOK);
 }
 #endif
 
@@ -1880,7 +1883,7 @@ bool GUI::ShowOpenFloppyDiskDialog(int drv)
 
 	panel = [NSOpenPanel openPanel];
 	char title[128];
-	sprintf(title,CMSG(Open_Floppy_Disk_VDIGIT),drv);
+	UTILITY::sprintf(title,sizeof(title),CMSG(Open_Floppy_Disk_VDIGIT),drv);
 	// title
 	[panel setTitle:[NSString stringWithUTF8String:title]];
 	// filtering file types
@@ -1893,7 +1896,7 @@ bool GUI::ShowOpenFloppyDiskDialog(int drv)
 	// Display modal dialog
 	result = [panel runModal];
 
-	if(result == NSOKButton) {
+	if(result == NSModalResponseOK) {
 		// get file path (use NSURL)
 		NSURL *filePath = [panel URL];
 
@@ -1902,7 +1905,7 @@ bool GUI::ShowOpenFloppyDiskDialog(int drv)
 		PostEtSystemPause(false);
 	}
 	SetFocusToMainWindow();
-	return (result == NSOKButton);
+	return (result == NSModalResponseOK);
 }
 
 int GUI::ShowSelectFloppyDriveDialog(int drv)
@@ -1935,7 +1938,7 @@ bool GUI::ShowOpenBlankFloppyDiskDialog(int drv, uint8_t type)
 
 	panel = [NSSavePanel savePanel];
 	char title[128];
-	sprintf(title,CMSG(New_Floppy_Disk_VDIGIT),drv);
+	UTILITY::sprintf(title,sizeof(title),CMSG(New_Floppy_Disk_VDIGIT),drv);
 	// title
 	[panel setTitle:[NSString stringWithUTF8String:title]];
 	// filtering file types
@@ -1956,7 +1959,7 @@ bool GUI::ShowOpenBlankFloppyDiskDialog(int drv, uint8_t type)
 	// get file path (use NSURL)
 	NSURL *filePath = [panel URL];
 
-	bool rc = (result == NSOKButton);
+	bool rc = (result == NSModalResponseOK);
 	if(rc) {
 		rc = emu->create_blank_floppy_disk([[filePath path] UTF8String], type);
 	}
@@ -1981,7 +1984,7 @@ bool GUI::ShowOpenHardDiskDialog(int drv)
 
 	panel = [NSOpenPanel openPanel];
 	char title[128];
-	sprintf(title,CMSG(Open_Hard_Disk_VDIGIT),drv);
+	UTILITY::sprintf(title,sizeof(title),CMSG(Open_Hard_Disk_VDIGIT),drv);
 	// title
 	[panel setTitle:[NSString stringWithUTF8String:title]];
 	// filtering file types
@@ -1994,7 +1997,7 @@ bool GUI::ShowOpenHardDiskDialog(int drv)
 	// Display modal dialog
 	result = [panel runModal];
 
-	if(result == NSOKButton) {
+	if(result == NSModalResponseOK) {
 		// get file path (use NSURL)
 		NSURL *filePath = [panel URL];
 
@@ -2003,7 +2006,7 @@ bool GUI::ShowOpenHardDiskDialog(int drv)
 		PostEtSystemPause(false);
 	}
 	SetFocusToMainWindow();
-	return (result == NSOKButton);
+	return (result == NSModalResponseOK);
 }
 
 bool GUI::ShowOpenBlankHardDiskDialog(int drv, uint8_t type)
@@ -2016,7 +2019,7 @@ bool GUI::ShowOpenBlankHardDiskDialog(int drv, uint8_t type)
 
 	panel = [NSSavePanel savePanel];
 	char title[128];
-	sprintf(title,CMSG(New_Hard_Disk_VDIGIT),drv);
+	UTILITY::sprintf(title,sizeof(title),CMSG(New_Hard_Disk_VDIGIT),drv);
 	// title
 	[panel setTitle:[NSString stringWithUTF8String:title]];
 	// filtering file types
@@ -2037,7 +2040,7 @@ bool GUI::ShowOpenBlankHardDiskDialog(int drv, uint8_t type)
 	// get file path (use NSURL)
 	NSURL *filePath = [panel URL];
 
-	bool rc = (result == NSOKButton);
+	bool rc = (result == NSModalResponseOK);
 	if(rc) {
 		rc = emu->create_blank_hard_disk([[filePath path] UTF8String], type);
 	}
@@ -2072,7 +2075,7 @@ bool GUI::ShowLoadStateDialog(void)
 	// Display modal dialog
 	result = [panel runModal];
 
-	if(result == NSOKButton) {
+	if(result == NSModalResponseOK) {
 		// get file path (use NSURL)
 		NSURL *filePath = [panel URL];
 
@@ -2081,7 +2084,7 @@ bool GUI::ShowLoadStateDialog(void)
 		PostEtSystemPause(false);
 	}
 	SetFocusToMainWindow();
-	return (result == NSOKButton);
+	return (result == NSModalResponseOK);
 }
 
 bool GUI::ShowSaveStateDialog(bool cont)
@@ -2106,7 +2109,7 @@ bool GUI::ShowSaveStateDialog(bool cont)
 	// Display modal dialog
 	result = [panel runModal];
 
-	if(result == NSOKButton) {
+	if(result == NSModalResponseOK) {
 		// get file path (use NSURL)
 		NSURL *filePath = [panel URL];
 
@@ -2115,7 +2118,7 @@ bool GUI::ShowSaveStateDialog(bool cont)
 		PostEtSystemPause(false);
 	}
 	SetFocusToMainWindow();
-	return (result == NSOKButton);
+	return (result == NSModalResponseOK);
 }
 
 bool GUI::ShowOpenAutoKeyDialog(void)
@@ -2139,7 +2142,7 @@ bool GUI::ShowOpenAutoKeyDialog(void)
 	// Display modal dialog
 	result = [panel runModal];
 
-	if(result == NSOKButton) {
+	if(result == NSModalResponseOK) {
 		// get file path (use NSURL)
 		NSURL *filePath = [panel URL];
 
@@ -2148,7 +2151,7 @@ bool GUI::ShowOpenAutoKeyDialog(void)
 		PostEtSystemPause(false);
 	}
 	SetFocusToMainWindow();
-	return (result == NSOKButton);
+	return (result == NSModalResponseOK);
 }
 
 bool GUI::ShowPlayRecKeyDialog(void)
@@ -2171,7 +2174,7 @@ bool GUI::ShowPlayRecKeyDialog(void)
 	// Display modal dialog
 	result = [panel runModal];
 
-	if(result == NSOKButton) {
+	if(result == NSModalResponseOK) {
 		// get file path (use NSURL)
 		NSURL *filePath = [panel URL];
 
@@ -2180,7 +2183,7 @@ bool GUI::ShowPlayRecKeyDialog(void)
 		PostEtSystemPause(false);
 	}
 	SetFocusToMainWindow();
-	return (result == NSOKButton);
+	return (result == NSModalResponseOK);
 }
 
 bool GUI::ShowRecordRecKeyDialog(void)
@@ -2205,7 +2208,7 @@ bool GUI::ShowRecordRecKeyDialog(void)
 	// Display modal dialog
 	result = [panel runModal];
 
-	if(result == NSOKButton) {
+	if(result == NSModalResponseOK) {
 		// get file path (use NSURL)
 		NSURL *filePath = [panel URL];
 
@@ -2214,7 +2217,7 @@ bool GUI::ShowRecordRecKeyDialog(void)
 		PostEtSystemPause(false);
 	}
 	SetFocusToMainWindow();
-	return (result == NSOKButton);
+	return (result == NSModalResponseOK);
 }
 
 bool GUI::ShowSavePrinterDialog(int drv)
@@ -2240,7 +2243,7 @@ bool GUI::ShowSavePrinterDialog(int drv)
 	// Display modal dialog
 	result = [panel runModal];
 
-	if(result == NSOKButton) {
+	if(result == NSModalResponseOK) {
 		// get file path (use NSURL)
 		NSURL *filePath = [panel URL];
 
@@ -2249,7 +2252,7 @@ bool GUI::ShowSavePrinterDialog(int drv)
 		PostEtSystemPause(false);
 	}
 	SetFocusToMainWindow();
-	return (result == NSOKButton);
+	return (result == NSModalResponseOK);
 }
 
 bool GUI::ShowRecordVideoDialog(int fps_num)
@@ -2267,13 +2270,13 @@ bool GUI::ShowRecordVideoDialog(int fps_num)
 
 	[panel release];
 
-	if (result == NSOKButton) {
+	if (result == NSModalResponseOK) {
 		PostEtStartRecordVideo(fps_num);
 	} else {
 		PostEtSystemPause(false);
 	}
 	SetFocusToMainWindow();
-	return (result == NSOKButton);
+	return (result == NSModalResponseOK);
 }
 
 bool GUI::ShowRecordAudioDialog(void)
@@ -2291,13 +2294,13 @@ bool GUI::ShowRecordAudioDialog(void)
 
 	[panel release];
 
-	if (result == NSOKButton) {
+	if (result == NSModalResponseOK) {
 		PostEtStartRecordSound();
 	} else {
 		PostEtSystemPause(false);
 	}
 	SetFocusToMainWindow();
-	return (result == NSOKButton);
+	return (result == NSModalResponseOK);
 }
 
 bool GUI::ShowRecordVideoAndAudioDialog(int fps_num)
@@ -2315,7 +2318,7 @@ bool GUI::ShowRecordVideoAndAudioDialog(int fps_num)
 
 	[panelv release];
 
-	if (result != NSOKButton) {
+	if (result != NSModalResponseOK) {
 		PostEtSystemPause(false);
 		return false;
 	}
@@ -2328,14 +2331,14 @@ bool GUI::ShowRecordVideoAndAudioDialog(int fps_num)
 
 	[panela release];
 
-	if (result == NSOKButton) {
+	if (result == NSModalResponseOK) {
 		// start video and audio
 		PostEtStartRecordVideo(fps_num);
 	} else {
 		PostEtSystemPause(false);
 	}
 	SetFocusToMainWindow();
-	return (result == NSOKButton);
+	return (result == NSModalResponseOK);
 }
 
 bool GUI::ShowVolumeDialog(void)
@@ -2368,7 +2371,7 @@ bool GUI::ShowJoySettingDialog(void)
 	PostEtSystemPause(false);
 	SetFocusToMainWindow();
 	
-	return (result == NSOKButton);
+	return (result == NSModalResponseOK);
 }
 
 bool GUI::ShowKeybindDialog(void)
@@ -2388,7 +2391,7 @@ bool GUI::ShowKeybindDialog(void)
 	PostEtSystemPause(false);
 	SetFocusToMainWindow();
 
-	return (result == NSOKButton);
+	return (result == NSModalResponseOK);
 }
 
 bool GUI::ShowConfigureDialog(void)
@@ -2408,7 +2411,7 @@ bool GUI::ShowConfigureDialog(void)
 	PostEtSystemPause(false);
 	SetFocusToMainWindow();
 
-	return (result == NSOKButton);
+	return (result == NSModalResponseOK);
 }
 
 void GUI::GoWindowMode(void)

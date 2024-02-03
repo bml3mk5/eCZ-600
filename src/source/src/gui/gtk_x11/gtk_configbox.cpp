@@ -102,8 +102,14 @@ bool ConfigBox::Show(GtkWidget *parent_window)
 	chkAddrErr = create_check_box(hbox, CMsg::Show_message_when_the_address_error_occured_in_the_CPU, FLG_SHOWMSG_ADDRERR != 0);
 #endif
 
-	hbox = create_hbox(vboxall);
+	// power status
+	create_frame(vboxall, CMsg::Behavior_of_Power_On_Off, &vbox, &hbox);
+	// power off
 	chkPowerOff = create_check_box(hbox, CMsg::Enable_the_state_of_power_off, pConfig->use_power_off);
+
+	// power state when start up
+	hbox = create_hbox(vbox);
+	comPowerState = create_combo_box(hbox, CMsg::Power_State_When_Start_Up, LABELS::power_state, pConfig->power_state_when_start_up);
 
 	hbox = create_hbox(vboxall);
 	create_label(hbox, CMsg::Need_restart_program_or_PowerOn);
@@ -164,6 +170,12 @@ bool ConfigBox::Show(GtkWidget *parent_window)
 	valuei = vm->get_sram_boot_device();
 	comSramBootDevice = create_combo_box(hbox, CMsg::Boot_Device, LABELS::boot_devices, valuei);
 
+	// number of SASI HDDs
+	hbox = create_hbox(lbox);
+	valuei = vm->get_sram_sasi_hdd_nums();
+	create_label(hbox, CMsg::Number_of_HDDs);
+	spnSramNumHdds = create_spin(hbox, 0, 15, valuei);
+
 	// RS-232C
 	valueu = vm->get_sram_rs232c();
 	create_frame(lbox, CMsg::RS_232C, &vbox, &hbox);
@@ -192,8 +204,8 @@ bool ConfigBox::Show(GtkWidget *parent_window)
 	// alarm
 	hbox = create_hbox(rbox);
 	valuei = vm->get_sram_alarm_onoff();
-	ctrl = create_check_box(hbox, CMsg::Enable_alarm, valuei == 0);
-	set_enable(ctrl, false);
+	chkSramAlarm = create_check_box(hbox, CMsg::Enable_alarm, valuei == 0);
+//	set_enable(ctrl, false);
 
 	// alarm time
 	hbox = create_hbox(rbox);
@@ -212,8 +224,8 @@ bool ConfigBox::Show(GtkWidget *parent_window)
 	// contrast
 	hbox = create_hbox(rbox);
 	valuei = vm->get_sram_contrast();
-	UTILITY::sprintf(buf, sizeof(buf), "%d", valuei);
-	txtSramContrast = create_text_with_label(hbox, CMsg::Contrast_on_Monitor, buf, 10);
+	create_label(hbox, CMsg::Contrast_on_Monitor);
+	spnSramContrast = create_spin(hbox, 0, 15, valuei);
 
 	// eject fd
 	hbox = create_hbox(rbox);
@@ -236,6 +248,18 @@ bool ConfigBox::Show(GtkWidget *parent_window)
 	valuei = vm->get_sram_key_repeat_rate();
 	comSramKRRate = create_combo_box(hbox, CMsg::Key_Repeat_Rate, LABELS::key_repeat_rate, valuei);
 	create_label(hbox, CMsg::msec);
+
+	// keyLED
+	create_frame(rbox, CMsg::Status_of_Key_LED_when_power_on, &vbox, &hbox);
+	valuei = vm->get_sram_key_led();
+	chkSramKLEDkana = create_check_box(hbox, CMsg::Kana, (valuei & 1) != 0);
+	chkSramKLEDromaji = create_check_box(hbox, CMsg::Roma_ji, (valuei & 2) != 0);
+	chkSramKLEDcinput = create_check_box(hbox, CMsg::Code_Input, (valuei & 4) != 0);
+	hbox = create_hbox(vbox);
+	chkSramKLEDcaps = create_check_box(hbox, CMsg::CAPS, (valuei & 8) != 0);
+	chkSramKLEDins = create_check_box(hbox, CMsg::INS, (valuei & 16) != 0);
+	chkSramKLEDhira = create_check_box(hbox, CMsg::Hiragana, (valuei & 32) != 0);
+	chkSramKLEDzen = create_check_box(hbox, CMsg::Zenkaku, (valuei & 64) != 0);
 #endif
 
 	// ----------------------------------------
@@ -467,7 +491,11 @@ bool ConfigBox::SetData()
 {
 	int val = 0;
 
+	// power off
 	pConfig->use_power_off = (get_check_state(chkPowerOff));
+
+	// power state when start up
+	pConfig->power_state_when_start_up = get_combo_sel_num(comPowerState);
 
 #ifdef USE_FD1
 	pConfig->mount_fdd = get_check_state_num(chkFDMount, MAX_DRIVE);
@@ -618,9 +646,11 @@ bool ConfigBox::SetData()
 	valueu |= vm->conv_sram_rs232c_stopbit(get_combo_sel_num(comSramRS232CStopBit));
 	valueu |= vm->conv_sram_rs232c_flowctrl(get_combo_sel_num(comSramRS232CFlowCtrl));
 	vm->set_sram_rs232c(valueu);
+	// alarm
+	vm->set_sram_alarm_onoff(get_check_state(chkSramAlarm));
 	// contrast
-	val = (int)strtol(get_text(txtSramContrast), &endptr, 10);
-	if (endptr && *endptr == '\0' && val >= 0 && val <= 15) {
+	val = (int)get_spin_value(spnSramContrast);
+	if (val >= 0 && val <= 15) {
 		vm->set_sram_contrast(val);
 	}
 	// eject fd
@@ -632,6 +662,21 @@ bool ConfigBox::SetData()
 	vm->set_sram_key_repeat_delay(get_combo_sel_num(comSramKRDelay));
 	// key repeat rate
 	vm->set_sram_key_repeat_rate(get_combo_sel_num(comSramKRRate));
+	// key LED
+	val = 0;
+	val |= get_check_state(chkSramKLEDkana) ? 1 : 0;
+	val |= get_check_state(chkSramKLEDromaji) ? 2 : 0;
+	val |= get_check_state(chkSramKLEDcinput) ? 4 : 0;
+	val |= get_check_state(chkSramKLEDcaps) ? 8 : 0;
+	val |= get_check_state(chkSramKLEDins) ? 16 : 0;
+	val |= get_check_state(chkSramKLEDhira) ? 32 : 0;
+	val |= get_check_state(chkSramKLEDzen) ? 64 : 0;
+	vm->set_sram_key_led(val);
+	// number of SASI HDDs
+	val = (int)get_spin_value(spnSramNumHdds);
+	if (val >= 0 && val <= 15) {
+		vm->set_sram_sasi_hdd_nums(val);
+	}
 #endif
 
 	// set message font

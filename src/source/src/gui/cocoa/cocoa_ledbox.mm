@@ -13,6 +13,7 @@
 #if !(defined(USE_SDL2) && defined(USE_SDL2_LEDBOX))
 
 #import "cocoa_ledbox.h"
+#import "cocoa_basepanel.h"
 #import "../gui.h"
 
 extern GUI *gui;
@@ -94,7 +95,7 @@ extern GUI *gui;
 	// set style
 #ifdef NO_TITLEBAR
 	NSUInteger style = [self styleMask];
-	style &= ~(NSTitledWindowMask);
+	style &= ~(NSWindowStyleMaskTitled);
 	[self setStyleMask:style];
 #endif
 

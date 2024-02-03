@@ -723,46 +723,48 @@ uint8_t EMU::get_key2joy_map(uint32_t key_code) const
 bool EMU::key2joy_down(int code)
 {
 #ifdef USE_KEY2JOYSTICK
+# ifdef USE_PIAJOYSTICKBIT
 	if (key2joy_map[code]) {
-#ifdef USE_PIAJOYSTICKBIT
 		key2joy_status[0] |= key2joy_map[code];
 		vm_key_down(vm_key_map[code], VM_KEY_STATUS_KEY2JOY);
 		return true;
-#else
-		for(int i=0; i<MAX_JOYSTICKS; i++) {
-			uint32_t joy_code = key2joy_map[i][code];
-			uint32_t k = (joy_code & 0xf);
-			int kk = joy_allow_map[k];
-			if (kk >= 0) key2joy_status[i][kk] |= k;
-			key2joy_status[i][8] |= (joy_code & 0xfffffff0);
-		}
-		vm_key_down(vm_key_map[code], VM_KEY_STATUS_KEY2JOY);
-		return true;
-#endif
 	}
-#endif
 	return false;
+# else
+	for(int i=0; i<MAX_JOYSTICKS; i++) {
+		uint32_t joy_code = key2joy_map[i][code];
+		uint32_t k = (joy_code & 0xf);
+		int kk = joy_allow_map[k];
+		if (kk >= 0) key2joy_status[i][kk] |= k;
+		key2joy_status[i][8] |= (joy_code & 0xfffffff0);
+	}
+	vm_key_down(vm_key_map[code], VM_KEY_STATUS_KEY2JOY);
+	return true;
+# endif
+#else
+	return false;
+#endif
 }
 
 /// @brief convert released key to joypad status
 void EMU::key2joy_up(int code)
 {
 #ifdef USE_KEY2JOYSTICK
+# ifdef USE_PIAJOYSTICKBIT
 	if (key2joy_map[code]) {
-#ifdef USE_PIAJOYSTICKBIT
 		key2joy_status[0] &= ~key2joy_map[code];
 		vm_key_up(vm_key_map[code], VM_KEY_STATUS_KEY2JOY);
-#else
-		for(int i=0; i<MAX_JOYSTICKS; i++) {
-			uint32_t joy_code = key2joy_map[i][code];
-			uint32_t k = (joy_code & 0xf);
-			int kk = joy_allow_map[k];
-			if (kk >= 0) key2joy_status[i][kk] &= ~k;
-			key2joy_status[i][8] &= ~(joy_code & 0xfffffff0);
-		}
-		vm_key_up(vm_key_map[code], VM_KEY_STATUS_KEY2JOY);
-#endif
 	}
+# else
+	for(int i=0; i<MAX_JOYSTICKS; i++) {
+		uint32_t joy_code = key2joy_map[i][code];
+		uint32_t k = (joy_code & 0xf);
+		int kk = joy_allow_map[k];
+		if (kk >= 0) key2joy_status[i][kk] &= ~k;
+		key2joy_status[i][8] &= ~(joy_code & 0xfffffff0);
+	}
+	vm_key_up(vm_key_map[code], VM_KEY_STATUS_KEY2JOY);
+# endif
 #endif
 }
 

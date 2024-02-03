@@ -132,6 +132,8 @@ STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VIS
 CAPTION "Joypad Setting"
 FONT 9, "Ms Shell Dlg"
 {
+    CONTROL         "", IDC_TAB1, WC_TABCONTROL, 0, 5, 5, 270, 175, WS_EX_LEFT
+    LTEXT           "", IDC_STATIC_0, 0, 5, 5, 270, SS_LEFT
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -149,19 +151,10 @@ BEGIN
         BEGIN
             MENUITEM "Do it",                   ID_FORCE_RESET
         END
-//        MENUITEM "MODE Switch\tAlt+M",          ID_DIPSWITCH3
         MENUITEM SEPARATOR
         MENUITEM "Reset Switch\tAlt+R",         ID_WARM_RESET
         MENUITEM "Interrupt Switch",            ID_INTERRUPT7
         MENUITEM SEPARATOR
-//        POPUP "FDD Type"
-//        BEGIN
-//            MENUITEM "No FDD\tAlt+F",           ID_FDD_TYPE_1
-//            MENUITEM "3inch compact FDD\tAlt+F",ID_FDD_TYPE_2
-//            MENUITEM "5.25inch mini FDD\tAlt+F",ID_FDD_TYPE_3
-//            MENUITEM "8inch standard FDD\tAlt+F",ID_FDD_TYPE_4
-//        END
-//        MENUITEM SEPARATOR
         MENUITEM "Pause\tAlt+Q",                ID_PAUSE
         MENUITEM SEPARATOR
         POPUP "CPU Speed"
@@ -173,7 +166,7 @@ BEGIN
             MENUITEM "CPU x8\tAlt+4",           ID_CPU_POWER4
             MENUITEM "CPU x16\tAlt+5",          ID_CPU_POWER5
             MENUITEM SEPARATOR
-            MENUITEM "Sync With CPU Speed\tAlt+0",ID_SYNC_IRQ
+            MENUITEM "Sync Devices With CPU Speed\tAlt+0",ID_SYNC_IRQ
         END
         MENUITEM SEPARATOR
         POPUP "Auto Key"
@@ -342,6 +335,24 @@ BEGIN
                 MENUITEM "None",                ID_RECENT_HD1
             END
 		END
+#ifdef USE_HD2
+		POPUP "SASI1"
+		BEGIN
+            MENUITEM "Mount...",                ID_OPEN_HD2
+            MENUITEM "Unmount",                 ID_CLOSE_HD2
+//			POPUP "New"
+//			BEGIN
+//				MENUITEM "Mount Blank 10MB...", ID_OPEN_BLANK_10MB_HD2
+//				MENUITEM "Mount Blank 20MB...", ID_OPEN_BLANK_20MB_HD2
+//				MENUITEM "Mount Blank 40MB...", ID_OPEN_BLANK_40MB_HD2
+//			END
+            MENUITEM SEPARATOR
+            POPUP "Recent Files"
+            BEGIN
+                MENUITEM "None",                ID_RECENT_HD2
+            END
+		END
+#endif
     END
 #endif
     POPUP "&Screen"
@@ -517,15 +528,17 @@ BEGIN
 #endif
 #ifdef USE_JOYSTICK
         MENUITEM SEPARATOR
-        MENUITEM "Use Joypad (Key Assigned)\tAlt+J",ID_OPTIONS_JOYPAD0
 #ifdef USE_PIAJOYSTICK
-        MENUITEM "Use Joypad (Port Connected)\tAlt+J",ID_OPTIONS_JOYPAD1
+        MENUITEM "Enable Joypad (Port Connected)\tAlt+J",ID_OPTIONS_JOYPAD1
 #endif
 #endif
 #ifdef USE_KEY2JOYSTICK
         MENUITEM "Enable Key to Joypad",        ID_OPTIONS_KEY2JOYPAD
 #endif
         MENUITEM SEPARATOR
+#ifdef USE_JOYSTICK
+        MENUITEM "Enable Joypad to Key",        ID_OPTIONS_JOYPAD0
+#endif
 #ifdef USE_DIRECTINPUT
         MENUITEM "Use DirectInput For Key In",  ID_OPTIONS_USE_DINPUT
 #endif

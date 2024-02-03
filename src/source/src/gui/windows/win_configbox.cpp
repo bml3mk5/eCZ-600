@@ -123,8 +123,15 @@ INT_PTR ConfigBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 	CreateCheckBox(box_cpu, IDC_CHK_ADDRERR, CMsg::Show_message_when_the_address_error_occured_in_the_CPU, FLG_SHOWMSG_ADDRERR != 0);
 #endif
 
+	// power status
+	CBox *box_pwr = CreateGroup(box_0all, IDC_STATIC, CMsg::Behavior_of_Power_On_Off, CBox::VerticalBox);
+
 	// power off
-	CreateCheckBox(box_0all, IDC_CHK_POWEROFF, CMsg::Enable_the_state_of_power_off, pConfig->use_power_off);
+	CreateCheckBox(box_pwr, IDC_CHK_POWEROFF, CMsg::Enable_the_state_of_power_off, pConfig->use_power_off);
+
+	// power state when start up
+	hbox = box_pwr->AddBox(CBox::HorizontalBox, 0, 0, _T("powers"));
+	CreateComboBoxWithLabel(hbox, IDC_COMBO_POWER_STATE, CMsg::Power_State_When_Start_Up, LABELS::power_state, pConfig->power_state_when_start_up, 10);
 
 	// text
 	CreateStatic(box_0all, IDC_STATIC, CMsg::Need_restart_program_or_PowerOn);
@@ -182,6 +189,13 @@ INT_PTR ConfigBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 	vali = vm->get_sram_boot_device();
 	CreateComboBoxWithLabel(hbox, IDC_COMBO_SRAM_BOOT_DEVICE, CMsg::Boot_Device, LABELS::boot_devices, vali, 6);
 
+	// number of SASI HDD
+	hbox = box_1l->AddBox(CBox::HorizontalBox, 0, 0, _T("sasinum"));
+	vali = vm->get_sram_sasi_hdd_nums();
+	CreateStatic(hbox, IDC_STATIC, CMsg::Number_of_HDDs);
+	hCtrl = CreateEditBox(hbox, IDC_EDIT_SRAM_SASI_HDD, 0, 6);
+	CreateUpDown(hbox, IDC_SPIN_SRAM_SASI_HDD, hCtrl, 0, 15, vali);
+
 	// RS-232C
 	int w_232c = 100;
 	CBox *box_232c = CreateGroup(box_1l, IDC_STATIC, CMsg::RS_232C, CBox::VerticalBox);
@@ -210,9 +224,8 @@ INT_PTR ConfigBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 
 	// alarm
 	hbox = box_1r->AddBox(CBox::HorizontalBox, 0, 0, _T("alarm1h"));
-	vali = vm->get_sram_alarm_onoff();
-	CreateCheckBox(hbox, IDC_CHK_SRAM_ALARM_ONOFF, CMsg::Enable_alarm, vali == 0);
-	EnableDlgItem(IDC_CHK_SRAM_ALARM_ONOFF, false);
+	CreateCheckBox(hbox, IDC_CHK_SRAM_ALARM_ONOFF, CMsg::Enable_alarm, vm->get_sram_alarm_onoff());
+//	EnableDlgItem(IDC_CHK_SRAM_ALARM_ONOFF, false);
 
 	// alarm time
 	hbox = box_1r->AddBox(CBox::HorizontalBox, 0, 0, _T("alarm2h"));
@@ -230,7 +243,9 @@ INT_PTR ConfigBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 	// contrast
 	hbox = box_1r->AddBox(CBox::HorizontalBox, 0, 0, _T("cont1h"));
 	vali = vm->get_sram_contrast();
-	CreateEditBoxWithLabel(hbox, IDC_EDIT_SRAM_CONTRAST, CMsg::Contrast_on_Monitor, vali, 6);
+	CreateStatic(hbox, IDC_STATIC, CMsg::Contrast_on_Monitor);
+	hCtrl = CreateEditBox(hbox, IDC_EDIT_SRAM_CONTRAST, 0, 6);
+	CreateUpDown(hbox, IDC_SPIN_SRAM_CONTRAST, hCtrl, 0, 15, vali);
 
 	// eject fd
 	hbox = box_1r->AddBox(CBox::HorizontalBox, 0, 0, _T("eject"));
@@ -252,6 +267,19 @@ INT_PTR ConfigBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 	vali = vm->get_sram_key_repeat_rate();
 	CreateComboBoxWithLabel(hbox, IDC_COMBO_SRAM_KEY_REPEAT_RATE, CMsg::Key_Repeat_Rate, LABELS::key_repeat_rate, vali, 4);
 	CreateStatic(hbox, IDC_STATIC, CMsg::msec);
+
+	// key LED
+	CBox *box_kled = CreateGroup(box_1r, IDC_STATIC, CMsg::Status_of_Key_LED_when_power_on, CBox::VerticalBox);
+	vali = vm->get_sram_key_led();
+	hbox = box_kled->AddBox(CBox::HorizontalBox, 0, 0);
+	CreateCheckBox(hbox, IDC_CHK_SRAM_KLED_KANA, CMsg::Kana, (vali & 1) != 0);
+	CreateCheckBox(hbox, IDC_CHK_SRAM_KLED_ROMAJI, CMsg::Roma_ji, (vali & 2) != 0);
+	CreateCheckBox(hbox, IDC_CHK_SRAM_KLED_CODE_INPUT, CMsg::Code_Input, (vali & 4) != 0);
+	hbox = box_kled->AddBox(CBox::HorizontalBox, 0, 0);
+	CreateCheckBox(hbox, IDC_CHK_SRAM_KLED_CAPS, CMsg::CAPS, (vali & 8) != 0);
+	CreateCheckBox(hbox, IDC_CHK_SRAM_KLED_INS, CMsg::INS, (vali & 16) != 0);
+	CreateCheckBox(hbox, IDC_CHK_SRAM_KLED_HIRA, CMsg::Hiragana, (vali & 32) != 0);
+	CreateCheckBox(hbox, IDC_CHK_SRAM_KLED_ZENKAKU, CMsg::Zenkaku, (vali & 64) != 0);
 
 	// ----------------------------------------
 	// 2:Screen
@@ -822,6 +850,8 @@ INT_PTR ConfigBox::onOK(UINT message, WPARAM wParam, LPARAM lParam)
 	// power off
 	pConfig->use_power_off = (IsDlgButtonChecked(hDlg, IDC_CHK_POWEROFF) == BST_CHECKED);
 
+	// power state when start up
+	pConfig->power_state_when_start_up = (int)SendDlgItemMessage(hDlg, IDC_COMBO_POWER_STATE, CB_GETCURSEL, 0, 0);
 
 #ifdef USE_FD1
 	pConfig->mount_fdd = 0;
@@ -1061,8 +1091,7 @@ INT_PTR ConfigBox::onOK(UINT message, WPARAM wParam, LPARAM lParam)
 	vm->set_sram_rs232c(valueu);
 
 	// alarm
-//	(IsDlgButtonChecked(hDlg, IDC_CHK_SRAM_ALARM_ONOFF) == BST_CHECKED);
-//	vm->set_sram_alarm_onoff();
+	vm->set_sram_alarm_onoff(IsDlgButtonChecked(hDlg, IDC_CHK_SRAM_ALARM_ONOFF) == BST_CHECKED);
 
 	// alarm time
 //	GetDlgItemText(hDlg, IDC_COMBO_SRAM_ALARM_TIME, buf, _MAX_PATH);
@@ -1087,6 +1116,23 @@ INT_PTR ConfigBox::onOK(UINT message, WPARAM wParam, LPARAM lParam)
 
 	valuel = (int)SendDlgItemMessage(hDlg, IDC_COMBO_SRAM_KEY_REPEAT_RATE, CB_GETCURSEL, 0, 0);
 	vm->set_sram_key_repeat_rate(valuel);
+
+	// key LED
+	valuel = 0;
+	valuel |= IsDlgButtonChecked(hDlg, IDC_CHK_SRAM_KLED_KANA) ? 1 : 0;
+	valuel |= IsDlgButtonChecked(hDlg, IDC_CHK_SRAM_KLED_ROMAJI) ? 2 : 0;
+	valuel |= IsDlgButtonChecked(hDlg, IDC_CHK_SRAM_KLED_CODE_INPUT) ? 4 : 0;
+	valuel |= IsDlgButtonChecked(hDlg, IDC_CHK_SRAM_KLED_CAPS) ? 8 : 0;
+	valuel |= IsDlgButtonChecked(hDlg, IDC_CHK_SRAM_KLED_INS) ? 16 : 0;
+	valuel |= IsDlgButtonChecked(hDlg, IDC_CHK_SRAM_KLED_HIRA) ? 32 : 0;
+	valuel |= IsDlgButtonChecked(hDlg, IDC_CHK_SRAM_KLED_ZENKAKU) ? 64 : 0;
+	vm->set_sram_key_led(valuel);
+
+	// number of SASI HDDs
+	valuel = (int)GetDlgItemInt(hDlg, IDC_EDIT_SRAM_SASI_HDD, &rc, TRUE);
+	if(0 <= valuel && valuel <= 15) {
+		vm->set_sram_sasi_hdd_nums(valuel);
+	}
 
 #endif // _X68000
 

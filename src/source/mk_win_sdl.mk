@@ -197,7 +197,7 @@ GUIOBJSWIN:=$(SRCGUIWIN)/win_dialogbox.o \
 	$(SRCGUIWIN)/winfont.o \
 	$(SRCGUIWIN)/win_ledbox.o \
 	$(SRCGUIWIN)/win_vkeyboard.o \
-	$(SRCGUIWIN)/win_joyselbox.o \
+	$(SRCGUIWIN)/win_joysetbox.o \
 	$(SRCGUIWIN)/win_gui.o
 
 VIDOBJSWAV:=$(SRCVIDWAV)/wav_rec_audio.o

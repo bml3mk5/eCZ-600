@@ -20,12 +20,17 @@
 #ifdef _DEBUG
 //#define OUT_DEBUG_INTR logging->out_debugf
 #define OUT_DEBUG_INTR(...)
+//#define OUT_DEBUG_IERA logging->out_debugf
+#define OUT_DEBUG_IERA(...)
 //#define OUT_DEBUG_IERB logging->out_debugf
 #define OUT_DEBUG_IERB(...)
 //#define OUT_DEBUG_TIMERC logging->out_debugf
+#define OUT_DEBUG_TIMERC(...)
 #else
 #define OUT_DEBUG_INTR(...)
+#define OUT_DEBUG_IERA(...)
 #define OUT_DEBUG_IERB(...)
+#define OUT_DEBUG_TIMERC(...)
 #endif
 
 // B,A
@@ -162,6 +167,11 @@ void MFP::write_io8(uint32_t addr, uint32_t data)
 		// cancel asserting interrupt
 		m_regs[MFP_IPRA] &= m_regs[MFP_IERA];
 		m_regs[MFP_ISRA] &= m_regs[MFP_IERA];
+		OUT_DEBUG_IERA(_T("clk:%lld MFP IERA W ISRA:%02X ISRB:%02X IPRA:%02X IPRB:%02X IMRA:%02X IMRB:%02X")
+			, get_current_clock()
+			, m_regs[MFP_ISRA], m_regs[MFP_ISRB]
+			, m_regs[MFP_IPRA], m_regs[MFP_IPRB]
+			, m_regs[MFP_IMRA], m_regs[MFP_IMRB]);
 		// interrupt
 		update_irq();
 		break;
@@ -171,6 +181,11 @@ void MFP::write_io8(uint32_t addr, uint32_t data)
 		// cancel asserting interrupt and back to pending
 		m_regs[MFP_IPRA] |= (m_regs[MFP_ISRA] ^ m_regs[MFP_IMRA]) & m_regs[MFP_ISRA];
 		m_regs[MFP_ISRA] &= m_regs[MFP_IMRA];
+		OUT_DEBUG_IERA(_T("clk:%lld MFP IMRA W ISRA:%02X ISRB:%02X IPRA:%02X IPRB:%02X IMRA:%02X IMRB:%02X")
+			, get_current_clock()
+			, m_regs[MFP_ISRA], m_regs[MFP_ISRB]
+			, m_regs[MFP_IPRA], m_regs[MFP_IPRB]
+			, m_regs[MFP_IMRA], m_regs[MFP_IMRB]);
 		// interrupt
 		update_irq();
 		break;
@@ -178,6 +193,12 @@ void MFP::write_io8(uint32_t addr, uint32_t data)
 	case MFP_ISRA:
 		// all bits can be cleared only.
 		m_regs[addr] &= data;
+		OUT_DEBUG_IERA(_T("clk:%lld MFP I%cRA W ISRA:%02X ISRB:%02X IPRA:%02X IPRB:%02X IMRA:%02X IMRB:%02X")
+			, (addr & 0x1f) == MFP_IPRA ? _T('P') : _T('S')
+			, get_current_clock()
+			, m_regs[MFP_ISRA], m_regs[MFP_ISRB]
+			, m_regs[MFP_IPRA], m_regs[MFP_IPRB]
+			, m_regs[MFP_IMRA], m_regs[MFP_IMRB]);
 		// interrupt
 		update_irq();
 		break;
@@ -213,6 +234,12 @@ void MFP::write_io8(uint32_t addr, uint32_t data)
 	case MFP_ISRB:
 		// all bits can be cleared only.
 		m_regs[addr] &= data;
+		OUT_DEBUG_IERB(_T("clk:%lld MFP I%cRB W ISRA:%02X ISRB:%02X IPRA:%02X IPRB:%02X IMRA:%02X IMRB:%02X")
+			, (addr & 0x1f) == MFP_IPRA ? _T('P') : _T('S')
+			, get_current_clock()
+			, m_regs[MFP_ISRA], m_regs[MFP_ISRB]
+			, m_regs[MFP_IPRA], m_regs[MFP_IPRB]
+			, m_regs[MFP_IMRA], m_regs[MFP_IMRB]);
 		// interrupt
 		update_irq();
 		break;
@@ -253,11 +280,10 @@ void MFP::write_io8(uint32_t addr, uint32_t data)
 					m_timer_period[n + 2] = (double)c_prescaler[data & 0x7] * 1000000.0 / m_timer_clock; 
 					cancel_my_event(m_timer_register_id[n + 2]);
 					register_event(this, EVENT_MFP_TIMER_C + n, m_timer_period[n + 2], true, &m_timer_register_id[n + 2]);
-#ifdef OUT_DEBUG_TIMERC
+
 					OUT_DEBUG_TIMERC(_T("clk:%lld MFP TIMER%c START: prescale:%d -> %fus.")
 						, get_current_clock()
 						, n + 0x43, c_prescaler[data & 0x7], m_timer_period[n + 2]);
-#endif
 				} else {
 					// Stop Timer
 					cancel_my_event(m_timer_register_id[n + 2]);
@@ -405,9 +431,11 @@ void MFP::write_signal(int id, uint32_t data, uint32_t mask)
 					m_regs[MFP_IPRB] |= (edge & 0x0f);
 					m_regs[MFP_IPRB] |= ((edge & 0x30) << 2);
 					// interrupt
-					OUT_DEBUG_INTR(_T("clk:%lld MFP INTR RIGING EDGE IER:%02X AER:%02X IPRA:%02X IPRB:%02X")
+					OUT_DEBUG_INTR(_T("clk:%lld MFP INTR RIGING EDGE IER:%02X AER:%02X IPRA:%02X IPRB:%02X IMRA:%02X IMRB:%02X ISRA:%02X ISRB:%02X")
 						, get_current_clock()
-						, ier, m_regs[MFP_AER], m_regs[MFP_IPRA], m_regs[MFP_IPRB]);
+						, ier, m_regs[MFP_AER], m_regs[MFP_IPRA], m_regs[MFP_IPRB]
+						, m_regs[MFP_IMRA], m_regs[MFP_IMRB]
+						, m_regs[MFP_ISRA], m_regs[MFP_ISRB]);
 					update_irq();
 				}
 				// catch falling edge
@@ -418,9 +446,11 @@ void MFP::write_signal(int id, uint32_t data, uint32_t mask)
 					m_regs[MFP_IPRB] |= (edge & 0x0f);
 					m_regs[MFP_IPRB] |= ((edge & 0x30) << 2);
 					// interrupt
-					OUT_DEBUG_INTR(_T("clk:%lld MFP INTR FALLING EDGE IER:%02X AER:%02X IPRA:%02X IPRB:%02X")
+					OUT_DEBUG_INTR(_T("clk:%lld MFP INTR FALLING EDGE IER:%02X AER:%02X IPRA:%02X IPRB:%02X IMRA:%02X IMRB:%02X ISRA:%02X ISRB:%02X")
 						, get_current_clock()
-						, ier, m_regs[MFP_AER], m_regs[MFP_IPRA], m_regs[MFP_IPRB]);
+						, ier, m_regs[MFP_AER], m_regs[MFP_IPRA], m_regs[MFP_IPRB]
+						, m_regs[MFP_IMRA], m_regs[MFP_IMRB]
+						, m_regs[MFP_ISRA], m_regs[MFP_ISRB]);
 					update_irq();
 				}
 			}
@@ -689,11 +719,10 @@ void MFP::count_down_timer_c_d(int n)
 			write_signals(&outputs_tmo[n + 2], m_timer_output & (0x04 << n));
 			// continue count down
 			m_timer_counter[n + 2] = m_regs[MFP_TCDR + n];
-#ifdef OUT_DEBUG_TIMERC
+
 			OUT_DEBUG_TIMERC(_T("clk:%lld TIMER%c ZERO")
 				, get_current_clock()
 				, n + 0x43);
-#endif
 		}
 //	}
 //	register_event(this, EVENT_MFP_TIMER_C + n, m_timer_period[n + 2], false, &m_timer_register_id[n + 2]);

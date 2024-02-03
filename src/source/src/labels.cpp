@@ -28,6 +28,14 @@ const CMsg::Id tabs[] = {
 	CMsg::End
 };
 
+/// Power state when start up
+const CMsg::Id power_state[] = {
+	CMsg::Inherit_the_state_when_shut_down,
+	CMsg::Always_power_on,
+	CMsg::Always_power_off,
+	CMsg::End
+};
+
 /// I/O port list
 const CMsg::Id io_port[] = { 
 	CMsg::End
@@ -217,7 +225,7 @@ const CMsg::Id keybind_col[][2] = {
 const CMsg::Id keybind_tab[] = {
 	CMsg::Keyboard,
 #ifdef USE_JOYSTICK
-	CMsg::Joypad_Key_Assigned,
+	CMsg::Joypad_to_Key,
 #ifdef USE_PIAJOYSTICK
 	CMsg::Joypad_Port_Connected,
 #endif

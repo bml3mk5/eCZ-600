@@ -118,6 +118,8 @@ private:
 	};
 #pragma pack()
 
+	static void clear_ram(uint16_t *buf, size_t size);
+
 	void load_rom_files();
 
 	void load_sram_file();

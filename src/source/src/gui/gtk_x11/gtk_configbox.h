@@ -45,13 +45,23 @@ private:
 	GtkWidget *comSramRS232CParity;
 	GtkWidget *comSramRS232CStopBit;
 	GtkWidget *comSramRS232CFlowCtrl;
-	GtkWidget *txtSramContrast;
+	GtkWidget *spnSramContrast;
 	GtkWidget *chkSramFdEject;
 	GtkWidget *comSramPurpose;
 	GtkWidget *comSramKRDelay;
 	GtkWidget *comSramKRRate;
+	GtkWidget *chkSramAlarm;
+	GtkWidget *spnSramNumHdds;
+	GtkWidget *chkSramKLEDkana;
+	GtkWidget *chkSramKLEDromaji;
+	GtkWidget *chkSramKLEDcinput;
+	GtkWidget *chkSramKLEDcaps;
+	GtkWidget *chkSramKLEDins;
+	GtkWidget *chkSramKLEDhira;
+	GtkWidget *chkSramKLEDzen;
 #endif
 	GtkWidget *chkPowerOff;
+	GtkWidget *comPowerState;
 
 	GtkWidget *comUseOpenGL;
 	GtkWidget *comGLFilter;

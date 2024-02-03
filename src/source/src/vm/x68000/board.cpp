@@ -20,7 +20,7 @@
 #include "../../logging.h"
 
 #ifdef _DEBUG
-//#define OUT_DEBUG_IRQ logging->out_debugf
+//#define OUT_DEBUG_IRQ(p, n, ...) if ((p | n) & 0xe0) logging->out_debugf(__VA_ARGS__)
 #define OUT_DEBUG_IRQ(...)
 //#define OUT_DEBUG_IACK logging->out_debugf
 #define OUT_DEBUG_IACK(...)
@@ -175,21 +175,18 @@ void BOARD::write_signal(int id, uint32_t data, uint32_t mask)
 			if (prev == 0 && now_irq != 0) {
 				// off -> on
 				write_signals(&outputs_irq, now_irq);
-#ifdef OUT_DEBUG_IRQ
-				OUT_DEBUG_IRQ(_T("clk:%d IRQ ON prev:%04X now:%04X"), (int)get_current_clock(), prev, now_irq);
-#endif
+				OUT_DEBUG_IRQ(prev, now_irq, _T("clk:%llu IRQ ON prev:%04X now:%04X"), get_current_clock(), prev, now_irq);
 			} else if (prev > now_irq) {
 				// priority down
 				write_signals(&outputs_irq, now_irq);
-#ifdef OUT_DEBUG_IRQ
-				OUT_DEBUG_IRQ(_T("clk:%d IRQ DOWN prev:%04X now:%04X"), (int)get_current_clock(), prev, now_irq);
-#endif
-			} else if (prev != now_irq) {
-				// keep interrupt
-//				write_signals(&outputs_irq, now_irq);
-#ifdef OUT_DEBUG_IRQ
-				OUT_DEBUG_IRQ(_T("clk:%d IRQ KEEP prev:%04X now:%04X"), (int)get_current_clock(), prev, now_irq);
-#endif
+				OUT_DEBUG_IRQ(prev, now_irq, _T("clk:%llu IRQ DOWN prev:%04X now:%04X"), get_current_clock(), prev, now_irq);
+			} else if (prev < now_irq) {
+				// priority up
+				write_signals(&outputs_irq, now_irq);
+				OUT_DEBUG_IRQ(prev, now_irq, _T("clk:%llu IRQ UP prev:%04X now:%04X"), get_current_clock(), prev, now_irq);
+//			} else {
+//				// keep interrupt
+//				OUT_DEBUG_IRQ(prev, now_irq, _T("clk:%llu IRQ KEEP prev:%04X now:%04X"), get_current_clock(), prev, now_irq);
 			}
 			break;
 		case SIG_CPU_HALT:

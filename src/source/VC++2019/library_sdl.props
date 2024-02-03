@@ -1,8 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="UserMacros">
-    <DevelopDir>\Devel\vc\</DevelopDir>
+    <DevelopBase>\Devel\</DevelopBase>
+    <DevelopDir>$(DevelopBase)vc\</DevelopDir>
     <SDLDir>$(DevelopDir)SDL-1.2.15-static\</SDLDir>
+    <SDLIncludeDir>$(SDLDir)include</SDLIncludeDir>
     <SDLDebugLibDir>$(SDLDir)lib\$(Platform)\Debug</SDLDebugLibDir>
     <SDLReleaseLibDir>$(SDLDir)lib\$(Platform)\Release</SDLReleaseLibDir>
     <AgarDir>$(DevelopDir)Agar-r9049-nothreads\</AgarDir>
@@ -14,31 +16,26 @@
     <FreeTypeDir>$(DevelopDir)freetype-2.4.8-static\</FreeTypeDir>
     <FreeTypeDebugLibDir>$(FreeTypeDir)objs\$(Platform)\vc2010\</FreeTypeDebugLibDir>
     <FreeTypeReleaseLibDir>$(FreeTypeDir)objs\$(Platform)\vc2010\</FreeTypeReleaseLibDir>
-    <SDLNetDir>$(DevelopDir)SDL_net-1.2.8-static\</SDLNetDir>
-    <SDLNetDebugLibDir>$(SDLNetDir)VisualC\$(Platform)\Debug</SDLNetDebugLibDir>
-    <SDLNetReleaseLibDir>$(SDLNetDir)VisualC\$(Platform)\Release</SDLNetReleaseLibDir>
     <SDLDebugLibs>SDL.lib; SDLmain.lib; freetype248_D.lib; SDL_ttf.lib</SDLDebugLibs>
     <SDLReleaseLibs>SDL.lib; SDLmain.lib; freetype248.lib; SDL_ttf.lib</SDLReleaseLibs>
     <LibIntlDir>$(DevelopDir)libintl-msvc10-with_lc_messages\</LibIntlDir>
     <LibIntlLibDir>$(LibIntlDir)lib\x86\</LibIntlLibDir>
     <LibIntlLib64Dir>$(LibIntlDir)lib\x64\</LibIntlLib64Dir>
-    <FFMpegDir>$(DevelopDir)ffmpeg-3.4.1-dev\</FFMpegDir>
+    <FFMpegIncludeDir>$(DevelopBase)include\ffmpeg441\</FFMpegIncludeDir>
     <LocalDebugLibs>SDL.lib; SDLmain.lib; ag_core_static.lib; ag_gui_static.lib; freetype248_D.lib; SDL_ttf.lib</LocalDebugLibs>
     <LocalReleaseLibs>SDL.lib; SDLmain.lib; ag_core_static.lib; ag_gui_static.lib; freetype248.lib; SDL_ttf.lib</LocalReleaseLibs>
-    <SDL2Dir>$(DevelopDir)SDL2-2.0.10-static\</SDL2Dir>
-    <SDL2DebugLibDir>$(SDL2Dir)lib14\$(Platform)\Debug</SDL2DebugLibDir>
-    <SDL2ReleaseLibDir>$(SDL2Dir)lib14\$(Platform)\Release</SDL2ReleaseLibDir>
-    <SDL2TtfDir>$(DevelopDir)SDL2_ttf-2.0.12-static\</SDL2TtfDir>
-    <SDL2TtfDebugLibDir>$(SDL2TtfDir)lib14\$(Platform)\Debug</SDL2TtfDebugLibDir>
-    <SDL2TtfReleaseLibDir>$(SDL2TtfDir)lib14\$(Platform)\Release</SDL2TtfReleaseLibDir>
-    <FreeType25Dir>$(DevelopDir)freetype-2.5.5-static\</FreeType25Dir>
-    <FreeType25DebugLibDir>$(FreeType25Dir)objs\vc14\$(Platform)\</FreeType25DebugLibDir>
-    <FreeType25ReleaseLibDir>$(FreeType25Dir)objs\vc14\$(Platform)\</FreeType25ReleaseLibDir>
-    <SDL2NetDir>$(DevelopDir)SDL2_net-2.0.0-static\</SDL2NetDir>
-    <SDL2NetDebugLibDir>$(SDL2NetDir)lib14\$(Platform)\Debug</SDL2NetDebugLibDir>
-    <SDL2NetReleaseLibDir>$(SDL2NetDir)lib14\$(Platform)\Release</SDL2NetReleaseLibDir>
-    <SDL2DebugLibs>SDL2.lib; SDL2main.lib; freetype255d.lib; SDL2_ttf.lib</SDL2DebugLibs>
-    <SDL2ReleaseLibs>SDL2.lib; SDL2main.lib; freetype255.lib; SDL2_ttf.lib</SDL2ReleaseLibs>
+    <SDL2Dir>$(DevelopDir)SDL2-2.26.5-static\</SDL2Dir>
+    <SDL2IncludeDir>$(SDL2Dir)include</SDL2IncludeDir>
+    <SDL2DebugLibDir>$(SDL2Dir)lib10\$(Platform)\Debug</SDL2DebugLibDir>
+    <SDL2ReleaseLibDir>$(SDL2Dir)lib10\$(Platform)\Release</SDL2ReleaseLibDir>
+    <SDL2TtfDir>$(DevelopDir)SDL2_ttf-2.20.2-static\</SDL2TtfDir>
+    <SDL2TtfDebugLibDir>$(SDL2TtfDir)lib10\$(Platform)\Debug</SDL2TtfDebugLibDir>
+    <SDL2TtfReleaseLibDir>$(SDL2TtfDir)lib10\$(Platform)\Release</SDL2TtfReleaseLibDir>
+    <FreeType25Dir></FreeType25Dir>
+    <FreeType25DebugLibDir></FreeType25DebugLibDir>
+    <FreeType25ReleaseLibDir></FreeType25ReleaseLibDir>
+    <SDL2DebugLibs>SDL2.lib; SDL2main.lib; SDL2_ttf.lib</SDL2DebugLibs>
+    <SDL2ReleaseLibs>SDL2.lib; SDL2main.lib; SDL2_ttf.lib</SDL2ReleaseLibs>
     <GLEWDir>$(DevelopDir)glew-2.1.0\</GLEWDir>
     <GLEWDebugLibDir>$(GLEWDir)lib\Debug\$(Platform)\</GLEWDebugLibDir>
     <GLEWReleaseLibDir>$(GLEWDir)lib\Release\$(Platform)\</GLEWReleaseLibDir>
@@ -47,11 +44,17 @@
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
   </PropertyGroup>
   <ItemGroup>
+    <BuildMacro Include="DevelopBase">
+      <Value>$(DevelopBase)</Value>
+    </BuildMacro>
     <BuildMacro Include="DevelopDir">
       <Value>$(DevelopDir)</Value>
     </BuildMacro>
     <BuildMacro Include="SDLDir">
       <Value>$(SDLDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="SDLIncludeDir">
+      <Value>$(SDLIncludeDir)</Value>
     </BuildMacro>
     <BuildMacro Include="SDLDebugLibDir">
       <Value>$(SDLDebugLibDir)</Value>
@@ -86,15 +89,6 @@
     <BuildMacro Include="FreeTypeReleaseLibDir">
       <Value>$(FreeTypeReleaseLibDir)</Value>
     </BuildMacro>
-    <BuildMacro Include="SDLNetDir">
-      <Value>$(SDLNetDir)</Value>
-    </BuildMacro>
-    <BuildMacro Include="SDLNetDebugLibDir">
-      <Value>$(SDLNetDebugLibDir)</Value>
-    </BuildMacro>
-    <BuildMacro Include="SDLNetReleaseLibDir">
-      <Value>$(SDLNetReleaseLibDir)</Value>
-    </BuildMacro>
     <BuildMacro Include="SDLDebugLibs">
       <Value>$(SDLDebugLibs)</Value>
     </BuildMacro>
@@ -110,8 +104,8 @@
     <BuildMacro Include="LibIntlLib64Dir">
       <Value>$(LibIntlLib64Dir)</Value>
     </BuildMacro>
-    <BuildMacro Include="FFMpegDir">
-      <Value>$(FFMpegDir)</Value>
+    <BuildMacro Include="FFMpegIncludeDir">
+      <Value>$(FFMpegIncludeDir)</Value>
     </BuildMacro>
     <BuildMacro Include="LocalDebugLibs">
       <Value>$(LocalDebugLibs)</Value>
@@ -121,6 +115,9 @@
     </BuildMacro>
     <BuildMacro Include="SDL2Dir">
       <Value>$(SDL2Dir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="SDL2IncludeDir">
+      <Value>$(SDL2IncludeDir)</Value>
     </BuildMacro>
     <BuildMacro Include="SDL2DebugLibDir">
       <Value>$(SDL2DebugLibDir)</Value>
@@ -145,15 +142,6 @@
     </BuildMacro>
     <BuildMacro Include="FreeType25ReleaseLibDir">
       <Value>$(FreeType25ReleaseLibDir)</Value>
-    </BuildMacro>
-    <BuildMacro Include="SDL2NetDir">
-      <Value>$(SDL2NetDir)</Value>
-    </BuildMacro>
-    <BuildMacro Include="SDL2NetDebugLibDir">
-      <Value>$(SDL2NetDebugLibDir)</Value>
-    </BuildMacro>
-    <BuildMacro Include="SDL2NetReleaseLibDir">
-      <Value>$(SDL2NetReleaseLibDir)</Value>
     </BuildMacro>
     <BuildMacro Include="SDL2DebugLibs">
       <Value>$(SDL2DebugLibs)</Value>

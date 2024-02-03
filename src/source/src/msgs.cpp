@@ -60,8 +60,8 @@ CMsg::CMsg()
 	msgs[i++] = _TX("CPU x8\tAlt+4");
 	msgs[i++] = _TX("CPU x16\tAlt+5");
 	msgs[i++] = _TX("CPU x%d");
-	msgs[i++] = _TX("Sync Machine Speed With CPU Speed");
-	msgs[i++] = _TX("Async Machine Speed With CPU Speed");
+	msgs[i++] = _TX("Synchronize Device Speed With CPU Speed");
+	msgs[i++] = _TX("Asynchronize Device Speed With CPU Speed");
 	msgs[i++] = _TX("Checker Drawing");
 	msgs[i++] = _TX("Stripe Strongly Drawing");
 	msgs[i++] = _TX("Stripe Drawing");
@@ -115,6 +115,7 @@ CMsg::CMsg()
 	msgs[i++] = _TX("Enable Joypad (Key Assigned)");
 	msgs[i++] = _TX("Enable Joypad (Port Connected)");
 	msgs[i++] = _TX("Enable Key to Joypad");
+	msgs[i++] = _TX("Enable Joypad to Key");
 	msgs[i++] = _TX("Disable Joypad");
 	msgs[i++] = _TX("Enable Lightpen");
 	msgs[i++] = _TX("Disable Lightpen");
@@ -173,8 +174,8 @@ CMsg::CMsg()
 	msgs[i++] = _TX("5.25inch mini FDD\tAlt+F");
 	msgs[i++] = _TX("8inch standard FDD\tAlt+F");
 	msgs[i++] = _TX("Pause\tAlt+Q");
-	msgs[i++] = _TX("Sync With CPU Speed");
-	msgs[i++] = _TX("Sync With CPU Speed\tAlt+0");
+	msgs[i++] = _TX("Sync Devices With CPU Speed");
+	msgs[i++] = _TX("Sync Devices With CPU Speed\tAlt+0");
 	msgs[i++] = _TX("Auto Key");
 	msgs[i++] = _TX("Open");
 	msgs[i++] = _TX("Open...");
@@ -379,7 +380,12 @@ CMsg::CMsg()
 	msgs[i++] = _TX("CPU, Memory");
 	msgs[i++] = _TX("PowerOff");
 	msgs[i++] = _TX("PowerOn");
+	msgs[i++] = _TX("Behavior of Power On/Off");
 	msgs[i++] = _TX("Enable the state of power off");
+	msgs[i++] = _TX("Power State When Start Up");
+	msgs[i++] = _TX("Inherit the state when shut down");
+	msgs[i++] = _TX("Always power on");
+	msgs[i++] = _TX("Always power off");
 	msgs[i++] = _TX("I/O Port Address (*)");
 	msgs[i++] = _TX("5.25inch FDC  $FF00 - $FF04");
 	msgs[i++] = _TX("3inch FDC  $FF18 - $FF20");
@@ -491,6 +497,15 @@ CMsg::CMsg()
 	msgs[i++] = _TX("Program"),
 	msgs[i++] = _TX("Key Repeat Delay"),
 	msgs[i++] = _TX("Key Repeat Rate"),
+	msgs[i++] = _TX("Status of Key LED when power on"),
+	msgs[i++] = _TX("Kana"),
+	msgs[i++] = _TX("Roma-ji"),
+	msgs[i++] = _TX("Code Input"),
+	msgs[i++] = _TX("CAPS"),
+	msgs[i++] = _TX("INS"),
+	msgs[i++] = _TX("Hiragana"),
+	msgs[i++] = _TX("Zenkaku"),
+	msgs[i++] = _TX("Number of HDDs"),
 	msgs[i++] = _TX("MsgBoard: OK");
 	msgs[i++] = _TX("MsgBoard: Failed");
 	msgs[i++] = _TX("MsgBoard: Use \"%s\" for %s.");
@@ -733,6 +748,7 @@ CMsg::CMsg()
 	msgs[i++] = _TX("Joypad (Key Assigned)");
 	msgs[i++] = _TX("Joypad (Port Connected)");
 	msgs[i++] = _TX("Key to Joypad");
+	msgs[i++] = _TX("Joypad to Key");
 	msgs[i++] = _TX("Joypad%d");
 	msgs[i++] = _TX("Signals are negative logic");
 	msgs[i++] = _TX("Recognize as another key when pressed two buttons");

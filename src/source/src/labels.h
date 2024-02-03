@@ -18,6 +18,8 @@ namespace LABELS {
 
 extern const CMsg::Id tabs[];
 
+extern const CMsg::Id power_state[];
+
 extern const CMsg::Id io_port[];
 extern const uint8_t io_port_pos[];
 

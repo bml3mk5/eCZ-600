@@ -23,6 +23,9 @@
 */
 @interface CocoaJoySettingPanel : CocoaBasePanel
 {
+	NSMutableArray *tableViews;
+	Uint32 enable_axes;
+
 	CocoaPopUpButton *pop[MAX_JOYSTICKS];
 	CocoaSlider *mash[MAX_JOYSTICKS][KEYBIND_JOY_BUTTONS];
 	CocoaSlider *axis[MAX_JOYSTICKS][6];
@@ -32,6 +35,10 @@
 - (void)close;
 - (void)dialogOk:(id)sender;
 - (void)dialogCancel:(id)sender;
+- (void)loadDefaultPreset:(id)sender;
+- (void)loadPreset:(id)sender;
+- (void)savePreset:(id)sender;
+- (void)clickJoyAxis:(id)sender;
 - (void)setData;
 
 //- (void)changeSlider:(CocoaSlider *)sender;

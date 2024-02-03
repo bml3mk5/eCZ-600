@@ -196,6 +196,7 @@ GUIOBJSGTKX11=$(SRCGUIGTKX11)/gtk_x11_gui.o \
 	$(SRCGUIGTKX11)/gtk_configbox.o \
 	$(SRCGUIGTKX11)/gtk_x11_key_trans.o \
 	$(SRCGUIGTKX11)/gtk_keybindbox.o \
+	$(SRCGUIGTKX11)/gtk_keybindctrl.o \
 	$(SRCGUIGTKX11)/gtk_volumebox.o \
 	$(SRCGUIGTKX11)/gtk_recaudbox.o \
 	$(SRCGUIGTKX11)/gtk_recvidbox.o \

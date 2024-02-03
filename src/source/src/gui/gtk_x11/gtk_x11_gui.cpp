@@ -479,7 +479,7 @@ int GUI::CreateMenu()
 			create_radio_menu_item(submenu, CMsg::CPU_x8, OnSelectCPUPower, OnUpdateCPUPower, 0, 4, GDK_KEY_4);
 			create_radio_menu_item(submenu, CMsg::CPU_x16, OnSelectCPUPower, OnUpdateCPUPower, 0, 5, GDK_KEY_5);
 			create_separator_menu(submenu);
-			create_check_menu_item(submenu, CMsg::Sync_With_CPU_Speed, OnSelectSyncIRQ, OnUpdateSyncIRQ, 0, 0, GDK_KEY_0);
+			create_check_menu_item(submenu, CMsg::Sync_Devices_With_CPU_Speed, OnSelectSyncIRQ, OnUpdateSyncIRQ, 0, 0, GDK_KEY_0);
 		}
 		create_separator_menu(menu);
 		submenu = create_sub_menu(menu, CMsg::Auto_Key);
@@ -547,11 +547,13 @@ int GUI::CreateMenu()
 			{
 				create_check_menu_item(submenu, CMsg::Mount_, OnSelectOpenHardDisk, OnUpdateOpenHardDisk, drv, 0);
 				create_menu_item(submenu, CMsg::Unmount, OnSelectCloseHardDisk, NULL, drv);
-				subsubmenu = create_sub_menu(submenu, CMsg::New);
-				{
-					create_menu_item(subsubmenu, CMsg::Mount_Blank_10MB_, OnSelectOpenBlankHardDisk, NULL, drv, 0);
-					create_menu_item(subsubmenu, CMsg::Mount_Blank_20MB_, OnSelectOpenBlankHardDisk, NULL, drv, 1);
-					create_menu_item(subsubmenu, CMsg::Mount_Blank_40MB_, OnSelectOpenBlankHardDisk, NULL, drv, 2);
+				if (drv == 0) {
+					subsubmenu = create_sub_menu(submenu, CMsg::New);
+					{
+						create_menu_item(subsubmenu, CMsg::Mount_Blank_10MB_, OnSelectOpenBlankHardDisk, NULL, drv, 0);
+						create_menu_item(subsubmenu, CMsg::Mount_Blank_20MB_, OnSelectOpenBlankHardDisk, NULL, drv, 1);
+						create_menu_item(subsubmenu, CMsg::Mount_Blank_40MB_, OnSelectOpenBlankHardDisk, NULL, drv, 2);
+					}
 				}
 				create_separator_menu(submenu);
 				create_recent_menu(submenu, HARDDISK, drv);
@@ -739,15 +741,17 @@ int GUI::CreateMenu()
 #endif
 #ifdef USE_JOYSTICK
 		create_separator_menu(menu);
-		create_check_menu_item(menu, CMsg::Use_Joypad_Key_Assigned, OnSelectUseJoypad, OnUpdateUseJoypad, 0, 1, GDK_KEY_J);
 #ifdef USE_PIAJOYSTICK
-		create_check_menu_item(menu, CMsg::Use_Joypad_Port_Connected, OnSelectUseJoypad, OnUpdateUseJoypad, 0, 2, GDK_KEY_J);
+		create_check_menu_item(menu, CMsg::Enable_Joypad_Port_Connected, OnSelectUseJoypad, OnUpdateUseJoypad, 0, 2, GDK_KEY_J);
 #endif
 #ifdef USE_KEY2JOYSTICK
 		create_check_menu_item(menu, CMsg::Enable_Key_to_Joypad, OnSelectEnableKey2Joypad, OnUpdateEnableKey2Joypad, 0, 0, 0);
 #endif
 #endif
 		create_separator_menu(menu);
+#ifdef USE_JOYSTICK
+		create_check_menu_item(menu, CMsg::Enable_Joypad_to_Key, OnSelectUseJoypad, OnUpdateUseJoypad, 0, 1, 0);
+#endif
 		create_check_menu_item(menu, CMsg::Virtual_Keyboard_, OnSelectVirtualKeyboard, OnUpdateVirtualKeyboard, 0, 0, 0);
 #ifdef USE_DEBUGGER
 		create_separator_menu(menu);

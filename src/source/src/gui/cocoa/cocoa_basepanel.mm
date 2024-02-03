@@ -23,7 +23,7 @@ extern EMU *emu;
 {
 	NSFont *font = [ctrl font];
 
-	NSTextStorage *textStorage = [[NSTextStorage alloc] initWithString:self];
+	NSTextStorage *textStorage = [[NSTextStorage alloc] initWithString:@""];
 	NSTextContainer *textContainer = [[NSTextContainer alloc] initWithContainerSize:constraint];
 
 	NSLayoutManager *layoutManager = [[NSLayoutManager alloc] init];
@@ -42,11 +42,11 @@ extern EMU *emu;
 @implementation CocoaLabel
 + (CocoaLabel *)create:(NSRect)re title:(const char *)title
 {
-	return [CocoaLabel createWithFit:&re title:title align:NSLeftTextAlignment];
+	return [CocoaLabel createWithFit:&re title:title align:NSTextAlignmentLeft];
 }
 + (CocoaLabel *)create:(NSRect)re titleid:(CMsg::Id)titleid
 {
-	return [CocoaLabel createWithFit:&re titleid:titleid align:NSLeftTextAlignment];
+	return [CocoaLabel createWithFit:&re titleid:titleid align:NSTextAlignmentLeft];
 }
 + (CocoaLabel *)create:(NSRect)re title:(const char *)title align:(NSTextAlignment)align
 {
@@ -58,11 +58,11 @@ extern EMU *emu;
 }
 + (CocoaLabel *)createT:(const char *)title
 {
-	return [CocoaLabel createT:title align:NSLeftTextAlignment];
+	return [CocoaLabel createT:title align:NSTextAlignmentLeft];
 }
 + (CocoaLabel *)createI:(CMsg::Id)titleid
 {
-	return [CocoaLabel createT:CMSGV(titleid) align:NSLeftTextAlignment];
+	return [CocoaLabel createT:CMSGV(titleid) align:NSTextAlignmentLeft];
 }
 + (CocoaLabel *)createT:(const char *)title align:(NSTextAlignment)align
 {
@@ -145,11 +145,11 @@ extern EMU *emu;
 }
 + (CocoaLabel *)createWithFitW:(NSRect *)re title:(const char *)title
 {
-	return [CocoaLabel createWithFitW:re title:title align:NSLeftTextAlignment];
+	return [CocoaLabel createWithFitW:re title:title align:NSTextAlignmentLeft];
 }
 + (CocoaLabel *)createWithFitW:(NSRect *)re titleid:(CMsg::Id)titleid
 {
-	return [CocoaLabel createWithFitW:re titleid:titleid align:NSLeftTextAlignment];
+	return [CocoaLabel createWithFitW:re titleid:titleid align:NSTextAlignmentLeft];
 }
 + (CocoaLabel *)createWithFitW:(NSRect *)re title:(const char *)title align:(NSTextAlignment)align
 {
@@ -165,7 +165,7 @@ extern EMU *emu;
 }
 + (CocoaLabel *)createWithFitH:(NSRect *)re title:(const char *)title
 {
-	return [CocoaLabel createWithFitH:re title:title align:NSLeftTextAlignment];
+	return [CocoaLabel createWithFitH:re title:title align:NSTextAlignmentLeft];
 }
 + (CocoaLabel *)createWithFitH:(NSRect *)re title:(const char *)title align:(NSTextAlignment)align
 {
@@ -177,11 +177,11 @@ extern EMU *emu;
 }
 + (CocoaLabel *)createWithFit:(NSRect *)re title:(const char *)title
 {
-	return [CocoaLabel createWithFit:re title:title align:NSLeftTextAlignment];
+	return [CocoaLabel createWithFit:re title:title align:NSTextAlignmentLeft];
 }
 + (CocoaLabel *)createWithFit:(NSRect *)re titleid:(CMsg::Id)titleid
 {
-	return [CocoaLabel createWithFit:re titleid:titleid align:NSLeftTextAlignment];
+	return [CocoaLabel createWithFit:re titleid:titleid align:NSTextAlignmentLeft];
 }
 + (CocoaLabel *)createWithFit:(NSRect *)re title:(const char *)title align:(NSTextAlignment)align
 {
@@ -277,7 +277,7 @@ extern EMU *emu;
 
 + (CocoaTextField *)createN:(int)num action:(SEL)action
 {
-	return [CocoaTextField createN:num action:action align:NSLeftTextAlignment];
+	return [CocoaTextField createN:num action:action align:NSTextAlignmentLeft];
 }
 + (CocoaTextField *)createN:(int)num action:(SEL)action align:(NSTextAlignment)align
 {
@@ -297,7 +297,7 @@ extern EMU *emu;
 }
 + (CocoaTextField *)createT:(const char *)text action:(SEL)action
 {
-	return [CocoaTextField createT:text action:action align:NSLeftTextAlignment];
+	return [CocoaTextField createT:text action:action align:NSTextAlignmentLeft];
 }
 + (CocoaTextField *)createT:(const char *)text action:(SEL)action align:(NSTextAlignment)align
 {
@@ -895,6 +895,57 @@ extern EMU *emu;
 }
 @end
 
+@implementation CocoaStepper
+@synthesize text;
+- (void)changeStepperValue:(CocoaStepper *)sender
+{
+	[text setIntValue:[self intValue]];
+}
+- (void)changeTextFieldValue:(CocoaTextField *)sender
+{
+	[self setIntValue:[text intValue]];
+}
++ (CocoaStepper *)createMin:(int)min_val max:(int)max_val value:(int)value
+{
+	CocoaStepper *stepper = [CocoaStepper alloc];
+
+	[stepper init];
+	[stepper setMaxValue:max_val];
+	[stepper setMinValue:min_val];
+	[stepper setIntValue:value];
+	[stepper setValueWraps:FALSE];
+	[stepper setTarget:stepper];
+	[stepper setAction:@selector(changeStepperValue:)];
+
+	CocoaTextField *text = [CocoaTextField createN:value action:@selector(changeTextFieldValue:)];
+	[text setTarget:stepper];
+	[stepper setText:text];
+	
+	return stepper;
+}
++ (CocoaStepper *)createN:(CocoaLayout *)layout min:(int)min_val max:(int)max_val value:(int)value
+{
+	CocoaStepper *step = [CocoaStepper createMin:min_val max:max_val value:value];
+	[layout addControl:step.text];
+	[layout addControl:step];
+	return step;
+}
++ (CocoaStepper *)createN:(CocoaLayout *)layout min:(int)min_val max:(int)max_val value:(int)value width:(int)width
+{
+	CocoaStepper *step = [CocoaStepper createMin:min_val max:max_val value:value];
+	[layout addControl:step.text width:width];
+	[layout addControl:step];
+	return step;
+}
++ (CocoaStepper *)createN:(CocoaLayout *)layout min:(int)min_val max:(int)max_val value:(int)value width:(int)width height:(int)height
+{
+	CocoaStepper *step = [CocoaStepper createMin:min_val max:max_val value:value];
+	[layout addControl:step.text width:width height:height];
+	[layout addControl:step height:height];
+	return step;
+}
+@end
+
 @implementation CocoaTabView
 #ifdef COCOA_USE_OLDSTYLE_LAYOUT
 + (CocoaTabView *)create:(NSRect)re
@@ -965,17 +1016,17 @@ extern EMU *emu;
 {
 	int i;
 	for(i=0; tabs[i] != NULL; i++) {
-		[self addTabItem:tabs[i]];
+		[self addTabItemT:tabs[i]];
 	}
 }
 - (void)addTabItemsI:(const CMsg::Id *)tabids
 {
 	int i;
 	for(i=0; tabids[i] != 0 && tabids[i] != CMsg::End; i++) {
-		[self addTabItem:CMSGV(tabids[i])];
+		[self addTabItemT:CMSGV(tabids[i])];
 	}
 }
-- (NSTabViewItem *)addTabItem:(const char *)label
+- (NSTabViewItem *)addTabItemT:(const char *)label
 {
 	NSString *str = [NSString stringWithUTF8String:label];
 	NSTabViewItem *item = [[NSTabViewItem alloc] init];
@@ -984,6 +1035,10 @@ extern EMU *emu;
 	[item setView:view];
 	[self addTabViewItem:item];
 	return item;
+}
+- (NSTabViewItem *)addTabItemI:(CMsg::Id)label_id
+{
+	return [self addTabItemT:CMSGV(label_id)];
 }
 
 #ifdef COCOA_USE_OLDSTYLE_LAYOUT
@@ -1226,6 +1281,7 @@ extern EMU *emu;
 @synthesize w;
 @synthesize h;
 @synthesize next;
+@synthesize prev;
 + (CocoaLayoutControls *)create:(CocoaLayout *)box_ :(NSView *)ctrl_ :(int)x_ :(int)y_ :(int)px_ :(int)py_ :(int)w_ :(int)h_
 {
 	CocoaLayoutControls *me = [[CocoaLayoutControls alloc] init];
@@ -1239,6 +1295,7 @@ extern EMU *emu;
 	me.w = w_;
 	me.h = h_;
 	me.next = nil;
+	me.prev = nil;
 
 	return me;
 }
@@ -1414,18 +1471,21 @@ extern EMU *emu;
 {
 	CocoaLayoutControls *newitem = [CocoaLayoutControls create:box_ :ctrl_ :-1 :-1 :px_ :py_ :width_ :height_];
 
+	CocoaLayoutControls *item = controls;
 	if (controls != nil) {
 		// next item
-		CocoaLayoutControls *item = controls;
 		while (item.next != nil) {
 			item = item.next;
 		}
 		item.next = newitem;
+		newitem.prev = item;
 	} else {
 		// first item
 		controls = newitem;
 	}
 	control_nums++;
+	
+	item = newitem;
 
 	if (box_ != nil) {
 		[box_ setContentView: [self contentView]];
@@ -1434,7 +1494,17 @@ extern EMU *emu;
 		[[self contentView] addSubview:ctrl_];
 	}
 }
-
+- (int)maxHeight:(CocoaLayoutControls *)item_
+{
+	int maxh = 0;
+	while(item_ != nil) {
+		if (item_.ctrl && maxh < item_.h) {
+			maxh = item_.h;
+		}
+		item_ = item_.next;
+	}
+	return maxh;
+}
 - (void)realize:(NSPanel *)dlg_
 {
 	if (realized) return;
@@ -1467,7 +1537,7 @@ extern EMU *emu;
 					, re.x, re.y, re.w, re.h
 					, margin.left, margin.right, margin.top, margin.bottom);
 #endif
-
+	int maxh = [self maxHeight:controls];
 	int mw,mh;
 	int nums = 0;
 	CocoaLayoutControls *item = controls;
@@ -1571,7 +1641,7 @@ extern EMU *emu;
 					re.w += padding;
 				}
 				item.x = re.w;
-				item.y = margin.top;
+				item.y = margin.top + (maxh - item.h) / 2;
 				re.w += item.w;
 				mh = margin.top + item.h;
 				if (re.h < mh) {
@@ -1724,7 +1794,9 @@ extern EMU *emu;
 		}
 	}
 
+#ifdef _DEBUG_CBOX
 	int nums = 0;
+#endif
 	CocoaLayoutControls *item = controls;
 	while(item != nil) {
 		if (item.box != nil) {
@@ -1763,7 +1835,10 @@ extern EMU *emu;
 #endif
 		}
 		item = item.next;
+
+#ifdef _DEBUG_CBOX
 		nums++;
+#endif
 	}
 #ifdef _DEBUG_CBOX
 	logging->out_debugf(_T("MoveItems: %-8s re re:x:%d y:%d w:%d h:%d item:x:%d y:%d w:%d h:%d"), name

@@ -232,14 +232,14 @@ void DMAC::write_io_n(uint32_t addr, uint32_t data, int width)
 				uint8_t modify = (prev ^ data);
 				OUT_DEBUG_REGW(channel, _T("DMAC W CCR: ch:%d prev:%X data:%X now:%X"), channel, prev, data, dma->ccr);
 
+				if (modify & CCR_INT) {
+					// update interrput mask
+					update_irq_mask(channel, (data & CCR_INT) != 0);
+				}
 				if ((modify & data & CCR_SAB) != 0) {
 					// abort by software
 					abort_transfer(channel);
 					break;
-				}
-				if (modify & CCR_INT) {
-					// update interrput mask
-					update_irq_mask(channel, (data & CCR_INT) != 0);
 				}
 				if ((modify & data & CCR_STR) != 0) {
 					if (width == 1) {

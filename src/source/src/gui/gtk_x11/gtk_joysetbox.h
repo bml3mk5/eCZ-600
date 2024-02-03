@@ -16,6 +16,7 @@
 #include "gtk_dialogbox.h"
 #include "../../vm/vm_defs.h"
 #include "../../emu.h"
+#include "gtk_keybindctrl.h"
 
 namespace GUI_GTK_X11
 {
@@ -23,17 +24,14 @@ namespace GUI_GTK_X11
 /**
 	@brief Joypad setting dialog box
 */
-class JoySettingBox : public DialogBox
+class JoySettingBox : public KeybindControlBox
 {
 private:
 	GtkWidget *com[MAX_JOYSTICKS];
 	GtkWidget *scale[MAX_JOYSTICKS][KEYBIND_JOY_BUTTONS];
 	GtkWidget *axis[MAX_JOYSTICKS][6];
 
-	void SetData();
-
-//	static void OnChangeValue(GtkWidget *widget, gpointer user_data);
-	static void OnResponse(GtkWidget *widget, gint response_id, gpointer user_data);
+	bool SetData();
 
 public:
 	JoySettingBox(GUI *new_gui);

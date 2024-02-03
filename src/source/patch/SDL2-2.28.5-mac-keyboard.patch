@@ -1,0 +1,39 @@
+diff -r -c SDL2-2.28.5-orig/src/events/scancodes_darwin.h SDL2-2.28.5/src/events/scancodes_darwin.h
+*** SDL2-2.28.5-orig/src/events/scancodes_darwin.h	Thu Apr  6 03:45:47 2023
+--- SDL2-2.28.5/src/events/scancodes_darwin.h	Tue Jan 16 23:39:22 2024
+***************
+*** 90,96 ****
+      /*  60 */   SDL_SCANCODE_RSHIFT,
+      /*  61 */   SDL_SCANCODE_RALT,
+      /*  62 */   SDL_SCANCODE_RCTRL,
+!     /*  63 */   SDL_SCANCODE_RGUI, /* fn on portables, acts as a hardware-level modifier already, so we don't generate events for it, also XK_Meta_R */
+      /*  64 */   SDL_SCANCODE_F17,
+      /*  65 */   SDL_SCANCODE_KP_PERIOD,
+      /*  66 */   SDL_SCANCODE_UNKNOWN, /* unknown (unused?) */
+--- 90,97 ----
+      /*  60 */   SDL_SCANCODE_RSHIFT,
+      /*  61 */   SDL_SCANCODE_RALT,
+      /*  62 */   SDL_SCANCODE_RCTRL,
+!     /*  63    SDL_SCANCODE_RGUI, */
+!     /*  63 */   SDL_SCANCODE_ALTERASE, /* fn on portables, acts as a hardware-level modifier already, so we don't generate events for it, also XK_Meta_R */
+      /*  64 */   SDL_SCANCODE_F17,
+      /*  65 */   SDL_SCANCODE_KP_PERIOD,
+      /*  66 */   SDL_SCANCODE_UNKNOWN, /* unknown (unused?) */
+diff -r -c SDL2-2.28.5-orig/src/video/cocoa/SDL_cocoakeyboard.m SDL2-2.28.5/src/video/cocoa/SDL_cocoakeyboard.m
+*** SDL2-2.28.5-orig/src/video/cocoa/SDL_cocoakeyboard.m	Thu Apr  6 03:45:47 2023
+--- SDL2-2.28.5/src/video/cocoa/SDL_cocoakeyboard.m	Wed Jan 17 17:58:45 2024
+***************
+*** 226,231 ****
+--- 226,237 ----
+      } else if (code == SDL_SCANCODE_RGUI) {
+          pressed = IsModifierKeyPressed(modifierFlags, NX_DEVICERCMDKEYMASK,
+                                         NX_DEVICELCMDKEYMASK, NX_COMMANDMASK);
++     } else if (code == SDL_SCANCODE_ALTERASE) {
++         pressed = IsModifierKeyPressed(modifierFlags, NSEventModifierFlagFunction,
++                                        NSEventModifierFlagFunction, NSEventModifierFlagFunction);
++     } else if (code == SDL_SCANCODE_CAPSLOCK) {
++         pressed = IsModifierKeyPressed(modifierFlags, NSEventModifierFlagCapsLock,
++                                        NSEventModifierFlagCapsLock, NSEventModifierFlagCapsLock);
+      } else {
+          return;
+      }

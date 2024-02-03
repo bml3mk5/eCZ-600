@@ -1671,8 +1671,11 @@ void GUI::update_menu(HMENU hMenu, int pos)
 #endif
 #ifdef MENU_POS_HD1
 	else if(pos == MENU_POS_HD1) {
-		// hard disk drive #1
-		update_hdd_menu(hMenu, 0, ID_OPEN_HD1, ID_RECENT_HD1);
+		// hard disk drive
+		int sub = (ID_OPEN_HD2 - ID_OPEN_HD1);
+		for(int drv = 0; drv < MAX_HARD_DISKS; drv++) {
+			update_hdd_menu(hMenu, drv, ID_OPEN_HD1 + drv * sub, ID_RECENT_HD1 + drv * sub);
+		}
 	}
 #endif
 #ifdef MENU_POS_QD1

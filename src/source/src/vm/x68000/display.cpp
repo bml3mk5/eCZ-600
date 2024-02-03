@@ -1695,13 +1695,16 @@ void DISPLAY::mix_render_text_sprite_bg_one_line_sub_sp_tx(int width, int src_le
 	for(int dst_x = 0; dst_x < width; dst_x++) {
 		src &= 0xfffff; // TODO
 		uint32_t pal_num = rb_tvram[src];
+#if 1
+		if (pal_num != 0 && (mx_txspbg[dst_y + dst_x] & MX_TXSPBG_PALETTE_L4) == 0) {
+			mx_txspbg[dst_y + dst_x] = (MX_TXSPBG_TEXT | 0x100 | pal_num);
+		}
+#else
 		uint32_t pal = m_palette[0x100 | pal_num];
-//		if (pal_num != 0 && (mx_txspbg[dst_y + dst_x] & MX_TXSPBG_PALETTE_L4) == 0) {
-//			mx_txspbg[dst_y + dst_x] = (MX_TXSPBG_TEXT | 0x100 | pal_num);
-//		}
 		if (pal != 0 && (mx_txspbg[dst_y + dst_x] & MX_TXSPBG_PALETTE_L4) == 0) {
 			mx_txspbg[dst_y + dst_x] = (MX_TXSPBG_TEXT | 0x100 | pal_num);
 		}
+#endif
 		src++;
 	}
 }
@@ -1717,9 +1720,16 @@ void DISPLAY::mix_render_text_sprite_bg_one_line_sub_tx_sp(int width, int src_le
 	for(int dst_x = 0; dst_x < width; dst_x++) {
 		src &= 0xfffff; // TODO
 		uint32_t pal_num = rb_tvram[src];
+#if 1
+		uint32_t pal = m_palette[0x100 | pal_num];
+		if (pal != 0 || pal_num != 0) {
+			mx_txspbg[dst_y + dst_x] = (MX_TXSPBG_TEXT | 0x100 | pal_num);
+		}
+#else
 		if (pal_num != 0) {
 			mx_txspbg[dst_y + dst_x] = (MX_TXSPBG_TEXT | 0x100 | pal_num);
 		}
+#endif
 		src++;
 	}
 }
@@ -1966,18 +1976,37 @@ void DISPLAY::mix_render_sprite_bg_one_line(int step_y, int src_y, int dst_y)
 		// sprite and bg are off
 		return;
 	}
+	if (p_bg_regs[SPRITE_BG::BG_RESOLUTION] & SPRITE_BG::RESO_HVRES_INVALID) {
+		// invalid mode
+		return;
+	}
 
 	int size512 = ((p_bg_regs[SPRITE_BG::BG_RESOLUTION] & SPRITE_BG::RESO_HRES) == 0x01 ? 1 : 0);
 
 	int width = 256;	// disp area is 256x256
-	width <<= size512;	// is 512x512 if hireso
+//	width <<= size512;	// is 512x512 if hireso
+	if ((p_crtc_regs[CRTC::CRTC_CONTROL0] & CRTC::CONTROL0_HRES) != 0 && p_bg_regs[SPRITE_BG::BG_HORI_TOTAL] >= 0x4b) {
+		// draw 512 when disp area is not 256 and htotal is 0xff
+		width <<= 1;
+	}
+
+	int disp_left = (p_bg_regs[SPRITE_BG::BG_HORI_DISP] - p_crtc_regs[CRTC::CRTC_HORI_START] - 4) * 8;
+	int disp_top = (p_bg_regs[SPRITE_BG::BG_VERT_DISP] - p_crtc_regs[CRTC::CRTC_VERT_START]);
+	// 256line?
+	if ((p_crtc_regs[CRTC::CRTC_CONTROL0] & CRTC::CONTROL0_VRES) == 0) disp_top /= 2;
 
 	// mix sprite cells
-	mix_render_sprite_one_line(size512, width, step_y, dst_y);
+	mix_render_sprite_one_line(size512, width, disp_left, disp_top, step_y, dst_y);
+
+	if (src_y < disp_top) {
+		// out of display area
+		return;
+	}
+	src_y -= disp_top;
 
 	// mix bg and sprite
-	mix_render_bg0_one_line(size512, width, src_y, dst_y);
-	mix_render_bg1_one_line(size512, width, src_y, dst_y);
+	mix_render_bg0_one_line(size512, width, disp_left, disp_top, src_y, dst_y);
+	mix_render_bg1_one_line(size512, width, disp_left, disp_top, src_y, dst_y);
 }
 
 #if (DRAW_SCREEN_METHOD == DRAW_SCREEN_PER_FRAME)
@@ -1991,18 +2020,31 @@ void DISPLAY::mix_render_sprite_bg(int step_y)
 		// sprite and bg are off
 		return;
 	}
+	if (p_bg_regs[SPRITE_BG::BG_RESOLUTION] & SPRITE_BG::RESO_HVRES_INVALID) {
+		// invalid mode
+		return;
+	}
 
 	int size512 = ((p_bg_regs[SPRITE_BG::BG_RESOLUTION] & SPRITE_BG::RESO_HRES) == 0x01 ? 1 : 0);
 
 	int width = 256;	// disp area is 256x256
-	width <<= size512;	// is 512x512 if hireso
+//	width <<= size512;	// is 512x512 if hireso
+	if ((p_crtc_regs[CRTC::CRTC_CONTROL0] & CRTC::CONTROL0_HRES) != 0 && p_bg_regs[SPRITE_BG::BG_HORI_TOTAL] >= 0x4b) {
+		// draw 512 when disp area is not 256 and htotal is 0xff
+		width <<= 1;
+	}
+
+	int disp_left = (p_bg_regs[SPRITE_BG::BG_HORI_DISP] - p_crtc_regs[CRTC::CRTC_HORI_START] - 4) * 8;
+	int disp_top = (p_bg_regs[SPRITE_BG::BG_VERT_DISP] - p_crtc_regs[CRTC::CRTC_VERT_START]);
+	// 256line?
+	if ((p_crtc_regs[CRTC::CRTC_CONTROL0] & CRTC::CONTROL0_VRES) == 0) disp_top /= 2;
 
 	// mix sprite cells
-	mix_render_sprite(size512, width, step_y);
+	mix_render_sprite(size512, width, disp_left, disp_top, step_y);
 
 	// mix bg and sprite
-	mix_render_bg0(size512, width);
-	mix_render_bg1(size512, width);
+	mix_render_bg0(size512, width, disp_left, disp_top);
+	mix_render_bg1(size512, width, disp_left, disp_top);
 }
 #endif
 
@@ -2010,12 +2052,13 @@ void DISPLAY::mix_render_sprite_bg(int step_y)
 /// @param[in] width : 256 / 512
 /// @param[in] src_left : left position
 /// @param[in] src_x_limit : limit mask (255 / 511)
+/// @param[in] disp_left : left position of display area
 /// @param[in] src_y : line 0 - 1023
 /// @param[in] dst_y : line 0 - 1023
-void DISPLAY::mix_render_bg0_one_line_sub(int width, int src_left, int src_x_limit, int src_y, int dst_y)
+void DISPLAY::mix_render_bg0_one_line_sub(int width, int src_left, int src_x_limit, int disp_left, int src_y, int dst_y)
 {
 	int src_x = src_left;
-	for(int dst_x = 0; dst_x < width; dst_x++) {
+	for(int dst_x = disp_left; dst_x < width; dst_x++) {
 		src_x &= src_x_limit;
 
 		uint16_t priority = mx_txspbg[dst_y + dst_x] & MX_TXSPBG_SPRITE_PRIORITY;
@@ -2050,12 +2093,13 @@ void DISPLAY::mix_render_bg0_one_line_sub(int width, int src_left, int src_x_lim
 /// @param[in] width : 256 only
 /// @param[in] src_left : left position
 /// @param[in] src_x_limit : limit mask (255)
+/// @param[in] disp_left : left position of display area
 /// @param[in] src_y : line 0 - 1023
 /// @param[in] dst_y : line 0 - 1023
-void DISPLAY::mix_render_bg1_one_line_sub(int width, int src_left, int src_x_limit, int src_y, int dst_y)
+void DISPLAY::mix_render_bg1_one_line_sub(int width, int src_left, int src_x_limit, int disp_left, int src_y, int dst_y)
 {
 	int src_x = src_left;
-	for(int dst_x = 0; dst_x < width; dst_x++) {
+	for(int dst_x = disp_left; dst_x < width; dst_x++) {
 		src_x &= src_x_limit;
 
 		uint16_t priority = mx_txspbg[dst_y + dst_x] & MX_TXSPBG_SPRITE_PRIORITY;
@@ -2091,9 +2135,11 @@ void DISPLAY::mix_render_bg1_one_line_sub(int width, int src_left, int src_x_lim
 /// @brief Mix BG0 data and Sprite per one line
 /// @param[in] size512 : 256x256:0 512x512:1
 /// @param[in] width : 256 / 512
+/// @param[in] disp_left : left position of display area
+/// @param[in] disp_top : top position of display area
 /// @param[in] src_y : line 0 - 1023
 /// @param[in] dst_y : line 0 - 1023
-void DISPLAY::mix_render_bg0_one_line(int size512, int width, int src_y, int dst_y)
+void DISPLAY::mix_render_bg0_one_line(int size512, int width, int disp_left, int disp_top, int src_y, int dst_y)
 {
 	if (!(m_show_screen & VM::BG0Mask)) {
 		// bg0 is off
@@ -2114,14 +2160,16 @@ void DISPLAY::mix_render_bg0_one_line(int size512, int width, int src_y, int dst
 	src_y = ((src_top + src_y) << 10);
 	dst_y <<= MX_TXSPBG_WIDTH_SFT;
 	src_y &= src_y_limit;
-	mix_render_bg0_one_line_sub(width, src_left, src_x_limit, src_y, dst_y);
+	mix_render_bg0_one_line_sub(width, src_left, src_x_limit, disp_left, src_y, dst_y);
 }
 
 #if (DRAW_SCREEN_METHOD == DRAW_SCREEN_PER_FRAME)
 /// @brief Mix BG0 data and Sprite
 /// @param[in] size512 : 256x256:0 512x512:1
 /// @param[in] width : 256 / 512
-void DISPLAY::mix_render_bg0(int size512, int width)
+/// @param[in] disp_left : left position of display area
+/// @param[in] disp_top : top position of display area
+void DISPLAY::mix_render_bg0(int size512, int width, int disp_left, int disp_top)
 {
 	if (!(m_show_screen & VM::BG0Mask)) {
 		// bg0 is off
@@ -2141,9 +2189,9 @@ void DISPLAY::mix_render_bg0(int size512, int width)
 
 	int src_y = (src_top << 10);
 	int dst_height = (width << MX_TXSPBG_WIDTH_SFT);
-	for(int dst_y = 0; dst_y < dst_height; dst_y+=(1 << MX_TXSPBG_WIDTH_SFT)) {
+	for(int dst_y = disp_top; dst_y < dst_height; dst_y+=(1 << MX_TXSPBG_WIDTH_SFT)) {
 		src_y &= src_y_limit;
-		mix_render_bg0_one_line_sub(width, src_left, src_x_limit, src_y, dst_y);
+		mix_render_bg0_one_line_sub(width, src_left, src_x_limit, disp_left, src_y, dst_y);
 		src_y += (1 << 10);	// 1024
 	}
 }
@@ -2153,9 +2201,11 @@ void DISPLAY::mix_render_bg0(int size512, int width)
 /// @note bg1 uses normal resolution only
 /// @param[in] size512 : 256x256:0
 /// @param[in] width : 256
+/// @param[in] disp_left : left position of display area
+/// @param[in] disp_top : top position of display area
 /// @param[in] src_y : line 0 - 1023
 /// @param[in] dst_y : line 0 - 1023
-void DISPLAY::mix_render_bg1_one_line(int size512, int width, int src_y, int dst_y)
+void DISPLAY::mix_render_bg1_one_line(int size512, int width, int disp_left, int disp_top, int src_y, int dst_y)
 {
 	if (size512) {
 		// size512 is not supported
@@ -2179,7 +2229,7 @@ void DISPLAY::mix_render_bg1_one_line(int size512, int width, int src_y, int dst
 	src_y = ((src_top + src_y) << 9);	// x512
 	dst_y <<= MX_TXSPBG_WIDTH_SFT;
 	src_y &= src_y_limit;
-	mix_render_bg1_one_line_sub(width, src_left, src_x_limit, src_y, dst_y);
+	mix_render_bg1_one_line_sub(width, src_left, src_x_limit, disp_left, src_y, dst_y);
 }
 
 #if (DRAW_SCREEN_METHOD == DRAW_SCREEN_PER_FRAME)
@@ -2187,7 +2237,9 @@ void DISPLAY::mix_render_bg1_one_line(int size512, int width, int src_y, int dst
 /// @note bg1 uses normal resolution only
 /// @param[in] size512 : 256x256:0
 /// @param[in] width : 256
-void DISPLAY::mix_render_bg1(int size512, int width)
+/// @param[in] disp_left : left position of display area
+/// @param[in] disp_top : top position of display area
+void DISPLAY::mix_render_bg1(int size512, int width, int disp_left, int disp_top)
 {
 	if (size512) {
 		// size512 is not supported
@@ -2210,9 +2262,9 @@ void DISPLAY::mix_render_bg1(int size512, int width)
 
 	int src_y = (src_top << 9);	// x512
 	int dst_height = (width << MX_TXSPBG_WIDTH_SFT);
-	for(int dst_y = 0; dst_y < dst_height; dst_y+=(1 << MX_TXSPBG_WIDTH_SFT)) {
+	for(int dst_y = disp_top; dst_y < dst_height; dst_y+=(1 << MX_TXSPBG_WIDTH_SFT)) {
 		src_y &= src_y_limit;
-		mix_render_bg1_one_line_sub(width, src_left, src_x_limit, src_y, dst_y);
+		mix_render_bg1_one_line_sub(width, src_left, src_x_limit, disp_left, src_y, dst_y);
 		src_y += (1 << 9);	// 512
 	}
 }
@@ -2405,19 +2457,17 @@ void DISPLAY::mix_render_sprite_cell(int size512, int width, int sp_num, int dis
 /// @brief Expand Sprite data per one line
 /// @param[in] size512 : width is 512 mode? 
 /// @param[in] width
+/// @param[in] disp_left : left position of display area
+/// @param[in] disp_top : top position of display area
 /// @param[in] step_y : normal:0 / draw even or odd line:1
 /// @param[in] dst_y : line 0 - 1023
-void DISPLAY::mix_render_sprite_one_line(int size512, int width, int step_y, int dst_y)
+void DISPLAY::mix_render_sprite_one_line(int size512, int width, int disp_left, int disp_top, int step_y, int dst_y)
 {
 	if (!(m_show_screen & VM::SpriteMask)) {
 		// sprite is off
 		return;
 	}
 
-	int disp_left = (p_bg_regs[SPRITE_BG::BG_HORI_DISP] - p_crtc_regs[CRTC::CRTC_HORI_START] - 4) * 8;
-	int disp_top = (p_bg_regs[SPRITE_BG::BG_VERT_DISP] - p_crtc_regs[CRTC::CRTC_VERT_START]);
-	// 256line?
-	if ((p_crtc_regs[CRTC::CRTC_CONTROL0] & CRTC::CONTROL0_VRES) == 0) disp_top /= 2;
 	disp_top >>= step_y;
 
 	// num 0 is the highest priority in sprite cells
@@ -2430,18 +2480,16 @@ void DISPLAY::mix_render_sprite_one_line(int size512, int width, int step_y, int
 /// @brief Expand Sprite data
 /// @param[in] size512 : width is 512 mode? 
 /// @param[in] width
+/// @param[in] disp_left : left position of display area
+/// @param[in] disp_top : top position of display area
 /// @param[in] step_y : normal:0 / draw even or odd line:1
-void DISPLAY::mix_render_sprite(int size512, int width, int step_y)
+void DISPLAY::mix_render_sprite(int size512, int width, int disp_left, int disp_top, int step_y)
 {
 	if (!(m_show_screen & VM::SpriteMask)) {
 		// sprite is off
 		return;
 	}
 
-	int disp_left = (p_bg_regs[SPRITE_BG::BG_HORI_DISP] - p_crtc_regs[CRTC::CRTC_HORI_START] - 4) * 8;
-	int disp_top = (p_bg_regs[SPRITE_BG::BG_VERT_DISP] - p_crtc_regs[CRTC::CRTC_VERT_START]);
-	// 256line?
-	if ((p_crtc_regs[CRTC::CRTC_CONTROL0] & CRTC::CONTROL0_VRES) == 0) disp_top /= 2;
 	disp_top >>= step_y;
 
 	// num 0 is the highest priority in sprite cells

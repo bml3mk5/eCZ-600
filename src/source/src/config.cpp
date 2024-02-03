@@ -78,6 +78,18 @@ void CDirPath::Set(const _TCHAR *dir_path)
 	CTchar::Set(path);
 }
 
+CDirPath &CDirPath::operator=(const CTchar &src)
+{
+	CTchar::operator=(src);
+	return *this;
+}
+
+CDirPath &CDirPath::operator=(const _TCHAR *src_str)
+{
+	CTchar::operator=(src_str);
+	return *this;
+}
+
 //
 //
 //
@@ -236,6 +248,7 @@ void Config::initialize()
 	cpu_power = 1;
 	now_power_off = false;
 	use_power_off = true;	// toggle power on / off state
+	power_state_when_start_up = 0;
 
 #ifdef USE_DIPSWITCH
 	dipswitch = DIPSWITCH_DEFAULT;
@@ -261,6 +274,7 @@ void Config::initialize()
 
 #if defined(_X68000)
 	main_ram_size_num = 0;	// 1MB
+	ram_initialize = 0;
 	raster_int_skew	= 0;
 	vdisp_skew = 0;
 #endif
@@ -488,6 +502,21 @@ bool Config::load_ini_file(const _TCHAR *ini_file)
 	}
 	now_power_off = ini->GetBoolValue(SECTION_CONTROL, _T("NowPowerOff"), now_power_off);
 	use_power_off = ini->GetBoolValue(SECTION_CONTROL, _T("UsePowerOff"), use_power_off);
+	power_state_when_start_up = (int)ini->GetLongValue(SECTION_CONTROL, _T("PowerStateWhenStartUp"), power_state_when_start_up);
+	if (!use_power_off) {
+		now_power_off = false;
+	}
+	switch(power_state_when_start_up) {
+	case 1:
+		now_power_off = false;
+		break;
+	case 2:
+		now_power_off = use_power_off;
+		break;
+	default:
+		power_state_when_start_up = 0;
+		break;
+	}
 
 #ifdef USE_DIPSWITCH
 	dipswitch = (uint8_t)(ini->GetLongValue(SECTION_CONTROL, _T("DipSwitch"), dipswitch) & 0xff);
@@ -617,6 +646,11 @@ bool Config::load_ini_file(const _TCHAR *ini_file)
 	if (0 <= valuel && valuel <= 4)
 	{
 		main_ram_size_num = (uint8_t)valuel;
+	}
+	valuel = ini->GetLongValue(SECTION_CONTROL, _T("InitializeRamMethod"), ram_initialize);
+	if (0 <= valuel && valuel <= 2)
+	{
+		ram_initialize = (uint8_t)valuel;
 	}
 	valueb = ini->GetBoolValue(SECTION_SRAM, _T("ClearWhenPowerOn"), (original & MSK_ORIG_SRAM_CLR_PWRON) != 0);
 	BIT_ONOFF(original, MSK_ORIG_SRAM_CLR_PWRON, valueb);
@@ -935,6 +969,7 @@ void Config::save_ini_file(const _TCHAR *ini_file)
 	ini->SetLongValue(SECTION_CONTROL, _T("CpuPower"), cpu_power);
 	ini->SetBoolValue(SECTION_CONTROL, _T("NowPowerOff"), now_power_off);
 	ini->SetBoolValue(SECTION_CONTROL, _T("UsePowerOff"), use_power_off);
+	ini->SetLongValue(SECTION_CONTROL, _T("PowerStateWhenStartUp"), power_state_when_start_up);
 
 #ifdef USE_DIPSWITCH
 	ini->SetLongValue(SECTION_CONTROL, _T("DipSwitch"), dipswitch, NULL, true);
@@ -1025,6 +1060,7 @@ void Config::save_ini_file(const _TCHAR *ini_file)
 
 #if defined(_X68000)
 	ini->SetLongValue(SECTION_CONTROL, _T("MainRamSize"), main_ram_size_num);
+	ini->SetLongValue(SECTION_CONTROL, _T("InitializeRamMethod"), ram_initialize);
 	ini->SetLongValue(SECTION_SCREEN, _T("RasterInterruptSkew"), raster_int_skew);
 	ini->SetLongValue(SECTION_SCREEN, _T("VerticalDispSkew"), vdisp_skew);
 	ini->SetBoolValue(SECTION_SRAM, _T("ClearWhenPowerOn"), (original & MSK_ORIG_SRAM_CLR_PWRON) != 0);
