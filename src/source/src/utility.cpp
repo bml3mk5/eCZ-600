@@ -648,8 +648,10 @@ size_t chomp_crlf(wchar_t *str)
  * @param [in] maxlen : buffer size of file path
  * @param [in] extensions : extension of file name (such as "txt;doc") (nullable)
  *             Append the first extension of specified parameter to the end of file_path
+ * @param [in] prefix : prefix of file name (nullable)
+ * @param [in] postfix : postfix of file name (front of extension) (nullable)
  */
-void create_date_file_path(const _TCHAR *dir, _TCHAR *file_path, size_t maxlen, const char *extensions)
+void create_date_file_path(const _TCHAR *dir, _TCHAR *file_path, size_t maxlen, const char *extensions, const _TCHAR *prefix, const _TCHAR *postfix)
 {
 	_TCHAR file_name[64];
 
@@ -670,6 +672,9 @@ void create_date_file_path(const _TCHAR *dir, _TCHAR *file_path, size_t maxlen, 
 		cur_time.GetMin(),
 		cur_time.GetSec()
 	);
+	if (postfix != NULL) {
+		UTILITY::tcscat(file_name, 64, postfix);
+	}
 	if (ext_len > 0) {
 		UTILITY::tcscat(file_name, 64, _T("."));
 #ifdef _UNICODE
@@ -685,6 +690,9 @@ void create_date_file_path(const _TCHAR *dir, _TCHAR *file_path, size_t maxlen, 
 
 	if (dir != NULL && _tcslen(dir) + file_name_len < maxlen) {
 		UTILITY::tcscpy(file_path, maxlen, dir);
+	}
+	if (prefix != NULL) {
+		UTILITY::tcscat(file_path, maxlen, prefix);
 	}
 	UTILITY::tcscat(file_path, maxlen, file_name);
 }
@@ -947,7 +955,7 @@ int conv_mbs_to_utf8(const char *srcStart, int srcMaxSize, char *dstStart, int d
 		// no convert
 		if (dstStart != srcStart) {
 			memset(dstStart, 0, dstMaxSize);
-			::strncpy(dstStart, srcStart, dstMaxSize);
+			strncpy(dstStart, dstMaxSize, srcStart, dstMaxSize);
 		}
 		len = (int)strlen(dstStart);
 	}
@@ -972,7 +980,7 @@ int conv_from_api_string(const char *srcStart, int srcMaxSize, char *dstStart, i
 #else
 	if (dstStart != srcStart) {
 		memset(dstStart, 0, dstMaxSize);
-		::strncpy(dstStart, srcStart, dstMaxSize);
+		strncpy(dstStart, dstMaxSize, srcStart, dstMaxSize);
 	}
 	len = (int)strlen(dstStart);
 #endif
@@ -1001,7 +1009,7 @@ int tcs_to_mbs(char *dst, const char *src, int maxSize)
 	memset(dst, 0, sizeof(char) * maxSize);
 	int len = (int)strlen(src);
 	len = (len >= maxSize ? maxSize-1 : len);
-	::strncpy(dst, src, len);
+	strncpy(dst, maxSize, src, len);
 	return len;
 }
 
@@ -1030,7 +1038,7 @@ int conv_utf8_to_mbs(const char *srcStart, int srcMaxSize, char *dstStart, int d
 		// no convert
 		if (srcStart != dstStart) {
 			memset(dstStart, 0, dstMaxSize);
-			::strncpy(dstStart, srcStart, dstMaxSize);
+			strncpy(dstStart, dstMaxSize, srcStart, dstMaxSize);
 		}
 		len = (int)strlen(dstStart);
 	}
@@ -1055,7 +1063,7 @@ int  conv_to_api_string(const char *srcStart, int srcMaxSize, char *dstStart, in
 #else
 	if (srcStart != dstStart) {
 		memset(dstStart, 0, dstMaxSize);
-		::strncpy(dstStart, srcStart, dstMaxSize);
+		strncpy(dstStart, dstMaxSize, srcStart, dstMaxSize);
 	}
 	len = (int)strlen(dstStart);
 #endif
@@ -1080,8 +1088,6 @@ void conv_to_native_path(const char *src, char *dst, int maxSize)
 
 // ----------------------------------------------------------------------
 // string format
-
-#ifdef _UNICODE
 
 /// @brief concatenate words
 ///
@@ -1111,7 +1117,7 @@ const wchar_t *concat(const wchar_t *src, ...) {
 void concatv(wchar_t *dst, size_t max_len, const wchar_t *src, va_list ap) {
 	const wchar_t *src2;
     if (dst != src) UTILITY::wcscpy(dst, max_len, src);
-	for(size_t i=1; (src2 = va_arg(ap, const wchar_t *)) != NULL; i++) {
+	for(size_t i=1; (src2 = va_arg(ap, const wchar_t *)) != NULL && i<256; i++) {
         if (wcslen(dst) + wcslen(src2) >= max_len) break;
         UTILITY::wcscat(dst, max_len, src2);
     }
@@ -1200,8 +1206,6 @@ void wcsncat(wchar_t *dst, size_t max_len, const wchar_t *src, size_t src_count)
 	::wcsncat(dst, src, src_count);
 #endif
 }
-
-#endif /* _UNICODE */
 
 /// @brief concatenate words
 ///
@@ -1357,10 +1361,7 @@ void conv_format(const _TCHAR *format, _TCHAR *wformat, size_t wsize)
 	}
 	wformat[wpos]=_T('\0');
 #else
-	size_t len = _tcslen(format);
-	if (len >= wsize) len = wsize-1;
-	::_tcsncpy(wformat, format, len);
-	wformat[len]=_T('\0');
+	tcscpy(wformat, wsize, format);
 #endif
 }
 
@@ -1592,7 +1593,7 @@ int substr_in_bracket(const _TCHAR *src, _TCHAR *dst, int maxSize)
 	if (len < 0) return -1;
 	if (len >= maxSize-1) len = maxSize-1;
 
-	::_tcsncpy(dst, ps+1, len);
+	tcsncpy(dst, maxSize, ps+1, len);
 	dst[len]=_T('\0');
 
 	return len;
@@ -1937,7 +1938,7 @@ int get_token(const char *str, int start_pos, int max_len, char *word, int word_
 		if (len >= (word_max_len - 1)) len = (word_max_len - 1);
 		word[0] = '\0';
 		if (len > 0) {
-			::strncat(word, &str[st], len);
+			strncat(word, word_max_len, &str[st], len);
 		}
 	}
 	if (word_len) {

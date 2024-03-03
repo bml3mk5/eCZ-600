@@ -125,6 +125,8 @@ void KEYBOARD::initialize()
 #endif
 	}
 
+	clear_joy2joyk_map();
+
 	// load keybind
 	if (load_ini_file() != true) {
 		load_cfg_file();
@@ -137,103 +139,95 @@ void KEYBOARD::initialize()
 	for(; max_tabs < 4 && LABELS::keybind_tab[max_tabs] != CMsg::End; max_tabs++) {}
 
 	int idx = 0;
-	emu->set_parami(VM::ParamVmKeyMapSize0 + idx, (int)(sizeof(kb_scan2key_map) / sizeof(kb_scan2key_map[0])));
-	emu->set_paramv(VM::ParamVmKeyMap0 + idx, (void *)kb_scan2key_map);
+	gKeybind.SetVmKeyMap(idx, kb_scan2key_map, (int)(sizeof(kb_scan2key_map) / sizeof(kb_scan2key_map[0])));
 #ifdef USE_JOYSTICK
 	idx++;
-	emu->set_parami(VM::ParamVmKeyMapSize0 + idx, (int)(sizeof(kb_scan2key_map) / sizeof(kb_scan2key_map[0])));
-	emu->set_paramv(VM::ParamVmKeyMap0 + idx, (void *)kb_scan2key_map);
+	gKeybind.SetVmKeyMap(idx, kb_scan2key_map, (int)(sizeof(kb_scan2key_map) / sizeof(kb_scan2key_map[0])));
 #ifdef USE_PIAJOYSTICK
 	idx++;
 # ifdef USE_PIAJOYSTICKBIT
-	emu->set_parami(VM::ParamVmKeyMapSize0 + idx, (int)(sizeof(kb_sjoy2joybit_map) / sizeof(kb_sjoy2joybit_map[0])));
-	emu->set_paramv(VM::ParamVmKeyMap0 + idx, (void *)kb_sjoy2joybit_map);
+	gKeybind.SetVmKeyMap(idx, kb_sjoy2joybit_map, (int)(sizeof(kb_sjoy2joybit_map) / sizeof(kb_sjoy2joybit_map[0])));
 # else
-	emu->set_parami(VM::ParamVmKeyMapSize0 + idx, (int)(sizeof(kb_sjoy2joy_map) / sizeof(kb_sjoy2joy_map[0])));
-	emu->set_paramv(VM::ParamVmKeyMap0 + idx, (void *)kb_sjoy2joy_map);
+	gKeybind.SetVmKeyMap(idx, kb_sjoy2joy_map, (int)(sizeof(kb_sjoy2joy_map) / sizeof(kb_sjoy2joy_map[0])));
 # endif
 #endif
 #endif
 #ifdef USE_KEY2JOYSTICK
 	idx++;
 # ifdef USE_PIAJOYSTICKBIT
-	emu->set_parami(VM::ParamVmKeyMapSize0 + idx, (int)(sizeof(kb_sjoy2joybit_map) / sizeof(kb_sjoy2joybit_map[0])));
-	emu->set_paramv(VM::ParamVmKeyMap0 + idx, (void *)kb_sjoy2joybit_map);
+	gKeybind.SetVmKeyMap(idx, kb_sjoy2joybit_map, (int)(sizeof(kb_sjoy2joybit_map) / sizeof(kb_sjoy2joybit_map[0])));
 # else
-	emu->set_parami(VM::ParamVmKeyMapSize0 + idx, (int)(sizeof(kb_scan2joy_map) / sizeof(kb_scan2joy_map[0])));
-	emu->set_paramv(VM::ParamVmKeyMap0 + idx, (void *)kb_scan2joy_map);
+	gKeybind.SetVmKeyMap(idx, kb_scan2joy_map, (int)(sizeof(kb_scan2joy_map) / sizeof(kb_scan2joy_map[0])));
 # endif
 #endif
 
 	idx = 0;
-	emu->set_parami(VM::ParamVkKeyMapKeys0 + idx, KEYBIND_KEYS);
+	gKeybind.SetVkKeySize(idx, KEYBIND_KEYS);
 #ifdef USE_JOYSTICK
 	idx++;
-	emu->set_parami(VM::ParamVkKeyMapKeys0 + idx, KEYBIND_KEYS);
+	gKeybind.SetVkKeySize(idx, KEYBIND_KEYS);
 #ifdef USE_PIAJOYSTICK
 	idx++;
-	emu->set_parami(VM::ParamVkKeyMapKeys0 + idx, KEYBIND_JOYS);
+	gKeybind.SetVkKeySize(idx, KEYBIND_JOYS);
 #endif
 #endif
 #ifdef USE_KEY2JOYSTICK
 	idx++;
-	emu->set_parami(VM::ParamVkKeyMapKeys0 + idx, KEYBIND_JOYS);
+	gKeybind.SetVkKeySize(idx, KEYBIND_JOYS);
 #endif
 
-	emu->set_parami(VM::ParamVkKeyMapAssign, KEYBIND_ASSIGN);
 	idx = 0;
-	emu->set_paramv(VM::ParamVkKeyDefMap0 + idx, (void *)scan2key_defmap);
+	gKeybind.SetVkKeyDefMap(idx, scan2key_defmap);
 #ifdef USE_JOYSTICK
 	idx++;
-	emu->set_paramv(VM::ParamVkKeyDefMap0 + idx, (void *)joy2key_defmap);
+	gKeybind.SetVkKeyDefMap(idx, joy2key_defmap);
 #ifdef USE_PIAJOYSTICK
 	idx++;
 # ifdef USE_PIAJOYSTICKBIT
-	emu->set_paramv(VM::ParamVkKeyDefMap0 + idx, (void *)sjoy2joybit_defmap);
+	gKeybind.SetVkKeyDefMap(idx, sjoy2joybit_defmap);
 # else
-	emu->set_paramv(VM::ParamVkKeyDefMap0 + idx, (void *)sjoy2joy_defmap);
+	gKeybind.SetVkKeyDefMap(idx, sjoy2joy_defmap);
 # endif
 #endif
 #endif
 #ifdef USE_KEY2JOYSTICK
 	idx++;
 # ifdef USE_PIAJOYSTICKBIT
-	emu->set_paramv(VM::ParamVkKeyDefMap0 + idx, (void *)scan2joybit_defmap);
+	gKeybind.SetVkKeyDefMap(idx, scan2joybit_defmap);
 # else
-	emu->set_paramv(VM::ParamVkKeyDefMap0 + idx, (void *)scan2joy_defmap);
+	gKeybind.SetVkKeyDefMap(idx, scan2joy_defmap);
 # endif
 #endif
 
 	idx = 0;
-	emu->set_paramv(VM::ParamVkKeyMap0 + idx, (void *)scan2key_map);
+	gKeybind.SetVkKeyMap(idx, scan2key_map);
 #ifdef USE_JOYSTICK
 	idx++;
-	emu->set_paramv(VM::ParamVkKeyMap0 + idx, (void *)joy2key_map);
+	gKeybind.SetVkKeyMap(idx, joy2key_map);
 #ifdef USE_PIAJOYSTICK
 	idx++;
-	emu->set_paramv(VM::ParamVkKeyMap0 + idx, (void *)sjoy2joy_map);
+	gKeybind.SetVkKeyMap(idx, sjoy2joy_map);
 #endif
 #endif
 #ifdef USE_KEY2JOYSTICK
 	idx++;
-	emu->set_paramv(VM::ParamVkKeyMap0 + idx, (void *)scan2joy_map);
+	gKeybind.SetVkKeyMap(idx, scan2joy_map);
 #endif
 
-	emu->set_parami(VM::ParamVkKeyPresets, KEYBIND_PRESETS);
 	for(int i=0; i<KEYBIND_PRESETS; i++) {
 		idx = 0;
-		emu->set_paramv(VM::ParamVkKeyPresetMap00 + i * max_tabs + idx, (void *)scan2key_preset_map[i]);
+		gKeybind.SetVkKeyPresetMap(idx, i, scan2key_preset_map[i]);
 #ifdef USE_JOYSTICK
 		idx++;
-		emu->set_paramv(VM::ParamVkKeyPresetMap00 + i * max_tabs + idx, (void *)joy2key_preset_map[i]);
+		gKeybind.SetVkKeyPresetMap(idx, i, joy2key_preset_map[i]);
 #ifdef USE_PIAJOYSTICK
 		idx++;
-		emu->set_paramv(VM::ParamVkKeyPresetMap00 + i * max_tabs + idx, (void *)sjoy2joy_preset_map[i]);
+		gKeybind.SetVkKeyPresetMap(idx, i, sjoy2joy_preset_map[i]);
 #endif
 #endif
 #ifdef USE_KEY2JOYSTICK
 		idx++;
-		emu->set_paramv(VM::ParamVkKeyPresetMap00 + i * max_tabs + idx, (void *)scan2joy_preset_map[i]);
+		gKeybind.SetVkKeyPresetMap(idx, i, scan2joy_preset_map[i]);
 #endif
 	}
 
@@ -251,25 +245,27 @@ void KEYBOARD::convert_map()
 	emu->clear_vm_key_map();
 	for(int k=0; k<KEYBIND_KEYS; k++) {
 		for(int i=0; i<KEYBIND_ASSIGN; i++) {
-			emu->set_vm_key_map(scan2key_map[k][i], k);
+			emu->set_vm_key_map(scan2key_map[k].d[i], k);
 		}
 	}
 #ifdef USE_PIAJOYSTICK
 	int aidx = -1;
 	emu->clear_joy2joy_idx();
 	for(uint32_t k=0; k<KEYBIND_JOYS; k++) {
-		if (!(sjoy2joy_typemap[k] & 0x1000)) {
-			emu->set_joy2joy_idx(k, sjoy2joy_defmap[k][0]);
+		if (!(sjoy2joy_typemap[k] & (CODE_TABLE_FLAG_JOYKEY | CODE_TABLE_FLAG_JOYANA))) {
+			emu->set_joy2joy_idx(k, sjoy2joy_defidx[k]);
 		}
 	}
 	emu->clear_joy2joy_map();
 	for(uint32_t k=0; k<KEYBIND_JOYS; k++) {
 		for(int i=0; i<KEYBIND_ASSIGN; i++) {
-			if (sjoy2joy_typemap[k] & 0x1000) {
+			if (sjoy2joy_typemap[k] & CODE_TABLE_FLAG_JOYANA) {
 				if (aidx < 0) aidx = k;
-				emu->set_joy2joy_ana_map(i, k - aidx, sjoy2joy_map[k][i]);
+				emu->set_joy2joy_ana_map(i, k - aidx, sjoy2joy_map[k].d[i]);
+			} else if (sjoy2joy_typemap[k] & CODE_TABLE_FLAG_JOYKEY) {
+				set_joy2joyk_map(i, k, sjoy2joy_map[k].d[i]);
 			} else {
-				emu->set_joy2joy_map(i, k, sjoy2joy_map[k][i]);
+				emu->set_joy2joy_map(i, k, sjoy2joy_map[k].d[i]);
 			}
 		}
 	}
@@ -280,10 +276,10 @@ void KEYBOARD::convert_map()
 		for(int i=0; i<KEYBIND_ASSIGN; i++) {
 			if (k >= 0x0c) {
 				// buttons
-				emu->set_key2joy_map(scan2joy_map[k][i], i, (k - 0x0c) | 0x80000000);
+				emu->set_key2joy_map(scan2joy_map[k].d[i], i, (k - 0x0c) | 0x80000000);
 			} else {
 				// allows
-				emu->set_key2joy_map(scan2joy_map[k][i], i, k);
+				emu->set_key2joy_map(scan2joy_map[k].d[i], i, k);
 			}
 		}
 	}
@@ -339,6 +335,17 @@ void KEYBOARD::save_keybind()
 	// save keybind
 	save_cfg_file();
 	save_ini_file();
+}
+
+void KEYBOARD::clear_joy2joyk_map()
+{
+	memset(sjoy2joyk_map, 0, sizeof(sjoy2joyk_map));
+}
+
+void KEYBOARD::set_joy2joyk_map(int num, int idx, uint32_t joy_code)
+{
+	int key_code = (sjoy2joy_typemap[idx] & 0xff);
+	sjoy2joyk_map[key_code].d[num] = joy_code;
 }
 
 /// cfg file is no longer supported.
@@ -764,12 +771,12 @@ uint32_t KEYBOARD::pressing_key(int key_code)
 #if defined(USE_JOYSTICK)
 	if (!pressed && FLG_USEJOYSTICK) {
 		for(i=0; i<MAX_JOYSTICKS; i++) {
-			code = joy2key_map[key_code][i];
+			code = joy2key_map[key_code].d[i];
 			if (code == 0) continue;
 
 			// joypad pressed ?
 			// allow key or button
-			if (!(joy2key_map[KEYBIND_KEYS - 1][0] & 1)) {
+			if (!(joy2key_map[KEYBIND_KEYS - 1].d[0] & 1)) {
 				if ((p_joy_real_stat[i][0] & 0xf & code) == code || (p_joy_real_stat[i][0] & 0xfffffff0 & code) == code) {
 					pressed = PRESS_ON;
 					break;
@@ -779,6 +786,16 @@ uint32_t KEYBOARD::pressing_key(int key_code)
 					pressed = PRESS_ON;
 					break;
 				}
+			}
+		}
+	}
+	if (!pressed && FLG_USEPIAJOYSTICK) {
+		for(i=0; i<MAX_JOYSTICKS; i++) {
+			code = sjoy2joyk_map[key_code].d[i];
+			if (code == 0) continue;
+			if ((p_joy_real_stat[i][0] & 0xf & code) == code || (p_joy_real_stat[i][0] & 0xfffffff0 & code) == code) {
+				pressed = PRESS_ON;
+				break;
 			}
 		}
 	}

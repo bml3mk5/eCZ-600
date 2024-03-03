@@ -147,8 +147,8 @@ CommPort::~CommPort()
 CommPort &CommPort::operator=(const CommPort &src)
 {
 	Close();
-	_tcsncpy(sName, src.sName, sizeof(sName));
-	_tcsncpy(sDesc, src.sDesc, sizeof(sDesc));
+	UTILITY::tcsncpy(sName, sizeof(sName)/sizeof(sName[0]), src.sName, sizeof(sName)/sizeof(sName[0]));
+	UTILITY::tcsncpy(sDesc, sizeof(sDesc)/sizeof(sDesc[0]), src.sDesc, sizeof(sDesc)/sizeof(sDesc[0]));
 	sDcb = src.sDcb;
 	return *this;
 }
@@ -161,7 +161,7 @@ int CommPort::Open()
 
 	TCHAR comfile[16];
 	DWORD attr = FILE_ATTRIBUTE_NORMAL;
-	_stprintf(comfile ,_T("\\\\.\\%s"), sName);
+	UTILITY::stprintf(comfile, sizeof(comfile)/sizeof(comfile[0]), _T("\\\\.\\%s"), sName);
 
 	mux->lock();
 	hComm=CreateFile(comfile, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, attr, NULL);
@@ -293,7 +293,7 @@ int CommPort::SendData(const char *buf, int size)
 		char str[1024];
 		str[0] = '<'; str[1] = '<';
 		for(int i=0, pos = 2; i<(int)wsize && pos < 1021; i++) {
-			sprintf(&str[pos], " %02X", buf[i] & 0xff);
+			UTILITY::sprintf(&str[pos], sizeof(str), " %02X", buf[i] & 0xff);
 			pos += 3;
 		}
 		logging->out_debug(str);
@@ -419,7 +419,7 @@ int CommPort::RecvData(char *buf, int size)
 		char str[1024];
 		str[0] = '>'; str[1] = '>';
 		for(int i=0, pos = 2; i<(int)rsize && pos < 1021; i++) {
-			sprintf(&str[pos], " %02X", buf[i] & 0xff);
+			UTILITY::sprintf(&str[pos], sizeof(str), " %02X", buf[i] & 0xff);
 			pos += 3;
 		}
 		logging->out_debug(str);

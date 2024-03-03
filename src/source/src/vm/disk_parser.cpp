@@ -381,7 +381,7 @@ bool TELEDISK_PARSER::convert_to_d88(uint8_t *buffer, size_t buffer_size, int &d
 		MEDIA_TYPE_2D, MEDIA_TYPE_2HD, MEDIA_TYPE_2DD, MEDIA_TYPE_2HD
 	};
 	memset(&d88_hdr, 0, sizeof(d88_hdr_t));
-	strcpy(d88_hdr.title, "TELEDISK");
+	UTILITY::strcpy(d88_hdr.title, sizeof(d88_hdr.title), "TELEDISK");
 	d88_hdr.protect = 0; // non-protected
 	d88_hdr.media_type = (hdr.type >= 1 && hdr.type <= 4) ? media_types[hdr.type - 1] : MEDIA_TYPE_UNK;
 	COPYBUFFER(buffer, buffer_size, d88_file_size, &d88_hdr, sizeof(d88_hdr_t));
@@ -554,7 +554,7 @@ bool DISK_PARSER::imagedisk_to_d88()
 
 	// create d88 header
 	memset(&d88_hdr, 0, sizeof(d88_hdr_t));
-	strcpy(d88_hdr.title, "IMAGEDISK");
+	UTILITY::strcpy(d88_hdr.title, sizeof(d88_hdr.title), "IMAGEDISK");
 	d88_hdr.protect = 0; // non-protected
 	d88_hdr.media_type = MEDIA_TYPE_UNK; // TODO
 	COPYBUFFER(p_buffer, m_buffer_size, file_size, &d88_hdr, sizeof(d88_hdr_t));
@@ -662,7 +662,7 @@ bool DISK_PARSER::cpdread_to_d88(int extended)
 
 	// create d88 header
 	memset(&d88_hdr, 0, sizeof(d88_hdr_t));
-	strcpy(d88_hdr.title, "CPDRead");
+	UTILITY::strcpy(d88_hdr.title, sizeof(d88_hdr.title), "CPDRead");
 	d88_hdr.protect = 0; // non-protected
 	d88_hdr.media_type = MEDIA_TYPE_UNK; // TODO
 	COPYBUFFER(p_buffer, m_buffer_size, file_size, &d88_hdr, sizeof(d88_hdr_t));
@@ -740,7 +740,7 @@ bool DISK_PARSER::standard_to_d88(const fd_format_t *param)
 
 	// create d88 header
 	memset(&d88_hdr, 0, sizeof(d88_hdr_t));
-	strcpy(d88_hdr.title, "STANDARD");
+	UTILITY::strcpy(d88_hdr.title, sizeof(d88_hdr.title), "STANDARD");
 	d88_hdr.protect = 0; // non-protected
 	d88_hdr.media_type = param->media_type;
 	COPYBUFFER(p_buffer, m_buffer_size, file_size, &d88_hdr, sizeof(d88_hdr_t));

@@ -8,6 +8,7 @@
 #define _USE_MATH_DEFINES 1
 #include <math.h>
 #include "parsewav.h"
+#include "../utility.h"
 
 namespace PARSEWAV
 {
@@ -49,6 +50,16 @@ ParseWav::~ParseWav()
 	delete wave_data;
 }
 
+/// @brief エラーメッセージ一覧
+const _TCHAR *ParseWav::c_errmsgs[] = {
+	_T(""),
+	_T("File not found."),
+	_T("This is not the wav file which is formatted linear PCM."),
+	_T("This is not the frequency between 11025 and 48000Hz."),
+	_T("Cannot write to file."),
+	NULL
+};
+
 /// @brief エラーメッセージを出力
 ///
 /// @return エラーメッセージへのポインタ
@@ -59,30 +70,10 @@ _TCHAR* ParseWav::Errmsg()
 {
 	static _TCHAR str[1024];
 
-	switch(err_num) {
-		case 0:
-			// no error
-			_tcscpy(str,_T(""));
-			break;
-		case 1:
-			_tcscpy(str,_T("File not found."));
-			break;
-		case 2:
-			_tcscpy(str,_T("This is not the wav file which is formatted linear PCM."));
-			break;
-		case 3:
-			_tcscpy(str,_T("This is not the frequency between 11025 and 48000Hz."));
-			break;
-		case 4:
-			_tcscpy(str,_T("Cannot write to file."));
-			break;
-		default:
-#ifdef _UNICODE
-			swprintf(str,1024,_T("Unknown error: %d"),err_num);
-#else
-			sprintf(str,_T("Unknown error: %d"),err_num);
-#endif
-			break;
+	if (err_num >= 0 && err_num <= 4) {
+		UTILITY::tcscpy(str, sizeof(str)/sizeof(_TCHAR), c_errmsgs[err_num]);
+	} else {
+		UTILITY::stprintf(str, sizeof(str)/sizeof(_TCHAR), _T("Unknown error: %d"), err_num);
 	}
 	return str;
 }

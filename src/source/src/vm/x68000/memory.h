@@ -118,6 +118,8 @@ private:
 	};
 #pragma pack()
 
+	static void clear_main_memory(int method, uint16_t *buf, size_t size);
+	static void clear_graphic_memory(int method, uint16_t *buf, size_t size);
 	static void clear_ram(uint16_t *buf, size_t size);
 
 	void load_rom_files();
@@ -136,6 +138,9 @@ private:
 	inline void write_data_nw(uint32_t addr, uint32_t data, int *wait, int width);
 	inline uint32_t read_data_nw(uint32_t addr, int *wait, int width);
 	inline uint32_t debug_read_data_nw(int type, uint32_t addr, int width);
+
+	inline void write_sram(uint32_t addrh, uint32_t data, uint32_t mask);
+	inline void write_sram_and_check_warn(uint32_t addrh, uint32_t data, uint32_t mask, uint16_t check_mask, int msg_id);
 
 	inline void write_tvram(uint32_t addrh, uint32_t data, uint32_t mask);
 	inline void write_gvram0(uint32_t addrh, uint32_t data, uint32_t mask);
@@ -384,9 +389,10 @@ public:
 	bool debug_write_reg(int type, uint32_t reg_num, uint32_t data);
 	void debug_regs_info(int type, _TCHAR *buffer, size_t buffer_len);
 
-	int  get_debug_graphic_memory_size(int type, int *width, int *height);
+	int  get_debug_graphic_memory_size(int num, int type, int *width, int *height);
 	bool debug_graphic_type_name(int type, _TCHAR *buffer, size_t buffer_len);
 	bool debug_draw_graphic(int type, int width, int height, scrntype *buffer);
+	bool debug_dump_graphic(int type, int width, int height, uint16_t *buffer);
 
 	uint32_t debug_basic_get_line_number_ptr();
 	uint32_t debug_basic_get_line_number();

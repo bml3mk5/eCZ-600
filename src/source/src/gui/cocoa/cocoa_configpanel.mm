@@ -90,7 +90,7 @@ extern GUI *gui;
 	hbox = [vbox addBox:HorizontalBox :MiddlePos :0 :_T("Size")];
 	[CocoaLabel createI:hbox title:CMsg::RAM_Size_ASTERISK];
 	popMainRam = [CocoaPopUpButton createI:hbox items:LABELS::main_ram_size action:nil selidx:emu->get_parami(VM::ParamMainRamSizeNum) width:120];
-	if (0 <= pConfig->main_ram_size_num && pConfig->main_ram_size_num <= 4) {
+	if (0 <= pConfig->main_ram_size_num && pConfig->main_ram_size_num <= 5) {
 		char str[128];
 		strcpy(str, CMSG(LB_Now_SP));
 		strcat(str, gMessages.Get(LABELS::main_ram_size[pConfig->main_ram_size_num]));
@@ -147,7 +147,7 @@ extern GUI *gui;
 	[CocoaLabel createT:hbox title:_T(" ")];
 	chkSRAMSave = [CocoaCheckBox createI:hbox title:CMsg::Save_SRAM_when_power_off action:nil value:FLG_ORIG_SRAM_SAVE_PWROFF != 0];
 	hbox = [vbox addBox:HorizontalBox :MiddlePos :0 :_T("SRAM12")];
-	chkSRAMChanged = [CocoaCheckBox createI:hbox title:CMsg::Show_message_when_boot_device_was_changed action:nil value:FLG_ORIG_SRAM_CHG_BOOT_DEV != 0];
+	chkSRAMChanged = [CocoaCheckBox createI:hbox title:CMsg::Show_message_when_parameters_related_on_start_up_was_changed action:nil value:FLG_ORIG_SRAM_CHG_BOOT_DEV != 0];
 
 	// parameters in SRAM
 	VM *vm = emu->get_vm();
@@ -341,9 +341,13 @@ extern GUI *gui;
 
 	vbox = [bbox addBox:VerticalBox :0 :0 :_T("CRTCV")];
 
-	hbox = [vbox addBox:HorizontalBox :MiddlePos :0 :_T("RasterSkew")];
-	[CocoaLabel createI:hbox title:CMsg::Raster_Interrupt_Skew];
-	txtRasterSkew = [CocoaTextField createN:hbox num:pConfig->raster_int_skew action:nil width:80];
+	hbox = [vbox addBox:HorizontalBox :MiddlePos :0 :_T("RasSkewV")];
+	[CocoaLabel createI:hbox title:CMsg::Raster_Interrupt_Vertical_Skew];
+	txtRasterSkewV = [CocoaTextField createN:hbox num:pConfig->raster_int_vskew action:nil width:80];
+
+	hbox = [vbox addBox:HorizontalBox :MiddlePos :0 :_T("RasSkewH")];
+	[CocoaLabel createI:hbox title:CMsg::Raster_Interrupt_Horizontal_Skew];
+	txtRasterSkewH = [CocoaTextField createN:hbox num:pConfig->raster_int_hskew action:nil width:80];
 
 	hbox = [vbox addBox:HorizontalBox :MiddlePos :0 :_T("VertSkew")];
 	[CocoaLabel createI:hbox title:CMsg::Vertical_Disp_Skew];
@@ -617,7 +621,7 @@ extern GUI *gui;
 
 - (void)close
 {
-	[NSApp stopModalWithCode:NSModalResponseCancel]; //NSCancelButton
+	[NSApp stopModalWithCode:NSModalResponseCancel];
 	[super close];
 }
 
@@ -628,40 +632,40 @@ extern GUI *gui;
 //	int val;
 
 	// set data
-	pConfig->use_power_off = ([chkPowerOff state] == NSOnState);
+	pConfig->use_power_off = ([chkPowerOff state] == NSControlStateValueOn);
 
 	// power state when start up
 	pConfig->power_state_when_start_up = (int)[popPowerState indexOfSelectedItem];
 
 	pConfig->rom_path.Set([[txtROMPath stringValue] UTF8String]);
 
-	BIT_ONOFF(pConfig->misc_flags, MSK_SHOWMSG_ADDRERR, [chkAddrErr state] == NSOnState);
+	BIT_ONOFF(pConfig->misc_flags, MSK_SHOWMSG_ADDRERR, [chkAddrErr state] == NSControlStateValueOn);
 
 	emu->set_parami(VM::ParamMainRamSizeNum, (int)[popMainRam indexOfSelectedItem]);
 
 #ifdef USE_FD1
 	for(i=0;i<MAX_DRIVE;i++) {
-		pConfig->mount_fdd = (([chkFddMount[i] state] == NSOnState) ? pConfig->mount_fdd | (1 << i) : pConfig->mount_fdd & ~(1 << i));
+		pConfig->mount_fdd = (([chkFddMount[i] state] == NSControlStateValueOn) ? pConfig->mount_fdd | (1 << i) : pConfig->mount_fdd & ~(1 << i));
 	}
-	pConfig->option_fdd = ([chkDelayFd1 state] == NSOnState ? MSK_DELAY_FDSEARCH : 0)
-					| ([chkDelayFd2 state] == NSOnState ? MSK_DELAY_FDSEEK : 0)
-					| ([chkFdDensity state] == NSOnState ? 0 : MSK_CHECK_FDDENSITY)
-					| ([chkFdMedia state] == NSOnState ? 0 : MSK_CHECK_FDMEDIA)
-					| ([chkFdSavePlain state] == NSOnState ? MSK_SAVE_FDPLAIN : 0);
+	pConfig->option_fdd = ([chkDelayFd1 state] == NSControlStateValueOn ? MSK_DELAY_FDSEARCH : 0)
+		| ([chkDelayFd2 state] == NSControlStateValueOn ? MSK_DELAY_FDSEEK : 0)
+		| ([chkFdDensity state] == NSControlStateValueOn ? 0 : MSK_CHECK_FDDENSITY)
+		| ([chkFdMedia state] == NSControlStateValueOn ? 0 : MSK_CHECK_FDMEDIA)
+		| ([chkFdSavePlain state] == NSControlStateValueOn ? MSK_SAVE_FDPLAIN : 0);
 #endif
 
 #ifdef USE_HD1
 	for(i=0;i<MAX_HARD_DISKS;i++) {
-		pConfig->mount_hdd = (([chkHddMount[i] state] == NSOnState) ? pConfig->mount_hdd | (1 << i) : pConfig->mount_hdd & ~(1 << i));
+		pConfig->mount_hdd = (([chkHddMount[i] state] == NSControlStateValueOn) ? pConfig->mount_hdd | (1 << i) : pConfig->mount_hdd & ~(1 << i));
 	}
-	pConfig->option_hdd = ([chkDelayHd2 state] == NSOnState ? MSK_DELAY_HDSEEK : 0);
+	pConfig->option_hdd = ([chkDelayHd2 state] == NSControlStateValueOn ? MSK_DELAY_HDSEEK : 0);
 #endif
 
 #if 0
 	for(i=IOPORT_STARTNUM;i<IOPORT_NUMS;i++) {
 		if ((1 << i) & IOPORT_MSK_ALL) {
 			val = emu->get_parami(VM::ParamIOPort);
-			if ([chkIOPort[i] state] == NSOnState) {
+			if ([chkIOPort[i] state] == NSControlStateValueOn) {
 				val |= (1 << i);
 			} else {
 				val &= ~(1 << i);
@@ -679,9 +683,13 @@ extern GUI *gui;
 
 	// crtc
 #if defined(_X68000)
-	valuel = [txtRasterSkew intValue];
+	valuel = [txtRasterSkewV intValue];
 	if (-128 <= valuel && valuel <= 128) {
-		pConfig->raster_int_skew = valuel;
+		pConfig->raster_int_vskew = valuel;
+	}
+	valuel = [txtRasterSkewH intValue];
+	if (-512 <= valuel && valuel <= 512) {
+		pConfig->raster_int_hskew = valuel;
 	}
 	valuel = [txtVertSkew intValue];
 	if (-128 <= valuel && valuel <= 128) {
@@ -704,16 +712,16 @@ extern GUI *gui;
 	}
 
 	// border color
-	BIT_ONOFF(pConfig->original, MSK_ORIG_BORDER_COLOR, [chkBorderColor state] == NSOnState);
+	BIT_ONOFF(pConfig->original, MSK_ORIG_BORDER_COLOR, [chkBorderColor state] == NSControlStateValueOn);
 
 	// language
 	valuel = (int)[popLanguage indexOfSelectedItem];
 	clocale->ChooseLocaleName(lang_list, valuel, pConfig->language);
 
 #ifdef USE_DATAREC
-	pConfig->wav_reverse = ([chkReverseWave state] == NSOnState);
-	pConfig->wav_half = ([chkHalfWave state] == NSOnState);
-//	pConfig->wav_correct = ([chkCorrectWave state] == NSOnState);
+	pConfig->wav_reverse = ([chkReverseWave state] == NSControlStateValueOn);
+	pConfig->wav_half = ([chkHalfWave state] == NSControlStateValueOn);
+//	pConfig->wav_correct = ([chkCorrectWave state] == NSControlStateValueOn);
 	pConfig->wav_correct = ([radCorrect selectedColumn] == 0);
 	pConfig->wav_correct_type = [radCorrect selectedColumn];
 	pConfig->wav_correct_type = (pConfig->wav_correct_type > 0 ? pConfig->wav_correct_type - 1 : 0);
@@ -775,9 +783,9 @@ extern GUI *gui;
 	uint32_t valueu = 0;
 	char *endptr = NULL;
 
-	BIT_ONOFF(pConfig->original, MSK_ORIG_SRAM_CLR_PWRON, [chkSRAMClear state] == NSOnState);
-	BIT_ONOFF(pConfig->original, MSK_ORIG_SRAM_SAVE_PWROFF, [chkSRAMSave state] == NSOnState);
-	BIT_ONOFF(pConfig->original, MSK_ORIG_SRAM_CHG_BOOT_DEV, [chkSRAMChanged state] == NSOnState);
+	BIT_ONOFF(pConfig->original, MSK_ORIG_SRAM_CLR_PWRON, [chkSRAMClear state] == NSControlStateValueOn);
+	BIT_ONOFF(pConfig->original, MSK_ORIG_SRAM_SAVE_PWROFF, [chkSRAMSave state] == NSControlStateValueOn);
+	BIT_ONOFF(pConfig->original, MSK_ORIG_SRAM_CHG_BOOT_DEV, [chkSRAMChanged state] == NSControlStateValueOn);
 	
 	// ROM start address
 	valueu = (uint32_t)strtol([[txtSramRomStartAddr stringValue] UTF8String], &endptr, 16);
@@ -804,7 +812,7 @@ extern GUI *gui;
 	vm->set_sram_rs232c(valueu);
 
 	// alarm
-	vm->set_sram_alarm_onoff([chkSramAlarm state] == NSOnState);
+	vm->set_sram_alarm_onoff([chkSramAlarm state] == NSControlStateValueOn);
 
 	// contrast
 	valuel = [stpSramContrast intValue];
@@ -813,7 +821,7 @@ extern GUI *gui;
 	}
 
 	// eject fd
-	vm->set_sram_fd_eject([chkSramFdEject state] == NSOnState ? 1 : 0);
+	vm->set_sram_fd_eject([chkSramFdEject state] == NSControlStateValueOn ? 1 : 0);
 
 	// purpose of SRAM free area
 	vm->set_sram_purpose((int)[popSramPurpose indexOfSelectedItem]);
@@ -826,13 +834,13 @@ extern GUI *gui;
 
 	// key LED
 	valuel = 0;
-	valuel |= [chkSramKLEDkana state] == NSOnState ? 1 : 0;
-	valuel |= [chkSramKLEDromaji state] == NSOnState ? 2 : 0;
-	valuel |= [chkSramKLEDcinput state] == NSOnState ? 4 : 0;
-	valuel |= [chkSramKLEDcaps state] == NSOnState ? 8 : 0;
-	valuel |= [chkSramKLEDins state] == NSOnState ? 16 : 0;
-	valuel |= [chkSramKLEDhira state] == NSOnState ? 32 : 0;
-	valuel |= [chkSramKLEDzen state] == NSOnState ? 64 : 0;
+	valuel |= [chkSramKLEDkana state] == NSControlStateValueOn ? 1 : 0;
+	valuel |= [chkSramKLEDromaji state] == NSControlStateValueOn ? 2 : 0;
+	valuel |= [chkSramKLEDcinput state] == NSControlStateValueOn ? 4 : 0;
+	valuel |= [chkSramKLEDcaps state] == NSControlStateValueOn ? 8 : 0;
+	valuel |= [chkSramKLEDins state] == NSControlStateValueOn ? 16 : 0;
+	valuel |= [chkSramKLEDhira state] == NSControlStateValueOn ? 32 : 0;
+	valuel |= [chkSramKLEDzen state] == NSControlStateValueOn ? 64 : 0;
 	vm->set_sram_key_led(valuel);
 
 	// number of SASI HDDs
@@ -860,7 +868,7 @@ extern GUI *gui;
 #endif
 
 	// OK button is pushed
-	[NSApp stopModalWithCode:NSModalResponseOK]; // NSOKButton
+	[NSApp stopModalWithCode:NSModalResponseOK];
 	[super close];
 }
 
@@ -889,7 +897,7 @@ extern GUI *gui;
 	// Display modal dialog
 	result = [panel runModal];
 
-	if(result == NSModalResponseOK) { // OK
+	if(result == NSModalResponseOK) {
 		// get file path (use NSURL)
 		NSURL *filePath = [panel URL];
 
@@ -922,7 +930,7 @@ extern GUI *gui;
 	// Display modal dialog
 	result = [panel runModal];
 
-	if(result == NSModalResponseOK) { // OK
+	if(result == NSModalResponseOK) {
 		// get file path (use NSURL)
 		NSURL *filePath = [panel URL];
 		NSArray *arr = [filePath pathComponents];
@@ -966,7 +974,7 @@ extern GUI *gui;
 {
 	int idx = [sender index];
 	for(int i=0; i<2; i++) {
-		[radSysMode[i] setState:(i == idx ? NSOnState : NSOffState)];
+		[radSysMode[i] setState:(i == idx ? NSControlStateValueOn : NSControlStateValueOff)];
 	}
 }
 - (void)selectFmOpn:(CocoaCheckBox *)sender
@@ -1001,7 +1009,7 @@ extern GUI *gui;
 
 - (void)selectCorrect:(CocoaCheckBox *)sender
 {
-//	if ([sender state] == NSOnState) {
+//	if ([sender state] == NSControlStateValueOn) {
 //		[radCorrect setEnabled:YES];
 //	} else {
 //		[radCorrect setEnabled:NO];

@@ -308,7 +308,7 @@
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Manifest>
       <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
@@ -344,7 +344,7 @@
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Manifest>
       <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
@@ -380,7 +380,7 @@
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Manifest>
       <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
@@ -416,7 +416,7 @@
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Manifest>
       <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
@@ -454,7 +454,7 @@
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Manifest>
       <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
@@ -492,7 +492,7 @@
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Manifest>
       <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
@@ -531,7 +531,7 @@
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Manifest>
       <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
@@ -570,7 +570,7 @@
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_DEBUG_LOG;_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Manifest>
       <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
@@ -602,7 +602,7 @@
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Manifest>
       <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
@@ -634,7 +634,7 @@
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Manifest>
       <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
@@ -666,7 +666,7 @@
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Manifest>
       <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
@@ -698,7 +698,7 @@
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Manifest>
       <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
@@ -733,7 +733,7 @@
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Manifest>
       <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
@@ -768,7 +768,7 @@
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_X68000;USE_SDL;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Manifest>
       <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
@@ -803,7 +803,7 @@
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Manifest>
       <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
@@ -838,7 +838,7 @@
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IncludePath);$(SDLDir)include;$(SDLTtfDir);$(SDLNetDir);$(LibIntlDir)include;$(GLEWDir)include;$(FFMpegDir)include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_X68000;USE_SDL2;GUI_TYPE_WINDOWS;USE_OPENGL;USE_GETTEXT;USE_DEBUGGER;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Manifest>
       <AdditionalManifestFiles>$(SolutionDir)\..\src\res\windows\style_x86.manifest</AdditionalManifestFiles>
@@ -904,6 +904,7 @@
     <ClCompile Include="..\src\osd\emu_input_keysym.cpp" />
     <ClCompile Include="..\src\osd\emu_screen.cpp" />
     <ClCompile Include="..\src\osd\emu_sound.cpp" />
+    <ClCompile Include="..\src\osd\keybind.cpp" />
     <ClCompile Include="..\src\osd\logging.cpp" />
     <ClCompile Include="..\src\osd\opengl.cpp" />
     <ClCompile Include="..\src\osd\parseopt.cpp" />
@@ -1050,6 +1051,7 @@
     <ClInclude Include="..\src\osd\d88_files.h" />
     <ClInclude Include="..\src\osd\debugger_console.h" />
     <ClInclude Include="..\src\osd\emu_input.h" />
+    <ClInclude Include="..\src\osd\keybind.h" />
     <ClInclude Include="..\src\osd\opengl.h" />
     <ClInclude Include="..\src\osd\parseopt.h" />
     <ClInclude Include="..\src\osd\screenmode.h" />

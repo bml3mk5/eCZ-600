@@ -238,8 +238,17 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 
   書式: DIS <type>
   <type> - メモリの種類を指定。
-  保存ファイルはYYYY-MM-DD_HH-MI-SS.bmpまたは.pngとなります。
+  保存ファイルはYYYY-MM-DD_HH-MI-SS_NN.bmpまたは.pngとなります。
   ファイル形式は設定ダイアログにて指定した形式となります。
+  スナップショットパスを設定している場合は、そのフォルダ内に保存されます。  
+
+
+  ◆ DDIS - メモリ内容をテキストファイルにセーブする。
+            画像をパレット番号の配列で出力します。
+
+  書式: DDIS <type>
+  <type> - メモリの種類を指定。
+  保存ファイルはYYYY-MM-DD_HH-MI-SS_NN.txtとなります。
   スナップショットパスを設定している場合は、そのフォルダ内に保存されます。  
 
 

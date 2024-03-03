@@ -159,7 +159,7 @@ void FileBox::set_file_filter(const char *filter, bool save, _TCHAR *fil_str, _T
 	int ext_nums = 0;
 
 	int pos = 0;
-	strcpy(word, "*.");
+	UTILITY::strcpy(word, 8, "*.");
 	if (!save) {
 		// load dialog
 		do {

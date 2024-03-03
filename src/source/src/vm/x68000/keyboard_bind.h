@@ -11,10 +11,11 @@
 
 #include "../vm.h"
 #include "../../keycode.h"
+#include "../../osd/keybind.h"
 
 #define VK_KEY_TYPE "X68K"
 
-static const uint32_t scan2key_defmap[KEYBIND_KEYS][KEYBIND_ASSIGN]={
+static const uint32_key_assign_t scan2key_defmap[KEYBIND_KEYS]={
 // 0x00 - 0x0F
 	{0x00,                  0x00}, // 0x00,
 	{KEYCODE_ESCAPE,        0x00}, // 0x01, esc
@@ -198,8 +199,8 @@ static const uint32_t scan2key_defmap[KEYBIND_KEYS][KEYBIND_ASSIGN]={
 	{0x00,                  0x00}  // 0x87, (property)
 };
 
-/// joypad button -> key assign
-static const uint32_t joy2key_defmap[KEYBIND_KEYS][KEYBIND_ASSIGN]={
+/// joypad button -> key scancode assign
+static const uint32_key_assign_t joy2key_defmap[KEYBIND_KEYS]={
 //               esc         1           2           3           4           5           6
 //   0x00,       0x01,       0x02,       0x03,       0x04,       0x05,       0x06,       0x07,
 	{0x00,0x00},{0x00,0x00},{0x00,0x00},{0x00,0x00},{0x00,0x00},{0x00,0x00},{0x00,0x00},{0x00,0x00},
@@ -253,15 +254,52 @@ static const uint32_t joy2key_defmap[KEYBIND_KEYS][KEYBIND_ASSIGN]={
 	{0x00,0x00},{0x00,0x00},{0x00,0x00},{0x00,0x00},{0x00,0x00},{0x00,0x00},{0x00,0x00},{0x00,0x00}
 };
 
+/// 0x1000 is analog stick
 static const uint16_t sjoy2joy_typemap[KEYBIND_JOYS] = {
 	0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0x1000, 0x1000, 0x1000, 0x1000, 0, 0,
+	0, 0, 0x1000, 0x1000, 0x1000, 0x1000, 0x801, 0x880,
 	0, 0
 };
 
+/// joypad button -> joystick index
+static const uint32_t sjoy2joy_defidx[KEYBIND_JOYS] = {
+// 0x00- 0x07
+	JOYCODE_UP,			// 0x00 up
+	JOYCODE_DOWN,		// 0x01 down
+	JOYCODE_LEFT,		// 0x02 left
+	JOYCODE_RIGHT,		// 0x03 right
+	JOYCODE_R_UP,		// 0x04 yet another up
+	JOYCODE_R_DOWN,		// 0x05 yet another down
+	JOYCODE_Z_LEFT,		// 0x06 yet another left
+	JOYCODE_Z_RIGHT,	// 0x07 yet another right
+// 0x08 - 0x0f
+	JOYCODE_BTN_A,		// 0x08 button A
+	JOYCODE_BTN_B,		// 0x09 button B
+	JOYCODE_BTN_C,		// 0x0A button C
+	JOYCODE_BTN_D,		// 0x0B button X
+	JOYCODE_BTN_E,		// 0x0C button Y
+	JOYCODE_BTN_F,		// 0x0D button Z
+	JOYCODE_BTN_G,		// 0x0E button L
+	JOYCODE_BTN_H,		// 0x0F button R
+// 0x10 - 0x17
+	JOYCODE_BTN_I,		// 0x10 select
+	JOYCODE_BTN_J,		// 0x11 start
+	JOYCODE_ANA_X,		// 0x12 left analog X
+	JOYCODE_ANA_Y,		// 0x13 left analog Y
+	JOYCODE_ANA_Z,		// 0x14 right analog X
+	JOYCODE_ANA_R,		// 0x15 right analog Y
+	0x00,				// 0x16 ESC key
+	0x00,				// 0x17 Pause
+// 0x18 - 0x1b
+	0x00,				
+	0x00,				
+	0x00,				
+	0x00				// property
+};
+
 /// joypad button -> PPI joystick assign
-static const uint32_t sjoy2joy_defmap[KEYBIND_JOYS][KEYBIND_ASSIGN] = {
+static const uint32_key_assign_t sjoy2joy_defmap[KEYBIND_JOYS] = {
 // 0x00- 0x07
 	{JOYCODE_UP,		JOYCODE_UP},		// 0x00 up
 	{JOYCODE_DOWN,		JOYCODE_DOWN},		// 0x01 down
@@ -287,8 +325,8 @@ static const uint32_t sjoy2joy_defmap[KEYBIND_JOYS][KEYBIND_ASSIGN] = {
 	{JOYCODE_ANA_Y,		JOYCODE_ANA_Y},		// 0x13 left analog Y
 	{JOYCODE_ANA_Z,		JOYCODE_ANA_Z},		// 0x14 right analog X
 	{JOYCODE_ANA_R,		JOYCODE_ANA_R},		// 0x15 right analog Y
-	{0x00,				0x00},
-	{0x00,				0x00},
+	{JOYCODE_BTN_K,		0x00},				// 0x01 ESC key
+	{JOYCODE_BTN_L,		0x00},				// 0x80 Pause
 // 0x18 - 0x1b
 	{0x00,				0x00},
 	{0x00,				0x00},
@@ -297,7 +335,7 @@ static const uint32_t sjoy2joy_defmap[KEYBIND_JOYS][KEYBIND_ASSIGN] = {
 };
 
 /// keyboard -> PPI joystick assign
-static const uint32_t scan2joy_defmap[KEYBIND_JOYS][KEYBIND_ASSIGN] = {
+static const uint32_key_assign_t scan2joy_defmap[KEYBIND_JOYS] = {
 // 0x00- 0x07
 	{0x00,				0x00},				// 0x00
 	{KEYCODE_KP_8,		KEYCODE_UP},		// 0x01 up
@@ -333,6 +371,9 @@ static const uint32_t scan2joy_defmap[KEYBIND_JOYS][KEYBIND_ASSIGN] = {
 };
 
 /// for keybind dialog box
+///
+/// @note index is number in sVmKeyLabels[] on gui_keybinddata.cpp
+/// @note Value of each items means the scancode on VM
 static const uint16_t kb_scan2key_map[128] = {
 //  0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
 //  0x0
@@ -354,10 +395,12 @@ static const uint16_t kb_scan2key_map[128] = {
 };
 
 /// @note index is number in enVmJoyLabels using cVmJoyLabels[]
+/// 0x0800 : CODE_TABLE_FLAG_JOYKEY
+/// 0x1000 : CODE_TABLE_FLAG_JOYANA
 static const uint16_t kb_sjoy2joy_map[] = {
-//  0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
-	0xff,0x00,0xff,0x03,0xff,0x01,0xff,0x02,0xff,0x04,0xff,0x07,0xff,0x05,0xff,0x06,
-	0xff,0xff,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f,0x10,0x11,0xff,
+//  0      1      2      3      4      5      6      7      8      9      a      b      c      d      e      f
+	0xff,  0x00,  0xff,  0x03,  0xff,  0x01,  0xff,  0x02,  0xff,  0x04,  0xff,  0x07,  0xff,  0x05,  0xff,  0x06,
+	0xff,  0xff,  0x08,  0x09,  0x0a,  0x0b,  0x0c,  0x0d,  0x0e,  0x0f,  0x10,  0x11,  0xff,  0x816, 0x817, 0xff,
 	0x1012,0x1013,0x1014,0x1015
 };
 
@@ -366,5 +409,5 @@ static const uint16_t kb_scan2joy_map[] = {
 //  0     1     2     3     4     5     6     7     8     9     a     b     c     d     e     f
 	0xff, 0x01, 0x09, 0x08, 0x0a, 0x02, 0x06, 0x04, 0x05, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 	0xff, 0xff, 0x10c,0x10d,0x10e,0x10f,0x110,0x111,0x112,0x113,0x114,0x115,0xff, 0xff, 0xff, 0xff,
-	0xff
+	0xff, 0xff, 0xff, 0xff
 };

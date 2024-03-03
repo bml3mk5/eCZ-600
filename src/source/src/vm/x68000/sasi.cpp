@@ -174,8 +174,12 @@ void SASI::select_control(uint32_t data)
 			break;
 		}
 	}
+	bool mounted = false;
 	if (d_selected_ctrl) {
-		d_selected_ctrl->select();
+		mounted = d_selected_ctrl->select();
+	}
+	if (!mounted) {
+		d_selected_ctrl = NULL;
 	}
 	OUT_DEBUG_SEL(_T("SASI: Select: Req:%02X Select:%d Status:%04X"), data, d_selected_ctrl ? id : -1, m_signal_status); 
 }
@@ -325,13 +329,24 @@ bool SASI::disk_mounted(int drv)
 
 bool SASI::is_same_disk(int drv, const _TCHAR *path)
 {
+	int id = (drv / SASI_CTRL::UNITS_PER_CTRL);
+	if (id >= (int)d_ctrls->size()) return false;
+	int unit_num = (drv % SASI_CTRL::UNITS_PER_CTRL);
+	return d_ctrls->at(id)->is_same_disk(unit_num, path);
+}
+
+/// Is the disk already mounted on another drive?
+int SASI::mounted_disk_another_drive(int drv, const _TCHAR *path)
+{
 	int curr_id = (drv / SASI_CTRL::UNITS_PER_CTRL);
 	int curr_unit = (drv % SASI_CTRL::UNITS_PER_CTRL);
-	bool match = false;
-	for(int id=0; id<(int)d_ctrls->size() && !match; id++) {
-		for(int unit_num=0; unit_num<SASI_CTRL::UNITS_PER_CTRL && !match; unit_num++) {
+	int match = -1;
+	for(int id=0; id<(int)d_ctrls->size() && match < 0; id++) {
+		for(int unit_num=0; unit_num<SASI_CTRL::UNITS_PER_CTRL && match < 0; unit_num++) {
 			if (curr_id == id && curr_unit == unit_num) continue;
-			match = d_ctrls->at(id)->is_same_disk(unit_num, path);
+			if (d_ctrls->at(id)->is_same_disk(unit_num, path)) {
+				match = id * SASI_CTRL::UNITS_PER_CTRL + unit_num;
+			}
 		}
 	}
 	return match;
@@ -1385,7 +1400,7 @@ uint32_t SASI_CTRL::debug_read_data()
 	return m_send_data[m_send_data_pos];
 }
 
-const _TCHAR *c_phase_label[] = {
+static const _TCHAR *c_phase_label[] = {
 	_T("BUSFREE"),
 	_T("SELECTION"),
 	_T("COMMAND"),
@@ -1395,7 +1410,7 @@ const _TCHAR *c_phase_label[] = {
 	NULL
 };
 
-const _TCHAR *c_command_label[] = {
+static const _TCHAR *c_command_label[] = {
 	_T("NONE"),
 	_T("TEST_DRIVE_READY ($00)"),
 	_T("RECALIBRATE ($01)"),

@@ -1309,7 +1309,7 @@ bool DEVICE::get_debug_exception_name_index(uint32_t num, uint32_t *mask, int *i
 
 void DEVICE::get_debug_exception_names_str(_TCHAR *buffer, size_t buffer_len) {}
 
-int DEVICE::get_debug_graphic_memory_size(int type, int *width, int *height)
+int DEVICE::get_debug_graphic_memory_size(int num, int type, int *width, int *height)
 {
 	return -2;
 }
@@ -1320,6 +1320,11 @@ bool DEVICE::debug_graphic_type_name(int type, _TCHAR *buffer, size_t buffer_len
 }
 
 bool DEVICE::debug_draw_graphic(int type, int width, int height, scrntype *buffer)
+{
+	return false;
+}
+
+bool DEVICE::debug_dump_graphic(int type, int width, int height, uint16_t *buffer)
 {
 	return false;
 }

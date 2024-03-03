@@ -2400,7 +2400,7 @@ void GUI_BASE::PostEtChangeSideFloppyDisk(int drv)
 }
 int GUI_BASE::GetSideFloppyDisk(int drv)
 {
-	return emu->get_disk_side(drv);
+	return emu->get_floppy_disk_side(drv);
 }
 void GUI_BASE::PostEtToggleWriteProtectFloppyDisk(int drv)
 {
@@ -2408,24 +2408,24 @@ void GUI_BASE::PostEtToggleWriteProtectFloppyDisk(int drv)
 }
 bool GUI_BASE::InsertedFloppyDisk(int drv)
 {
-	return emu->disk_inserted(drv);
+	return emu->floppy_disk_inserted(drv);
 }
 bool GUI_BASE::WriteProtectedFloppyDisk(int drv)
 {
-	return emu->disk_write_protected(drv);
+	return emu->floppy_disk_write_protected(drv);
 }
 
 bool GUI_BASE::OpenFloppyDisk(int drv, const _TCHAR* path, int bank_num, uint32_t flags, bool multiopen)
 {
-	return emu->open_disk_by_bank_num(drv, path, bank_num, flags, multiopen);
+	return emu->open_floppy_disk_by_bank_num(drv, path, bank_num, flags, multiopen);
 }
 void GUI_BASE::CloseFloppyDisk(int drv)
 {
-	emu->close_disk(drv);
+	emu->close_floppy_disk(drv);
 }
 bool GUI_BASE::OpenFloppyDiskSelectedVolume(int drv, int bank_num)
 {
-	return emu->open_disk_with_sel_bank(drv, bank_num);
+	return emu->open_floppy_disk_with_sel_bank(drv, bank_num);
 }
 
 void GUI_BASE::GetMultiVolumeStr(int num, const _TCHAR *name, _TCHAR *str, size_t slen)

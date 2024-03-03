@@ -275,7 +275,10 @@ void Config::initialize()
 #if defined(_X68000)
 	main_ram_size_num = 0;	// 1MB
 	ram_initialize = 0;
-	raster_int_skew	= 0;
+	vram_initialize = 0;
+	spram_initialize = 0;
+	raster_int_vskew = 0;
+	raster_int_hskew = 0;
 	vdisp_skew = 0;
 #endif
 
@@ -643,7 +646,7 @@ bool Config::load_ini_file(const _TCHAR *ini_file)
 
 #if defined(_X68000)
 	valuel = ini->GetLongValue(SECTION_CONTROL, _T("MainRamSize"), main_ram_size_num);
-	if (0 <= valuel && valuel <= 4)
+	if (0 <= valuel && valuel <= 5)
 	{
 		main_ram_size_num = (uint8_t)valuel;
 	}
@@ -651,6 +654,16 @@ bool Config::load_ini_file(const _TCHAR *ini_file)
 	if (0 <= valuel && valuel <= 2)
 	{
 		ram_initialize = (uint8_t)valuel;
+	}
+	valuel = ini->GetLongValue(SECTION_CONTROL, _T("InitializeVRamMethod"), vram_initialize);
+	if (0 <= valuel && valuel <= 1)
+	{
+		vram_initialize = (uint8_t)valuel;
+	}
+	valuel = ini->GetLongValue(SECTION_CONTROL, _T("InitializeSPRamMethod"), spram_initialize);
+	if (0 <= valuel && valuel <= 1)
+	{
+		spram_initialize = (uint8_t)valuel;
 	}
 	valueb = ini->GetBoolValue(SECTION_SRAM, _T("ClearWhenPowerOn"), (original & MSK_ORIG_SRAM_CLR_PWRON) != 0);
 	BIT_ONOFF(original, MSK_ORIG_SRAM_CLR_PWRON, valueb);
@@ -686,10 +699,15 @@ bool Config::load_ini_file(const _TCHAR *ini_file)
 #endif
 
 #if defined(_X68000)
-	valuel = ini->GetLongValue(SECTION_SCREEN, _T("RasterInterruptSkew"), raster_int_skew);
+	valuel = ini->GetLongValue(SECTION_SCREEN, _T("RasterInterruptVerticalSkew"), raster_int_vskew);
 	if (-128 <= valuel && valuel <= 128)
 	{
-		raster_int_skew = (int)valuel;
+		raster_int_vskew = (int)valuel;
+	}
+	valuel = ini->GetLongValue(SECTION_SCREEN, _T("RasterInterruptHorizontalSkew"), raster_int_hskew);
+	if (-512 <= valuel && valuel <= 512)
+	{
+		raster_int_hskew = (int)valuel;
 	}
 	valuel = ini->GetLongValue(SECTION_SCREEN, _T("VerticalDispSkew"), vdisp_skew);
 	if (-128 <= valuel && valuel <= 128)
@@ -1061,7 +1079,11 @@ void Config::save_ini_file(const _TCHAR *ini_file)
 #if defined(_X68000)
 	ini->SetLongValue(SECTION_CONTROL, _T("MainRamSize"), main_ram_size_num);
 	ini->SetLongValue(SECTION_CONTROL, _T("InitializeRamMethod"), ram_initialize);
-	ini->SetLongValue(SECTION_SCREEN, _T("RasterInterruptSkew"), raster_int_skew);
+	ini->SetLongValue(SECTION_CONTROL, _T("InitializeVRamMethod"), vram_initialize);
+	ini->SetLongValue(SECTION_CONTROL, _T("InitializeSPRamMethod"), spram_initialize);
+	ini->Delete(SECTION_SCREEN, _T("RasterInterruptSkew"));
+	ini->SetLongValue(SECTION_SCREEN, _T("RasterInterruptVerticalSkew"), raster_int_vskew);
+	ini->SetLongValue(SECTION_SCREEN, _T("RasterInterruptHorizontalSkew"), raster_int_hskew);
 	ini->SetLongValue(SECTION_SCREEN, _T("VerticalDispSkew"), vdisp_skew);
 	ini->SetBoolValue(SECTION_SRAM, _T("ClearWhenPowerOn"), (original & MSK_ORIG_SRAM_CLR_PWRON) != 0);
 	ini->SetBoolValue(SECTION_SRAM, _T("SaveWhenPowerOff"), (original & MSK_ORIG_SRAM_SAVE_PWROFF) != 0);

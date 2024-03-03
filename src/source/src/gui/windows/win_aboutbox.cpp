@@ -10,6 +10,7 @@
 
 #include "win_aboutbox.h"
 #include "../gui.h"
+#include "../../utility.h"
 #include "../../version.h"
 
 namespace GUI_WIN
@@ -43,9 +44,9 @@ INT_PTR AboutBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 
 	// version
 	char buf[_MAX_PATH];
-	sprintf(buf, "Version %s \"%s\"", APP_VERSION, PLATFORM);
+	UTILITY::sprintf(buf, _MAX_PATH, "Version %s \"%s\"", APP_VERSION, PLATFORM);
 #ifdef _DEBUG
-	strcat(buf, " (DEBUG Version)");
+	UTILITY::strcat(buf, _MAX_PATH, " (DEBUG Version)");
 #endif
 	CreateStatic(box_info, IDC_STATIC_4, buf);
 	// edition
@@ -53,7 +54,7 @@ INT_PTR AboutBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 	if (buf[0] != '\0') {
 		CreateStatic(box_info, IDC_STATIC_5, buf);
 	}
-	sprintf(buf,
+	UTILITY::sprintf(buf, _MAX_PATH,
 #ifdef _MSC_VER
 		" using VisualC++ %d", _MSC_VER);
 #elif __MINGW32__

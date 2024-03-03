@@ -37,6 +37,8 @@ public:
 		SEEKCUR	= 1,
 		SEEKEND	= 2,
 	};
+	/// @brief fopen mode table
+	static const char *c_fopen_mode[];
 
 private:
 	FILE* fp;

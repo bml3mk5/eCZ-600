@@ -25,6 +25,7 @@ public:
 	/// @brief signals on CRTC(CRTC)
 	enum SIG_CRTC_IDS {
 		SIG_CRTC_CPU_POWER	= 1,
+		SIG_HRL
 	};
 
 	enum en_crtc_reg_names {
@@ -65,6 +66,7 @@ public:
 		CONTROL0_COLOR_SFT = 8,
 		CONTROL0_RESOLUTION = 0x000f,	// resolution
 		CONTROL0_HRES = 0x0003,	// horizontal
+		CONTROL0_H256 = 0x0000,	// horizontal 256dot
 		CONTROL0_H512 = 0x0001,	// horizontal 512dot
 		CONTROL0_H768 = 0x0002,	// horizontal 768dot
 		CONTROL0_H1024 = 0x0003,	// horizontal 1024dot?
@@ -119,7 +121,8 @@ private:
 	uint16_t m_regs[24];
 	uint16_t m_vram_accs;	///< CRTC operation port
 	uint16_t m_trig_vram_accs;
-	int       m_intr_vline;	///< rater interrupt
+	int      m_intr_vline;	///< rater interrupt
+	int      m_intr_vline_mask;
 
 	int m_gcls_count;		///< high speed clear count
 
@@ -129,6 +132,7 @@ private:
 //	uint8_t *pu_gvram;		///< graphic vram update flag
 
 	bool m_timing_changed;
+	bool m_timing_updated;
 
 	int m_cpu_clocks;
 	double m_dot_clocks[2];
@@ -142,15 +146,16 @@ private:
 
 	int m_hz_total, m_hz_start, m_hz_disp;
 	int m_hs_start, m_hs_end;	///< H-SYNC start and end
-	int m_h_count;
+//	int m_h_count;
 
-	int m_vt_total, m_vt_disp;
+	int m_vt_total, m_vt_start, m_vt_disp;
 	int m_vt_total_per_frame;
 	double m_vt_frames_per_sec;
 	int m_vs_start, m_vs_end;	///< V-SYNC start and end
 	int m_v_count;
+	int m_v_count_delay;
 
-	int m_disp_end_clock;
+	int m_hz_disp_end_clock;
 	int m_hs_start_clock, m_hs_end_clock;
 
 	bool m_now_raster, m_now_vdisp, m_now_vsync, m_now_hsync;
@@ -166,6 +171,8 @@ private:
 
 //	int m_interlace;				///< 0:noninterlace 1:interlace
 //	int m_raster_per_dot;			///< raster per dot (set 1 on hireso 256line)
+
+	uint8_t m_sysport_hrl;		///< Hireso clock select on systemport R4 bit1 
 
 	int register_id[3];
 
@@ -192,7 +199,7 @@ private:
 		int m_hs_start;
 		int m_hs_end;
 		// 7
-		int m_h_count;
+		int m_vt_start;
 		int m_vt_total;
 		int m_vt_disp;
 		int m_vt_total_per_frame;
@@ -200,7 +207,7 @@ private:
 		int m_vs_start;
 		int m_vs_end;
 		int m_v_count;
-		int m_disp_end_clock;
+		int m_hz_disp_end_clock;
 		// 9
 		int m_hs_start_clock;
 		int m_hs_end_clock;
@@ -210,7 +217,8 @@ private:
 		uint8_t m_now_vdisp;
 		uint8_t m_now_vsync;
 		uint8_t m_now_hsync;
-		char reserved2[4];
+		uint8_t m_sysport_hrl;
+		char reserved2[3];
 		int m_memory_address;			///< refresh memory address(MA)
 		int m_raster_address;			///< raster address (RA)
 		// 11
@@ -238,6 +246,8 @@ private:
 	void clear_gvram();
 	void update_raster_intr();
 
+	inline void set_vertical_params();
+
 public:
 	CRTC(VM* parent_vm, EMU* parent_emu, const char* identifier) : DEVICE(parent_vm, parent_emu, identifier) {
 		set_class_name("CRTC");
@@ -262,6 +272,7 @@ public:
 	void event_callback(int event_id, int err);
 	void update_timing(int new_clocks, double new_frames_per_sec, int new_lines_per_frame);
 	void write_signal(int id, uint32_t data, uint32_t mask);
+	uint32_t read_signal(int id);
 	void update_config();
 	void update_raster();
 
@@ -301,9 +312,9 @@ public:
 	int* get_hz_total_ptr() {
 		return &m_hz_total;
 	}
-	int* get_hz_count_ptr() {
-		return &m_h_count;
-	}
+//	int* get_hz_count_ptr() {
+//		return &m_h_count;
+//	}
 	int* get_hz_disp_ptr() {
 		return &m_hz_disp;
 	}

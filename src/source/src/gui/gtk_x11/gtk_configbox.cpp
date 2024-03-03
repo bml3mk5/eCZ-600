@@ -85,7 +85,7 @@ bool ConfigBox::Show(GtkWidget *parent_window)
 	// main ram size
 	create_frame(vboxall, CMsg::RAM, &vbox, &hbox);
 	comRamSize = create_combo_box(hbox, CMsg::RAM_Size_ASTERISK, LABELS::main_ram_size, emu->get_parami(VM::ParamMainRamSizeNum));
-	if (0 <= pConfig->main_ram_size_num && pConfig->main_ram_size_num <= 4) {
+	if (0 <= pConfig->main_ram_size_num && pConfig->main_ram_size_num <= 5) {
 		UTILITY::tcscpy(buf, sizeof(buf), CMSG(LB_Now_SP));
 		UTILITY::tcscat(buf, sizeof(buf), CMSGV(LABELS::main_ram_size[pConfig->main_ram_size_num]));
 		UTILITY::tcscat(buf, sizeof(buf), _T(")"));
@@ -128,7 +128,7 @@ bool ConfigBox::Show(GtkWidget *parent_window)
 	create_label(hbox, _T(" "));
 	chkSRAMSave  = create_check_box(hbox, CMsg::Save_SRAM_when_power_off, FLG_ORIG_SRAM_SAVE_PWROFF != 0);
 	hbox = create_hbox(vbox);
-	chkSRAMChanged = create_check_box(hbox, CMsg::Show_message_when_boot_device_was_changed, FLG_ORIG_SRAM_CHG_BOOT_DEV != 0);
+	chkSRAMChanged = create_check_box(hbox, CMsg::Show_message_when_parameters_related_on_start_up_was_changed, FLG_ORIG_SRAM_CHG_BOOT_DEV != 0);
 
 	// SRAM
 	create_label(vboxall, CMsg::Parameters_in_SRAM_);
@@ -291,8 +291,11 @@ bool ConfigBox::Show(GtkWidget *parent_window)
 
 	create_frame(hboxall, CMsg::CRTC, &vbox, &hbox);
 #if defined(_X68000)
-	sprintf(buf, "%d", pConfig->raster_int_skew);
-	txtRasterSkew = create_text_with_label(hbox, CMsg::Raster_Interrupt_Skew, buf, 8);
+	sprintf(buf, "%d", pConfig->raster_int_vskew);
+	txtRasterSkewV = create_text_with_label(hbox, CMsg::Raster_Interrupt_Vertical_Skew, buf, 8);
+	hbox = create_hbox(vbox);
+	sprintf(buf, "%d", pConfig->raster_int_hskew);
+	txtRasterSkewH = create_text_with_label(hbox, CMsg::Raster_Interrupt_Horizontal_Skew, buf, 8);
 	hbox = create_hbox(vbox);
 	sprintf(buf, "%d", pConfig->vdisp_skew);
 	txtVertSkew = create_text_with_label(hbox, CMsg::Vertical_Disp_Skew, buf, 8);
@@ -538,8 +541,12 @@ bool ConfigBox::SetData()
 	// crtc
 #if defined(_X68000)
 	val = 0;
-	if (sscanf(get_text(txtRasterSkew), "%d", &val) == 1 && -128 <= val && val <= 128) {
-		pConfig->raster_int_skew = val;
+	if (sscanf(get_text(txtRasterSkewV), "%d", &val) == 1 && -128 <= val && val <= 128) {
+		pConfig->raster_int_vskew = val;
+	}
+	val = 0;
+	if (sscanf(get_text(txtRasterSkewH), "%d", &val) == 1 && -512 <= val && val <= 512) {
+		pConfig->raster_int_hskew = val;
 	}
 	val = 0;
 	if (sscanf(get_text(txtVertSkew), "%d", &val) == 1  && -128 <= val && val <= 128) {

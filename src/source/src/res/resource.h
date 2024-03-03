@@ -1098,8 +1098,10 @@
 #define IDC_SPIN_SRAM_SASI_HDD                  22113
 #define IDC_COMBO_POWER_STATE                   22114
 
-#define IDC_EDIT_RASTER_INT                     22121
-#define IDC_SPIN_RASTER_INT                     22122
+#define IDC_EDIT_RASTER_INT_V                   22119
+#define IDC_SPIN_RASTER_INT_V                   22120
+#define IDC_EDIT_RASTER_INT_H                   22121
+#define IDC_SPIN_RASTER_INT_H                   22122
 #define IDC_EDIT_VDISP                          22123
 #define IDC_SPIN_VDISP                          22124
 #define IDC_CHK_BORDER_COLOR                    22125

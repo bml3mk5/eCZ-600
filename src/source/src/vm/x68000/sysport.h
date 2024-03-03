@@ -37,6 +37,7 @@ private:
 	};
 
 private:
+	DEVICE *d_crtc;
 	DEVICE *d_display;
 	DEVICE *d_memory;
 	DEVICE *d_board;
@@ -72,6 +73,9 @@ public:
 	void event_callback(int event_id, int err);
 
 	// unique functions
+	void set_context_crtc(DEVICE *device) {
+		d_crtc = device;
+	}
 	void set_context_display(DEVICE *device) {
 		d_display = device;
 	}

@@ -38,6 +38,10 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 ・入力
 
 ●システムポート
+・電源制御
+・NMIクリア
+・SRAM書き込み許可
+・HRL
 
 ●FM音源
   fmgen使用
@@ -88,6 +92,9 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 ●スプライト
 ・横32個以上は表示されないやつ
 ・アクセス時のwait
+
+●システムポート
+・テレビまわり
 
 ●ADPCM
 ・録音機能

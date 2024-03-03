@@ -1,4 +1,4 @@
-# SHARP X68000 Emulator 'eCZ-600'
+# ![icon](src/x68000_icon.png) SHARP X68000 Emulator 'eCZ-600'
 
 #### Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 
@@ -9,10 +9,10 @@
 ### このソフトは、シャープX68000のような動きをするエミュレータです。
 
 
-## [Downloads ダウンロード](https://github.com/bml3mk5/eCZ-600/releases)
+### [Downloads ダウンロード](https://github.com/bml3mk5/eCZ-600/releases)
 
 
-## [Documents(Japanese) ドキュメント](../../tree/master/src/docs)
+### [Documents(Japanese) ドキュメント](../../tree/master/src/docs)
 
 
 ## Disclaimer 免責事項
@@ -40,7 +40,7 @@
 
   http://s-sasaji.ddo.jp/bml3mk5/
 
-  (Twitter: http://twitter.com/bml3mk5)
+  (X(Twitter): http://twitter.com/bml3mk5)
 
 ------------------------------------------------------------------------------
 

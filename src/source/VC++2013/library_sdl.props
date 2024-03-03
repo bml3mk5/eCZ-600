@@ -24,13 +24,13 @@
     <FFMpegIncludeDir>$(DevelopBase)include\ffmpeg441\</FFMpegIncludeDir>
     <LocalDebugLibs>SDL.lib; SDLmain.lib; ag_core_static.lib; ag_gui_static.lib; freetype248_D.lib; SDL_ttf.lib</LocalDebugLibs>
     <LocalReleaseLibs>SDL.lib; SDLmain.lib; ag_core_static.lib; ag_gui_static.lib; freetype248.lib; SDL_ttf.lib</LocalReleaseLibs>
-    <SDL2Dir>$(DevelopDir)SDL2-2.26.5-static\</SDL2Dir>
+    <SDL2Dir>$(DevelopDir)SDL2-2.28.5-static\</SDL2Dir>
     <SDL2IncludeDir>$(SDL2Dir)include</SDL2IncludeDir>
-    <SDL2DebugLibDir>$(SDL2Dir)lib10\$(Platform)\Debug</SDL2DebugLibDir>
-    <SDL2ReleaseLibDir>$(SDL2Dir)lib10\$(Platform)\Release</SDL2ReleaseLibDir>
+    <SDL2DebugLibDir>$(SDL2Dir)lib12\$(Platform)\Debug</SDL2DebugLibDir>
+    <SDL2ReleaseLibDir>$(SDL2Dir)lib12\$(Platform)\Release</SDL2ReleaseLibDir>
     <SDL2TtfDir>$(DevelopDir)SDL2_ttf-2.20.2-static\</SDL2TtfDir>
-    <SDL2TtfDebugLibDir>$(SDL2TtfDir)lib10\$(Platform)\Debug</SDL2TtfDebugLibDir>
-    <SDL2TtfReleaseLibDir>$(SDL2TtfDir)lib10\$(Platform)\Release</SDL2TtfReleaseLibDir>
+    <SDL2TtfDebugLibDir>$(SDL2TtfDir)lib12\$(Platform)\Debug</SDL2TtfDebugLibDir>
+    <SDL2TtfReleaseLibDir>$(SDL2TtfDir)lib12\$(Platform)\Release</SDL2TtfReleaseLibDir>
     <FreeType25Dir></FreeType25Dir>
     <FreeType25DebugLibDir></FreeType25DebugLibDir>
     <FreeType25ReleaseLibDir></FreeType25ReleaseLibDir>

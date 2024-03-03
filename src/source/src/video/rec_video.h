@@ -122,8 +122,8 @@ public:
 		return &now_recording;
 	}
 	int  GetFpsNum() const { return rec_fps_no; }
-	bool Capture(int type, const VmRectWH &srcrect, CSurface *srcsurface, const VmRectWH &dstrect);
-	void CreateFileName(_TCHAR *file_path, const char *extension);
+	bool Capture(int type, const VmRectWH &srcrect, CSurface *srcsurface, const VmRectWH &dstrect, const _TCHAR *prefix = NULL, const _TCHAR *postfix = NULL);
+	void CreateFileName(_TCHAR *file_path, const char *extension, const _TCHAR *prefix = NULL, const _TCHAR *postfix = NULL);
 
 	bool IsEnabled(int type);
 	const _TCHAR **GetCodecList(int type);

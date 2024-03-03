@@ -51,12 +51,12 @@ typedef struct selected_st {
 
 - (void)tableView:(NSTableView *)tableView setObjectValue:(id)obj forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row;
 
-- (void)SetVmKeyMap:(Uint16 *)vmKeyMap :(int)size;
+//- (void)SetVmKeyMap:(Uint16 *)vmKeyMap :(int)size;
 - (void)SetVmKey:(int)idx :(Uint16)code;
 - (bool)SetVmKeyCode:(int)idx :(Uint16)code;
-- (void)SetVkKeyMap:(Uint32 *)vkKeyMap;
-- (void)SetVkKeyDefMap:(Uint32 *)vkKeyDefMap :(int)rows :(int)cols;
-- (void)SetVkKeyPresetMap:(Uint32 *)vkKeyMap :(int)idx;
+//- (void)SetVkKeyMap:(uint32_key_assign_t *)vkKeyMap;
+//- (void)SetVkKeyDefMap:(const uint32_key_assign_t *)vkKeyDefMap :(int)rows;
+//- (void)SetVkKeyPresetMap:(uint32_key_assign_t *)vkKeyMap :(int)idx;
 //- (bool)SetVkKeyCodeR:(int)row :(codecols_t *)obj :(Uint32)code :(char *)label;
 - (bool)SetVkKeyCode:(int)row :(int)col :(Uint32)code :(char *)label;
 - (bool)SetVkKeyCode:(Uint32)code :(char *)label;

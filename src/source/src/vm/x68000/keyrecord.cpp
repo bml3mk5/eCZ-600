@@ -820,11 +820,11 @@ bool KEYRECORD::play_reckey(const _TCHAR* filename)
 #ifdef USE_FD1
 		for(drv = 0; drv < MAX_DRIVE; drv++) {
 			if (disk_file[drv]) {
-				if (!emu->is_same_disk(drv, disk_file[drv], disk_bank_num[drv])) {
-					emu->open_disk_by_bank_num(drv, disk_file[drv], disk_bank_num[drv], OPEN_DISK_FLAGS_FORCELY, false);
+				if (!emu->is_same_floppy_disk(drv, disk_file[drv], disk_bank_num[drv])) {
+					emu->open_floppy_disk_by_bank_num(drv, disk_file[drv], disk_bank_num[drv], OPEN_DISK_FLAGS_FORCELY, false);
 				}
 			} else {
-				emu->close_disk(drv);
+				emu->close_floppy_disk(drv);
 			}
 		}
 #endif

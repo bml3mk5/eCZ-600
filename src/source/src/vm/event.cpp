@@ -857,7 +857,7 @@ void EVENT::mix_sound(int samples)
 {
 	int32_t *p;
 
-	if (!(*vm_pause)) {
+	if (!((*vm_pause) & ~VM_POWEROFF_MASK)) {
 		if(samples > 0) {
 			emu->lock_sound_buffer();
 			memset(sound_tmp + sound_buffer_ptr * 2, 0, samples * sizeof(int32_t) * 2);

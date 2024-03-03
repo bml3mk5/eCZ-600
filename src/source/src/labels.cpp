@@ -169,7 +169,7 @@ const CMsg::Id comm_uart_flowctrl[] = {
 
 /// memory size
 const CMsg::Id main_ram_size[] = {
-	CMsg::S1MB, CMsg::S2MB, CMsg::S4MB, CMsg::S8MB, CMsg::S10MB, CMsg::End
+	CMsg::S1MB, CMsg::S2MB, CMsg::S4MB, CMsg::S6MB, CMsg::S8MB, CMsg::S10MB, CMsg::End
 };
 
 /// extension of a data recorder image

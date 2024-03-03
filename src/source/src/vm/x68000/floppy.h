@@ -355,6 +355,7 @@ public:
 	void toggle_disk_write_protect(int drv);
 	bool disk_write_protected(int drv);
 	bool is_same_disk(int drv, const _TCHAR *file_path, int offset);
+	int  inserted_disk_another_drive(int drv, const _TCHAR *file_path, int offset);
 
 //	uint16_t get_drive_select();
 	uint32_t get_led_status() const;

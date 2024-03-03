@@ -610,7 +610,7 @@ bool CLocale::get_attr(const char *buf, const char *attr, char *out, int len)
 	const char *ep = strchr(p, '"');
 	if (ep == NULL) return false;
 	int nlen = static_cast<int>(len - 1 > ep - p ? ep - p : len - 1);
-	strncpy(out, p, nlen);
+	UTILITY::strncpy(out, len, p, nlen);
 	return true;
 }
 

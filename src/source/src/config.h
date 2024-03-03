@@ -325,7 +325,10 @@ public:
 #if defined(_X68000)
 	uint8_t main_ram_size_num;
 	uint8_t ram_initialize;
-	int raster_int_skew;
+	uint8_t vram_initialize;
+	uint8_t spram_initialize;
+	int raster_int_vskew;
+	int raster_int_hskew;
 	int vdisp_skew;
 #endif
 

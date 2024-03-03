@@ -78,6 +78,7 @@
 		D94A741F1B0F571F003DAF01 /* rec_video.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D94A741C1B0F571F003DAF01 /* rec_video.cpp */; };
 		D94D42C81DE9EB7D00ED9377 /* cocoa_key_trans.mm in Sources */ = {isa = PBXBuildFile; fileRef = D94D42C71DE9EB7D00ED9377 /* cocoa_key_trans.mm */; };
 		D94DEE831DF546B000A95F7F /* cocoa_rec_video.mm in Sources */ = {isa = PBXBuildFile; fileRef = D94DEE821DF546B000A95F7F /* cocoa_rec_video.mm */; };
+		D94EAF342B7BA125003E835D /* keybind.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D94EAF322B7BA125003E835D /* keybind.cpp */; };
 		D94F52E42234DB77008332AF /* cpixfmt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D94F52E22234DB77008332AF /* cpixfmt.cpp */; };
 		D95195121BC1630C0032D233 /* mouse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D91CEC8D28DC9D03009E9312 /* mouse.cpp */; };
 		D95239BA1C610F6F00BA9197 /* cchar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95239B71C610F6F00BA9197 /* cchar.cpp */; };
@@ -218,8 +219,6 @@
 		D91BBFE31B0C48A100E6604F /* gui_keybinddata.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gui_keybinddata.cpp; sourceTree = "<group>"; };
 		D91BBFE41B0C48A100E6604F /* gui_keybinddata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gui_keybinddata.h; sourceTree = "<group>"; };
 		D91CEB4328DC9B35009E9312 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
-		D91CEB9F28DC9BF6009E9312 /* gnu_clocale.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gnu_clocale.cpp; sourceTree = "<group>"; };
-		D91CEBA028DC9BF6009E9312 /* gnu_clocale.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gnu_clocale.h; sourceTree = "<group>"; };
 		D91CEBD528DC9C1C009E9312 /* sdl_socket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sdl_socket.h; sourceTree = "<group>"; };
 		D91CEBF128DC9C70009E9312 /* ledbox_x68k_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ledbox_x68k_1.png; sourceTree = "<group>"; };
 		D91CEBF228DC9C70009E9312 /* ledbox_x68k_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ledbox_x68k_2.png; sourceTree = "<group>"; };
@@ -343,6 +342,8 @@
 		D94D42C71DE9EB7D00ED9377 /* cocoa_key_trans.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = cocoa_key_trans.mm; sourceTree = "<group>"; };
 		D94DEE811DF546B000A95F7F /* cocoa_rec_video.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cocoa_rec_video.h; sourceTree = "<group>"; };
 		D94DEE821DF546B000A95F7F /* cocoa_rec_video.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = cocoa_rec_video.mm; sourceTree = "<group>"; };
+		D94EAF322B7BA125003E835D /* keybind.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = keybind.cpp; sourceTree = "<group>"; };
+		D94EAF332B7BA125003E835D /* keybind.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = keybind.h; sourceTree = "<group>"; };
 		D94F52E22234DB77008332AF /* cpixfmt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cpixfmt.cpp; sourceTree = "<group>"; };
 		D94F52E32234DB77008332AF /* cpixfmt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cpixfmt.h; sourceTree = "<group>"; };
 		D95239B71C610F6F00BA9197 /* cchar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cchar.cpp; sourceTree = "<group>"; };
@@ -553,8 +554,8 @@
 				D967FC712350A196008A021A /* emu_input_keysym.cpp */,
 				D984CB051FDD0E53000F5DC7 /* emu_screen.cpp */,
 				D967FC742350A196008A021A /* emu_sound.cpp */,
-				D91CEB9F28DC9BF6009E9312 /* gnu_clocale.cpp */,
-				D91CEBA028DC9BF6009E9312 /* gnu_clocale.h */,
+				D94EAF322B7BA125003E835D /* keybind.cpp */,
+				D94EAF332B7BA125003E835D /* keybind.h */,
 				D967FC782350A196008A021A /* logging.cpp */,
 				D9E42C9D2646AA2100C6E06F /* mac */,
 				D9EFF8C5241E067E002F8BA1 /* opengl.cpp */,
@@ -1198,6 +1199,7 @@
 				D94A741F1B0F571F003DAF01 /* rec_video.cpp in Sources */,
 				D94D42C81DE9EB7D00ED9377 /* cocoa_key_trans.mm in Sources */,
 				D94DEE831DF546B000A95F7F /* cocoa_rec_video.mm in Sources */,
+				D94EAF342B7BA125003E835D /* keybind.cpp in Sources */,
 				D94F52E42234DB77008332AF /* cpixfmt.cpp in Sources */,
 				D95195121BC1630C0032D233 /* mouse.cpp in Sources */,
 				D95239BA1C610F6F00BA9197 /* cchar.cpp in Sources */,

@@ -71,8 +71,8 @@ EMUOBJS:=$(SRCDIR)/config.o \
 	$(SRCDIR)/debugger_bpoint.o \
 	$(SRCDIR)/debugger_socket.o \
 	$(SRCDIR)/debugger_symbol.o \
+	$(SRCDIR)/ConvertUTF.o \
 	$(SRCDIR)/utility.o
-#	$(SRCDIR)/ConvertUTF.o \
 
 EMUOSDOBJS:=$(SRCOSDSDL)/sdl_emu.o \
 	$(SRCOSDSDL)/sdl_sound.o \
@@ -99,6 +99,7 @@ EMUOSDOBJS:=$(SRCOSDSDL)/sdl_emu.o \
 	$(SRCOSD)/emu_input_keysym.o \
 	$(SRCOSD)/emu_screen.o \
 	$(SRCOSD)/emu_sound.o \
+	$(SRCOSD)/keybind.o \
 	$(SRCOSD)/logging.o \
 	$(SRCOSD)/parseopt.o \
 	$(SRCOSD)/screenmode.o \

@@ -768,34 +768,34 @@ static NSWindow *get_main_window()
 ///
 - (BOOL)validateMenuItem:(CocoaMenuItem *)menuItem
 {
-	int state = NSOffState;
+	int state = NSControlStateValueOff;
 	BOOL enable = TRUE;
 	SEL act = [menuItem action];
 	int drv = [menuItem drv];
 
 	if (act == @selector(Reset:)) {
 //		if (!pConfig->now_power_off) {
-//			state = NSOnState;
+//			state = NSControlStateValueOn;
 //		}
 	} else if (act == @selector(SpecialReset:)) {
 		if (gui->NowSpecialReset()) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(TogglePause:)) {
 		if (gui->NowPause()) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(ToggleSyncIRQ:)) {
 		if (gui->NowSyncIRQ()) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(CPUPower:)) {
 		if ([menuItem num] == pConfig->cpu_power) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(ChangeFddType:)) {
 		if ([menuItem num] == gui->NextFddType()) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(ShowOpenAutoKeyDialog:)
 		    || act == @selector(StartAutoKey:)) {
@@ -808,7 +808,7 @@ static NSWindow *get_main_window()
 //		}
 	} else if (act == @selector(ShowPlayRecKeyDialog:)) {
 		if (gui->NowPlayingRecKey()) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 //	} else if (act == @selector(StopPlayRecKey:)) {
 //		if (!gui->NowPlayingRecKey()) {
@@ -816,7 +816,7 @@ static NSWindow *get_main_window()
 //		}
 	} else if (act == @selector(ShowRecordStateAndRecKeyDialog:)) {
 		if (gui->NowRecordingRecKey()) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(UpdateRecentStateList:)) {
 		[self UpdateRecentFiles:menuItem:pConfig->recent_state_path:0:@selector(LoadRecentState:)];
@@ -827,15 +827,15 @@ static NSWindow *get_main_window()
 #ifdef USE_DATAREC
 	} else if (act == @selector(ShowLoadDataRecDialog:)) {
 		if (gui->IsOpenedLoadDataRecFile()) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(ShowSaveDataRecDialog:)) {
 		if (gui->IsOpenedSaveDataRecFile()) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(ToggleRealModeDataRec:)) {
 		if (pConfig->realmode_datarec) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(RewindDataRec:)
 			|| act == @selector(FastForwardDataRec:)
@@ -850,7 +850,7 @@ static NSWindow *get_main_window()
 #ifdef USE_FD1
 	} else if (act == @selector(ShowOpenFloppyDiskDialog:)) {
 		if (gui->InsertedFloppyDisk(drv)) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(CloseFloppy:)) {
 		if (!gui->InsertedFloppyDisk(drv)) {
@@ -860,7 +860,7 @@ static NSWindow *get_main_window()
 		if (!gui->InsertedFloppyDisk(drv)) {
 			enable = FALSE;
 		} else if (gui->WriteProtectedFloppyDisk(drv)) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(UpdateRecentFloppyList:)) {
 		[self UpdateRecentFiles:menuItem:pConfig->recent_disk_path[drv]:drv:@selector(OpenRecentFloppy:)];
@@ -885,7 +885,7 @@ static NSWindow *get_main_window()
 		int num = [menuItem num];
 		D88File *d88_file = gui->GetD88File(drv);
 		if (d88_file->GetCurrentBank() == num) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 		if (d88_file->GetBanks().Count() == 1) {
 			enable = FALSE;
@@ -894,7 +894,7 @@ static NSWindow *get_main_window()
 #ifdef USE_HD1
 	} else if (act == @selector(ShowOpenHardDiskDialog:)) {
 		if (gui->MountedHardDisk(drv)) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(CloseHardDisk:)) {
 		if (!gui->MountedHardDisk(drv)) {
@@ -906,12 +906,12 @@ static NSWindow *get_main_window()
 	} else if (act == @selector(ChangeFrameRate:)) {
 		int num = [menuItem num];
 		if (gui->GetFrameRateNum() == num) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(ResizeRecordVideoSurface:)) {
 		int num = [menuItem num];
 		if (gui->GetRecordVideoSurfaceNum() == num) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 		if (gui->NowRecordingVideo() || gui->NowRecordingSound()) {
 			enable = FALSE;
@@ -919,7 +919,7 @@ static NSWindow *get_main_window()
 	} else if (act == @selector(ShowRecordVideoDialog:)) {
 		int num = [menuItem num];
 		if (gui->GetRecordVideoFrameNum() == num) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 		if (gui->NowRecordingVideo() || gui->NowRecordingSound()) {
 			enable = FALSE;
@@ -931,54 +931,54 @@ static NSWindow *get_main_window()
 	} else if (act == @selector(ChangeWindowMode:)) {
 		int num = [menuItem num];
 		if (gui->GetWindowMode() == num) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(ChangeFullScreenMode:)) {
 		int num = [menuItem num];
 		if (gui->IsFullScreen()) {
 			if (gui->GetFullScreenMode() == num) {
-				state = NSOnState;
+				state = NSControlStateValueOn;
 			}
 			enable = FALSE;
 		}
 	} else if (act == @selector(ToggleStretchScreen:)) {
 		int num = [menuItem num];
 		if (gui->GetStretchScreen() == num) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 //	} else if (act == @selector(ToggleCutoutScreen:)) {
 //		if (gui->GetStretchScreen() == 2) {
-//			state = NSOnState;
+//			state = NSControlStateValueOn;
 //		}
 	} else if (act == @selector(ChangePixelAspectMode:)) {
 		int num = [menuItem num];
 		if (gui->GetPixelAspectMode() == num) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(ChangeScanLine:)) {
 		int num = [menuItem num];
 		if (gui->GetDrawMode() == num) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 #ifdef USE_AFTERIMAGE
 	} else if (act == @selector(ChangeAfterImage:)) {
 		int num = [menuItem num];
 		if (gui->GetAfterImageMode() == num) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 #endif
 #ifdef USE_KEEPIMAGE
 	} else if (act == @selector(ChangeKeepImage:)) {
 		int num = [menuItem num];
 		if (gui->GetKeepImageMode() == num) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 #endif
 #ifdef _MBS1
 	} else if (act == @selector(ChangeRGBType:)) {
 		int num = [menuItem num];
 		if (gui->GetRGBTypeMode() == num) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 #endif
 #ifdef _X68000
@@ -987,23 +987,23 @@ static NSWindow *get_main_window()
 		if (num > 0) {
 			num--;
 			if (gui->GetShowScreen() & (1 << num)) {
-				state = NSOnState;
+				state = NSControlStateValueOn;
 			}
 		}
 #endif
 	} else if (act == @selector(ChangeUseOpenGL:)) {
 		int num = [menuItem num];
 		if (gui->GetOpenGLMode() == num) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(ChangeOpenGLFilter:)) {
 		int num = [menuItem num];
 		if (gui->GetOpenGLFilter() == num) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(ShowRecordAudioDialog:)) {
 		if (gui->NowRecordingVideo() || gui->NowRecordingSound()) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 			enable = FALSE;
 		}
 //	} else if (act == @selector(StopRecordSound:)) {
@@ -1013,12 +1013,12 @@ static NSWindow *get_main_window()
 	} else if (act == @selector(ChangeSoundFrequency:)) {
 		int num = [menuItem num];
 		if (gui->GetSoundFrequencyNum() == num) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(ChangeSoundLatency:)) {
 		int num = [menuItem num];
 		if (gui->GetSoundLatencyNum() == num) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(ShowSavePrinterDialog:) || act == @selector(PrintPrinter:)) {
 		int drv = [menuItem drv];
@@ -1028,33 +1028,33 @@ static NSWindow *get_main_window()
 	} else if (act == @selector(EnablePrinterDirect:)) {
 		int drv = [menuItem drv];
 		if (gui->IsEnablePrinterDirect(drv)) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(TogglePrinterOnline:)) {
 		int drv = [menuItem drv];
 		if (gui->IsOnlinePrinter(drv)) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(EnableCommServer:)) {
 		int drv = [menuItem drv];
 		if (gui->IsEnableCommServer(drv)) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(ConnectComm:)) {
 		int drv = [menuItem drv];
 		int num = [menuItem num];
 		if (gui->NowConnectingComm(drv, num)) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(CommThroughMode:)) {
 		int drv = [menuItem drv];
 		if (gui->NowCommThroughMode(drv)) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(CommBinaryMode:)) {
 		int drv = [menuItem drv];
 		if (gui->NowCommBinaryMode(drv)) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(UpdateCommConnectList:)) {
 		CocoaMenu *menu = (CocoaMenu *)[menuItem submenu];
@@ -1076,59 +1076,59 @@ static NSWindow *get_main_window()
 		switch(num) {
 		case 1:
 		if (gui->IsShownLedBox()) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 			break;
 		case 2:
 		if (gui->IsInsidedLedBox()) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 			break;
 		}
 //	} else if (act == @selector(ToggleInsideLedBox:)) {
 //		if (gui->IsInsidedLedBox()) {
-//			state = NSOnState;
+//			state = NSControlStateValueOn;
 //		}
 	} else if (act == @selector(ToggleMessageBoard:)) {
 		if (gui->IsShownMessageBoard()) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 #ifdef USE_PERFORMANCE_METER
 	} else if (act == @selector(TogglePMeter:)) {
 		if (gui->IsShownPMeter()) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 #endif
 	} else if (act == @selector(ChangeUseJoypad:)) {
 		int num = [menuItem num];
 		if (gui->IsEnableJoypad(num)) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 #ifdef USE_KEY2JOYSTICK
 	} else if (act == @selector(ToggleEnableKey2Joypad:)) {
 		if (gui->IsEnableKey2Joypad()) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 #endif
 #ifdef USE_LIGHTPEN
 	} else if (act == @selector(ToggleEnableLightpen:)) {
 		if (gui->IsEnableLightpen()) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 #endif
 #ifdef USE_MOUSE
 	} else if (act == @selector(ToggleUseMouse:)) {
 		if (gui->IsEnableMouse()) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 #endif
 	} else if (act == @selector(ToggleLoosenKeyStroke:)) {
 		if (gui->IsLoosenKeyStroke()) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(ShowVirtualKeyboard:)) {
 		if (gui->IsShownVirtualKeyboard()) {
-			state = NSOnState;
+			state = NSControlStateValueOn;
 		}
 #ifdef USE_DEBUGGER
 	} else if (act == @selector(OpenDebugger:)) {
@@ -1217,7 +1217,7 @@ static NSWindow *get_main_window()
 			, strlen(gui->d88_file[drv].bank[num].name) > 0 ? gui->d88_file[drv].bank[num].name : CMSG(no_label));;
 		CocoaMenuItem *item = [Util add_menu_item:menu:name:target:@selector(OpenFloppySelectedVolume:):drv:num:0];
 		if (item && gui->d88_file[drv].cur_bank == num) {
-			[item setState:NSOnState];
+			[item setState:NSControlStateValueOn];
 		}
 	}
 }
@@ -1511,7 +1511,7 @@ void GUI::setup_menu(void)
 		[fddMenu addItem:[NSMenuItem separatorItem]];
 
 #ifdef USE_DELEGATE
-		CocoaMenu *fddRecentMenu = [CocoaMenu create_menu_by_id:CMsg::Recent_Files:[[CocoaRecentFloppyList alloc] initWithTarget:recv:drv]];
+		CocoaMenu *fddRecentMenu = [CocoaMenu create_menu_by_id:CMsg::Recent_Files:[[CocoaRecentFloppyDiskList alloc] initWithTarget:recv:drv]];
 		[fddMenu add_sub_menu_by_id:fddRecentMenu:CMsg::Recent_Files];
 #else
 		CocoaMenu *fddRecentMenu = [CocoaMenu create_menu_by_id:CMsg::Recent_Files];

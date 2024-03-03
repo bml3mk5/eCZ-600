@@ -581,7 +581,7 @@ extern EMU *emu;
 	[me setTitle:[NSString stringWithUTF8String:title]];
 	[me setButtonType:NSSwitchButton];
 	[me setAction:action];
-	[me setState:value ? NSOnState : NSOffState];
+	[me setState:value ? NSControlStateValueOn : NSControlStateValueOff];
 	me.index = index;
 
 	return me;
@@ -605,7 +605,7 @@ extern EMU *emu;
 	[me setTitle:[NSString stringWithUTF8String:title]];
 	[me setButtonType:NSSwitchButton];
 	[me setAction:action];
-	[me setState:value ? NSOnState : NSOffState];
+	[me setState:value ? NSControlStateValueOn : NSControlStateValueOff];
 	me.index = index;
 
 	return me;
@@ -669,7 +669,7 @@ extern EMU *emu;
 	[me setTitle:[NSString stringWithUTF8String:title]];
 	[me setButtonType:NSRadioButton];
 	[me setAction:action];
-	[me setState:value ? NSOnState : NSOffState];
+	[me setState:value ? NSControlStateValueOn : NSControlStateValueOff];
 	me.index = index;
 
 	return me;

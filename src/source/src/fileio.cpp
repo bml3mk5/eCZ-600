@@ -15,11 +15,27 @@
 #else
 #include <unistd.h>
 #endif
+#if defined(_WIN32) && defined(_MSC_VER)
+#include <Share.h>
+#endif
 #if !defined(USE_WIN)
 #include <sys/stat.h>
 #endif
 #include "fileio.h"
 #include "utility.h"
+
+const char *FILEIO::c_fopen_mode[] = {
+	"",
+	"rb",
+	"wb",
+	"r+b",
+	"w+b",
+	"r",
+	"w",
+	"r+",
+	"w+",
+	NULL
+};
 
 FILEIO::FILEIO()
 {
@@ -186,53 +202,32 @@ bool FILEIO::Fopen(const _TCHAR *filename, FILEIO_MODES mode)
 	Fclose();
 
 #if defined(_WIN32) || !defined(_UNICODE)
-#if defined(USE_UTF8_ON_MBCS)
-	// convert UTF-8 to MBCS string
+# if defined(USE_UTF8_ON_MBCS)
+	// convert UTF-8 to MBCS string (on SDL)
 	_TCHAR tfilename[_MAX_PATH];
 	UTILITY::conv_to_native_path(filename, tfilename, _MAX_PATH);
-#else
+# else
 	const _TCHAR *tfilename = filename;
-#endif
-	switch(mode) {
-	case FILEIO::READ_BINARY:
-		return ((fp = _tfopen(tfilename, _T("rb"))) != NULL);
-	case FILEIO::WRITE_BINARY:
-		return ((fp = _tfopen(tfilename, _T("wb"))) != NULL);
-	case FILEIO::READ_WRITE_BINARY:
-		return ((fp = _tfopen(tfilename, _T("r+b"))) != NULL);
-	case FILEIO::READ_WRITE_NEW_BINARY:
-		return ((fp = _tfopen(tfilename, _T("w+b"))) != NULL);
-	case FILEIO::READ_ASCII:
-		return ((fp = _tfopen(tfilename, _T("r"))) != NULL);
-	case FILEIO::WRITE_ASCII:
-		return ((fp = _tfopen(tfilename, _T("w"))) != NULL);
-	case FILEIO::READ_WRITE_ASCII:
-		return ((fp = _tfopen(tfilename, _T("r+"))) != NULL);
-	case FILEIO::READ_WRITE_NEW_ASCII:
-		return ((fp = _tfopen(tfilename, _T("w+"))) != NULL);
-	}
+# endif
+# ifdef _UNICODE
+	// using UNICODE on Windows
+	wchar_t fopen_mode[4];
+	UTILITY::conv_mbs_to_wcs(c_fopen_mode[mode], 4, fopen_mode, 4);
+# else
+	const char *fopen_mode = c_fopen_mode[mode];
+# endif
+# ifdef _MSC_VER
+	// for Visual C++
+//	return ((_tfopen_s(&fp, tfilename, fopen_mode)) == 0);
+	return ((fp = _tfsopen(filename, fopen_mode, _SH_DENYNO)) != NULL);
+# else
+	return ((fp = _tfopen(tfilename, fopen_mode)) != NULL);
+# endif
 #else
 	// convert wchar_t to char
 	char tfilename[_MAX_PATH];
 	UTILITY::cconv_from_native_path(filename, tfilename, _MAX_PATH);
-	switch(mode) {
-	case FILEIO::READ_BINARY:
-		return ((fp = fopen(tfilename, "rb")) != NULL);
-	case FILEIO::WRITE_BINARY:
-		return ((fp = fopen(tfilename, "wb")) != NULL);
-	case FILEIO::READ_WRITE_BINARY:
-		return ((fp = fopen(tfilename, "r+b")) != NULL);
-	case FILEIO::READ_WRITE_NEW_BINARY:
-		return ((fp = fopen(tfilename, "w+b")) != NULL);
-	case FILEIO::READ_ASCII:
-		return ((fp = fopen(tfilename, "r")) != NULL);
-	case FILEIO::WRITE_ASCII:
-		return ((fp = fopen(tfilename, "w")) != NULL);
-	case FILEIO::READ_WRITE_ASCII:
-		return ((fp = fopen(tfilename, "r+")) != NULL);
-	case FILEIO::READ_WRITE_NEW_ASCII:
-		return ((fp = fopen(tfilename, "w+")) != NULL);
-	}
+	return ((fp = fopen(tfilename, c_fopen_mode[mode])) != NULL);
 #endif
 	return false;
 }

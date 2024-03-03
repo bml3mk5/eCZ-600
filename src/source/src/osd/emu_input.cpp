@@ -44,6 +44,7 @@ void EMU::EMU_INPUT()
 #ifdef USE_KEY2JOYSTICK
 	clear_key2joy_map();
 	memset(key2joy_status, 0, sizeof(key2joy_status));
+	key2joy_scancode = NULL;
 #endif
 
 #if defined(USE_JOYSTICK) || defined(USE_KEY2JOYSTICK)
@@ -134,6 +135,9 @@ void EMU::reset_joystick()
 
 void EMU::reset_key2joy()
 {
+#ifdef USE_KEY2JOYSTICK
+	key2joy_scancode = gKeybind.GetVkKeyDefMap(0);
+#endif
 }
 
 void EMU::set_joy_range(bool enable, int mintd, int maxtd, int threshold, struct st_joy_range &out)
@@ -476,9 +480,8 @@ void EMU::vkey_key_down(int code, uint8_t mask)
 {
 #ifdef USE_KEY2JOYSTICK
 	if (key2joy_enabled) {
-		const uint32_t *scan2key = (const uint32_t *)emu->get_paramv(VM::ParamVkKeyDefMap0);
 		for(int i=0; i<KEYBIND_ASSIGN; i++) {
-			int vk_code = scan2key[code * KEYBIND_ASSIGN + i];
+			int vk_code = key2joy_scancode[code].d[i];
 			if (key2joy_down(vk_code)) {
 				return;
 			}
@@ -498,9 +501,8 @@ void EMU::vkey_key_up(int code, uint8_t mask)
 
 #ifdef USE_KEY2JOYSTICK
 	if (key2joy_enabled) {
-		const uint32_t *scan2key = (const uint32_t *)emu->get_paramv(VM::ParamVkKeyDefMap0);
 		for(int i=0; i<KEYBIND_ASSIGN; i++) {
-			int vk_code = scan2key[code * KEYBIND_ASSIGN + i];
+			int vk_code = key2joy_scancode[code].d[i];
 			key2joy_up(vk_code);
 		}
 	}
@@ -675,6 +677,16 @@ void EMU::set_joy2joy_ana_map(int num, int pos, uint32_t joy_code)
 #endif
 }
 
+void EMU::clear_joy2joyk_map()
+{
+	vm->clear_joy2joyk_map();
+}
+
+void EMU::set_joy2joyk_map(int num, int idx, uint32_t joy_code)
+{
+	vm->set_joy2joyk_map(num, idx, joy_code);
+}
+
 /// @brief clear the key2joypad mapping table
 void EMU::clear_key2joy_map()
 {
@@ -731,15 +743,17 @@ bool EMU::key2joy_down(int code)
 	}
 	return false;
 # else
+	uint32_t joy_all = 0;
 	for(int i=0; i<MAX_JOYSTICKS; i++) {
 		uint32_t joy_code = key2joy_map[i][code];
 		uint32_t k = (joy_code & 0xf);
 		int kk = joy_allow_map[k];
 		if (kk >= 0) key2joy_status[i][kk] |= k;
 		key2joy_status[i][8] |= (joy_code & 0xfffffff0);
+		joy_all |= joy_code;
 	}
 	vm_key_down(vm_key_map[code], VM_KEY_STATUS_KEY2JOY);
-	return true;
+	return (joy_all != 0);
 # endif
 #else
 	return false;

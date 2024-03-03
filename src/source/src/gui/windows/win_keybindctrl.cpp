@@ -379,7 +379,7 @@ void KeybindControl::create_children(HWND hWnd)
 				 x, y, cell_width, cell_height, hStaticMain, NULL, hInstance, NULL);
 	x += cell_width + padding;
 	for(int j=1; j<=KBCTRL_MAX_COLS; j++) {
-		_stprintf(label, _T("bind%d"), j);
+		UTILITY::stprintf(label, KBLABEL_MAXLEN, _T("bind%d"), j);
 		hTitles[j] = CreateWindow(_T("STATIC"), label, WS_CHILD | WS_VISIBLE | SS_CENTER | SS_CENTERIMAGE,
 				 x, y, cell_width, cell_height, hStaticMain, NULL, hInstance, NULL);
 		x += cell_width + padding;

@@ -68,7 +68,8 @@
 	CocoaPopUpButton *popGLFilter;
 	CocoaPopUpButton *popLEDShow;
 	CocoaPopUpButton *popLEDPosition;
-	CocoaTextField *txtRasterSkew;
+	CocoaTextField *txtRasterSkewV;
+	CocoaTextField *txtRasterSkewH;
 	CocoaTextField *txtVertSkew;
 	CocoaPopUpButton *popCaptureType;
 

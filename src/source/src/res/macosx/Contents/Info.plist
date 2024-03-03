@@ -20,7 +20,7 @@
 	<key>CFBundleExecutable</key>
 	<string>x68000</string>
 	<key>CFBundleGetInfoString</key>
-	<string>SHARP X68000 Emulator Version 0.0.1.291, (c) 2012 - 2024 Common Source Code Project, Sasaji</string>
+	<string>SHARP X68000 Emulator Version 0.0.1.320, (c) 2012 - 2024 Common Source Code Project, Sasaji</string>
 	<key>CFBundleIconFile</key>
 	<string>x68000</string>
 	<key>CFBundleIdentifier</key>
@@ -32,17 +32,17 @@
 		<string>jp</string>
 	</array>
 	<key>CFBundleLongVersionString</key>
-	<string>0.0.1.291, (c) 2012-2024 Common Source Code Project, Sasaji</string>
+	<string>0.0.1.320, (c) 2012-2024 Common Source Code Project, Sasaji</string>
 	<key>CFBundleName</key>
 	<string>x68000</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.0.1.291</string>
+	<string>0.0.1.320</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>0.0.1.291</string>
+	<string>0.0.1.320</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.entertainment</string>
 	<key>LSUIPresentationMode</key>

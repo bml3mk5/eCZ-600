@@ -79,17 +79,16 @@ void KeybindData::Init(EMU *emu, int new_tabnum, int new_devtype, int new_vmtype
 	memset(vkkey_preset_map, 0, sizeof(vkkey_preset_map));
 
 	// set initial data
-	int presets = emu->get_parami(VM::ParamVkKeyPresets);
-	presets = (presets < KEYBIND_PRESETS ? presets : KEYBIND_PRESETS);
+	int presets = gKeybind.GetVkKeyPresetSize();
 
-	SetVmKeyMap((uint16_t *)emu->get_paramv(VM::ParamVmKeyMap0 + m_tab_num), emu->get_parami(VM::ParamVmKeyMapSize0 + m_tab_num));
+	SetVmKeyMap(gKeybind.GetVmKeyMap(m_tab_num), gKeybind.GetVmKeyMapSize(m_tab_num));
 
-	SetVkKeyDefMap((uint32_t *)emu->get_paramv(VM::ParamVkKeyDefMap0 + m_tab_num), emu->get_parami(VM::ParamVkKeyMapKeys0 + m_tab_num), emu->get_parami(VM::ParamVkKeyMapAssign));
+	SetVkKeyDefMap(gKeybind.GetVkKeyDefMap(m_tab_num), gKeybind.GetVkKeyMapSize(m_tab_num));
 
-	SetVkKeyMap((uint32_t *)emu->get_paramv(VM::ParamVkKeyMap0 + m_tab_num));
+	SetVkKeyMap(gKeybind.GetVkKeyMap(m_tab_num));
 
 	for(int j=0; j<presets; j++) {
-		SetVkKeyPresetMap((uint32_t *)emu->get_paramv(VM::ParamVkKeyPresetMap00 + m_tab_num + j * m_max_tabs), j);
+		SetVkKeyPresetMap(gKeybind.GetVkKeyPresetMap(m_tab_num, j), j);
 	}
 
 	// set disable key
@@ -111,7 +110,7 @@ void KeybindData::Init(EMU *emu, int new_tabnum, int new_devtype, int new_vmtype
 		for(int col=0; col<vkkey_defmap_cols; col++) {
 			table[idx].cols[col].col = col;
 			if (table[idx].flags & CODE_TABLE_FLAG_ENABLE) {
-				code = *(vkkey_map + table[idx].vm_keycode * vkkey_defmap_cols + col);
+				code = vkkey_map[table[idx].vm_keycode].d[col];
 			}
 			if (m_devtype == DEVTYPE_JOYPAD) {
 				SetVkJoyCode(&table[idx],col,code,code,NULL);
@@ -125,8 +124,8 @@ void KeybindData::Init(EMU *emu, int new_tabnum, int new_devtype, int new_vmtype
 /// @brief Set key map for virtual machine
 ///
 /// @param[in] vmKeyMap : array of key map
-/// @param[in] size     : line of key map
-void KeybindData::SetVmKeyMap(uint16_t *vmKeyMap, int size)
+/// @param[in] size     : size of key map
+void KeybindData::SetVmKeyMap(const uint16_t *vmKeyMap, int size)
 {
 	if (m_tab_num < 0 || m_tab_num >= m_max_tabs) return;
 
@@ -176,7 +175,7 @@ bool KeybindData::SetVmKeyCode(int idx, uint16_t code)
 /// @brief Set key map for host machine
 ///
 /// @param[in] vkKeyMap : array of key map
-void KeybindData::SetVkKeyMap(uint32_t *vkKeyMap)
+void KeybindData::SetVkKeyMap(uint32_key_assign_t *vkKeyMap)
 {
 	if (m_tab_num < 0 || m_tab_num >= m_max_tabs) return;
 
@@ -187,21 +186,20 @@ void KeybindData::SetVkKeyMap(uint32_t *vkKeyMap)
 ///
 /// @param[in] vkKeyDefMap : array of key map
 /// @param[in] rows        : rows of key map
-/// @param[in] cols        : cols of key map
-void KeybindData::SetVkKeyDefMap(uint32_t *vkKeyDefMap, int rows, int cols)
+void KeybindData::SetVkKeyDefMap(const uint32_key_assign_t *vkKeyDefMap, int rows)
 {
 	if (m_tab_num < 0 || m_tab_num >= m_max_tabs) return;
 
 	vkkey_defmap = vkKeyDefMap;
 	vkkey_defmap_rows = rows;
-	vkkey_defmap_cols = cols;
+	vkkey_defmap_cols = (int)(sizeof(uint32_key_assign_t)/sizeof(uint32_t));
 }
 
 /// @brief Set preset key map for host machine
 ///
 /// @param[in] vkKeyMap : array of key map
 /// @param[in] idx      : preset number
-void KeybindData::SetVkKeyPresetMap(uint32_t *vkKeyMap, int idx)
+void KeybindData::SetVkKeyPresetMap(uint32_key_assign_t *vkKeyMap, int idx)
 {
 	if (m_tab_num < 0 || m_tab_num >= m_max_tabs) return;
 
@@ -406,7 +404,8 @@ bool KeybindData::ClearVkCode(int row, int col, _TCHAR *label)
 /// @return value
 uint32_t KeybindData::GetCombi()
 {
-	return *(vkkey_map + (vkkey_defmap_rows - 1) * vkkey_defmap_cols);
+	return vkkey_map[vkkey_defmap_rows - 1].d[0];
+//	return *(vkkey_map + (vkkey_defmap_rows - 1) * vkkey_defmap_cols);
 }
 
 /// @brief set combination flag
@@ -414,7 +413,8 @@ uint32_t KeybindData::GetCombi()
 /// @param[in] value
 void KeybindData::SetCombi(uint32_t value)
 {
-	*(vkkey_map + (vkkey_defmap_rows - 1) * vkkey_defmap_cols) = value;
+	vkkey_map[vkkey_defmap_rows - 1].d[0] = value;
+//	*(vkkey_map + (vkkey_defmap_rows - 1) * vkkey_defmap_cols) = value;
 }
 
 /// @brief get cell string
@@ -539,7 +539,7 @@ void KeybindData::LoadPreset(int idx)
 {
 	int rows = vmkey_map_size;
 	int cols = vkkey_defmap_cols;
-	uint32_t *dst;
+	const uint32_key_assign_t *dst;
 	uint32_t code;
 
 	if (0 <= idx && idx <= KEYBIND_PRESETS) {
@@ -551,7 +551,7 @@ void KeybindData::LoadPreset(int idx)
 	for(int row=0; row<rows; row++) {
 		if (table[row].flags & CODE_TABLE_FLAG_ENABLE) {
 			for(int col=0; col<cols; col++) {
-				code = dst[table[row].vm_keycode * cols + col];
+				code = dst[table[row].vm_keycode].d[col];
 				if (m_devtype == DEVTYPE_JOYPAD) {
 					SetVkJoyCode(&table[row],col,code,code,NULL);
 				} else {
@@ -561,7 +561,7 @@ void KeybindData::LoadPreset(int idx)
 		}
 	}
 	if (m_devtype == DEVTYPE_JOYPAD && (m_vm_type == VM_TYPE_KEYASSIGN || m_vm_type == VM_TYPE_PIOBITASSIGN)) {
-		SetCombi(dst[(vkkey_defmap_rows - 1) * cols]);
+		SetCombi(dst[vkkey_defmap_rows - 1].d[0]);
 	}
 }
 
@@ -572,7 +572,7 @@ void KeybindData::SavePreset(int idx)
 {
 	int rows = vmkey_map_size;
 	int cols = vkkey_defmap_cols;
-	uint32_t *dst;
+	uint32_key_assign_t *dst;
 	uint32_t code;
 
 	if (0 <= idx && idx <= KEYBIND_PRESETS) {
@@ -585,12 +585,12 @@ void KeybindData::SavePreset(int idx)
 		if (table[row].flags & CODE_TABLE_FLAG_ENABLE) {
 			for(int col=0; col<cols; col++) {
 				code = table[row].cols[col].vk_keycode;
-				dst[table[row].vm_keycode * cols + col] = code;
+				dst[table[row].vm_keycode].d[col] = code;
 			}
 		}
 	}
 	if (m_devtype == DEVTYPE_JOYPAD && (m_vm_type == VM_TYPE_KEYASSIGN || m_vm_type == VM_TYPE_PIOBITASSIGN)) {
-		dst[(vkkey_defmap_rows - 1) * cols] = GetCombi();
+		dst[vkkey_defmap_rows - 1].d[0] = GetCombi();
 	}
 }
 
@@ -599,14 +599,14 @@ void KeybindData::SetData()
 {
 	int rows = vmkey_map_size;
 	int cols = vkkey_defmap_cols;
-	uint32_t *dst = vkkey_map;
+	uint32_key_assign_t *dst = vkkey_map;
 	uint32_t code = 0;
 
 	for(int row=0; row<rows; row++) {
 		if (table[row].flags & CODE_TABLE_FLAG_ENABLE) {
 			for(int col=0; col<cols; col++) {
 				code = table[row].cols[col].vk_keycode;
-				dst[table[row].vm_keycode * cols + col] = code;
+				dst[table[row].vm_keycode].d[col] = code;
 			}
 		}
 	}
@@ -655,6 +655,7 @@ void KeybindData::SetData()
 		case VM_TYPE_PIOBITASSIGN:
 			// make joypad to joyport mapping
 			emu->clear_joy2joy_map();
+			emu->clear_joy2joyk_map();
 			for(int row=0, anaidx = -1; row<rows; row++) {
 				if (table[row].flags & CODE_TABLE_FLAG_ENABLE) {
 					uint8_t idx = (table[row].vm_keycode & 0xff);
@@ -663,6 +664,8 @@ void KeybindData::SetData()
 						if (table[row].flags & CODE_TABLE_FLAG_JOYANA) {
 							if (anaidx < 0) anaidx = idx;
 							emu->set_joy2joy_ana_map(col, idx - anaidx, code);
+						} else if (table[row].flags & CODE_TABLE_FLAG_JOYKEY) {
+							emu->set_joy2joyk_map(col, idx, code);
 						} else {
 							emu->set_joy2joy_map(col, idx, code);
 						}
@@ -893,10 +896,13 @@ const key_labels_t cVmJoyLabels[] = {
 	{ CMsg::select,		_T("select") },
 	{ CMsg::start,		_T("start") },
 	{ CMsg::Null,       _T("?") },
+	{ -1,                   _T("ESC") },
+	{ CMsg::Bracket_Pause,  _T("(Pause)") },
+	{ CMsg::Null,           _T("?") },
+	// 32
 	{ CMsg::Left_Analog_X,	_T("Left Analog X") },
 	{ CMsg::Left_Analog_Y,	_T("Left Analog Y") },
 	{ CMsg::Right_Analog_X,	_T("Right Analog X") },
-	// 32
 	{ CMsg::Right_Analog_Y,	_T("Right Analog Y") },
 	{ -1, NULL }
 };

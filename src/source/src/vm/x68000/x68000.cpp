@@ -247,6 +247,7 @@ VM::VM(EMU* parent_emu) : emu(parent_emu)
 	scc->set_context_irq(board, SIG_CPU_IRQ, 0x20);	// IRQ to IPL5
 
 	// sysport
+	sysport->set_context_crtc(crtc);
 	sysport->set_context_display(display);
 	sysport->set_context_memory(memory);
 	sysport->set_context_board(board);
@@ -1043,42 +1044,53 @@ bool VM::datarec_opened(bool play_mode)
 // ----------------------------------------------------------------------------
 
 #ifdef USE_FD1
-bool VM::open_disk(int drv, const _TCHAR* file_path, int offset, uint32_t flags)
+bool VM::open_floppy_disk(int drv, const _TCHAR* file_path, int offset, uint32_t flags)
 {
-	return fdd->open_disk(drv, file_path, offset, flags);
+	bool rc = fdd->open_disk(drv, file_path, offset, flags);
+	if (rc) {
+		if (!(flags & OPEN_DISK_FLAGS_FORCELY)) {
+			int sdrv = fdd->inserted_disk_another_drive(drv, file_path, offset);
+			if (sdrv >= 0) {
+				int drvmin = MIN(drv, sdrv);
+				int drvmax = MAX(drv, sdrv);
+				logging->out_logf_x(LOG_WARN, CMsg::There_is_the_same_floppy_disk_in_drive_VDIGIT_and_VDIGIT, drvmin, drvmax);
+			}
+		}
+	}
+	return rc;
 }
 
-bool VM::close_disk(int drv, uint32_t flags)
+bool VM::close_floppy_disk(int drv, uint32_t flags)
 {
 	return fdd->close_disk(drv, flags);
 }
 
-int VM::change_disk(int drv)
+int VM::change_floppy_disk(int drv)
 {
 	return 0;
 }
 
-bool VM::disk_inserted(int drv)
+bool VM::floppy_disk_inserted(int drv)
 {
 	return fdd->disk_inserted(drv);
 }
 
-int VM::get_disk_side(int drv)
+int VM::get_floppy_disk_side(int drv)
 {
 	return fdd->get_disk_side(drv);
 }
 
-void VM::toggle_disk_write_protect(int drv)
+void VM::toggle_floppy_disk_write_protect(int drv)
 {
 	fdd->toggle_disk_write_protect(drv);
 }
 
-bool VM::disk_write_protected(int drv)
+bool VM::floppy_disk_write_protected(int drv)
 {
 	return fdd->disk_write_protected(drv);
 }
 
-bool VM::is_same_disk(int drv, const _TCHAR *file_path, int offset)
+bool VM::is_same_floppy_disk(int drv, const _TCHAR *file_path, int offset)
 {
 	return fdd->is_same_disk(drv, file_path, offset);
 }
@@ -1089,7 +1101,20 @@ bool VM::is_same_disk(int drv, const _TCHAR *file_path, int offset)
 #ifdef USE_HD1
 bool VM::open_hard_disk(int drv, const _TCHAR* file_path, uint32_t flags)
 {
-	return sasi->open_disk(drv, file_path, flags);
+	bool rc = sasi->open_disk(drv, file_path, flags);
+	if (rc) {
+		if (!(flags & OPEN_DISK_FLAGS_FORCELY)) {
+			int sdrv = sasi->mounted_disk_another_drive(drv, file_path);
+			if (sdrv >= 0) {
+				int drvmin = MIN(drv, sdrv);
+				int drvmax = MAX(drv, sdrv);
+				logging->out_logf_x(LOG_WARN, CMsg::There_is_the_same_hard_disk_in_VSTR_VDIGIT_and_VSTR_VDIGIT
+					, _T("SASI"), drvmin
+					, _T("SASI"), drvmax);
+			}
+		}
+	}
+	return rc;
 }
 
 bool VM::close_hard_disk(int drv, uint32_t flags)
@@ -1188,6 +1213,16 @@ void VM::modify_joytype()
 void VM::save_keybind()
 {
 //	key->save_keybind();
+}
+
+void VM::clear_joy2joyk_map()
+{
+	key->clear_joy2joyk_map();
+}
+
+void VM::set_joy2joyk_map(int num, int idx, uint32_t joy_code)
+{
+	key->set_joy2joyk_map(num, idx, joy_code);
 }
 
 // ----------------------------------------------------------------------------
@@ -1497,17 +1532,20 @@ void VM::change_fdd_type(int num, bool reset)
 /// @param[out] data      : loaded data
 /// @param[in]  size      : buffer size of data
 /// @param[in]  first_data      : (nullable) first pattern to compare to loaded data
-/// @param[in]  first_data_size :
+/// @param[in]  first_data_size : size of first_data
+/// @param[in]  first_data_pos  : comparing position in loaded data
 /// @param[in]  last_data       : (nullable) last pattern to compare to loaded data
-/// @param[in]  last_data_size  :
+/// @param[in]  last_data_size  : size of last_data
+/// @param[in]  last_data_pos   : comparing position in loaded data
 /// @return successfully loaded
 bool VM::load_data_from_file(const _TCHAR *file_path, const _TCHAR *file_name
 	, uint8_t *data, size_t size
-	, const uint8_t *first_data, size_t first_data_size
-	, const uint8_t *last_data,  size_t last_data_size)
+	, const uint8_t *first_data, size_t first_data_size, size_t first_data_pos
+	, const uint8_t *last_data,  size_t last_data_size, size_t last_data_pos)
 {
 	return EMU::load_data_from_file(file_path, file_name, data, size
-		, first_data, first_data_size, last_data, last_data_size);
+		, first_data, first_data_size, first_data_pos
+		, last_data, last_data_size, last_data_pos);
 }
 
 /// @brief get VM specific parameter
@@ -1584,7 +1622,7 @@ bool VM::save_state(const _TCHAR* filename)
 
 	// header
 	memset(&vm_state_h, 0, sizeof(vm_state_h));
-	strncpy(vm_state_h.header, RESUME_FILE_HEADER, 16);
+	UTILITY::strncpy(vm_state_h.header, sizeof(vm_state_h.header), RESUME_FILE_HEADER, 16);
 	vm_state_h.version = Uint16_LE(RESUME_FILE_VERSION);
 	vm_state_h.revision = Uint16_LE(RESUME_FILE_REVISION);
 	vm_state_h.param = Uint32_LE(0);

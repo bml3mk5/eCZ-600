@@ -66,7 +66,7 @@ void Logging::open_logfile(const _TCHAR *path)
 	if (fplog) {
 		_TCHAR file_path[_MAX_PATH];
 		UTILITY::concat(file_path, _MAX_PATH, path, _T(CONFIG_NAME), _T(".log"), NULL);
-		if (!fplog->Fopen(file_path, FILEIO::WRITE_ASCII)) {
+		if (!fplog->Fopen(file_path, FILEIO::READ_WRITE_NEW_ASCII)) {
 			delete fplog;
 			fplog = NULL;
 		}
@@ -328,13 +328,13 @@ void Logging::out_debug(const char* msg)
 void Logging::out_syserrlog(int level, int err_num, const char* premsg)
 {
 	char msg[MESSAGE_BUFFER];
-	strcpy(msg, premsg);
+	UTILITY::strcpy(msg, MESSAGE_BUFFER, premsg);
 #if defined(USE_WIN)
-	strcat(msg, " ");
+	UTILITY::strcat(msg, MESSAGE_BUFFER, " ");
 	int len = (int)strlen(msg);
 	if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
 		err_num, LANGIDFROMLCID(clocale->GetLcid()), &msg[len], MESSAGE_BUFFER - len, NULL) == 0) {
-		sprintf(&msg[len], "%d", err_num);
+		UTILITY::sprintf(&msg[len], MESSAGE_BUFFER, "%d", err_num);
 	}
 	for(int i=(int)strlen(msg)-1; i>=0; i--) {
 		if (msg[i] != ' ' && msg[i] != '\t' && msg[i] != '\r' && msg[i] != '\n') break;

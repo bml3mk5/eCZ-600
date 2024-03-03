@@ -80,7 +80,9 @@ void EMU::EMU_SCREEN()
 
 	// initialize update flags
 	disable_screen = DISABLE_SURFACE;
-	first_invalidate = self_invalidate = false;
+	first_invalidate_default = false;
+	first_invalidate = false;
+	self_invalidate = false;
 	skip_frame = false;
 
 	//

@@ -147,7 +147,7 @@ extern EMU *emu;
 		[data SetData];
 		CocoaCheckBox *chk = [tv chkCombi];
 		if (chk) {
-			[data setCombi:[chk state] == NSOnState ? 1 : 0];
+			[data setCombi:[chk state] == NSControlStateValueOn ? 1 : 0];
 		}
 	}
 
@@ -202,7 +202,7 @@ extern EMU *emu;
 	[view editColumn:0 row:[view selectedRow] withEvent:nil select:YES];
 	CocoaCheckBox *chk = [tv chkCombi];
 	if (chk) {
-		[data setCombi:[chk state] == NSOnState ? 1 : 0];
+		[data setCombi:[chk state] == NSControlStateValueOn ? 1 : 0];
 	}
 	[data savePreset:attr.idx];
 	[view reloadData];
@@ -226,7 +226,7 @@ extern EMU *emu;
 		bits = (JOYCODE_V_UP | JOYCODE_V_DOWN);
 		break;
 	}
-	BIT_ONOFF(enable_axes, bits, [chk state] == NSOnState);
+	BIT_ONOFF(enable_axes, bits, [chk state] == NSControlStateValueOn);
 }
 
 @end

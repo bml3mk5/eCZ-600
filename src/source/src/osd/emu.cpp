@@ -712,14 +712,14 @@ void EMU::assert_interrupt(int num)
 /// @param[in] offset : position of a file image
 /// @param[in] flags : bit0: 1 = read only
 /// @return 0:opened successfully / -1:cannot open a new image / -2:failed closing the current image before open a new image
-int EMU::open_disk_main(int drv, const _TCHAR* file_path, int offset, uint32_t flags)
+int EMU::open_floppy_disk_main(int drv, const _TCHAR* file_path, int offset, uint32_t flags)
 {
-	if(disk_inserted(drv) || disk_insert[drv].wait_count != 0) {
-		if(disk_inserted(drv)) {
-			if (!vm->close_disk(drv, flags)) return -2;
+	if(floppy_disk_inserted(drv) || disk_insert[drv].wait_count != 0) {
+		if(floppy_disk_inserted(drv)) {
+			if (!vm->close_floppy_disk(drv, flags)) return -2;
 #ifdef USE_EMU_INHERENT_SPEC
 		}
-		return vm->open_disk(drv, file_path, offset, flags) ? 0 : -1;
+		return vm->open_floppy_disk(drv, file_path, offset, flags) ? 0 : -1;
 #else
 			// wait 0.5sec
 #ifdef SUPPORT_VARIABLE_TIMING
@@ -736,14 +736,14 @@ int EMU::open_disk_main(int drv, const _TCHAR* file_path, int offset, uint32_t f
 #endif
 	}
 	else {
-		return vm->open_disk(drv, file_path, offset, flags) ? 0 : -1;
+		return vm->open_floppy_disk(drv, file_path, offset, flags) ? 0 : -1;
 	}
 }
-bool EMU::open_disk(int drv, const _TCHAR* file_path, int bank_num, int offset, uint32_t flags)
+bool EMU::open_floppy_disk(int drv, const _TCHAR* file_path, int bank_num, int offset, uint32_t flags)
 {
 	int rc = -1;
 	if (vm && file_path && file_path[0] != 0) {
-		rc = open_disk_main(drv, file_path, offset, flags);
+		rc = open_floppy_disk_main(drv, file_path, offset, flags);
 		if (!rc) {
 			pConfig->opened_disk_path[drv].Clear();
 			pConfig->recent_disk_path[drv].Update(file_path, bank_num);
@@ -759,7 +759,7 @@ bool EMU::open_disk(int drv, const _TCHAR* file_path, int bank_num, int offset, 
 	return (rc == 0);
 }
 
-void EMU::update_disk_info(int drv, const _TCHAR* file_path, int bank_num)
+void EMU::update_floppy_disk_info(int drv, const _TCHAR* file_path, int bank_num)
 {
 	pConfig->recent_disk_path[drv].Update(file_path, bank_num);
 	pConfig->opened_disk_path[drv].Set(file_path, bank_num);
@@ -773,7 +773,7 @@ void EMU::update_disk_info(int drv, const _TCHAR* file_path, int bank_num)
 /// @param[in] flags : bit0: 1 = read only
 /// @param[in] multiopen : open 2 drives when multi volume
 /// @return true = success
-bool EMU::open_disk_by_bank_num(int drv, const _TCHAR* file_path, int bank_num, uint32_t flags, bool multiopen)
+bool EMU::open_floppy_disk_by_bank_num(int drv, const _TCHAR* file_path, int bank_num, uint32_t flags, bool multiopen)
 {
 	bool rc = false;
 
@@ -781,29 +781,29 @@ bool EMU::open_disk_by_bank_num(int drv, const _TCHAR* file_path, int bank_num, 
 
 	int bank_nums = d88_files.GetFile(drv).GetBanks().Count();
 
-	rc = open_disk_with_sel_bank(drv, bank_num, flags);
+	rc = open_floppy_disk_with_sel_bank(drv, bank_num, flags);
 	if (!rc || !multiopen) return rc;
 #ifdef USE_FD2
 	if(drv == 0 && bank_num + 1 < bank_nums) {
-		rc = open_disk_by_bank_num(drv + 1, file_path, bank_num + 1, flags, multiopen);
+		rc = open_floppy_disk_by_bank_num(drv + 1, file_path, bank_num + 1, flags, multiopen);
 		if (!rc) return rc;
 	}
 #endif
 #ifdef USE_FD4
 	if(drv == 2 && bank_num + 1 < bank_nums) {
-		rc = open_disk_by_bank_num(drv + 1, file_path, bank_num + 1, flags, multiopen);
+		rc = open_floppy_disk_by_bank_num(drv + 1, file_path, bank_num + 1, flags, multiopen);
 		if (!rc) return rc;
 	}
 #endif
 #ifdef USE_FD6
 	if(drv == 4 && bank_num + 1 < bank_nums) {
-		rc = open_disk_by_bank_num(drv + 1, file_path, bank_num + 1, flags, multiopen);
+		rc = open_floppy_disk_by_bank_num(drv + 1, file_path, bank_num + 1, flags, multiopen);
 		if (!rc) return rc;
 	}
 #endif
 	return rc;
 }
-bool EMU::open_disk_with_sel_bank(int drv, int bank_num, uint32_t flags)
+bool EMU::open_floppy_disk_with_sel_bank(int drv, int bank_num, uint32_t flags)
 {
 	bool rc = false;
 	D88File *d88_file = &d88_files.GetFile(drv); 
@@ -817,17 +817,17 @@ bool EMU::open_disk_with_sel_bank(int drv, int bank_num, uint32_t flags)
 		flags |= OPEN_DISK_FLAGS_LAST_VOLUME;
 	}
 	if(d88_file->GetCurrentBank() != bank_num) {
-		if ((rc = open_disk(drv, d88_file->GetPath(), bank_num, d88_file->GetBank(bank_num)->GetOffset(), flags)) == true) {
+		if ((rc = open_floppy_disk(drv, d88_file->GetPath(), bank_num, d88_file->GetBank(bank_num)->GetOffset(), flags)) == true) {
 			d88_file->SetBank(bank_num);
 		}
 	}
 	return rc;
 }
-void EMU::close_disk(int drv, uint32_t flags)
+void EMU::close_floppy_disk(int drv, uint32_t flags)
 {
 	if (!vm) return;
 
-	if (!vm->close_disk(drv, flags)) return;
+	if (!vm->close_floppy_disk(drv, flags)) return;
 
 	pConfig->opened_disk_path[drv].Clear();
 	d88_files.GetFile(drv).Clear();
@@ -842,31 +842,31 @@ void EMU::update_disk_insert()
 
 	for(int drv = 0; drv < MAX_DRIVE; drv++) {
 		if(disk_insert[drv].wait_count != 0 && --disk_insert[drv].wait_count == 0) {
-			vm->open_disk(drv, disk_insert[drv].path, disk_insert[drv].offset, disk_insert[drv].flags);
+			vm->open_floppy_disk(drv, disk_insert[drv].path, disk_insert[drv].offset, disk_insert[drv].flags);
 		}
 	}
 }
-int EMU::change_disk(int drv)
+int EMU::change_floppy_disk(int drv)
 {
-	return (vm ? vm->change_disk(drv) : 0);
+	return (vm ? vm->change_floppy_disk(drv) : 0);
 }
-int EMU::get_disk_side(int drv)
+int EMU::get_floppy_disk_side(int drv)
 {
-	return (vm ? vm->get_disk_side(drv) : 0);
+	return (vm ? vm->get_floppy_disk_side(drv) : 0);
 }
-void EMU::toggle_disk_write_protect(int drv)
+void EMU::toggle_floppy_disk_write_protect(int drv)
 {
 	if (!vm) return;
 
-	vm->toggle_disk_write_protect(drv);
+	vm->toggle_floppy_disk_write_protect(drv);
 }
-bool EMU::disk_write_protected(int drv)
+bool EMU::floppy_disk_write_protected(int drv)
 {
-	return (vm ? vm->disk_write_protected(drv) : false);
+	return (vm ? vm->floppy_disk_write_protected(drv) : false);
 }
-bool EMU::disk_inserted(int drv)
+bool EMU::floppy_disk_inserted(int drv)
 {
-	return (vm ? vm->disk_inserted(drv) : false);
+	return (vm ? vm->floppy_disk_inserted(drv) : false);
 }
 bool EMU::changed_cur_bank(int drv)
 {
@@ -889,7 +889,7 @@ bool EMU::create_blank_floppy_disk(const _TCHAR* file_path, uint8_t type)
 	} d88_hdr;
 
 	memset(&d88_hdr, 0, sizeof(d88_hdr));
-	strcpy(d88_hdr.title, "BLANK");
+	UTILITY::strcpy(d88_hdr.title, sizeof(d88_hdr.title) / sizeof(d88_hdr.title[0]), "BLANK");
 	d88_hdr.type = type;
 	d88_hdr.size = sizeof(d88_hdr);
 
@@ -904,11 +904,11 @@ bool EMU::create_blank_floppy_disk(const _TCHAR* file_path, uint8_t type)
 
 	return valid;
 }
-bool EMU::is_same_disk(int drv, const _TCHAR *file_path, int bank_num)
+bool EMU::is_same_floppy_disk(int drv, const _TCHAR *file_path, int bank_num)
 {
 	bank_num = d88_files.Parse(drv, file_path, bank_num);
 	int offset = d88_files.GetFile(drv).GetBank(bank_num)->GetOffset();
-	return (vm ? vm->is_same_disk(drv, file_path, offset) : false);
+	return (vm ? vm->is_same_floppy_disk(drv, file_path, offset) : false);
 }
 #endif
 
@@ -1644,14 +1644,16 @@ void EMU::update_params()
 /// @param[out] data      : loaded data
 /// @param[in]  size      : buffer size of data
 /// @param[in]  first_data      : (nullable) first pattern to compare to loaded data
-/// @param[in]  first_data_size :
+/// @param[in]  first_data_size : size of first_data
+/// @param[in]  first_data_pos  : comparing position in loaded data
 /// @param[in]  last_data       : (nullable) last pattern to compare to loaded data
-/// @param[in]  last_data_size  :
+/// @param[in]  last_data_size  : size of last_data
+/// @param[in]  last_data_pos   : comparing position in loaded data
 /// @return successfully loaded
 bool EMU::load_data_from_file(const _TCHAR *file_path, const _TCHAR *file_name
 	, uint8_t *data, size_t size
-	, const uint8_t *first_data, size_t first_data_size
-	, const uint8_t *last_data,  size_t last_data_size)
+	, const uint8_t *first_data, size_t first_data_size, size_t first_data_pos
+	, const uint8_t *last_data,  size_t last_data_size, size_t last_data_pos)
 {
 	_TCHAR path[_MAX_PATH];
 	FILEIO fio;
@@ -1668,11 +1670,11 @@ bool EMU::load_data_from_file(const _TCHAR *file_path, const _TCHAR *file_name
 			logging->out_logf_x(LOG_WARN, CMsg::VSTR_is_VDIGIT_bytes_smaller_than_assumed_one, file_name, (int)size - len);
 		}
 		if (first_data != NULL && first_data_size > 0
-		 && memcmp(data, first_data, first_data_size) != 0) {
+		 && memcmp(&data[first_data_pos], first_data, first_data_size) != 0) {
 			logging->out_logf_x(LOG_WARN, CMsg::VSTR_is_different_image_from_assumed_one, file_name);
 		}
 		if (last_data != NULL && last_data_size > 0
-		 && memcmp(&data[size - last_data_size], last_data, last_data_size) != 0) {
+		 && memcmp(&data[last_data_pos], last_data, last_data_size) != 0) {
 			logging->out_logf_x(LOG_WARN, CMsg::VSTR_is_different_image_from_assumed_one, file_name);
 		}
 	}

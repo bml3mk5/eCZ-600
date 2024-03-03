@@ -114,8 +114,7 @@ const char *CNchar::GetN() const
 void CNchar::GetN(char *dst_str, int dst_len) const
 {
 	memset(dst_str, 0, sizeof(char) * dst_len);
-	int len = (Length() < dst_len ? Length() : dst_len);
-	if (len > 0) strncpy(dst_str, Get(), (size_t)len);
+	UTILITY::strncpy(dst_str, dst_len, Get(), Length());
 }
 /// @brief 文字列をセット(変換あり)
 /// @param[in] src_str ワイド文字
@@ -251,8 +250,7 @@ const wchar_t *CWchar::GetW() const
 void CWchar::GetW(wchar_t *dst_str, int dst_len) const
 {
 	memset(dst_str, 0, sizeof(wchar_t) * dst_len);
-	int len = (Length() < dst_len ? Length() : dst_len);
-	if (len > 0) wcsncpy(dst_str, Get(), (size_t)len);
+	UTILITY::wcsncpy(dst_str, dst_len, Get(), Length());
 }
 
 /// @brief 文字列をセット(変換あり)

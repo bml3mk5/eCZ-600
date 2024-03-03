@@ -136,7 +136,7 @@ extern EMU *emu;
 
 - (void)changeMute:(CocoaCheckBox *)sender
 {
-	*p_mute[sender.index] = ([sender state] == NSOnState);
+	*p_mute[sender.index] = ([sender state] == NSControlStateValueOn);
 	emu->set_volume(0);
 }
 

@@ -74,6 +74,8 @@ private:
 	int infile_samples_const;
 	int inwav_dirpos;
 
+	static const _TCHAR *c_errmsgs[];
+
 	bool  decode_phase1(int fsk_spd, enum_phase start_phase, char *w_onedata, int *w_onelen);
 	int   decode_phase2(uint8_t *s_data, int &s_datalen, char *c_onedata, int *c_onelen);
 

@@ -14,6 +14,7 @@
 #include "../common.h"
 #include "../vm/vm.h"
 #include "../emu.h"
+#include "../osd/keybind.h"
 
 #define KBLABEL_MAXLEN	100
 
@@ -34,12 +35,6 @@ typedef struct codetable_st {
 	uint16_t   vm_keycode;
 	uint16_t   flags;
 } codetable_t;
-
-enum enCodeTableFlags {
-	CODE_TABLE_FLAG_ENABLE = 0x0001,
-	CODE_TABLE_FLAG_JOYBTN = 0x0100,
-	CODE_TABLE_FLAG_JOYANA = 0x1000,
-};
 
 typedef struct rowcol_st {
 	int row;
@@ -82,6 +77,9 @@ enum enVmJoyLabels {
 	VM_JOY_LABEL_BUTTON_SELECT,
 	VM_JOY_LABEL_BUTTON_START,
 	VM_JOY_LABEL_BUTTONS_END,
+	VM_JOY_LABEL_ESCAPE,
+	VM_JOY_LABEL_PAUSE,
+	VM_JOY_LABEL_KEYS_END,
 	VM_JOY_LABEL_LEFT_ANALOG_X,
 	VM_JOY_LABEL_LEFT_ANALOG_Y,
 	VM_JOY_LABEL_RIGHT_ANALOG_X,
@@ -104,12 +102,12 @@ protected:
 	/// assign key code uniquely
 	rowcol_t vkkey2rowcol_map[KEY_STATUS_SIZE];
 
-	uint32_t *vkkey_defmap;
+	const uint32_key_assign_t *vkkey_defmap;
 	int     vkkey_defmap_rows;
 	int     vkkey_defmap_cols;
 
-	uint32_t *vkkey_map;
-	uint32_t *vkkey_preset_map[KEYBIND_PRESETS];
+	uint32_key_assign_t *vkkey_map;
+	uint32_key_assign_t *vkkey_preset_map[KEYBIND_PRESETS];
 
 	uint32_t *p_joy_mask;
 
@@ -160,12 +158,12 @@ public:
 
 	virtual void Init(EMU *emu, int new_tabnum);
 
-	virtual void SetVmKeyMap(uint16_t *vmKeyMap, int size);
+	virtual void SetVmKeyMap(const uint16_t *vmKeyMap, int size);
 	virtual void SetVmKey(int idx, uint16_t code);
 	virtual bool SetVmKeyCode(int idx, uint16_t code);
-	virtual void SetVkKeyMap(uint32_t *vkKeyMap);
-	virtual void SetVkKeyDefMap(uint32_t *vkKeyDefMap, int rows, int cols);
-	virtual void SetVkKeyPresetMap(uint32_t *vkKeyMap, int idx);
+	virtual void SetVkKeyMap(uint32_key_assign_t *vkKeyMap);
+	virtual void SetVkKeyDefMap(const uint32_key_assign_t *vkKeyDefMap, int rows);
+	virtual void SetVkKeyPresetMap(uint32_key_assign_t *vkKeyMap, int idx);
 	virtual bool SetVkKeyCode(codetable_t *tbl, int col, uint32_t code, _TCHAR *label);
 	virtual bool SetVkKeyCode(int row, int col, uint32_t code, _TCHAR *label);
 	virtual bool ClearVkKeyCode(codetable_t *tbl, int col, _TCHAR *label);

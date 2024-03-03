@@ -189,7 +189,7 @@ void MsgBoard::draw(CTexture &texture, msg_data_t &data)
 		scrntype *buf = sMainSuf->GetBuffer();
 		buf += data.re.y * sMainSuf->Width();
 		SDL_Rect texture_re;
-		RECT_IN(texture_re, 0, data.re.y + 32, reDst.w, reDst.h);
+		RECT_IN(texture_re, 0, data.re.y, reDst.w, reDst.h);
 		SDL_UpdateTexture(texture.Get(), &texture_re, buf, sMainSuf->BytesPerLine());
 		SDL_RenderCopy(texture.Renderer(), texture.Get(), &texture_re, &reDst);
 #endif

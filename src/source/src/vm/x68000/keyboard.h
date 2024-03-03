@@ -17,6 +17,7 @@
 #include "../device.h"
 //#include "../../config.h"
 //#include "keyrecord.h"
+#include "../../osd/keybind.h"
 
 #ifdef _DEBUG
 /* #define _DEBUG_KEYBOARD */
@@ -123,15 +124,16 @@ private:
 	int event_counter;
 #endif
 
-	uint32_t scan2key_map[KEYBIND_KEYS][KEYBIND_ASSIGN];
-	uint32_t scan2key_preset_map[KEYBIND_PRESETS][KEYBIND_KEYS][KEYBIND_ASSIGN];
-	uint32_t joy2key_map[KEYBIND_KEYS][KEYBIND_ASSIGN];
-	uint32_t joy2key_preset_map[KEYBIND_PRESETS][KEYBIND_KEYS][KEYBIND_ASSIGN];
-	uint32_t sjoy2joy_map[KEYBIND_JOYS][KEYBIND_ASSIGN];
-	uint32_t sjoy2joy_preset_map[KEYBIND_PRESETS][KEYBIND_JOYS][KEYBIND_ASSIGN];
+	uint32_key_assign_t scan2key_map[KEYBIND_KEYS];
+	uint32_key_assign_t scan2key_preset_map[KEYBIND_PRESETS][KEYBIND_KEYS];
+	uint32_key_assign_t joy2key_map[KEYBIND_KEYS];
+	uint32_key_assign_t joy2key_preset_map[KEYBIND_PRESETS][KEYBIND_KEYS];
+	uint32_key_assign_t sjoy2joy_map[KEYBIND_JOYS];
+	uint32_key_assign_t sjoy2joy_preset_map[KEYBIND_PRESETS][KEYBIND_JOYS];
+	uint32_key_assign_t sjoy2joyk_map[KEYBIND_KEYS];
 #ifdef USE_KEY2JOYSTICK
-	uint32_t scan2joy_map[KEYBIND_JOYS][KEYBIND_ASSIGN];
-	uint32_t scan2joy_preset_map[KEYBIND_PRESETS][KEYBIND_JOYS][KEYBIND_ASSIGN];
+	uint32_key_assign_t scan2joy_map[KEYBIND_JOYS];
+	uint32_key_assign_t scan2joy_preset_map[KEYBIND_PRESETS][KEYBIND_JOYS];
 #endif
 
 	int m_key_register_id;	// keyboad clock
@@ -228,6 +230,8 @@ public:
 
 	void modify_joytype();
 	void save_keybind();
+	void clear_joy2joyk_map();
+	void set_joy2joyk_map(int num, int idx, uint32_t joy_code);
 
 #ifdef USE_KEY_RECORD
 	bool play_reckey(const _TCHAR* filename);

@@ -147,7 +147,7 @@ void MEMORY::release()
 /// @note reset() is called when processing power off and on.
 void MEMORY::reset()
 {
-	int val = 0;
+//	int val = 0;
 
 	// read rom image from file
 	load_rom_files();
@@ -155,20 +155,10 @@ void MEMORY::reset()
 	// resize main ram size and (re)allocate it
 	set_main_ram();
 
-	switch(pConfig->ram_initialize) {
-	case 1:
-		val = 0xff;
-		/* :through: */
-	case 2:
-		memset(m_ram , val, m_ram_size * sizeof(uint16_t));
-		break;
-	default:
-		clear_ram(m_ram, m_ram_size);
-		break;
-	}
-	memset(m_gvram , 0xff, sizeof(m_gvram));
-	memset(m_tvram , 0xff, sizeof(m_tvram));
-	memset(m_spram , 0xff, sizeof(m_spram));
+	clear_main_memory(pConfig->ram_initialize, m_ram, m_ram_size);
+	clear_graphic_memory(pConfig->vram_initialize, m_gvram, sizeof(m_gvram) / sizeof(m_gvram[0]));
+	clear_graphic_memory(pConfig->vram_initialize, m_tvram, sizeof(m_tvram) / sizeof(m_tvram[0]));
+	clear_graphic_memory(pConfig->spram_initialize, m_spram, sizeof(m_spram) / sizeof(m_spram[0]));
 	memset(u_tvram , 0x00, sizeof(u_tvram));
 	memset(u_pcg , 0x00, sizeof(u_pcg));
 //	memset(u_gvram , 0x00, sizeof(u_gvram));
@@ -208,6 +198,36 @@ void MEMORY::warm_reset(bool por)
 	AREA_SET_SIZE; // words
 }
 
+void MEMORY::clear_main_memory(int method, uint16_t *buf, size_t size)
+{
+	int val = 0;
+	switch(method) {
+	case 1:
+		val = 0xff;
+		/* :through: */
+	case 2:
+		memset(buf , val, size * sizeof(uint16_t));
+		break;
+	default:
+		clear_ram(buf, size);
+		break;
+	}
+}
+
+void MEMORY::clear_graphic_memory(int method, uint16_t *buf, size_t size)
+{
+	int val = 0;
+	switch(method) {
+	case 1:
+		val = 0xff;
+		/* :through: */
+	default:
+		memset(buf , val, size * sizeof(uint16_t));
+		break;
+	}
+}
+
+/// clear memory such as stripe
 /// @param[in] buf  : buffer
 /// @param[in] size : size in words
 void MEMORY::clear_ram(uint16_t *buf, size_t size)
@@ -682,19 +702,7 @@ void MEMORY::write_data_nw(uint32_t addr, uint32_t data, int *wait, int width)
 		case 0x52:
 			// SRAM 16KB
 			if (m_sram_writable) {
-				// warning message
-				uint32_t addrs = ADDRH_MASK(addrh, 0x4000);
-				if (FLG_ORIG_SRAM_CHG_BOOT_DEV && addrs == (0x18 >> 1)) {
-					uint16_t orig_data = m_sram[addrs] >> 8;
-					STORE_DATA(m_sram[addrs], data, mask);
-					uint16_t new_data = m_sram[addrs] >> 8;
-					if (new_data != 0 && orig_data != new_data) {
-						logging->out_log_x(LOG_WARN, CMsg::Setting_of_boot_device_in_SRAM_was_changed); 
-					}
-				} else {
-					STORE_DATA(m_sram[addrs], data, mask);
-				}
-				patch_sram_data();
+				write_sram(addrh, data, mask);
 			}
 			break;
 		default:
@@ -726,6 +734,41 @@ void MEMORY::write_data_nw(uint32_t addr, uint32_t data, int *wait, int width)
 #ifdef USE_DEBUGGER
 //	bas->SetTraceBack(addr);
 #endif
+}
+
+void MEMORY::write_sram(uint32_t addrh, uint32_t data, uint32_t mask)
+{
+	uint32_t addrs = ADDRH_MASK(addrh, 0x4000);
+
+	if (FLG_ORIG_SRAM_CHG_BOOT_DEV) {
+		// check warning
+		switch(addrs) {
+		case (0x18 >> 1):
+			write_sram_and_check_warn(addrs, data, mask, 0xff00, CMsg::The_setting_of_boot_device_in_SRAM_was_changed);
+			break;
+		case (0x10 >> 1):
+		case (0x12 >> 1):
+			write_sram_and_check_warn(addrs, data, mask, 0xffff, CMsg::The_start_address_in_SRAM_was_changed);
+			break;
+		default:
+			STORE_DATA(m_sram[addrs], data, mask);
+			break;
+		}
+	} else {
+		STORE_DATA(m_sram[addrs], data, mask);
+	}
+	patch_sram_data();
+}
+
+void MEMORY::write_sram_and_check_warn(uint32_t addrs, uint32_t data, uint32_t mask, uint16_t check_mask, int msg_id)
+{
+	uint16_t orig_data = (m_sram[addrs] & check_mask);
+	STORE_DATA(m_sram[addrs], data, mask);
+	uint16_t new_data = (m_sram[addrs] & check_mask);
+
+	if (new_data != 0 && orig_data != new_data) {
+		logging->out_log_x(LOG_WARN, CMSGV((CMsg::Id)msg_id)); 
+	}
 }
 
 void MEMORY::write_tvram(uint32_t addrh, uint32_t data, uint32_t mask)
@@ -1638,16 +1681,16 @@ void MEMORY::write_signal(int id, uint32_t data, uint32_t mask)
 	}
 }
 
+// 0:1MB 1:2MB 2:4MB 3:8MB 4:10MB
+static const uint32_t c_memory_size[] = {
+	1, 2, 4, 6, 8, 10, 12
+};
+
 /// (re)allocate main ram 
 void MEMORY::set_main_ram()
 {
-	// 0:1MB 1:2MB 2:4MB 3:8MB 4:10MB
-	uint32_t size = 0;
-	if (pConfig->main_ram_size_num == 4) {
-		size = 10 * 1024 * 1024 / sizeof(uint16_t);
-	} else {
-		size = (1024 << pConfig->main_ram_size_num) * 1024 / sizeof(uint16_t);
-	}
+	if (pConfig->main_ram_size_num > 6) pConfig->main_ram_size_num = 0;
+	uint32_t size = c_memory_size[pConfig->main_ram_size_num] * 1024 * 1024 / (uint32_t)sizeof(uint16_t);
 	set_main_ram(size);
 }
 
@@ -2221,9 +2264,9 @@ void MEMORY::debug_regs_info(int type, _TCHAR *buffer, size_t buffer_len)
 	}
 }
 
-int MEMORY::get_debug_graphic_memory_size(int type, int *width, int *height)
+int MEMORY::get_debug_graphic_memory_size(int num, int type, int *width, int *height)
 {
-	return d_disp->get_debug_graphic_memory_size(type, width, height);
+	return d_disp->get_debug_graphic_memory_size(num, type, width, height);
 }
 
 bool MEMORY::debug_graphic_type_name(int type, _TCHAR *buffer, size_t buffer_len)
@@ -2234,6 +2277,11 @@ bool MEMORY::debug_graphic_type_name(int type, _TCHAR *buffer, size_t buffer_len
 bool MEMORY::debug_draw_graphic(int type, int width, int height, scrntype *buffer)
 {
 	return d_disp->debug_draw_graphic(type, width, height, buffer);
+}
+
+bool MEMORY::debug_dump_graphic(int type, int width, int height, uint16_t *buffer)
+{
+	return d_disp->debug_dump_graphic(type, width, height, buffer);
 }
 
 bool MEMORY::debug_basic_is_supported()

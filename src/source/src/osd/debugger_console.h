@@ -391,6 +391,8 @@ private:
 	void UsageBinaryFile(bool s, int num);
 	void UsageBinaryFileType();
 	void CommandSaveImageFile(int num);
+	bool SaveImageFile(int type, int w, int h);
+	bool SaveImageDumpFile(int type, int w, int h);
 	void UsageImageFile(bool s, int num);
 
 	void CommandSetBreakPoint(int num);

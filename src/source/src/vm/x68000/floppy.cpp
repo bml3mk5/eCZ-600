@@ -229,12 +229,13 @@ void FLOPPY::warm_reset(bool por)
 
 	m_ignore_write = false;
 
-	for(int ft = 0; ft < FLOPPY_WAV_FDDTYPES; ft++) {
-		for(int ty = 0; ty < FLOPPY_WAV_SNDTYPES; ty++) {
-//			m_wav_play[ty] = 0;
-			m_noises[ft][ty].stop();
-		}
-	}
+//	for(int ft = 0; ft < FLOPPY_WAV_FDDTYPES; ft++) {
+//		for(int ty = 0; ty < FLOPPY_WAV_SNDTYPES; ty++) {
+//			m_noises[ft][ty].stop();
+//		}
+//	}
+	m_noises[FLOPPY_WAV_TYPE2HD][FLOPPY_WAV_SEEK].stop();
+	m_noises[FLOPPY_WAV_TYPE2HD][FLOPPY_WAV_MOTOR].stop();
 
 	register_my_event(EVENT_INDEXHOLE_ON, m_delay_index_hole);	// index hole
 
@@ -1171,21 +1172,9 @@ bool FLOPPY::open_disk(int drv, const _TCHAR *path, int offset, uint32_t flags)
 	if(drv < MAX_DRIVE) {
 		bool rc = p_disk[drv]->open(path, offset, flags);
 		if (rc) {
-			if (!(flags & OPEN_DISK_FLAGS_FORCELY)) {
-				for(int i=0; i<MAX_DRIVE; i++) {
-					if (i == drv) continue;
-					if (p_disk[i]->is_same_file(path, offset)) {
-						int drvmin = (i < drv ? i : drv);
-						int drvmax = (i < drv ? drv : i);
-						logging->out_logf_x(LOG_WARN, CMsg::There_is_the_same_disk_in_drive_VDIGIT_and_VDIGIT, drvmin, drvmax);
-						break;
-					}
-				}
-			}
 			m_fdd[drv].delay_write = 0;
 			m_fdd[drv].shown_media_error = false;
-		}
-		if (rc) {
+
 			if (!(flags & OPEN_DISK_FLAGS_FORCELY)) {
 				// insert event
 				m_fdd[drv].opened_intr = m_fdd[drv].closed_intr + 30;
@@ -1329,6 +1318,20 @@ bool FLOPPY::is_same_disk(int drv, const _TCHAR *file_path, int offset)
 		return p_disk[drv]->is_same_file(file_path, offset);
 	}
 	return false;
+}
+
+/// Is the disk already inserted in another drive?
+int FLOPPY::inserted_disk_another_drive(int drv, const _TCHAR *file_path, int offset)
+{
+	int match = -1;
+	for(int i=0; i<MAX_DRIVE; i++) {
+		if (i == drv) continue;
+		if (p_disk[i]->is_same_file(file_path, offset)) {
+			match = i;
+			break;
+		}
+	}
+	return match;
 }
 
 // ----------------------------------------------------------------------------

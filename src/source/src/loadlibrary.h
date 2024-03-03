@@ -19,11 +19,11 @@
 
 #define LOAD_LIB(handle, lib_base, version) { \
 	char libname[64]; \
-	strcpy(libname, lib_base); \
+	UTILITY::strcpy(libname, 64, lib_base); \
 	if (version) { \
-		sprintf(&libname[strlen(libname)], "-%d", version); \
+		UTILITY::sprintf(&libname[strlen(libname)], 64 - strlen(libname), "-%d", version); \
 	} \
-	strcat(libname, ".dll"); \
+	UTILITY::strcat(libname, 64, ".dll"); \
 	handle = LoadLibraryA(libname); \
 	if (!handle) { \
 		logging->out_logf(LOG_DEBUG, "Cannot load %s.", libname); \
@@ -55,12 +55,12 @@
 #if defined(__APPLE__) && defined(__MACH__)
 #define LOAD_LIB(handle, lib_base, version) { \
 	char libname[64]; \
-	strcpy(libname, "lib"); \
-	strcat(libname, lib_base); \
+	UTILITY::strcpy(libname, 64, "lib"); \
+	UTILITY::strcat(libname, 64, lib_base); \
 	if (version) { \
-		sprintf(&libname[strlen(libname)], ".%d", version); \
+		UTILITY::sprintf(&libname[strlen(libname)], 64 - strlen(libname), ".%d", version); \
 	} \
-	strcat(libname, ".dylib"); \
+	UTILITY::strcat(libname, 64, ".dylib"); \
 	handle = dlopen(libname, RTLD_NOW | RTLD_GLOBAL); \
 	if (!handle) { \
 		logging->out_logf(LOG_DEBUG, _T("Cannot load %s."), libname); \
@@ -72,11 +72,11 @@
 #else
 #define LOAD_LIB(handle, lib_base, version) { \
 	char libname[64]; \
-	strcpy(libname, "lib"); \
-	strcat(libname, lib_base); \
-	strcat(libname, ".so"); \
+	UTILITY::strcpy(libname, 64, "lib"); \
+	UTILITY::strcat(libname, 64, lib_base); \
+	UTILITY::strcat(libname, 64, ".so"); \
 	if (version) { \
-		sprintf(&libname[strlen(libname)], ".%d", version); \
+		UTILITY::sprintf(&libname[strlen(libname)], 64 - strlen(libname), ".%d", version); \
 	} \
 	handle = dlopen(libname, RTLD_NOW | RTLD_GLOBAL); \
 	if (!handle) { \

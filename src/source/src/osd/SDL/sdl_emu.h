@@ -210,6 +210,7 @@ private:
 	CTexture *texMixed;
 #ifdef USE_SCREEN_SDL2_MIX_ON_RENDERER
 	CTexture *texLedBox;
+	CTexture *texMsgBoard;
 #endif
 # ifdef USE_OPENGL
 	SDL_GLContext glcontext;

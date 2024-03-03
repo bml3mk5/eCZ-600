@@ -17,6 +17,7 @@
 #include "cchar.h"
 #include "osd/windowmode.h"
 #include "osd/screenmode.h"
+#include "osd/keybind.h"
 #include "msgs.h"
 
 #ifdef USE_FD1
@@ -197,6 +198,8 @@ protected:
 #endif
 	/// @brief enable key2joystick
 	bool key2joy_enabled;
+
+	const uint32_key_assign_t *key2joy_scancode;
 #endif
 
 #ifdef USE_JOYSTICK
@@ -367,6 +370,7 @@ protected:
 #define DISABLE_SURFACE	1
 	int  disable_screen;
 
+	bool first_invalidate_default;
 	bool first_invalidate;
 	bool self_invalidate;
 	bool skip_frame;
@@ -653,21 +657,21 @@ public:
 #ifdef USE_FD1
 	/// @name floppy disk menu for ui
 	//@{
-	int  open_disk_main(int drv, const _TCHAR* file_path, int offset, uint32_t flags);
-	bool open_disk(int drv, const _TCHAR* file_path, int bank_num, int offset, uint32_t flags);
-	void update_disk_info(int drv, const _TCHAR* file_path, int bank_num);
-	bool open_disk_by_bank_num(int drv, const _TCHAR* file_path, int bank_num, uint32_t flags, bool multiopen);
-	bool open_disk_with_sel_bank(int drv, int bank_num, uint32_t flags = 0);
-	void close_disk(int drv, uint32_t flags = 0);
-	int  change_disk(int drv);
-	int  get_disk_side(int drv);
-	void toggle_disk_write_protect(int drv);
-	bool disk_write_protected(int drv);
-	bool disk_inserted(int drv);
+	int  open_floppy_disk_main(int drv, const _TCHAR* file_path, int offset, uint32_t flags);
+	bool open_floppy_disk(int drv, const _TCHAR* file_path, int bank_num, int offset, uint32_t flags);
+	void update_floppy_disk_info(int drv, const _TCHAR* file_path, int bank_num);
+	bool open_floppy_disk_by_bank_num(int drv, const _TCHAR* file_path, int bank_num, uint32_t flags, bool multiopen);
+	bool open_floppy_disk_with_sel_bank(int drv, int bank_num, uint32_t flags = 0);
+	void close_floppy_disk(int drv, uint32_t flags = 0);
+	int  change_floppy_disk(int drv);
+	int  get_floppy_disk_side(int drv);
+	void toggle_floppy_disk_write_protect(int drv);
+	bool floppy_disk_write_protected(int drv);
+	bool floppy_disk_inserted(int drv);
 	bool changed_cur_bank(int drv);
 	D88File *get_d88_file(int drv) { return &d88_files.GetFile(drv); }
 	bool create_blank_floppy_disk(const _TCHAR* file_path, uint8_t type);
-	bool is_same_disk(int drv, const _TCHAR *file_path, int bank_num);
+	bool is_same_floppy_disk(int drv, const _TCHAR *file_path, int bank_num);
 	//@}
 #endif
 #ifdef USE_HD1
@@ -857,6 +861,9 @@ public:
 
 	void set_joy2joy_ana_map(int num, int pos, uint32_t joy_code);
 
+	void clear_joy2joyk_map();
+	void set_joy2joyk_map(int num, int idx, uint32_t joy_code);
+
 	void clear_key2joy_map();
 	void set_key2joy_map(uint32_t key_code, int num, uint32_t joy_code);
 	uint8_t get_key2joy_map(uint32_t key_code) const;
@@ -990,7 +997,7 @@ public:
 	DebuggerSocket *get_debugger_socket() { return debugger_socket; }
 	bool now_debugging;
 
-	bool debugger_save_image(int width, int height, CSurface *surface);
+	bool debugger_save_image(int width, int height, CSurface *surface, const _TCHAR *prefix = NULL, const _TCHAR *postfix = NULL);
 	//@}
 #endif
 
@@ -1101,8 +1108,8 @@ public:
 	//@{
 	static bool load_data_from_file(const _TCHAR *file_path, const _TCHAR *file_name
 		, uint8_t *data, size_t size
-		, const uint8_t *first_data = NULL, size_t first_data_size = 0
-		, const uint8_t *last_data = NULL,  size_t last_data_size = 0);
+		, const uint8_t *first_data = NULL, size_t first_data_size = 0, size_t first_data_pos = 0
+		, const uint8_t *last_data = NULL,  size_t last_data_size = 0, size_t last_data_pos = 0);
 	//@}
 
 	/// @name send message to ui from vm

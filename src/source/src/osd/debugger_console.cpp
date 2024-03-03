@@ -115,6 +115,7 @@ enum enDCommandsIdx {
 #endif
 #ifdef USE_EMU_INHERENT_SPEC
 	ID_SAVE_IMAGE_FILE,
+	ID_SAVE_IMAGE_DUMPED_FILE,
 #endif
 	ID_SET_BREAK_POINT,
 	ID_CLEAR_BREAK_POINT,
@@ -300,6 +301,7 @@ static struct st_commands_map commands_map[] = {
 #endif
 #ifdef USE_EMU_INHERENT_SPEC
 	{ _T("DIS"),ID_SAVE_IMAGE_FILE },
+	{ _T("DDIS"),ID_SAVE_IMAGE_DUMPED_FILE },
 #endif
 	{ _T("BP"),	ID_SET_BREAK_POINT },
 	{ _T("BC"),	ID_CLEAR_BREAK_POINT },
@@ -2875,7 +2877,7 @@ void DebuggerConsole::CommandSaveImageFile(int num)
 
 	int type =  DeciToInt(params[1]);
 	int w = 0, h = 0;
-	int rc = current_dev->mem->get_debug_graphic_memory_size(type, &w, &h);
+	int rc = current_dev->mem->get_debug_graphic_memory_size(num, type, &w, &h);
 	if (rc == -2) {
 		PrintError(_T("No support on current CPU and architecture."));
 		Cr();
@@ -2893,6 +2895,18 @@ void DebuggerConsole::CommandSaveImageFile(int num)
 		return;
 	}
 
+	switch(num) {
+	case 1:
+		SaveImageDumpFile(type, w, h);
+		break;
+	default:
+		SaveImageFile(type, w, h);
+		break;
+	}
+}
+
+bool DebuggerConsole::SaveImageFile(int type, int w, int h)
+{
 #if defined(USE_WIN)
 	CSurface imgSuf(w, h * -1);
 #elif defined(USE_SDL) || defined(USE_SDL2)
@@ -2907,22 +2921,72 @@ void DebuggerConsole::CommandSaveImageFile(int num)
 	if (!imgSuf.IsEnable()) {
 		PrintError(_T("Fatal error. (can't create surface)"));
 		Cr();
-		return;
+		return false;
 	}
 
 	if (!current_dev->mem->debug_draw_graphic(type, w, h, (scrntype *)imgSuf.GetBuffer())) {
 		PrintError(_T("fatal error. (can't create image)"));
 		Cr();
-		return;
+		return false;
 	}
 
-	if (dp->emu->debugger_save_image(w, h, &imgSuf)) {
+	_TCHAR postfix[8];
+	UTILITY::stprintf(postfix, 8, _T("_%02d"), type);
+	if (dp->emu->debugger_save_image(w, h, &imgSuf, NULL, postfix)) {
 		Print(_T("Image file was successfully saved"));
 	} else {
 		PrintError(_T("Fatal error. (can't save image)"));
 	}
-
 	Cr();
+
+	return true;
+}
+
+
+bool DebuggerConsole::SaveImageDumpFile(int type, int w, int h)
+{
+	const _TCHAR *app_path = pConfig->snapshot_path.Length() > 0 ? pConfig->snapshot_path : emu->application_path();
+	_TCHAR file_path[_MAX_PATH];
+
+	bool rc = true;
+	uint16_t *wbuffer = new uint16_t[w * h];
+
+	do {
+		if (!current_dev->mem->debug_dump_graphic(type, w, h, wbuffer)) {
+			PrintError(_T("Fatal error. (can't create dump image)"));
+			rc = false;
+			break;
+		}
+
+		_TCHAR postfix[8];
+		UTILITY::stprintf(postfix, 8, _T("_%02d"), type);
+		UTILITY::create_date_file_path(app_path, file_path, _MAX_PATH, "txt", NULL, postfix);
+
+		FILEIO fio;
+		if (!fio.Fopen(file_path, FILEIO::WRITE_ASCII)) {
+			PrintError(_T("Fatal error. (can't open a file)"));
+			rc = false;
+			break;
+		}
+
+		for(int y=0; y<h; y++) {
+			for(int x=0; x<w; x++) {
+				fio.Fprintf(" %04X", wbuffer[y*w+x]);
+			}
+			fio.Fputs("\n");
+		}
+
+		fio.Fclose();
+
+	} while(0);
+
+	delete [] wbuffer;
+
+	if (rc) {
+		Print(_T("Image dump file was successfully saved"));
+	}
+	Cr();
+	return rc;
 }
 
 void DebuggerConsole::UsageImageFile(bool s, int num)
@@ -2931,6 +2995,10 @@ void DebuggerConsole::UsageImageFile(bool s, int num)
 	case 0:
 		UsageCmdStr1(s
 			, _T("DIS"), _T("<type>"), _T("Save image file in memory."));
+		break;
+	case 1:
+		UsageCmdStr1(s
+			, _T("DDIS"), _T("<type>"), _T("Save a file dumped data of graphic memory."));
 		break;
 	}
 	if (s) return;
@@ -2944,8 +3012,16 @@ void DebuggerConsole::UsageImageFile(bool s, int num)
 			Out();
 		}
 	}
-	Print(_T("  File name will be named as YYYY-MM-DD-HH-MI-SS.bmp or .png."));
-	Print(_T("  If snapshot path is set, image file is put on it."));
+	switch(num) {
+	case 0:
+		Print(_T("  File name will be named as YYYY-MM-DD_HH-MI-SS_NN.bmp or .png."));
+		Print(_T("  If snapshot path is set, image file is put on it."));
+		break;
+	case 1:
+		Print(_T("  File name will be named as YYYY-MM-DD_HH-MI-SS_NN.txt."));
+		break;
+	}
+	Print(_T("  NN means the specified type number."));
 }
 
 // ---------------------------------------------------------------------------
@@ -5688,6 +5764,7 @@ void DebuggerConsole::Usage()
 #endif
 #ifdef USE_EMU_INHERENT_SPEC
 	UsageImageFile(true, 0);
+	UsageImageFile(true, 1);
 #endif
 
 	UsageSetBreakPoint(true, BP_FETCH);
@@ -5873,6 +5950,9 @@ void DebuggerConsole::CommandUsage()
 #ifdef USE_EMU_INHERENT_SPEC
 			case ID_SAVE_IMAGE_FILE:
 				UsageImageFile(false, 0);
+				break;
+			case ID_SAVE_IMAGE_DUMPED_FILE:
+				UsageImageFile(false, 1);
 				break;
 #endif
 			case ID_SET_BREAK_POINT:
@@ -6286,6 +6366,9 @@ void DebuggerConsole::Process()
 #ifdef USE_EMU_INHERENT_SPEC
 				case ID_SAVE_IMAGE_FILE:
 					CommandSaveImageFile(0);
+					break;
+				case ID_SAVE_IMAGE_DUMPED_FILE:
+					CommandSaveImageFile(1);
 					break;
 #endif
 				case ID_SET_BREAK_POINT:
@@ -6767,11 +6850,11 @@ void EMU::debugger_terminal_accepted()
 
 #include "../video/rec_video.h"
 
-bool EMU::debugger_save_image(int width, int height, CSurface *surface)
+bool EMU::debugger_save_image(int width, int height, CSurface *surface, const _TCHAR *prefix, const _TCHAR *postfix)
 {
 	VmRectWH size = {0, 0, width, height};
 
-	return rec_video->Capture(SAVE_IMAGE_TYPE, size, surface, size);
+	return rec_video->Capture(SAVE_IMAGE_TYPE, size, surface, size, prefix, postfix);
 }
 
 #endif

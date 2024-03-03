@@ -127,6 +127,7 @@ public:
 	bool close_disk(int drv, uint32_t flags);
 	bool disk_mounted(int drv);
 	bool is_same_disk(int drv, const _TCHAR *path);
+	int  mounted_disk_another_drive(int drv, const _TCHAR *path);
 
 	uint32_t get_led_status() const;
 

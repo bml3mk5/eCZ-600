@@ -12,6 +12,7 @@
 #include "../../emu.h"
 #include "win_gui.h"
 #include "../../labels.h"
+#include "../../utility.h"
 
 namespace GUI_WIN
 {
@@ -142,7 +143,7 @@ void VolumeBox::SetVolume()
 void VolumeBox::SetVolumeText(int num)
 {
 	_TCHAR str[8];
-	_stprintf(str, _T("%02d"), *volumes[num]);
+	UTILITY::stprintf(str, 8, _T("%02d"), *volumes[num]);
 	SetDlgItemText(hDlg, IDC_STATIC_21+num, str);
 }
 

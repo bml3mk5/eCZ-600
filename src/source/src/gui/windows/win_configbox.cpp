@@ -106,7 +106,7 @@ INT_PTR ConfigBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 	CBox *box_ram0 = CreateGroup(box_0all, IDC_STATIC, CMsg::RAM, CBox::VerticalBox);
 	hbox = box_ram0->AddBox(CBox::HorizontalBox, 0, 0, _T("mainram"));
 	CreateComboBoxWithLabel(hbox, IDC_COMBO_EXMEM, CMsg::RAM_Size_ASTERISK, LABELS::main_ram_size, emu->get_parami(VM::ParamMainRamSizeNum), 5);
-	if (0 <= pConfig->main_ram_size_num && pConfig->main_ram_size_num <= 4) {
+	if (0 <= pConfig->main_ram_size_num && pConfig->main_ram_size_num <= 5) {
 		UTILITY::tcscpy(str, sizeof(str), CMSGM(LB_Now_SP));
 		UTILITY::tcscat(str, sizeof(str), CMSGVM(LABELS::main_ram_size[pConfig->main_ram_size_num]));
 		UTILITY::tcscat(str, sizeof(str), _T(")"));
@@ -149,7 +149,7 @@ INT_PTR ConfigBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 	CreateStatic(hbox, IDC_STATIC, _T("  "));
 	CreateCheckBox(hbox, IDC_CHK_SRAM_SAVE_PWR_OFF, CMsg::Save_SRAM_when_power_off, FLG_ORIG_SRAM_SAVE_PWROFF != 0);
 	hbox = vbox->AddBox(CBox::HorizontalBox, 0, 0, _T("sramh2"));
-	CreateCheckBox(hbox, IDC_CHK_SRAM_CHG_BOOT_DEVICE, CMsg::Show_message_when_boot_device_was_changed, FLG_ORIG_SRAM_CHG_BOOT_DEV != 0);
+	CreateCheckBox(hbox, IDC_CHK_SRAM_CHG_BOOT_DEVICE, CMsg::Show_message_when_parameters_related_on_start_up_was_changed, FLG_ORIG_SRAM_CHG_BOOT_DEV != 0);
 
 	//
 	//
@@ -330,15 +330,21 @@ INT_PTR ConfigBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 
 	CBox *box_crtc_tit = box_crtc->AddBox(CBox::VerticalBox, 0, 0, _T("crtc_tit"));
 
-	hbox = box_crtc_tit->AddBox(CBox::HorizontalBox, 0, 0, _T("crtc_ras"));
-	CreateStatic(hbox, IDC_STATIC, CMsg::Raster_Interrupt_Skew);
-	hCtrl = CreateEditBox(hbox, IDC_EDIT_RASTER_INT, 0, 6);
-	CreateUpDown(hbox, IDC_SPIN_RASTER_INT, hCtrl, -128, 128, pConfig->raster_int_skew);
+	hbox = box_crtc_tit->AddBox(CBox::HorizontalBox, 0, 0, _T("crtc_ras_v"));
+	CreateStatic(hbox, IDC_STATIC, CMsg::Raster_Interrupt_Vertical_Skew);
+	hCtrl = CreateEditBox(hbox, IDC_EDIT_RASTER_INT_V, 0, 6);
+	CreateUpDown(hbox, IDC_SPIN_RASTER_INT_V, hCtrl, -128, 128, pConfig->raster_int_vskew);
+
+	hbox = box_crtc_tit->AddBox(CBox::HorizontalBox, 0, 0, _T("crtc_ras_h"));
+	CreateStatic(hbox, IDC_STATIC, CMsg::Raster_Interrupt_Horizontal_Skew);
+	hCtrl = CreateEditBox(hbox, IDC_EDIT_RASTER_INT_H, 0, 6);
+	CreateUpDown(hbox, IDC_SPIN_RASTER_INT_H, hCtrl, -512, 512, pConfig->raster_int_hskew);
 
 	hbox = box_crtc_tit->AddBox(CBox::HorizontalBox, 0, 0, _T("crtc_vdis"));
 	CreateStatic(hbox, IDC_STATIC, CMsg::Vertical_Disp_Skew);
 	hCtrl = CreateEditBox(hbox, IDC_EDIT_VDISP, 0, 6);
 	CreateUpDown(hbox, IDC_SPIN_VDISP, hCtrl, -128, 128, pConfig->vdisp_skew);
+
 
 	// LED
 #ifdef USE_LEDBOX
@@ -903,9 +909,13 @@ INT_PTR ConfigBox::onOK(UINT message, WPARAM wParam, LPARAM lParam)
 		}
 	}
 	// crtc
-	valuel = GetDlgItemInt(hDlg, IDC_EDIT_RASTER_INT, &rc, true);
+	valuel = GetDlgItemInt(hDlg, IDC_EDIT_RASTER_INT_V, &rc, true);
 	if (rc == TRUE && -128 <= valuel && valuel <= 128) {
-		pConfig->raster_int_skew = valuel;
+		pConfig->raster_int_vskew = valuel;
+	}
+	valuel = GetDlgItemInt(hDlg, IDC_EDIT_RASTER_INT_H, &rc, true);
+	if (rc == TRUE && -512 <= valuel && valuel <= 512) {
+		pConfig->raster_int_hskew = valuel;
 	}
 	valuel = GetDlgItemInt(hDlg, IDC_EDIT_VDISP, &rc, true);
 	if (rc == TRUE && -128 <= valuel && valuel <= 128) {

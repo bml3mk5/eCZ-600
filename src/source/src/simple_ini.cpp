@@ -197,8 +197,8 @@ bool CSimpleValue::IsBoolString(const char *src)
 {
 	bool match =
 #if defined(_WIN32) && !defined(NO_USE_WINAPI)
-		(stricmp(src, "true") == 0
-		|| stricmp(src, "false") == 0);
+		(_stricmp(src, "true") == 0
+		|| _stricmp(src, "false") == 0);
 #else
 		(strcasecmp(src, "true") == 0
 		|| strcasecmp(src, "false") == 0);
@@ -273,9 +273,9 @@ bool CSimpleValue::IsDoubleString(const char *src)
 bool CSimpleValue::ConvBool(const char *src)
 {
 #if defined(_WIN32) && !defined(NO_USE_WINAPI)
-	bool val = (stricmp(src, "true") == 0);
+	bool val = (_stricmp(src, "true") == 0);
 	if (!val) {
-		val = (stricmp(src, "false") == 0);
+		val = (_stricmp(src, "false") == 0);
 		val = !val;
 	}
 #else

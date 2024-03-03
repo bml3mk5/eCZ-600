@@ -40,6 +40,7 @@ void EMU_OSD::EMU_SCREEN()
 	texMixed = NULL;
 #ifdef USE_SCREEN_SDL2_MIX_ON_RENDERER
 	texLedBox = NULL;
+	texMsgBoard = NULL;
 #endif
 #ifdef USE_OPENGL
 	glcontext = NULL;
@@ -118,6 +119,10 @@ void EMU_OSD::release_screen()
 #ifdef USE_LEDBOX
 	delete texLedBox;
 	texLedBox = NULL;
+#endif
+#ifdef USE_MESSAGE_BOARD
+	delete texMsgBoard;
+	texMsgBoard = NULL;
 #endif
 #endif
 	delete texMixed;
@@ -308,6 +313,12 @@ bool EMU_OSD::create_screen(int disp_no, int x, int y, int width, int height, ui
 			texLedBox = NULL;
 		}
 #endif
+#ifdef USE_MESSAGE_BOARD
+		if (texMsgBoard) {
+			delete texMsgBoard;
+			texMsgBoard = NULL;
+		}
+#endif
 #endif
 		if (texMixed) {
 			delete texMixed;
@@ -474,8 +485,10 @@ bool EMU_OSD::create_screen(int disp_no, int x, int y, int width, int height, ui
 			goto FIN;
 		}
 		SDL_GetRendererInfo(renderer, &info);
-		logging->out_logf(LOG_DEBUG, _T("Renderer name: %s"), info.name);
-
+		logging->out_logf(LOG_DEBUG, _T("Renderer name: %s flags: 0x%x"), info.name, info.flags);
+		// clear renderer only changing screen if use opengl. (on mac)
+		first_invalidate_default = (strstr(info.name, "opengl") == NULL);
+		
 		if (!create_sdl_texture()) {
 			rc = false;
 			goto FIN;
@@ -580,6 +593,15 @@ bool EMU_OSD::create_sdl_texture()
 #endif
 			if (!texLedBox) {
 				logging->out_logf(LOG_ERROR, _T("create_sdl_texture: texLedBox: %s."), SDL_GetError());
+				return false;
+			}
+		}
+#endif
+#ifdef USE_MESSAGE_BOARD
+		if (msgboard && !texMsgBoard) {
+			texMsgBoard = new CTexture(renderer, 1024, 256);
+			if (!texMsgBoard) {
+				logging->out_logf(LOG_ERROR, _T("create_sdl_texture: texMsgBoard: %s."), SDL_GetError());
 				return false;
 			}
 		}
@@ -1136,28 +1158,31 @@ bool EMU_OSD::mix_screen()
 #ifndef USE_SCREEN_SDL2_MIX_ON_RENDERER /* ! USE_SCREEN_SDL2_MIX_ON_RENDERER */
 		mix_screen_sub();
 
-		if (first_invalidate) {
-			first_invalidate = false;
-		}
-
-		// fill black on screen
 		if (renderer) {
-			SDL_RenderClear(renderer);
+			if (first_invalidate) {
+				// fill black on screen
+				SDL_RenderClear(renderer);
+
+				first_invalidate = first_invalidate_default;
+			}
+
 			SDL_UpdateTexture(texMixed->Get(), NULL, sufMixed->GetBuffer(), sufMixed->BytesPerLine());
 			// render screen
 			CSurface::Render(*renderer, *texMixed->Get(), reMix, reSuf);
 		}
 
 #else /* USE_SCREEN_SDL2_MIX_ON_RENDERER */
-		if (first_invalidate) {
-			first_invalidate = false;
-		}
 
-		// fill black on screen
 		if (renderer) {
+			if (first_invalidate) {
+				// fill black on screen
+				SDL_RenderClear(renderer);
+
+				first_invalidate = first_invalidate_default;
+			}
+
 			lock_screen();
 
-			SDL_RenderClear(renderer);
 			SDL_Rect re;
 			RECT_IN(re, 0, 0, vm_screen_size.x + vm_screen_size.w, vm_screen_size.y + vm_screen_size.h);
 			SDL_UpdateTexture(texMixed->Get(), &re, sufSource->GetBuffer(), sufSource->BytesPerLine());
@@ -1174,8 +1199,8 @@ bool EMU_OSD::mix_screen()
 #endif
 
 #ifdef USE_MESSAGE_BOARD
-			if (msgboard && FLG_SHOWMSGBOARD) {
-				msgboard->Draw(*texMixed);
+			if (FLG_SHOWMSGBOARD && msgboard && texMsgBoard) {
+				msgboard->Draw(*texMsgBoard);
 			}
 #endif
 

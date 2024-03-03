@@ -214,7 +214,7 @@ bool DISK::flash(bool protect)
 		if (write) {
 			if (m_filename_changed) {
 				// set file path to recent list on menu
-				emu->update_disk_info(m_drive_num, m_file_path, 0);
+				emu->update_floppy_disk_info(m_drive_num, m_file_path, 0);
 			}
 		} else {
 			logging->out_logf_x(LOG_ERROR, CMsg::Floppy_image_on_drive_VDIGIT_couldn_t_be_saved, m_drive_num);

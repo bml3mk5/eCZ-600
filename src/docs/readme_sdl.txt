@@ -1,8 +1,8 @@
 ==============================================================================
     SHARP X68000 Emulator 'eCZ-600'
         SDL edition
-                                                                 build 291
-                                                                2024/02/03
+                                                                 build 320
+                                                                2024/03/04
 
 Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 ==============================================================================
@@ -53,13 +53,14 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
   RS-232C入出力
   マウス入力
   FDD: 両面高密度(2HD) x2
+  HDD: SASI x2
 
 
 ● 動作確認環境
 
-  MacOSX版 : Mac OS X High Sierra (10.13.6)
-             Intel 64bitでビルドしています。
-  Linux版  : Ubuntu 18.04(64bit)
+  MacOS版  : Mac OS Ventura (13.5) / High Sierra (10.13.6)
+             Apple silicon / Intel 64bitでビルドしています。
+  Linux版  : Ubuntu 22.04(64bit)
   Windows版: Windows10(64bit)
 
   使用デバイス：キーボード、マウス、ジョイスティック
@@ -75,17 +76,20 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 
   (3) リレー音、FDDシーク音、FDDモータ音ファイル（任意）
       fddseek.wav     : FDDのヘッドシーク音ファイル。
+                        長さが約0.25秒までのもの。
       fddmotor.wav    : FDDのモータ音ファイル。
-                     無圧縮PCM、11025～48000Hz、8または16bit、モノラル。
-                     長さが約0.25秒までのもの。
-      fddeject.wav    : FDDからディスクケットを吐き出す際の音ファイル。
-                     無圧縮PCM、11025～48000Hz、8または16bit、モノラル。
-                     長さが約2秒までのもの。
+                        長さが約0.25秒までのもの。
+      fddeject.wav    : FDDからディスケットを吐き出す際の音ファイル。
+                        長さが約2秒までのもの。
+      hddseek.wav     : HDDのヘッドシーク音ファイル。
+                        長さが約0.1秒までのもの。
+
+      ※ 各ファイルは、無圧縮PCM、11025～48000Hz、8または16bit、モノラル。
 
 
 ● ファイル構成
 
-  MacOSX版:
+  MacOS版:
 
     x68000/
       readme.txt      ... このファイル
@@ -93,7 +97,7 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
       spec.txt        ... 本ソフトの詳細仕様
       x68000.app/     ... アプリケーションフォルダ
         Contents/
-          MacOSX/
+          MacOS/
             x68000    ... ソフト本体
           Resources/  ... リソースフォルダ
             x68000.icrn ... アイコン
@@ -159,6 +163,8 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
       x68000.ini .... 設定ファイル
       x68000.log .... 実行ログ
       keybind.ini ... キー設定ファイル
+      sram.dat ...... SRAMの内容を保存したファイル
+      rtc.dat ....... RTCの内容を保存したファイル
     ・コマンドラインで設定ファイルを指定すると、そのファイルがあるフォルダ下に
       作成されます。
 
@@ -531,8 +537,7 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
   選択した入力デバイスをエミュレートします。
 
   各デバイスで使用するボタンは以下の通りです。
-  各ボタンは「キー割り当てダイアログ(Keybind...)」のジョイパッド(ポート接続)
-  にて割り当ててください。
+  各ボタンはダイアログ右側にあるジョイパッド(ポート接続)にて割り当ててください。
 
     【標準】
      ... ↑↓←→ ボタンA,B
@@ -545,9 +550,11 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
     【パワースティックファイターMD】
      ... ↑↓←→ ボタンA,B,C,X,Y,Z,START,SELECT
     【ツインプラス(XPD-1LR)】
-     ... ↑↓←→ 別↑↓←→
+     ... ↑↓←→ 別↑↓←→ ボタンA,B
     【サイバースティック】
      ... 左アナログX,Y 右アナログX,Y ボタンA,B,C,D,E1,E2,START,SELECT
+
+  上記以外にESCキーと「ポーズ」にも割り当てることができます。
 
   ■アナログ→デジタル感度
 
@@ -555,11 +562,16 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 
   ■ジョイパッド(ポート接続)(Joypad (Port Connected))
 
-  ジョイスティックの十字キーおよびボタン1～28をポートに対応付けします。
+  ジョイスティックのコントローラおよびボタンを各ポートに対応付けします。
 
   ダイアログ左側にある枠内の変更したい部分をクリックしてください。
   割り当てたいボタンをジョイパッドから入力してください。
   割り当てたキーを消去するにはマウスの左ボタンをダブルクリックしてください。
+
+  【Z軸有効、R軸有効、U軸有効、V軸有効について】
+    ジョイスティックによっては、アナログスティックが押しっぱなしになり割当てが
+  できない場合があります。このような場合は該当する軸のチェックをはずすことで
+  一時的にその軸の入力を無効にすることができます。
 
   【注意】このダイアログを開く前にメニューの「ジョイパッドを使用(ポート接続)」に
           チェックを入れて使用する状態にしてください。
@@ -602,7 +614,7 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 
   ■ジョイパッドtoキー(Joypad to Key)
 
-  ジョイスティックの十字キーおよびボタン1～28をキーに割り当てることができます。
+  ジョイスティックのコントローラおよびボタンをキーに割り当てることができます。
 
   ダイアログ左側にある枠内の変更したい部分をクリックしてください。
   割り当てたいボタンをジョイパッドから入力してください。
@@ -615,11 +627,11 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
   十字キーを斜めに入れた場合に別のキーとして判定するようになります。
 
   【Z軸有効、R軸有効、U軸有効、V軸有効について】
-    ジョイスティックによっては、アナログスティックが押しっぱなしになる場合が
-  あります。このような場合は該当する軸のチェックをはずすことで押しっぱなしを
-  抑止できます。
+    ジョイスティックによっては、アナログスティックが押しっぱなしになり割当てが
+  できない場合があります。このような場合は該当する軸のチェックをはずすことで
+  一時的にその軸の入力を無効にすることができます。
 
-  【注意】このダイアログを開く前にメニューの「ジョイパッドを使用(キー割当)」に
+  【注意】このダイアログを開く前にメニューの「ジョイパッドtoキー」に
           チェックを入れて使用する状態にしてください。
 
   ■ジョイパッド(ポート接続)(Joypad (Port Connected))
@@ -693,7 +705,8 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
     位置(Position) : LEDインジケータの表示位置を指定します。
 
    ●CRTC
-    ラスター割込みスキュー
+    ラスター割込み垂直スキュー
+    ラスター割込み水平スキュー
      ラスター割込みの発生タイミングを調整します。通常0を指定します。
     垂直表示スキュー
      垂直同期割込みの発生タイミングを調整します。通常0を指定します。
@@ -797,6 +810,7 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
   FM OPM ............ FM音源から出力される音量を設定します。
   ADPCM ............. ADPCMから出力される音量を設定します。
   FDD ............... FDDシーク音、モータ音の音量を設定します。
+  HDD ............... HDDシーク音の音量を設定します。
 
   ミュート(Mute)にチェックすると無音にできます。
 
@@ -835,6 +849,8 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
     StateFile: ... ステートファイル。再生時に同時に読み込みます。
     Disk0File: ... FDD0のディスクイメージ。再生時にオープンします。
     Disk1File: ... FDD1のディスクイメージ。再生時にオープンします。
+    HardDisk0File: SASI0のディスクイメージ。再生時にオープンします。
+    HardDisk1File: SASI1のディスクイメージ。再生時にオープンします。
 
   【注意1】メニュー操作やダイアログ表示中のキー操作は記録されません。
   【注意2】再生中もキー入力は受け付けます。再生中にキー入力やメニュー操作を
@@ -880,20 +896,19 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 
 ● 開発環境
 
-  MacOSX版: (Mac Mini CPU: Corei5 / Mem: 8GB)
-    Mac OS X High Sierra (10.13.6 Intel x86_64)
-    Xcode 7.3.1
-      SDL-2.0.8, SDL2_ttf-2.0.12
+  MacOS版: (Mac Mini CPU: M2 / Mem: 8GB)
+    Mac OS Ventura (13.5 Apple silicon)
+    Xcode 14.3
+      SDL2-2.28.5, SDL2_ttf-2.20.2
 
-  Linux版: (VMwareです。)(CPU: Corei7 4770S 3.1GHz / Mem: 768KB)
-    Ubuntu 18.04 (amd64) + GNOME
-      SDL-2.0.8, SDL_ttf-2.0.12
+  Linux版: (VMwareです。)(CPU: Corei7 4770S 3.1GHz / Mem: 2GB)
+    Ubuntu 22.04 (amd64) + GNOME
+      SDL2-2.28.5, SDL2_ttf-2.20.2
 
   Windows版: (CPU: Corei7 4770S 3.1GHz / Mem: 8GB)
     Microsoft Windows10 (64ビット環境)
     MinGW + MSYS
-      SDL-2.0.10, SDL_ttf-2.0.12
-      freetype-2.5.5
+      SDL2-2.28.5, SDL2_ttf-2.20.2
 
 
 ● 参考文献

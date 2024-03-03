@@ -371,7 +371,7 @@ static void main_event_loop()
 			need_update_title = false;
 //			int ratio = 0;
 //			if (frames_result.total) ratio = (int)(100.0 * (double)frames_result.draw / (double)frames_result.total + 0.5);
-			UTILITY::sprintf(buf, sizeof(buf), "%s - %d/%dfps", DEVICE_NAME, frames_result.draw, frames_result.total);
+			sprintf(buf, "%s - %d/%dfps", DEVICE_NAME, frames_result.draw, frames_result.total);
 #ifndef USE_SDL2
 			SDL_WM_SetCaption(buf, NULL);
 #else

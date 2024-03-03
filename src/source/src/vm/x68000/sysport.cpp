@@ -16,6 +16,7 @@
 #include "../../fileio.h"
 #include "../../utility.h"
 //#include "../mc68000_consts.h"
+#include "crtc.h"
 #include "display.h"
 #include "memory.h"
 #include "board.h"
@@ -53,6 +54,8 @@ void SYSPORT::write_io8(uint32_t addr, uint32_t data)
 		break;
 	case 0x03:
 		// HRL / NMI / KEY
+		// hireso low clock
+		d_crtc->write_signal(CRTC::SIG_HRL, data, 0x02);
 		if (data & 4) {
 			// negate NMI signal 
 			d_board->write_signal(SIG_CPU_IRQ, 0, 0x80);	// IPL7
@@ -94,7 +97,8 @@ uint32_t SYSPORT::read_io8(uint32_t addr)
 		break;
 	case 0x03:
 		// HRL / NMI / KEY
-		data = 0xf8;
+		data = d_crtc->read_signal(CRTC::SIG_HRL);
+		data |= 0xf8;
 		break;
 	case 0x05:
 		// Clock 10MHz is 0xff / 16MHz(XVI) is 0xfe / x68030 is 0xdc?

@@ -67,7 +67,8 @@ private:
 	GtkWidget *comGLFilter;
 
 #if defined(_X68000)
-	GtkWidget *txtRasterSkew;
+	GtkWidget *txtRasterSkewV;
+	GtkWidget *txtRasterSkewH;
 	GtkWidget *txtVertSkew;
 #endif
 

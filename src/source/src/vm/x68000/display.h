@@ -207,11 +207,12 @@ private:
 
 	int m_raster_even_odd;
 	enum en_raster_modes {
-		RASTER_NORMAL = 0,
-		RASTER_DOUBLE,
-		RASTER_INTERLACE_512,
-		RASTER_INTERLACE_1024,
-		RASTER_DOUBLE_INTERLACE,
+		RASTER_NORMAL_NONINTER = 0,
+		RASTER_NORMAL_INTERLACE_512,
+		RASTER_HIRESO_DOUBLE,
+		RASTER_HIRESO_NONINTER,
+		RASTER_HIRESO_INTERLACE_512,
+		RASTER_HIRESO_INTERLACE_1024,
 	} m_raster_mode;
 
 	int m_show_screen;
@@ -308,6 +309,7 @@ private:
 
 //	void update_dws_params();
 //	void update_chr_clocks(int clk);
+	inline void set_display_mode(uint32_t data);
 
 	inline void update_show_screen_flags();
 	inline void draw_screen_black(int y_even_odd, int y_step);
@@ -443,17 +445,31 @@ private:
 	uint32_t debug_expand_palette(uint32_t pal_num);
 	uint32_t debug_expand_palette65536(uint32_t pal0_num, uint32_t pal1_num);
 	void debug_expand_palette_all(int width, int height, scrntype *buffer);
+	void debug_expand_palette_dumper(int width, int height, uint16_t *buffer);
 	void debug_expand_pcg_one_line(uint32_t addr, uint32_t bg_palette, bool h_reverse, scrntype *buffer);
+	void debug_expand_pcg_one_line_dumper(uint32_t addr, uint32_t bg_palette, bool h_reverse, uint16_t *buffer);
 	void debug_expand_pcg_one_data(uint32_t addr, uint32_t bg_palette, bool h_reverse, bool v_reverse, int width, scrntype *buffer);
+	void debug_expand_pcg_one_data_dumper(uint32_t addr, uint32_t bg_palette, bool h_reverse, bool v_reverse, int width, uint16_t *buffer);
 	void debug_expand_pcg_one_data16x16(uint32_t addr, uint32_t bg_palette, bool h_reverse, bool v_reverse, int width, scrntype *buffer);
+	void debug_expand_pcg_one_data16x16_dumper(uint32_t addr, uint32_t bg_palette, bool h_reverse, bool v_reverse, int width, uint16_t *buffer);
 	void debug_expand_pcg_data(int width, int height, scrntype *buffer);
+	void debug_expand_pcg_data_dumper(int width, int height, uint16_t *buffer);
 	void debug_expand_pcg_render(int width, int height, scrntype *buffer);
+	void debug_expand_pcg_dumper(int width, int height, uint16_t *buffer);
 	void debug_expand_bg_data(int area, int hireso, int width, int height, scrntype *buffer);
+	void debug_expand_bg_data_dumper(int area, int hireso, int width, int height, uint16_t *buffer);
 	void debug_expand_text_render(const uint8_t *render, int width, int height, scrntype *buffer);
+	void debug_expand_text_dumper(const uint8_t *render, int width, int height, uint16_t *buffer);
 	void debug_expand_render(const uint16_t *render, int width, int height, scrntype *buffer);
+	void debug_expand_dumper(const uint16_t *render, int width, int height, uint16_t *buffer);
+	void debug_expand_sprite_ptn_render(int width, int height, scrntype *buffer);
+	void debug_expand_sprite_ptn_dumper(int width, int height, uint16_t *buffer);
 	void debug_expand_sprite_render(int width, int height, scrntype *buffer);
+	void debug_expand_sprite_dumper(int width, int height, uint16_t *buffer);
 	void debug_expand_graphic_render(int type, int width, int height, scrntype *buffer);
+	void debug_expand_graphic_dumper(int type, int width, int height, uint16_t *buffer);
 	void debug_expand_text_plane(int width, int height, scrntype *buffer);
+	void debug_expand_text_plane_dumper(int width, int height, uint16_t *buffer);
 #endif
 
 //	void draw_screen_sub_afterimage1();
@@ -522,9 +538,10 @@ public:
 	bool debug_write_reg(int type, const _TCHAR *reg, uint32_t data);
 	bool debug_write_reg(int type, uint32_t reg_num, uint32_t data);
 	void debug_regs_info(int type, _TCHAR *buffer, size_t buffer_len);
-	int  get_debug_graphic_memory_size(int type, int *width, int *height);
+	int  get_debug_graphic_memory_size(int num, int type, int *width, int *height);
 	bool debug_graphic_type_name(int type, _TCHAR *buffer, size_t buffer_len);
 	bool debug_draw_graphic(int type, int width, int height, scrntype *buffer);
+	bool debug_dump_graphic(int type, int width, int height, uint16_t *buffer);
 #endif
 };
 

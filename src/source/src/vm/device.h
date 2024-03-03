@@ -406,9 +406,10 @@ public:
 	virtual bool get_debug_exception_name_index(uint32_t num, uint32_t *mask, int *idx, const _TCHAR **name);
 	virtual void get_debug_exception_names_str(_TCHAR *buffer, size_t buffer_len);
 
-	virtual int  get_debug_graphic_memory_size(int type, int *width, int *height);
+	virtual int  get_debug_graphic_memory_size(int num, int type, int *width, int *height);
 	virtual bool debug_graphic_type_name(int type, _TCHAR *buffer, size_t buffer_len);
 	virtual bool debug_draw_graphic(int type, int width, int height, scrntype *buffer);
+	virtual bool debug_dump_graphic(int type, int width, int height, uint16_t *buffer);
 
 	virtual uint32_t debug_basic_get_line_number_ptr();
 	virtual uint32_t debug_basic_get_line_number();

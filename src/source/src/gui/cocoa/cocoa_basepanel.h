@@ -43,6 +43,12 @@
 #define NSEventModifierFlagShift NSShiftKeyMask
 #endif
 
+#ifndef MAC_OS_X_VERSION_10_14
+#define NSControlStateValueOn NSOnState
+#define NSControlStateValueOff NSOffState
+#define NSControlStateValueMixed NSMixedState
+#endif
+
 @class CocoaLayout;
 
 /**

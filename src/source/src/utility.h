@@ -48,7 +48,7 @@ namespace UTILITY
 	size_t chomp_crlf(char *str);
 	size_t chomp_crlf(wchar_t *str);
 
-	void create_date_file_path(const _TCHAR *dir, _TCHAR *file_path, size_t maxlen, const char *extensions);
+	void create_date_file_path(const _TCHAR *dir, _TCHAR *file_path, size_t maxlen, const char *extensions, const _TCHAR *prefix = NULL, const _TCHAR *postfix = NULL);
 
 	// ----------------------------------------------------------------------
 	// string conversion
@@ -98,7 +98,6 @@ namespace UTILITY
 	// ----------------------------------------------------------------------
 	// string format
 
-#ifdef _UNICODE
 	const wchar_t *concat(const wchar_t *src, ...);
 	void concatv(wchar_t *dst, size_t max_len, const wchar_t *src, va_list ap);
 	void concat(wchar_t *dst, size_t max_len, const wchar_t *src, ...);
@@ -107,7 +106,6 @@ namespace UTILITY
 	void wcsncpy(wchar_t *dst, size_t max_len, const wchar_t *src, size_t src_count);
 	void wcsncat(wchar_t *dst, size_t max_len, const wchar_t *src, size_t src_count);
 
-#endif /* _UNICODE */
 	const char *concat(const char *src, ...);
 	void concatv(char *dst, size_t max_len, const char *src, va_list ap);
 	void concat(char *dst, size_t max_len, const char *src, ...);

@@ -89,10 +89,10 @@ extern EMU *emu;
 {
 }
 
-- (void)SetVmKeyMap:(Uint16 *)vmKeyMap :(int)size
-{
-	kbdata.SetVmKeyMap(vmKeyMap,size);
-}
+//- (void)SetVmKeyMap:(Uint16 *)vmKeyMap :(int)size
+//{
+//	kbdata.SetVmKeyMap(vmKeyMap,size);
+//}
 
 - (void)SetVmKey:(int)idx :(Uint16)code
 {
@@ -104,20 +104,20 @@ extern EMU *emu;
 	return kbdata.SetVmKeyCode(idx,code);
 }
 
-- (void)SetVkKeyMap:(Uint32 *)vkKeyMap
-{
-	kbdata.SetVkKeyMap(vkKeyMap);
-}
+//- (void)SetVkKeyMap:(uint32_key_assign_t *)vkKeyMap
+//{
+//	kbdata.SetVkKeyMap(vkKeyMap);
+//}
 
-- (void)SetVkKeyDefMap:(Uint32 *)vkKeyDefMap :(int)rows :(int)cols
-{
-	kbdata.SetVkKeyDefMap(vkKeyDefMap,rows,cols);
-}
+//- (void)SetVkKeyDefMap:(const uint32_key_assign_t *)vkKeyDefMap :(int)rows
+//{
+//	kbdata.SetVkKeyDefMap(vkKeyDefMap, rows);
+//}
 
-- (void)SetVkKeyPresetMap:(Uint32 *)vkKeyMap :(int)idx
-{
-	kbdata.SetVkKeyPresetMap(vkKeyMap,idx);
-}
+//- (void)SetVkKeyPresetMap:(uint32_key_assign_t *)vkKeyMap :(int)idx
+//{
+//	kbdata.SetVkKeyPresetMap(vkKeyMap, idx);
+//}
 
 //- (bool)SetVkKeyCodeR:(int)row :(codecols_t *)obj :(Uint32)code :(char *)label
 //{
@@ -394,8 +394,8 @@ extern EMU *emu;
 - (void)keyDown:(NSEvent *)event
 {
 	char label[128];
-	int tab = [dataSource tab_num];
-	if (tab == 0) {
+	int devtype = [dataSource devType];
+	if (devtype == KeybindData::DEVTYPE_KEYBOARD) {
 		int code = SDL_QZ_HandleKeyEvents(event);
 		int row;
 		int col;
@@ -410,8 +410,8 @@ extern EMU *emu;
 - (void)flagsChanged:(NSEvent *)event
 {
 	char label[128];
-	int tab = [dataSource tab_num];
-	if (tab == 0) {
+	int devtype = [dataSource devType];
+	if (devtype == KeybindData::DEVTYPE_KEYBOARD) {
 		int code = SDL_QZ_HandleKeyEvents(event);
 		int row;
 		int col;
@@ -426,8 +426,8 @@ extern EMU *emu;
 - (void)keyUp:(NSEvent *)event
 {
 	char label[128];
-	int tab = [dataSource tab_num];
-	if (tab == 0) {
+	int devtype = [dataSource devType];
+	if (devtype == KeybindData::DEVTYPE_KEYBOARD) {
 		int code = SDL_QZ_HandleKeyEvents(event);
 		[dataSource SetVkKeyCode:code:label];
 		[self setString:[NSString stringWithUTF8String:label]];
@@ -443,11 +443,11 @@ extern EMU *emu;
 	int count = (int)[event clickCount];
 	if (count != 2) return;
 	char label[128];
-	int tab = [dataSource tab_num];
-	if (tab != 0) {
-		[dataSource ClearVkJoyCode:label];
-	} else {
+	int devtype = [dataSource devType];
+	if (devtype == KeybindData::DEVTYPE_KEYBOARD) {
 		[dataSource ClearVkKeyCode:label];
+	} else {
+		[dataSource ClearVkJoyCode:label];
 	}
 	[self setString:[NSString stringWithUTF8String:label]];
 }
