@@ -51,7 +51,7 @@ static int     debug_regr_cnt[8];
 #define OUT_DEBUG_REGW(...)
 #endif
 
-#define DRIVE_MASK	(MAX_DRIVE - 1)
+#define DRIVE_MASK	(USE_FLOPPY_DISKS - 1)
 
 #define USE_FLOPPY_READY_ON_ALL_DRIVES
 
@@ -89,7 +89,7 @@ void FLOPPY::register_index_hole_event(int event_no, int wait)
 void FLOPPY::initialize()
 {
 	// setup/reset floppy drive
-	for(int i = 0; i < MAX_DRIVE; i++) {
+	for(int i = 0; i < USE_FLOPPY_DISKS; i++) {
 		p_disk[i] = new DISK(i);
 
 		m_fdd[i].side = 0;
@@ -158,7 +158,7 @@ void FLOPPY::reset()
 {
 	load_wav();
 
-	for(int i = 0; i < MAX_DRIVE; i++) {
+	for(int i = 0; i < USE_FLOPPY_DISKS; i++) {
 		m_fdd[i].track = 0;
 		m_fdd[i].index = 0;
 #ifdef USE_SIG_FLOPPY_ACCESS
@@ -190,7 +190,7 @@ void FLOPPY::warm_reset(bool por)
 		}
 	}
 
-	for(int i = 0; i < MAX_DRIVE; i++) {
+	for(int i = 0; i < USE_FLOPPY_DISKS; i++) {
 		m_fdd[i].ready = 0;
 		m_fdd[i].motor_warmup = 0;
 #ifdef USE_FLOPPY_HEAD_LOADING
@@ -251,7 +251,7 @@ void FLOPPY::warm_reset(bool por)
 void FLOPPY::release()
 {
 	// release d88 handler
-	for(int i = 0; i < MAX_DRIVE; i++) {
+	for(int i = 0; i < USE_FLOPPY_DISKS; i++) {
 		delete p_disk[i];
 	}
 //	for(int ft = 0; ft < FLOPPY_WAV_FDDTYPES; ft++) {
@@ -387,7 +387,7 @@ void FLOPPY::write_signal(int id, uint32_t data, uint32_t mask)
 	}
 
 	int ndrv_num = m_drv_num;
-	if (ndrv_num >= MAX_DRIVE) return;
+	if (ndrv_num >= USE_FLOPPY_DISKS) return;
 
 	switch (id) {
 #ifdef USE_SIG_FLOPPY_ACCESS
@@ -489,7 +489,7 @@ uint32_t FLOPPY::read_signal(int id)
 	id &= 0xffff;
 
 	int ndrv_num = m_drv_num;
-	if (ndrv_num >= MAX_DRIVE) {
+	if (ndrv_num >= USE_FLOPPY_DISKS) {
 		switch (id) {
 		case SIG_FLOPPY_WRITEPROTECT:
 			data = m_ignore_write ? 1 : 0;
@@ -576,7 +576,7 @@ uint32_t FLOPPY::read_signal(int id)
 
 void FLOPPY::event_frame()
 {
-	for(int i=0; i<MAX_DRIVE; i++) {
+	for(int i=0; i<USE_FLOPPY_DISKS; i++) {
 #ifdef USE_FLOPPY_HEAD_LOADING
 		if (!m_head_load && (m_fdd[i].head_loading & 0xff)) {
 			m_fdd[i].head_loading--;
@@ -637,7 +637,7 @@ void FLOPPY::event_callback(int event_id, int err)
 		case EVENT_INDEXHOLE_OFF:
 			// index hole off
 			m_index_hole = 0;
-			for(int i=0; i<MAX_DRIVE; i++) {
+			for(int i=0; i<USE_FLOPPY_DISKS; i++) {
 				if (m_fdd[i].motor_warmup) {
 					m_fdd[i].motor_warmup <<= 1;
 					if (m_fdd[i].motor_warmup > 4) m_fdd[i].motor_warmup = 0;
@@ -678,7 +678,7 @@ void FLOPPY::set_drive_control(uint8_t data)
 	if (data & 0xf) {
 		m_drv_ctrl = data & 0xff;
 	} else if (m_drv_ctrl & 0xf) {
-		for (int drv=0; drv<MAX_DRIVE; drv++) {
+		for (int drv=0; drv<USE_FLOPPY_DISKS; drv++) {
 			if (m_drv_ctrl & (1 << drv)) {
 				// eject
 				if (m_drv_ctrl & OPS_EJECT_ON) {
@@ -696,7 +696,7 @@ void FLOPPY::set_drive_control(uint8_t data)
 uint8_t FLOPPY::get_drive_status(bool negate_intr)
 {
 	uint8_t data = 0;
-	for(int drv=0; drv<MAX_DRIVE; drv++) {
+	for(int drv=0; drv<USE_FLOPPY_DISKS; drv++) {
 		if (m_drv_ctrl & (1 << drv)) {
 			if (m_fdd[drv].inserted) {
 				data |= 0x80;
@@ -715,7 +715,7 @@ void FLOPPY::set_access_drive(uint8_t data)
 
 	m_drv_num = (data & 3);
 
-	if (m_drv_num >= MAX_DRIVE) return;
+	if (m_drv_num >= USE_FLOPPY_DISKS) return;
 
 	// set drive speed
 	set_drive_speed();
@@ -731,7 +731,7 @@ void FLOPPY::set_access_drive(uint8_t data)
 		register_my_event(EVENT_MOTOR_OFF, DELAY_MOTOR_OFF);	// delay motor off
 		m_motor_on_expand = 1;
 		// motor off signal and unselect any drives
-		for(int i=0; i<MAX_DRIVE; i++) {
+		for(int i=0; i<USE_FLOPPY_DISKS; i++) {
 			m_fdd[i].motor_on = false;
 		}
 	} else {
@@ -743,7 +743,7 @@ void FLOPPY::set_access_drive(uint8_t data)
 
 void FLOPPY::motor(int drv, bool val)
 {
-	if (drv >= MAX_DRIVE) return;
+	if (drv >= USE_FLOPPY_DISKS) return;
 
 	if (val) {
 		// motor on
@@ -776,7 +776,7 @@ void FLOPPY::motor(int drv, bool val)
 #else
 		// motor on signal always turn on all drives
 		bool inserted = false;
-		for(int i=0; i<MAX_DRIVE; i++) {
+		for(int i=0; i<USE_FLOPPY_DISKS; i++) {
 			m_fdd[i].motor_on = true;
 			inserted |= (p_disk[drv]->inserted != 0);
 		}
@@ -790,12 +790,12 @@ void FLOPPY::motor(int drv, bool val)
 
 		// ready on
 #ifdef DEBUG_READY
-		uint8_t prev_ready[MAX_DRIVE];
-		for(int i=0; i<MAX_DRIVE; i++) {
+		uint8_t prev_ready[USE_FLOPPY_DISKS];
+		for(int i=0; i<USE_FLOPPY_DISKS; i++) {
 			prev_ready[i] = m_fdd[i].ready;
 		}
 #endif
-		for(int i=0; i<MAX_DRIVE; i++) {
+		for(int i=0; i<USE_FLOPPY_DISKS; i++) {
 			if (m_fdd[i].ready == 0) {
 				if (p_disk[i]->inserted) {
 					m_fdd[i].ready = 1;
@@ -819,7 +819,7 @@ void FLOPPY::motor(int drv, bool val)
 
 		// motor sound off
 		uint8_t all_ready = 0;
-		for(int i=0; i<MAX_DRIVE; i++) {
+		for(int i=0; i<USE_FLOPPY_DISKS; i++) {
 			if (drv == -1 || drv == i) {
 				m_fdd[i].motor_on = false;
 				m_fdd[i].ready = 0;
@@ -872,7 +872,7 @@ void FLOPPY::set_drive_speed()
 bool FLOPPY::search_track(int channel)
 {
 	int drvnum = m_drv_num;
-	if (drvnum >= MAX_DRIVE) return false;
+	if (drvnum >= USE_FLOPPY_DISKS) return false;
 
 	m_fdd[drvnum].index = 0;
 
@@ -883,7 +883,7 @@ bool FLOPPY::verify_track(int channel, int track)
 {
 	// verify track number
 	int drvnum = m_drv_num;
-	if (drvnum >= MAX_DRIVE) return false;
+	if (drvnum >= USE_FLOPPY_DISKS) return false;
 
 	return p_disk[drvnum]->verify_track(track);
 }
@@ -891,7 +891,7 @@ bool FLOPPY::verify_track(int channel, int track)
 int FLOPPY::get_current_track_number(int channel)
 {
 	int drvnum = m_drv_num;
-	if (drvnum >= MAX_DRIVE) return 0;
+	if (drvnum >= USE_FLOPPY_DISKS) return 0;
 
 	return p_disk[drvnum]->id_c_in_track[0];
 }
@@ -964,11 +964,6 @@ int FLOPPY::search_sector(int channel)
 	return search_sector_main(0, drvnum, m_sectorcnt);
 }
 
-//int FLOPPY::search_sector(int channel, int sect)
-//{
-//	return search_sector(channel, sect, false, 0);
-//}
-
 /// search sector
 ///
 /// @param[in] channel: FDC number(upper 16bit) 
@@ -980,7 +975,7 @@ int FLOPPY::search_sector(int channel)
 int FLOPPY::search_sector(int channel, int track, int sect, bool compare_side, int side)
 {
 	int drvnum = m_drv_num;
-	if (drvnum >= MAX_DRIVE) return 1;
+	if (drvnum >= USE_FLOPPY_DISKS) return 1;
 
 	int sector_num = p_disk[drvnum]->sector_nums;
 	if (sector_num <= 0) sector_num = 16;
@@ -1017,10 +1012,53 @@ int FLOPPY::search_sector(int channel, int track, int sect, bool compare_side, i
 	return status;
 }
 
+/// search sector by index number
+///
+/// @param[in] channel: FDC number(upper 16bit) 
+/// @param[in] track  : track number
+/// @param[in] index  : sector index
+/// @param[in] compare_sect : whether compare sector number or not
+/// @param[in] sect   : sector number if compare number
+/// @param[in] compare_side : whether compare side number or not
+/// @param[in] side   : side number if compare number
+/// @return bit0:Record Not Found / bit1:CRC Error / bit2:Deleted Mark Detected
+int FLOPPY::search_sector_by_index(int channel, int track, int index, bool compare_sect, int sect, bool compare_side, int side)
+{
+	int drvnum = m_drv_num;
+	if (drvnum >= USE_FLOPPY_DISKS) return 1;
+
+	int status = search_sector_main(0, drvnum, index);
+	do {
+		if (status) {
+			break;
+		}
+
+		// check track in id field
+		if(p_disk[drvnum]->id[0] != track) {
+			status = 1;
+			break;
+		}
+		// check sector in id field
+		if(compare_sect && p_disk[drvnum]->id[2] != sect) {
+			status = 1;
+			break;
+		}
+		// check side in id field
+		if(compare_side && p_disk[drvnum]->id[1] != side) {
+			status = 1;
+			break;
+		}
+	} while(0);
+
+	OUT_DEBUG_DISK(_T("FDD %d SEARCH SECTOR trk:%d idx:%d status:%d"), drvnum, track, index, status);
+
+	return status;
+}
+
 bool FLOPPY::make_track(int channel)
 {
 	int drvnum = m_drv_num;
-	if (drvnum >= MAX_DRIVE) return false;
+	if (drvnum >= USE_FLOPPY_DISKS) return false;
 
 	return p_disk[drvnum]->make_track(m_fdd[drvnum].track, m_fdd[drvnum].side, m_density);
 }
@@ -1028,7 +1066,7 @@ bool FLOPPY::make_track(int channel)
 bool FLOPPY::parse_track(int channel)
 {
 	int drvnum = m_drv_num;
-	if (drvnum >= MAX_DRIVE) return false;
+	if (drvnum >= USE_FLOPPY_DISKS) return false;
 
 //	return disk[drvnum]->parse_track(fdd[drvnum].track, fdd[drvnum].side, density);
 	return p_disk[drvnum]->parse_track2(m_fdd[drvnum].track, m_fdd[drvnum].side, m_density);
@@ -1045,7 +1083,7 @@ int FLOPPY::get_head_loading_clock(int channel)
 {
 #ifdef USE_FLOPPY_HEAD_LOADING
 	int drvnum = m_drv_num;
-	if (drvnum >= MAX_DRIVE) return HEAD_LOADED_CLOCK;
+	if (drvnum >= USE_FLOPPY_DISKS) return HEAD_LOADED_CLOCK;
 
 	return (m_fdd[m_drv_num].head_loading & 0xff) ? 200 : HEAD_LOADED_CLOCK;
 #else
@@ -1079,7 +1117,7 @@ int FLOPPY::calc_index_hole_search_clock(int channel)
 int FLOPPY::get_clock_arrival_sector(int channel, int sect, int delay)
 {
 	int drvnum = m_drv_num;
-	if (drvnum >= MAX_DRIVE) return DELAY_INDEX_HOLE;
+	if (drvnum >= USE_FLOPPY_DISKS) return DELAY_INDEX_HOLE;
 
 	int sector_num = p_disk[drvnum]->sector_nums;
 	if (sector_num <= 0) sector_num = 16;
@@ -1102,7 +1140,7 @@ int FLOPPY::get_clock_arrival_sector(int channel, int sect, int delay)
 int FLOPPY::get_clock_next_sector(int channel, int delay)
 {
 	int drvnum = m_drv_num;
-	if (drvnum >= MAX_DRIVE) return DELAY_INDEX_HOLE;
+	if (drvnum >= USE_FLOPPY_DISKS) return DELAY_INDEX_HOLE;
 
 //	int fdcnum = (channel >> 16);
 
@@ -1169,7 +1207,7 @@ void FLOPPY::set_irq(uint32_t data, uint32_t mask)
 // ----------------------------------------------------------------------------
 bool FLOPPY::open_disk(int drv, const _TCHAR *path, int offset, uint32_t flags)
 {
-	if(drv < MAX_DRIVE) {
+	if(drv < USE_FLOPPY_DISKS) {
 		bool rc = p_disk[drv]->open(path, offset, flags);
 		if (rc) {
 			m_fdd[drv].delay_write = 0;
@@ -1194,7 +1232,7 @@ bool FLOPPY::open_disk(int drv, const _TCHAR *path, int offset, uint32_t flags)
 
 bool FLOPPY::close_disk(int drv, uint32_t flags)
 {
-	if(drv < MAX_DRIVE) {
+	if(drv < USE_FLOPPY_DISKS) {
 		if (flags & OPEN_DISK_FLAGS_FORCELY) {
 
 			p_disk[drv]->close();
@@ -1241,7 +1279,7 @@ bool FLOPPY::close_disk(int drv, uint32_t flags)
 
 int FLOPPY::change_disk(int drv)
 {
-	if(drv < MAX_DRIVE) {
+	if(drv < USE_FLOPPY_DISKS) {
 		set_disk_side(drv, 1 - m_fdd[drv].side);
 		motor(drv, false);
 		return m_fdd[drv].side;
@@ -1267,7 +1305,7 @@ int FLOPPY::get_disk_side(int drv)
 
 bool FLOPPY::disk_inserted(int drv)
 {
-	if(drv < MAX_DRIVE) {
+	if(drv < USE_FLOPPY_DISKS) {
 		return p_disk[drv]->inserted;
 	}
 	return false;
@@ -1275,14 +1313,14 @@ bool FLOPPY::disk_inserted(int drv)
 
 void FLOPPY::set_drive_type(int drv, uint8_t type)
 {
-	if(drv < MAX_DRIVE) {
+	if(drv < USE_FLOPPY_DISKS) {
 		p_disk[drv]->set_drive_type(type);
 	}
 }
 
 uint8_t FLOPPY::get_drive_type(int drv)
 {
-	if(drv < MAX_DRIVE) {
+	if(drv < USE_FLOPPY_DISKS) {
 		return p_disk[drv]->get_drive_type();
 	}
 	return DRIVE_TYPE_UNK;
@@ -1295,7 +1333,7 @@ uint8_t FLOPPY::fdc_status()
 
 void FLOPPY::toggle_disk_write_protect(int drv)
 {
-	if(drv < MAX_DRIVE) {
+	if(drv < USE_FLOPPY_DISKS) {
 		if (m_ignore_write) {
 			m_ignore_write = false;
 			p_disk[drv]->set_write_protect(true);
@@ -1306,7 +1344,7 @@ void FLOPPY::toggle_disk_write_protect(int drv)
 
 bool FLOPPY::disk_write_protected(int drv)
 {
-	if(drv < MAX_DRIVE) {
+	if(drv < USE_FLOPPY_DISKS) {
 		return (p_disk[drv]->write_protected || m_ignore_write);
 	}
 	return true;
@@ -1314,7 +1352,7 @@ bool FLOPPY::disk_write_protected(int drv)
 
 bool FLOPPY::is_same_disk(int drv, const _TCHAR *file_path, int offset)
 {
-	if(drv < MAX_DRIVE) {
+	if(drv < USE_FLOPPY_DISKS) {
 		return p_disk[drv]->is_same_file(file_path, offset);
 	}
 	return false;
@@ -1324,7 +1362,7 @@ bool FLOPPY::is_same_disk(int drv, const _TCHAR *file_path, int offset)
 int FLOPPY::inserted_disk_another_drive(int drv, const _TCHAR *file_path, int offset)
 {
 	int match = -1;
-	for(int i=0; i<MAX_DRIVE; i++) {
+	for(int i=0; i<USE_FLOPPY_DISKS; i++) {
 		if (i == drv) continue;
 		if (p_disk[i]->is_same_file(file_path, offset)) {
 			match = i;
@@ -1348,7 +1386,7 @@ uint16_t FLOPPY::get_drive_select()
 		case FDD_TYPE_58FDD:
 			// 5inch or 8inch
 			int drvnum = m_drv_num;
-			if (drvnum >= MAX_DRIVE) break;
+			if (drvnum >= USE_FLOPPY_DISKS) break;
 
 			if (m_fdd[drvnum].head_loading > 0 && m_fdd[drvnum].ready >= 2) {
 				data |= ((1 << drvnum) | (0x10 << drvnum));
@@ -1358,7 +1396,7 @@ uint16_t FLOPPY::get_drive_select()
 	}
 
 	// inserted diskette ?
-	for(int i=0; i<MAX_DRIVE; i++) {
+	for(int i=0; i<USE_FLOPPY_DISKS; i++) {
 		if (p_disk[i]->inserted) {
 			data |= (1 << (8 + i));
 		}
@@ -1376,7 +1414,7 @@ uint32_t FLOPPY::get_led_status() const
 	// b2: led eject
 	uint16_t data = 0;
 
-	for(int drv=(MAX_DRIVE-1); drv>=0; --drv) {
+	for(int drv=(USE_FLOPPY_DISKS-1); drv>=0; --drv) {
 		data <<= 3;
 		if (m_fdd[drv].inserted) {
 			// drive led
@@ -1466,7 +1504,7 @@ void FLOPPY::save_state(FILEIO *fp)
 	SET_Uint64_LE(m_index_hole_next_clock);
 
 	// 1
-	for(int i=0; i<4 && i<MAX_DRIVE; i++) {
+	for(int i=0; i<4 && i<USE_FLOPPY_DISKS; i++) {
 		SET_Int32_LE(m_fdd[i].side);
 		SET_Int32_LE(m_fdd[i].track);
 		SET_Int32_LE(m_fdd[i].index);
@@ -1545,7 +1583,7 @@ bool FLOPPY::load_state(FILEIO *fp)
 	GET_Uint64_LE(m_index_hole_next_clock);
 
 	// 1
-	for(int i=0; i<4 && i<MAX_DRIVE; i++) {
+	for(int i=0; i<4 && i<USE_FLOPPY_DISKS; i++) {
 		GET_Int32_LE(m_fdd[i].side);
 		GET_Int32_LE(m_fdd[i].track);
 		GET_Int32_LE(m_fdd[i].index);

@@ -33,7 +33,7 @@ extern EMU *emu;
 
 	CocoaLayout *box_all = [CocoaLayout create:view :HorizontalBox :0 :COCOA_DEFAULT_MARGIN];
 
-	for(int drv=0; drv<MAX_DRIVE; drv++) {
+	for(int drv=0; drv<USE_FLOPPY_DISKS; drv++) {
 		char label[64];
 		if (prefix) {
 			UTILITY::sprintf(label, sizeof(label), "%s%d", prefix, drv);

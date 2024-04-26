@@ -170,12 +170,6 @@ bool ConfigBox::Show(GtkWidget *parent_window)
 	valuei = vm->get_sram_boot_device();
 	comSramBootDevice = create_combo_box(hbox, CMsg::Boot_Device, LABELS::boot_devices, valuei);
 
-	// number of SASI HDDs
-	hbox = create_hbox(lbox);
-	valuei = vm->get_sram_sasi_hdd_nums();
-	create_label(hbox, CMsg::Number_of_HDDs);
-	spnSramNumHdds = create_spin(hbox, 0, 15, valuei);
-
 	// RS-232C
 	valueu = vm->get_sram_rs232c();
 	create_frame(lbox, CMsg::RS_232C, &vbox, &hbox);
@@ -291,13 +285,13 @@ bool ConfigBox::Show(GtkWidget *parent_window)
 
 	create_frame(hboxall, CMsg::CRTC, &vbox, &hbox);
 #if defined(_X68000)
-	sprintf(buf, "%d", pConfig->raster_int_vskew);
+	UTILITY::sprintf(buf, sizeof(buf), "%d", pConfig->raster_int_vskew);
 	txtRasterSkewV = create_text_with_label(hbox, CMsg::Raster_Interrupt_Vertical_Skew, buf, 8);
 	hbox = create_hbox(vbox);
-	sprintf(buf, "%d", pConfig->raster_int_hskew);
+	UTILITY::sprintf(buf, sizeof(buf), "%d", pConfig->raster_int_hskew);
 	txtRasterSkewH = create_text_with_label(hbox, CMsg::Raster_Interrupt_Horizontal_Skew, buf, 8);
 	hbox = create_hbox(vbox);
-	sprintf(buf, "%d", pConfig->vdisp_skew);
+	UTILITY::sprintf(buf, sizeof(buf), "%d", pConfig->vdisp_skew);
 	txtVertSkew = create_text_with_label(hbox, CMsg::Vertical_Disp_Skew, buf, 8);
 #endif
 
@@ -319,13 +313,13 @@ bool ConfigBox::Show(GtkWidget *parent_window)
 
 	hbox = create_hbox(vboxall);
 	txtMsgFontName = create_text_with_label(hbox, CMsg::Message_Font, pConfig->msgboard_msg_fontname.GetN(), 24);
-	sprintf(buf, "%d", pConfig->msgboard_msg_fontsize);
+	UTILITY::sprintf(buf, sizeof(buf), "%d", pConfig->msgboard_msg_fontsize);
 	txtMsgFontSize = create_text_with_label(hbox, CMsg::_Size, buf, 3);
 	create_button(hbox, CMsg::File_, G_CALLBACK(OnSelectMessageFont));
 
 	hbox = create_hbox(vboxall);
 	txtInfoFontName = create_text_with_label(hbox, CMsg::Info_Font, pConfig->msgboard_info_fontname.GetN(), 24);
-	sprintf(buf, "%d", pConfig->msgboard_info_fontsize);
+	UTILITY::sprintf(buf, sizeof(buf), "%d", pConfig->msgboard_info_fontsize);
 	txtInfoFontSize = create_text_with_label(hbox, CMsg::_Size, buf, 3);
 	create_button(hbox, CMsg::File_, G_CALLBACK(OnSelectInfoFont));
 
@@ -360,7 +354,7 @@ bool ConfigBox::Show(GtkWidget *parent_window)
 
 	hbox = create_hbox(vbox);
 	for(int i=0; i<2; i++) {
-		sprintf(buf, "%d", pConfig->wav_correct_amp[i]);
+		UTILITY::sprintf(buf, sizeof(buf), "%d", pConfig->wav_correct_amp[i]);
 		txtCorrectAmp[i] = create_text_with_label(hbox, LABELS::correct_amp[i], buf, 4);
 	}
 
@@ -373,12 +367,11 @@ bool ConfigBox::Show(GtkWidget *parent_window)
 	// FDD
 #ifdef USE_FD1
 	hboxall = create_hbox(vboxall);
-
 	// fdd mount
 	create_frame(hboxall, CMsg::Floppy_Disk_Drive, &vbox, &hbox);
 	create_label(hbox, CMsg::When_start_up_mount_disk_at_);
-	for(int i=0; i<MAX_DRIVE; i++) {
-		sprintf(buf, "%d  ", i);
+	for(int i=0; i<USE_FLOPPY_DISKS; i++) {
+		UTILITY::sprintf(buf, sizeof(buf), "%d ", i);
 		chkFDMount[i] = create_check_box(hbox, buf, pConfig->mount_fdd & (1 << i));
 	}
 	hbox = create_hbox(vbox);
@@ -394,19 +387,68 @@ bool ConfigBox::Show(GtkWidget *parent_window)
 #endif
 
 	// HDD
-#ifdef USE_FD1
+#ifdef USE_HD1
 	hboxall = create_hbox(vboxall);
-
 	// hdd mount
-	create_frame(hboxall, CMsg::Floppy_Disk_Drive, &vbox, &hbox);
+	create_frame(hboxall, CMsg::Hard_Disk_Drive, &vbox, &hbox);
 	create_label(hbox, CMsg::When_start_up_mount_disk_at_);
 	for(int i=0; i<MAX_HARD_DISKS; i++) {
-		sprintf(buf, "%d  ", i);
-		chkHDMount[i] = create_check_box(hbox, buf, pConfig->mount_hdd & (1 << i));
+		int idx = pConfig->GetHardDiskIndex(i);
+		if (idx < 0) continue;
+		if (i==0 || i==MAX_SASI_HARD_DISKS) {
+			hbox = create_hbox(vbox);
+			create_label(hbox, "  ");
+		}
+		if (i<MAX_SASI_HARD_DISKS) {
+			int sdrv = i / SASI_UNITS_PER_CTRL;
+			int sunit = i % SASI_UNITS_PER_CTRL;
+			UTILITY::sprintf(buf, sizeof(buf), "SASI%d u%d ", sdrv, sunit);
+		} else {
+			UTILITY::sprintf(buf, sizeof(buf), "SCSI%d ", i - MAX_SASI_HARD_DISKS);
+		}
+		chkHDMount[idx] = create_check_box(hbox, buf, pConfig->mount_hdd & (1 << i));
 	}
 
 	hbox = create_hbox(vbox);
 	chkDelayHd2 = create_check_box(hbox, CMsg::Ignore_delays_to_seek_track, (FLG_DELAY_HDSEEK != 0));
+
+	// SRAM for hd
+	create_frame(hboxall, CMsg::Parameters_for_hard_disk_in_SRAM, &vbox, &hbox);
+
+	// number of SASI HDDs
+	valuei = vm->get_sram_sasi_hdd_nums();
+	create_label(hbox, CMsg::Number_of_SASI_HDDs);
+	spnSramNumHdds = create_spin(hbox, 0, 15, valuei);
+
+	// SCSI enable flag
+	hbox = create_hbox(vbox);
+	chkSramScsiEn = create_check_box(hbox, CMsg::SCSI_enable_flag, vm->get_sram_scsi_enable_flag());
+
+	// SCSI host ID
+	hbox = create_hbox(vbox);
+	valuei = vm->get_sram_scsi_host_id();
+	UTILITY::sprintf(buf, sizeof(buf), "%d", valuei);
+	txtSramScsiId = create_text_with_label(hbox, CMsg::SCSI_host_ID, buf, 4);
+
+	// SASI on SCSI
+	hbox = create_hbox(vbox);
+	valueu = vm->get_sram_sasi_hdd_on_scsi();
+	UTILITY::sprintf(buf, sizeof(buf), "%x", valueu);
+	txtSramSasiOnScsi = create_text_with_label(hbox, CMsg::SASI_HDDs_on_SCSI, buf, 4);
+
+
+	// SCSI Type
+	hboxall = create_hbox(vboxall);
+	create_frame(hboxall, CMsg::SCSI_Type_ASTERISK, &vbox, &hbox);
+	create_radio_box(hbox, LABELS::scsi_type, SCSI_TYPE_END, radSCSIType, emu->get_parami(VM::ParamSCSIType));
+//	hbox = create_hbox(vbox);
+	UTILITY::tcscpy(buf, sizeof(buf), CMSG(LB_Now_SP));
+	UTILITY::tcscat(buf, sizeof(buf), CMSGV(LABELS::scsi_type[pConfig->scsi_type]));
+	UTILITY::tcscat(buf, sizeof(buf), _T(")"));
+	create_label(hbox, buf);
+
+	hboxall = create_hbox(vboxall);
+	create_label(hboxall, CMsg::Need_restart_program_or_PowerOn);
 #endif
 
 	// ----------------------------------------
@@ -501,7 +543,7 @@ bool ConfigBox::SetData()
 	pConfig->power_state_when_start_up = get_combo_sel_num(comPowerState);
 
 #ifdef USE_FD1
-	pConfig->mount_fdd = get_check_state_num(chkFDMount, MAX_DRIVE);
+	pConfig->mount_fdd = get_check_state_num(chkFDMount, USE_FLOPPY_DISKS);
 	pConfig->option_fdd = (get_check_state(chkDelayFd1) ? MSK_DELAY_FDSEARCH : 0)
 		| (get_check_state(chkDelayFd2) ? MSK_DELAY_FDSEEK : 0)
 		| (get_check_state(chkFdDensity) ? 0 : MSK_CHECK_FDDENSITY)
@@ -510,9 +552,15 @@ bool ConfigBox::SetData()
 #endif
 
 #ifdef USE_HD1
-	pConfig->mount_hdd = get_check_state_num(chkHDMount, MAX_HARD_DISKS);
-
+	for(int i=0; i<MAX_HARD_DISKS; i++) {
+		int idx = pConfig->GetHardDiskIndex(i);
+		if (idx < 0) continue;
+		bool chkd = get_check_state(chkHDMount[idx]);
+		BIT_ONOFF(pConfig->mount_hdd, (1 << i), chkd);
+	}
 	pConfig->option_hdd = (get_check_state(chkDelayHd2) ? MSK_DELAY_HDSEEK : 0);
+	// SCSI Type
+	emu->set_parami(VM::ParamSCSIType, get_radio_state_idx(radSCSIType, SCSI_TYPE_END));
 #endif
 
 #ifdef USE_OPENGL
@@ -679,11 +727,26 @@ bool ConfigBox::SetData()
 	val |= get_check_state(chkSramKLEDhira) ? 32 : 0;
 	val |= get_check_state(chkSramKLEDzen) ? 64 : 0;
 	vm->set_sram_key_led(val);
+
+#ifdef USE_HD1
 	// number of SASI HDDs
 	val = (int)get_spin_value(spnSramNumHdds);
 	if (val >= 0 && val <= 15) {
 		vm->set_sram_sasi_hdd_nums(val);
 	}
+	// SCSI enable flag
+	vm->set_sram_scsi_enable_flag(get_check_state(chkSramScsiEn));
+	// SCSI host ID
+	val = (int)strtol(get_text(txtSramScsiId), &endptr, 10);
+	if (endptr && *endptr == '\0' && 0 <= val && val <= 7) {
+		vm->set_sram_scsi_host_id(val);
+	}
+	// SASI on SCSI
+	valueu = (uint32_t)strtol(get_text(txtSramSasiOnScsi), &endptr, 16);
+	if (endptr && *endptr == '\0') {
+		vm->set_sram_sasi_hdd_on_scsi(valueu & 0xff);
+	}
+#endif
 #endif
 
 	// set message font

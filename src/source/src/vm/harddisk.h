@@ -21,11 +21,21 @@ class FILEIO;
 
 class HARDDISK
 {
+public:
+	enum en_device_types {
+		DEVICE_TYPE_SASI_HDD = 0,
+		DEVICE_TYPE_SCSI_HDD,
+		DEVICE_TYPE_SCSI_MO,
+		DEVICE_TYPE_MAX
+	};
+
 private:
 	FILEIO *fio;
 	CTchar m_file_path;
 
+	en_device_types m_device_type;
 	int m_drive_num;
+//	int m_default_sector_size;
 	int m_header_size;
 
 	int m_cylinders;
@@ -37,7 +47,11 @@ private:
 	int m_curr_block;
 
 	bool m_access;
-	bool m_write_protected;
+	int m_write_protected;
+	enum en_write_protect_flags {
+		WP_HOST = 0x01,
+		WP_USER = 0x02,
+	};
 
 	/// usec
 	enum en_access_times {
@@ -48,28 +62,36 @@ private:
 
 	inline bool is_valid_block(int block) const;
 	inline int get_cylinder(int block);
+	inline int get_cylinder_diff(int block);
 
 public:
 	HARDDISK(int drv);
 	~HARDDISK();
 	
-	bool open(const _TCHAR* file_path, int default_sector_size, uint32_t flags);
+	void clear_param();
+	bool open(const _TCHAR* file_path, uint32_t flags, int sector_size = 0);
 	void close();
-	bool mounted();
+	bool mounted() const;
+	bool is_valid_disk(int device_type) const;
 	bool accessed();
 	bool is_same_file(const _TCHAR *file_path);
-	bool is_write_protected();
-	bool read_buffer(int block, int length, uint8_t *buffer);
-	bool write_buffer(int block, int length, const uint8_t *buffer);
+	void set_write_protect(bool val);
+	bool is_write_protected() const;
+	bool read_buffer(int block, int length, uint8_t *buffer, int *cylinder_diff);
+	bool write_buffer(int block, int length, const uint8_t *buffer, int *cylinder_diff);
+	bool verify_buffer(int block, int length, const uint8_t *buffer, int *cylinder_diff);
 	bool format_disk();
-	bool format_track(int block);
-	bool seek(int block);
+	bool format_track(int block, int *cylinder_diff);
+	bool seek(int block, int *cylinder_diff);
 
 	int get_current_block() const { return m_curr_block; }
-	int get_cylinder_diff(int block);
+//	int get_cylinder_diff(int block);
 	int calc_access_time(int diff);
 	int get_access_time(int block);
 	static int get_cylinder_to_cylinder_delay();
+
+	int get_sector_total() const { return m_sector_total; }
+	int get_sector_size() const { return m_sector_size; }
 
 #if 0
 	// device name

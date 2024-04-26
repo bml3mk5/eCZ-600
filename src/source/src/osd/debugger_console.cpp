@@ -2945,7 +2945,7 @@ bool DebuggerConsole::SaveImageFile(int type, int w, int h)
 
 bool DebuggerConsole::SaveImageDumpFile(int type, int w, int h)
 {
-	const _TCHAR *app_path = pConfig->snapshot_path.Length() > 0 ? pConfig->snapshot_path : emu->application_path();
+	const _TCHAR *app_path = pConfig->snapshot_path.Length() > 0 ? pConfig->snapshot_path.Get() : emu->application_path();
 	_TCHAR file_path[_MAX_PATH];
 
 	bool rc = true;
@@ -4959,7 +4959,7 @@ void DebuggerConsole::CommandShowClock()
 		Printf(_T("%d: "), i);
 #ifdef _UNICODE
 		CWchar cname(dev->cpu->get_class_name());
-		Print(cname);
+		Print(cname.Get());
 #else
 		Print(dev->cpu->get_class_name());
 #endif

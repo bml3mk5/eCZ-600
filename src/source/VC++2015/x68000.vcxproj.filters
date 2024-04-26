@@ -147,6 +147,9 @@
     <ClCompile Include="..\src\gui\windows\win_gui.cpp">
       <Filter>Source Files\GUI Source Files\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\gui\windows\win_hdtypebox.cpp">
+      <Filter>Source Files\GUI Source Files\Windows</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\gui\windows\win_joysetbox.cpp">
       <Filter>Source Files\GUI Source Files\Windows</Filter>
     </ClCompile>
@@ -157,6 +160,9 @@
       <Filter>Source Files\GUI Source Files\Windows</Filter>
     </ClCompile>
     <ClCompile Include="..\src\gui\windows\win_ledbox.cpp">
+      <Filter>Source Files\GUI Source Files\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\gui\windows\win_loggingbox.cpp">
       <Filter>Source Files\GUI Source Files\Windows</Filter>
     </ClCompile>
     <ClCompile Include="..\src\gui\windows\win_recaudbox.cpp">
@@ -459,7 +465,13 @@
     <ClCompile Include="..\src\vm\x68000\scc.cpp">
       <Filter>Source Files\VM Driver Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\vm\x68000\scsi.cpp">
+      <Filter>Source Files\VM Driver Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\vm\x68000\sprite_bg.cpp">
+      <Filter>Source Files\VM Driver Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\vm\x68000\sxsi.cpp">
       <Filter>Source Files\VM Driver Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\vm\x68000\sysport.cpp">
@@ -578,6 +590,9 @@
     <ClInclude Include="..\src\gui\windows\win_gui.h">
       <Filter>Header Files\GUI Header Files\Windows</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\gui\windows\win_hdtypebox.h">
+      <Filter>Header Files\GUI Header Files\Windows</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\gui\windows\win_joysetbox.h">
       <Filter>Header Files\GUI Header Files\Windows</Filter>
     </ClInclude>
@@ -588,6 +603,9 @@
       <Filter>Header Files\GUI Header Files\Windows</Filter>
     </ClInclude>
     <ClInclude Include="..\src\gui\windows\win_ledbox.h">
+      <Filter>Header Files\GUI Header Files\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\gui\windows\win_loggingbox.h">
       <Filter>Header Files\GUI Header Files\Windows</Filter>
     </ClInclude>
     <ClInclude Include="..\src\gui\windows\win_recaudbox.h">
@@ -917,7 +935,13 @@
     <ClInclude Include="..\src\vm\x68000\scc.h">
       <Filter>Header Files\VM Driver Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\vm\x68000\scsi.h">
+      <Filter>Header Files\VM Driver Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\vm\x68000\sprite_bg.h">
+      <Filter>Header Files\VM Driver Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\vm\x68000\sxsi.h">
       <Filter>Header Files\VM Driver Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\vm\x68000\sysport.h">

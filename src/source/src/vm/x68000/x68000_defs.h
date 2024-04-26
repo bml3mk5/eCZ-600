@@ -42,7 +42,7 @@
 
 #define USE_DMA_MEMORY_MAPPED_IO
 
-#define MAX_SOUND	4
+#define MAX_SOUND	5
 
 //#define SCREEN_WIDTH		768
 #define SCREEN_WIDTH		800
@@ -90,12 +90,29 @@
 //#define USE_FD3
 //#define USE_FD4
 //#define HAS_MB8876
-#define MAX_DRIVE		2
-#define USE_DRIVE		2
+#define MAX_FLOPPY_DISKS		2
+#define USE_FLOPPY_DISKS		2
 
 #define USE_HD1
 #define USE_HD2
-#define MAX_HARD_DISKS	2
+#define USE_HD3
+#define USE_HD4
+#define USE_HD17
+#define USE_HD18
+#define USE_HD19
+#define USE_HD20
+#define USE_SASI_HARD_DISKS	4
+#define MAX_SASI_HARD_DISKS	16
+#define SASI_UNITS_PER_CTRL	2
+#define USE_SCSI_HARD_DISKS	4
+#define MAX_SCSI_HARD_DISKS	8
+#define SCSI_UNITS_PER_CTRL	1
+#define USE_HARD_DISKS	(USE_SASI_HARD_DISKS+USE_SCSI_HARD_DISKS)
+#define MAX_HARD_DISKS	(MAX_SASI_HARD_DISKS+MAX_SCSI_HARD_DISKS)
+
+#define IS_SASI_DRIVE(drive)	(drive < MAX_SASI_HARD_DISKS)
+#define TO_SCSI_DRIVE(drive)	(drive - MAX_SASI_HARD_DISKS)
+#define FROM_SCSI_DRIVE(drive)	(drive + MAX_SASI_HARD_DISKS)
 
 #define USE_SOCKET
 #define USE_UART
@@ -130,7 +147,7 @@
 //#define USE_PERFORMANCE_METER
 
 #define RESUME_FILE_HEADER "RESUME_X68000"
-#define RESUME_FILE_VERSION 1
+#define RESUME_FILE_VERSION 2
 #define RESUME_FILE_REVISION 1
 
 #define KEYBIND_KEYS	136

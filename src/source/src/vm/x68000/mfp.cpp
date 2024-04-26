@@ -18,7 +18,7 @@
 #include "../../logging.h"
 
 #ifdef _DEBUG
-//#define OUT_DEBUG_INTR logging->out_debugf
+//#define OUT_DEBUG_INTR(...) logging->out_debugf(__VA_ARGS__)
 #define OUT_DEBUG_INTR(...)
 //#define OUT_DEBUG_IERA logging->out_debugf
 #define OUT_DEBUG_IERA(...)
@@ -96,7 +96,7 @@ void MFP::warm_reset(bool por)
 	}
 
 	m_vector = 0;
-	m_now_iack = false;
+//	m_now_iack = false;
 
 	m_timer_clock = 4000000;	// 4MHz(X68K)
 
@@ -335,6 +335,36 @@ void MFP::write_io8(uint32_t addr, uint32_t data)
 	}
 }
 
+/// now interrupt, send vector number
+uint32_t MFP::read_external_data8(uint32_t addr)
+{
+	uint32_t data = 0;
+
+	if (now_reset) return data;
+
+	addr &= 0x1f;
+
+	// interrupt vector
+	data = m_vector;
+
+	OUT_DEBUG_INTR(_T("clk:%lld MFP IACK vec:%02X ISRA:%02X ISRB:%02X IPRA:%02X IPRB:%02X IMRA:%02X IMRB:%02X")
+		, get_current_clock()
+		, m_vector
+		, m_regs[MFP_ISRA], m_regs[MFP_ISRB]
+		, m_regs[MFP_IPRA], m_regs[MFP_IPRB]
+		, m_regs[MFP_IMRA], m_regs[MFP_IMRB]);
+
+	// clear interrupt process
+	if (!(m_regs[MFP_VR] & VR_S)) {
+		// automatic
+		m_regs[MFP_ISRA] = 0;
+		m_regs[MFP_ISRB] = 0;
+		// clear interrupt
+		update_irq();
+	}
+	return data;
+}
+
 uint32_t MFP::read_io8(uint32_t addr)
 {
 	uint32_t data = 0;
@@ -343,26 +373,26 @@ uint32_t MFP::read_io8(uint32_t addr)
 
 	addr &= 0x1f;
 
-	if (m_now_iack) {
-		// interrupt vector
-		data = m_vector;
-
-		OUT_DEBUG_INTR(_T("clk:%lld MFP IACK vec:%02X ISRA:%02X ISRB:%02X IPRA:%02X IPRB:%02X IMRA:%02X IMRB:%02X")
-			, get_current_clock()
-			, m_vector
-			, m_regs[MFP_ISRA], m_regs[MFP_ISRB]
-			, m_regs[MFP_IPRA], m_regs[MFP_IPRB]
-			, m_regs[MFP_IMRA], m_regs[MFP_IMRB]);
-
-		// clear interrupt process
-		if (!(m_regs[MFP_VR] & VR_S)) {
-			// automatic
-			m_regs[MFP_ISRA] = 0;
-			m_regs[MFP_ISRB] = 0;
-			// clear interrupt
-			update_irq();
-		}
-	} else {
+//	if (m_now_iack) {
+//		// interrupt vector
+//		data = m_vector;
+//
+//		OUT_DEBUG_INTR(_T("clk:%lld MFP IACK vec:%02X ISRA:%02X ISRB:%02X IPRA:%02X IPRB:%02X IMRA:%02X IMRB:%02X")
+//			, get_current_clock()
+//			, m_vector
+//			, m_regs[MFP_ISRA], m_regs[MFP_ISRB]
+//			, m_regs[MFP_IPRA], m_regs[MFP_IPRB]
+//			, m_regs[MFP_IMRA], m_regs[MFP_IMRB]);
+//
+//		// clear interrupt process
+//		if (!(m_regs[MFP_VR] & VR_S)) {
+//			// automatic
+//			m_regs[MFP_ISRA] = 0;
+//			m_regs[MFP_ISRB] = 0;
+//			// clear interrupt
+//			update_irq();
+//		}
+//	} else {
 		switch(addr & 0x1f) {
 		case MFP_IERA:
 		case MFP_IPRA:
@@ -402,7 +432,7 @@ uint32_t MFP::read_io8(uint32_t addr)
 			data = m_regs[addr];
 			break;
 		}
-	}
+//	}
 	return data;
 }
 
@@ -499,10 +529,10 @@ void MFP::write_signal(int id, uint32_t data, uint32_t mask)
 		}
 		m_xmit_prev_edge = (data & mask);
 		break;
-	case SIG_IACK:
-		// receive interrupt ack signal
-		m_now_iack = ((data & mask) != 0);
-		break;
+//	case SIG_IACK:
+//		// receive interrupt ack signal
+//		m_now_iack = ((data & mask) != 0);
+//		break;
 	case SIG_CPU_RESET:
 		now_reset = ((data & mask) != 0);
 		if (!now_reset) {
@@ -787,7 +817,7 @@ void MFP::save_state(FILEIO *fp)
 		SET_Byte(m_regs[i]);
 	}
 	SET_Byte(m_vector);	///< vector number on interrupt
-	SET_Bool(m_now_iack);	///< receiving IACK
+//	SET_Bool(m_now_iack);	///< receiving IACK
 	SET_Byte(m_timer_output);		///< bit0 timer A, bit 1 timer B
 
 	for(int i=0; i<4; i++) {
@@ -842,7 +872,7 @@ bool MFP::load_state(FILEIO *fp)
 		GET_Byte(m_regs[i]);
 	}
 	GET_Byte(m_vector);	///< vector number on interrupt
-	GET_Bool(m_now_iack);	///< receiving IACK
+//	GET_Bool(m_now_iack);	///< receiving IACK
 	GET_Byte(m_timer_output);		///< bit0 timer A, bit 1 timer B
 
 	for(int i=0; i<4; i++) {

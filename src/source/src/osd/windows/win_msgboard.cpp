@@ -110,11 +110,11 @@ bool MsgBoard::SetFont()
 	_TCHAR font_name[64];
 
 	// フォントパスの設定
-	if (pConfig->font_path.Length() > 0 && !CFont::AddFontPath(pConfig->font_path)) {
+	if (pConfig->font_path.Length() > 0 && !CFont::AddFontPath(pConfig->font_path.Get())) {
 		logging->out_logf_x(LOG_WARN, CMsg::MsgBoard_Couldn_t_load_font_VSTR, pConfig->font_path);
 	}
 
-	msg.font->SetFont((HWND)NULL, pConfig->msgboard_msg_fontname, pConfig->msgboard_msg_fontsize, FW_NORMAL, fg.Get());
+	msg.font->SetFont((HWND)NULL, pConfig->msgboard_msg_fontname.Get(), pConfig->msgboard_msg_fontsize, FW_NORMAL, fg.Get());
 	if (msg.font->GetFont() != NULL) {
 		CTchar xtitle(gMessages.Get(CMsg::message));
 		msg.font->GetFontName(font_name, sizeof(font_name) / sizeof(font_name[0]));
@@ -122,7 +122,7 @@ bool MsgBoard::SetFont()
 	} else {
 		logging->out_logf_x(LOG_WARN, CMsg::MsgBoard_Couldn_t_load_font_VSTR_for_message, pConfig->msgboard_msg_fontname);
 	}
-	info.font->SetFont((HWND)NULL, pConfig->msgboard_info_fontname, pConfig->msgboard_info_fontsize, FW_BOLD, fg.Get());
+	info.font->SetFont((HWND)NULL, pConfig->msgboard_info_fontname.Get(), pConfig->msgboard_info_fontsize, FW_BOLD, fg.Get());
 	if (info.font->GetFont() != NULL) {
 		CTchar xtitle(gMessages.Get(CMsg::info));
 		info.font->GetFontName(font_name, sizeof(font_name) / sizeof(font_name[0]));

@@ -22,20 +22,12 @@ extern EMU *emu;
 HARDDISK::HARDDISK(int drv)
 {
 	m_drive_num = drv;
-	m_header_size = 0;
 
 	fio = new FILEIO();
 
-	m_cylinders = 1;
-	m_surfaces = 1;
-	m_sectors = 1;
-	m_sector_size = 256;
-	m_sector_total = 1;
+	clear_param();
 
-	m_curr_block = 0;
-
-	m_access = false;
-	m_write_protected = false;
+	m_write_protected = 0;
 
 //	set_device_name(_T("Hard Disk Drive #%d"), drv + 1);
 }
@@ -45,8 +37,23 @@ HARDDISK::~HARDDISK()
 	delete fio;
 }
 
+void HARDDISK::clear_param()
+{
+	m_device_type = DEVICE_TYPE_SASI_HDD;
+	m_header_size = 0;
+	m_cylinders = 1;
+	m_surfaces = 1;
+	m_sectors = 1;
+	m_sector_size = 512;
+	m_sector_total = 1;
+
+	m_curr_block = 0;
+
+	m_access = false;
+}
+
 /// @return true = success
-bool HARDDISK::open(const _TCHAR* file_path, int default_sector_size, uint32_t flags)
+bool HARDDISK::open(const _TCHAR* file_path, uint32_t flags, int sector_size)
 {
 	uint8_t header[512];
 //	pair32_t tmp;
@@ -62,9 +69,9 @@ bool HARDDISK::open(const _TCHAR* file_path, int default_sector_size, uint32_t f
 
 	m_file_path.Set(file_path);
 
-	m_write_protected = fio->IsFileProtected(file_path);
+	m_write_protected = fio->IsFileProtected(file_path) ? WP_HOST : 0;
 	if (flags & OPEN_DISK_FLAGS_READ_ONLY) {
-		m_write_protected = true;
+		m_write_protected = WP_HOST;
 	}
 
 
@@ -159,22 +166,59 @@ bool HARDDISK::open(const _TCHAR* file_path, int default_sector_size, uint32_t f
 		m_cylinders = m_sector_total / m_surfaces / m_sectors;
 //		m_sector_num = cylinders * m_surfaces * m_sectors;
 
-	} else {
+	} else if(UTILITY::check_file_extension(file_path, _T(".hdf"))) {
 		// solid
+		// SASI disk
+		m_device_type = DEVICE_TYPE_SASI_HDD;
 		m_header_size = 0;
-		// sectors = 33/17, surfaces = 4, cylinders = 153, sector_size = 256/512	// 5MB
-		// sectors = 33/17, surfaces = 4, cylinders = 309, sector_size = 256/512	// 10MB
-		// sectors = 33/17, surfaces = 4, cylinders = 614, sector_size = 256/512	// 20MB
-		// sectors = 33/17, surfaces = 8, cylinders = 614, sector_size = 256/512	// 40MB
-#if 0
-		m_surfaces = (fio->FileLength() <= 17 * 4 * 615 * 512) ? 4 : 8;
-#else
+		// sectors = 33, surfaces = 4, cylinders = 153, sector_size = 256	// 5MB
+		// sectors = 33, surfaces = 4, cylinders = 309, sector_size = 256	// 10MB
+		// sectors = 33, surfaces = 4, cylinders = 614, sector_size = 256	// 20MB
+		// sectors = 33, surfaces = 8, cylinders = 614, sector_size = 256	// 40MB
+		m_sector_size = sector_size ? sector_size : 256;
+		m_sectors = (m_sector_size == 1024) ? 8 : (m_sector_size == 512) ? 17 : 33;
 		m_surfaces = ((int)(fio->FileLength() / 1024 / 1024) < 24) ? 4 : 8;
-#endif
-		m_sectors = (default_sector_size == 1024) ? 8 : (default_sector_size == 512) ? 17 : 33;
-		m_sector_size = default_sector_size;
 		m_sector_total = fio->FileLength() / m_sector_size;
 		m_cylinders = m_sector_total / m_surfaces / m_sectors;
+
+	} else if(UTILITY::check_file_extension(file_path, _T(".mos"))) {
+		// solid
+		// SCSI MO 3.5inch disk
+		m_device_type = DEVICE_TYPE_SCSI_MO;
+		m_header_size = 0;
+		m_sector_size = fio->FileLength() <= 540000000 ? 512 : 2048;
+		m_sector_total = fio->FileLength() / m_sector_size;
+		// MO has not following parameters, so values are incorrect
+		m_cylinders = 1;
+		m_surfaces = 2;
+		m_sectors = m_sector_total / m_surfaces / m_cylinders;
+
+	} else {
+		// solid
+		// SCSI disk
+		m_device_type = DEVICE_TYPE_SCSI_HDD;
+		m_header_size = 0;
+		m_sector_size = sector_size ? sector_size : 512;
+		m_sector_total = fio->FileLength() / m_sector_size;
+		// following calcration is so unreliable
+		int remain = m_sector_total;
+		for(int n=5; n>=0; n--) {
+			int m = (1 << n);	// 32,16,8,4,2,1
+			if ((remain % m) == 0) {
+				m_sectors = m;
+				remain /= m;
+				break;
+			}
+		}
+		for(int n=3; n>=0; n--) {
+			int m = (1 << n);	// 8,4,2,1
+			if ((remain % m) == 0) {
+				m_surfaces = m;
+				remain /= m;
+				break;
+			}
+		}
+		m_cylinders = remain;
 
 	}
 
@@ -188,11 +232,19 @@ void HARDDISK::close()
 		fio->Fclose();
 		m_file_path.Clear();
 	}
+	clear_param();
 }
 
-bool HARDDISK::mounted()
+/// file is open?
+bool HARDDISK::mounted() const
 {
 	return fio->IsOpened();
+}
+
+/// file is open and same device?
+bool HARDDISK::is_valid_disk(int device_type) const
+{
+	return mounted() && (m_device_type == device_type);
 }
 
 bool HARDDISK::accessed()
@@ -207,15 +259,27 @@ bool HARDDISK::is_same_file(const _TCHAR *file_path)
 	return (m_file_path.Compare(file_path, (int)_tcslen(file_path)) == 0);
 }
 
-bool HARDDISK::is_write_protected()
+void HARDDISK::set_write_protect(bool val)
 {
-	return m_write_protected;
+	if (val == true && m_write_protected == 0) {
+		// when set write protect, flash disk image to file.
+		fio->Flush();
+	}
+	BIT_ONOFF(m_write_protected, WP_USER, val);
 }
 
-bool HARDDISK::read_buffer(int block, int length, uint8_t *buffer)
+bool HARDDISK::is_write_protected() const
+{
+	return (m_write_protected != 0);
+}
+
+bool HARDDISK::read_buffer(int block, int length, uint8_t *buffer, int *cylinder_diff)
 {
 	if(!mounted()) return false;
 	if (!is_valid_block(block)) return false;
+	if (cylinder_diff) {
+		*cylinder_diff = get_cylinder_diff(block);
+	}
 	m_curr_block = block;
 	if(fio->Fseek(m_header_size + block * m_sector_size, FILEIO::SEEKSET) == 0) {
 		m_access = true;
@@ -224,14 +288,37 @@ bool HARDDISK::read_buffer(int block, int length, uint8_t *buffer)
 	return false;
 }
 
-bool HARDDISK::write_buffer(int block, int length, const uint8_t *buffer)
+bool HARDDISK::write_buffer(int block, int length, const uint8_t *buffer, int *cylinder_diff)
 {
 	if (!mounted()) return false;
 	if (!is_valid_block(block)) return false;
+	if (cylinder_diff) {
+		*cylinder_diff = get_cylinder_diff(block);
+	}
 	m_curr_block = block;
 	if(fio->Fseek(m_header_size + block * m_sector_size, FILEIO::SEEKSET) == 0) {
 		m_access = true;
 		return (fio->Fwrite(buffer, length, 1) == 1);
+	}
+	return false;
+}
+
+bool HARDDISK::verify_buffer(int block, int length, const uint8_t *buffer, int *cylinder_diff)
+{
+	if (!mounted()) return false;
+	if (!is_valid_block(block)) return false;
+	if (cylinder_diff) {
+		*cylinder_diff = get_cylinder_diff(block);
+	}
+	m_curr_block = block;
+	if(fio->Fseek(m_header_size + block * m_sector_size, FILEIO::SEEKSET) == 0) {
+		m_access = true;
+		uint8_t *rbuffer = new uint8_t[length + 1];
+		int n = (int)fio->Fread(rbuffer, length, 1);
+		if (n != 1) return false;
+		n = memcmp(buffer, rbuffer, length);
+		delete [] rbuffer;
+		return (n == 0);
 	}
 	return false;
 }
@@ -247,10 +334,13 @@ bool HARDDISK::format_disk()
 	return false;
 }
 
-bool HARDDISK::format_track(int block)
+bool HARDDISK::format_track(int block, int *cylinder_diff)
 {
 	if (!mounted()) return false;
 	if (!is_valid_block(block)) return false;
+	if (cylinder_diff) {
+		*cylinder_diff = get_cylinder_diff(block);
+	}
 	m_curr_block = block;
 	if(fio->Fseek(m_header_size + block * m_sector_size, FILEIO::SEEKSET) == 0) {
 		int track_size = m_sectors * m_sector_size;
@@ -260,10 +350,13 @@ bool HARDDISK::format_track(int block)
 	return false;
 }
 
-bool HARDDISK::seek(int block)
+bool HARDDISK::seek(int block, int *cylinder_diff)
 {
 	if (!mounted()) return false;
 	if (!is_valid_block(block)) return false;
+	if (cylinder_diff) {
+		*cylinder_diff = get_cylinder_diff(block);
+	}
 	m_curr_block = block;
 	return true;
 }

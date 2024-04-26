@@ -56,13 +56,14 @@ private:
 	DEVICE *d_printer;
 	DEVICE *d_comm;
 	DEVICE *d_board;
+	DEVICE *d_scsi;
 
 	uint32_t *p_fc;							///< function code on MPU
 
 	uint16_t m_area_set;					///< set supervisor area
 	uint32_t m_area_set_size;				///< set supervisor area (real size (word))
 
-	uint16_t m_rom[MEM_ADDRH(0x100000)];	///< CGROM 768KB + (reserved) + IPLROM 128KB
+	uint16_t m_rom[MEM_ADDRH(0x100000)];	///< CGROM 768KB + (SCSI) + IPLROM 128KB
 
 	uint16_t *m_ram;						///< main RAM
 	uint32_t  m_ram_size;					///< main RAM size (word)
@@ -79,20 +80,26 @@ private:
 
 	uint16_t m_sram[MEM_ADDRH(0x4000)];		///< SRAM 16KB
 
+	uint16_t m_scsi_rom[MEM_ADDRH(0x2000)];	///< SCSI Ex ROM (8KB)
+
 	uint32_t m_pc, m_pc_prev;
 
 	bool  m_ipl_mapping;	// mapping $ffxxxx -> $00xxxx after reset
 
 	bool  m_sram_writable;	// I/O $e8e00d
 
+	uint8_t m_buserr;		// BUS ERROR
+
 	bool  m_is_xvi;
 
 	uint16_t *p_crtc_regs;
 
-	bool  rom_loaded[2];
-	bool  rom_loaded_at_first;
+	int  rom_loaded[2];
+	bool rom_loaded_at_first;
 
-	bool sram_loaded;
+	int  scsi_rom_loaded[2];
+
+	int  sram_loaded;
 	bool sram_saved;
 
 	//for resume
@@ -109,7 +116,8 @@ private:
 		uint8_t  m_ipl_mapping;
 		uint8_t  m_sram_writable;
 		uint8_t  m_is_xvi;
-		char reserved[3];
+		uint8_t  m_buserr;
+		char reserved[2];
 
 		char signature[10];
 		uint8_t   next_ram_size_num;
@@ -147,7 +155,10 @@ private:
 	inline void write_gvram1(uint32_t addrh, uint32_t data, uint32_t mask);
 	inline void write_gvram2(uint32_t addrh, uint32_t data, uint32_t mask);
 	inline void write_gvram3(uint32_t addrh, uint32_t data, uint32_t mask);
-	inline uint32_t read_gvram(uint32_t addrh);
+	inline uint32_t read_gvram0(uint32_t addrh);
+	inline uint32_t read_gvram1(uint32_t addrh);
+	inline uint32_t read_gvram2(uint32_t addrh);
+	inline uint32_t read_gvram3(uint32_t addrh);
 
 #ifdef USE_DEBUGGER
 //	DebuggerConsole *dc;
@@ -210,11 +221,14 @@ public:
 		return (read_data16w(addr, wait) << 16) | read_data16(addr + 2);
 	}
 
-	void write_dma_data_n(uint32_t addr, uint32_t data, int width);
+	void    write_dma_data16(uint32_t addr, uint32_t data);
+	uint32_t read_dma_data16(uint32_t addr);
+
+	void     write_dma_data_n(uint32_t addr, uint32_t data, int width);
 	uint32_t read_dma_data_n(uint32_t addr, int width);
-	void write_dma_io8(uint32_t addr, uint32_t data);
+	void    write_dma_io8(uint32_t addr, uint32_t data);
 	uint32_t read_dma_io8(uint32_t addr);
-	void write_dma_io16(uint32_t addr, uint32_t data);
+	void    write_dma_io16(uint32_t addr, uint32_t data);
 	uint32_t read_dma_io16(uint32_t addr);
 
 	void write_io8(uint32_t addr, uint32_t data);
@@ -275,6 +289,9 @@ public:
 	}
 	void set_context_board(DEVICE* device) {
 		d_board = device;
+	}
+	void set_context_scsi(DEVICE* device) {
+		d_scsi = device;
 	}
 	void set_crtc_regs_ptr(uint16_t* regs) {
 		p_crtc_regs = regs;

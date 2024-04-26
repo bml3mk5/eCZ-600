@@ -171,7 +171,9 @@ DEPOBJS:=$(SRCDEP)/adpcm.o \
 	$(SRCDEP)/scc.o \
 	$(SRCDEP)/sprite_bg.o \
 	$(SRCDEP)/sysport.o \
+	$(SRCDEP)/sxsi.o \
 	$(SRCDEP)/sasi.o \
+	$(SRCDEP)/scsi.o \
 	$(SRCDEP)/x68000.o
 
 GUIOBJSAGAR:=$(SRCGUIAGAR)/ag_gui_base.o \
@@ -203,6 +205,8 @@ GUIOBJSCOCOA:=$(SRCGUICOCOA)/cocoa_gui.o \
 	$(SRCGUICOCOA)/cocoa_ledbox.o \
 	$(SRCGUICOCOA)/cocoa_vkeyboard.o \
 	$(SRCGUICOCOA)/cocoa_joysetpanel.o \
+	$(SRCGUICOCOA)/cocoa_hdtypepanel.o \
+	$(SRCGUICOCOA)/cocoa_loggingpanel.o \
 	$(SRCGUICOCOA)/cocoa_configpanel.o
 
 #	$(SRCGUICOCOA)/cocoa_savedatarec.o \

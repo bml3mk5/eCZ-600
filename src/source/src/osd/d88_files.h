@@ -35,7 +35,7 @@ public:
 	void Clear();
 
 	void SetName(const char *val);
-	const _TCHAR *GetName() const { return name; }
+	const _TCHAR *GetName() const { return name.Get(); }
 	int GetNameLength() const { return name.Length(); }
 	int GetOffset() const { return offset; }
 	void SetOffset(int val) { offset = val; }
@@ -75,7 +75,7 @@ public:
 	void ChangeBank();
 
 	void SetPath(const _TCHAR *val);
-	const _TCHAR *GetPath() const { return path; }
+	const _TCHAR *GetPath() const { return path.Get(); }
 	D88Banks &GetBanks() { return banks; }
 	const D88Bank *GetBank(int idx) const;
 	void SetCurrentBank(int val) { curr_bank = val; }
@@ -88,7 +88,7 @@ public:
 class D88Files
 {
 private:
-	D88File files[MAX_DRIVE];
+	D88File files[USE_FLOPPY_DISKS];
 
 	D88Files(const D88Files &);
 

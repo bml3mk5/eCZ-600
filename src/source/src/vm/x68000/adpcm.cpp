@@ -26,6 +26,10 @@
 #define OUT_DEBUG_REGW(...)
 //#define OUT_DEBUG_REGCMDW logging->out_debugf
 #define OUT_DEBUG_REGCMDW(...)
+//#define OUT_DEBUG_DAT logging->out_debugf
+#define OUT_DEBUG_DAT(...)
+//#define OUT_DEBUG_MIX logging->out_debugf
+#define OUT_DEBUG_MIX(...)
 //#define OUT_DEBUG_CLKC logging->out_debugf
 #define OUT_DEBUG_CLKC(...)
 #else
@@ -33,6 +37,8 @@
 #define OUT_DEBUG_SIGW(...)
 #define OUT_DEBUG_REGW(...)
 #define OUT_DEBUG_REGCMDW(...)
+#define OUT_DEBUG_DAT(...)
+#define OUT_DEBUG_MIX(...)
 #define OUT_DEBUG_CLKC(...)
 #endif
 
@@ -243,7 +249,9 @@ void ADPCM::write_signal(int id, uint32_t data, uint32_t mask)
 		m_pan_right = (data & 0x01) ? 0 : 0xffffffff;
 		m_pan_left  = (data & 0x02) ? 0 : 0xffffffff;
 
-		OUT_DEBUG_SIGW(_T("ADPCM: WRITE FREQ clk:%d prescale:%d period:%f pan:%c%c"), m_base_clock * m_clock_mag, m_prescaler, m_period
+		OUT_DEBUG_SIGW(_T("ADPCM: WRITE FREQ dat:%02x clk:%d prescale:%d period:%f pan:%c%c")
+			, data
+			, m_base_clock * m_clock_mag, m_prescaler, m_period
 			, (data & 1) ? _T('-') : _T('R'), (data & 2) ? _T('-') : _T('L'));
 		break;
 	case SIG_SEL_CLOCK:
@@ -253,6 +261,10 @@ void ADPCM::write_signal(int id, uint32_t data, uint32_t mask)
 			m_clock_mag = nval;
 			change_clock();
 		}
+		OUT_DEBUG_SIGW(_T("ADPCM: WRITE CLK dat:%02x clk:%d prescale:%d period:%f pan:%c%c")
+			, data
+			, m_base_clock * m_clock_mag, m_prescaler, m_period
+			, (m_pan_right == 0) ? _T('-') : _T('R'), (m_pan_left == 0) ? _T('-') : _T('L'));
 		break;
 	case SIG_CPU_RESET:
 		now_reset = ((data & mask) != 0);
@@ -400,6 +412,9 @@ void ADPCM::calc_samples(uint8_t data)
 		m_signals_buff_r[m_signals_w] = signal & m_pan_right;
 
 #endif
+
+		OUT_DEBUG_DAT(_T("ADPCM pos:% 3d nibble:% 6d signal:% 6d"), m_signals_w, nibble, signal);
+
 		if (m_signals_w < (BUFF_SIZE - 2)) m_signals_w++;
 
 //		m_nibble_shift ^= 4;
@@ -649,6 +664,10 @@ void ADPCM::mix(int32_t* buffer, int cnt)
 
 			*buffer++ += val_l;	// L
 			*buffer++ += val_r; // R
+
+#ifdef _DEBUG
+			OUT_DEBUG_MIX(_T("ADPCM W:%d CNT:%d L:%d R:%d"), m_signals_w, i, val_l, val_r);
+#endif
 		}
 	} else {
 		for(int i = 0; i < cnt; i++) {
@@ -660,6 +679,10 @@ void ADPCM::mix(int32_t* buffer, int cnt)
 
 			*buffer++ += val_l;	// L
 			*buffer++ += val_r; // R
+
+#ifdef _DEBUG
+			OUT_DEBUG_MIX(_T("ADPCM W:%d CNT:%d L:%d R:%d"), m_signals_w, i, val_l, val_r);
+#endif
 		}
 	}
 

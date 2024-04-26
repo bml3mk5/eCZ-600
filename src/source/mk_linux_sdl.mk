@@ -173,7 +173,9 @@ DEPOBJS:=$(SRCDEP)/adpcm.o \
 	$(SRCDEP)/scc.o \
 	$(SRCDEP)/sprite_bg.o \
 	$(SRCDEP)/sysport.o \
+	$(SRCDEP)/sxsi.o \
 	$(SRCDEP)/sasi.o \
+	$(SRCDEP)/scsi.o \
 	$(SRCDEP)/x68000.o
 
 GUIOBJSAGAR:=$(SRCGUIAGAR)/ag_gui_base.o \
@@ -206,6 +208,8 @@ GUIOBJSGTKX11=$(SRCGUIGTKX11)/gtk_x11_gui.o \
 	$(SRCGUIGTKX11)/gtk_aboutbox.o \
 	$(SRCGUIGTKX11)/gtk_vkeyboard.o \
 	$(SRCGUIGTKX11)/gtk_joysetbox.o \
+	$(SRCGUIGTKX11)/gtk_hdtypebox.o \
+	$(SRCGUIGTKX11)/gtk_loggingbox.o \
 	$(SRCGUIGTKX11)/gtk_ledbox.o
 
 VIDOBJSWAV:=$(SRCVIDWAV)/wav_rec_audio.o

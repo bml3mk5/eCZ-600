@@ -62,7 +62,7 @@ void SCC::warm_reset(bool por)
 	m_cur_cmd = 0;
 
 	m_vector = 0;
-	m_now_iack = false;
+//	m_now_iack = false;
 
 	if (!por) {
 		for(int id=0; id<EVENT_SCC_END; id++) {
@@ -277,21 +277,37 @@ void SCC::write_io8(uint32_t addr, uint32_t data)
 	}
 }
 
+/// now interrupt, send vector number
+uint32_t SCC::read_external_data8(uint32_t addr)
+{
+	uint32_t data = 0;
+
+	if (now_reset) return data;
+
+	// set vector number
+	update_intr_vector();
+	// vector number
+	data = m_vector;
+	// clear interrupt
+	update_intr();
+	return data;
+}
+
 uint32_t SCC::read_io8(uint32_t addr)
 {
 	uint32_t data = 0;
 
 	if (now_reset) return data;
 
-	if (m_now_iack) {
-		// set vector number
-		update_intr_vector();
-		// vector number
-		data = m_vector;
-		// clear interrupt
-		update_intr();
-		return data;
-	}
+//	if (m_now_iack) {
+//		// set vector number
+//		update_intr_vector();
+//		// vector number
+//		data = m_vector;
+//		// clear interrupt
+//		update_intr();
+//		return data;
+//	}
 
 	int ch = 1 - ((addr & 3) >> 1);
 
@@ -362,11 +378,11 @@ void SCC::write_signal(int id, uint32_t data, uint32_t mask)
 		// receive serial input
 		receive_data(id - SIG_RXDA, data, mask);
 		break;
-	case SIG_IACK:
-		// receive interrupt ack signal
-		m_now_iack = ((data & mask) != 0);
-		OUT_DEBUG_INTR(_T("SCC IACK %d"), m_now_iack ? 1 : 0);
-		break;
+//	case SIG_IACK:
+//		// receive interrupt ack signal
+//		m_now_iack = ((data & mask) != 0);
+//		OUT_DEBUG_INTR(_T("SCC IACK %d"), m_now_iack ? 1 : 0);
+//		break;
 	case SIG_CPU_RESET:
 		now_reset = ((data & mask) != 0);
 		if (!(data & mask)) {
@@ -916,7 +932,7 @@ void SCC::save_state(FILEIO *fp)
 
 	SET_Int32_LE(m_base_clock);	///< base clock
 	SET_Byte(m_vector);	///< interrupt vector
-	SET_Bool(m_now_iack);	///< receiving IACK
+//	SET_Bool(m_now_iack);	///< receiving IACK
 
 	for(int i=0; i<2; i++) {
 		vm_state.v2.m_stat[i].flags = m_stat[i].flags;
@@ -958,7 +974,7 @@ bool SCC::load_state(FILEIO *fp)
 
 	GET_Int32_LE(m_base_clock);	///< base clock
 	GET_Byte(m_vector);	///< interrupt vector
-	GET_Bool(m_now_iack);	///< receiving IACK
+//	GET_Bool(m_now_iack);	///< receiving IACK
 
 	switch(Uint16_LE(vm_state_i.version)) {
 	case 1: // version 1

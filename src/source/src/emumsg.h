@@ -71,6 +71,7 @@ enum en_emumsg_id {
 #ifdef USE_HD1
 	EMUMSG_ID_OPEN_HD,
 	EMUMSG_ID_CLOSE_HD,
+	EMUMSG_ID_WRITEPROTECT_HD,
 	EMUMSG_ID_RECENT_HD,
 #endif
 

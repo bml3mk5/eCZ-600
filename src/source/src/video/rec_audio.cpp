@@ -298,7 +298,7 @@ void REC_AUDIO::CreateFileName(_TCHAR *file_path, const char *extension)
 //	int tim[8];
 	const _TCHAR *app_path;
 
-	app_path = pConfig->snapshot_path.Length() > 0 ? pConfig->snapshot_path : emu->application_path();
+	app_path = pConfig->snapshot_path.Length() > 0 ? pConfig->snapshot_path.Get() : emu->application_path();
 	UTILITY::create_date_file_path(app_path, file_path, _MAX_PATH, extension);
 
 //	emu->get_timer(tim, 8);

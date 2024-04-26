@@ -65,8 +65,11 @@ extern const char *datarec_exts;
 extern const char *floppy_disk_exts;
 extern const char *blank_floppy_disk_exts;
 
-extern const char *hard_disk_exts;
-extern const char *blank_hard_disk_exts;
+extern const char *sasi_hard_disk_exts;
+extern const char *blank_sasi_hard_disk_exts;
+
+extern const char *scsi_hard_disk_exts;
+extern const char *blank_scsi_hard_disk_exts;
 
 extern const char *state_file_exts;
 extern const char *key_rec_file_exts;
@@ -93,7 +96,11 @@ extern const CMsg::Id rs232c_flowctrl[];
 extern const CMsg::Id sram_purpose[];
 extern const _TCHAR *key_repeat_delay[];
 extern const _TCHAR *key_repeat_rate[];
+
+extern const CMsg::Id scsi_type[];
 #endif
+
+extern const _TCHAR *hd_device_type[];
 
 }; /* namespace LABELS */
 

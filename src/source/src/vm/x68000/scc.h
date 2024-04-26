@@ -167,7 +167,7 @@ private:
 	int m_cur_cmd;		///< set command number to WR0
 
 	uint8_t m_vector;	///< interrupt vector
-	bool m_now_iack;	///< receiving IACK
+//	bool m_now_iack;	///< receiving IACK
 
 	int m_register_id[EVENT_SCC_END];	///< interrupt after sent data
 
@@ -196,7 +196,7 @@ private:
 
 		int m_base_clock;	///< base clock
 		uint8_t m_vector;	///< interrupt vector
-		uint8_t m_now_iack;	///< receiving IACK
+		uint8_t reserved0;	// m_now_iack;	///< receiving IACK
 		char reserved[2];
 		union {
 			struct {
@@ -269,6 +269,7 @@ public:
 	void channel_reset(int ch);
 
 	void write_io8(uint32_t addr, uint32_t data);
+	uint32_t read_external_data8(uint32_t addr);
 	uint32_t read_io8(uint32_t addr);
 
 	void write_signal(int id, uint32_t data, uint32_t mask);

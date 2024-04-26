@@ -158,6 +158,7 @@ private:
 #if defined(USE_SDL2)
 	bool create_sdl_texture();
 #endif
+	void set_screen_filter_type();
 	inline void mix_screen_sub();
 	inline void calc_vm_screen_size_sub();
 

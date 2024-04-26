@@ -642,17 +642,17 @@ bool MsgBoard::set_sys_font(CMsg::Id title, const _TCHAR *name, int pt, TTF_Font
 				char fpath_sbuf[1024];
 				UTILITY::strcpy(fpath_sbuf, 1024, fpath_buf);
 				fpath_sbuf[fpath_len - 1] = '\0';
-				if (open_font_subdir(font, fpath_sbuf, fname[ni]->Get(), pt, xtitle.GetM().Get(), font_file, 0)) {
+				if (open_font_subdir(font, fpath_sbuf, fname[ni]->Get(), pt, xtitle.GetM(), font_file, 0)) {
 					return true;
 				}
 			} else {
-				if (open_font(font, fpath_buf, fname[ni]->Get(), pt, xtitle.GetM().Get(), font_file)) {
+				if (open_font(font, fpath_buf, fname[ni]->Get(), pt, xtitle.GetM(), font_file)) {
 					return true;
 				}
 			}
 		}
 	}
-	logging->out_logf_x(LOG_WARN, CMsg::MsgBoard_Couldn_t_find_fonts_for_VSTR, xtitle.GetM().Get());
+	logging->out_logf_x(LOG_WARN, CMsg::MsgBoard_Couldn_t_find_fonts_for_VSTR, xtitle.GetM());
 	return false;
 }
 

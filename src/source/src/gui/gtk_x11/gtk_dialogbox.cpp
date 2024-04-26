@@ -55,11 +55,11 @@ GtkWidget *Box::create_vbox(GtkWidget *parent, int cell_space)
 	return box;
 }
 
-void Box::add_widget(GtkWidget *parent, GtkWidget *child)
+void Box::add_widget(GtkWidget *parent, GtkWidget *child, gboolean expand, gboolean fill)
 {
 	if (!parent || !child) return;
 	if (GTK_IS_BOX(parent)) {
-		gtk_box_pack_start(GTK_BOX(parent), child, FALSE, FALSE, cellspace);
+		gtk_box_pack_start(GTK_BOX(parent), child, expand, fill, cellspace);
 #if !GTK_CHECK_VERSION(3,8,0)
 	} else if (GTK_IS_SCROLLED_WINDOW(parent)) {
 		gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW(parent), child);
@@ -325,6 +325,13 @@ void Control::set_combo_sel_num(GtkWidget *combo, int sel_num)
 }
 
 //
+GtkWidget *Control::create_text(GtkWidget *parent, int width)
+{
+	GtkWidget *txt = gtk_entry_new();
+	gtk_widget_set_size_request(txt, width, -1);
+	add_widget(parent, txt);
+	return txt;
+}
 GtkWidget *Control::create_text(GtkWidget *parent, const char *text, int len)
 {
 //	g_print("create_text:\n");
@@ -360,6 +367,15 @@ void Control::set_text(GtkWidget *entry, const char *text)
 	if (GTK_IS_ENTRY(entry)) {
 		gtk_entry_set_text(GTK_ENTRY(entry), text ? text : "");
 	}
+}
+
+//
+GtkWidget *Control::create_text_view(GtkWidget *parent, int width, int height)
+{
+	GtkWidget *txtv = gtk_text_view_new();
+	gtk_widget_set_size_request(txtv, width, height);
+	add_widget(parent, txtv);
+	return txtv;
 }
 
 //
@@ -454,7 +470,7 @@ gdouble Control::get_scale_value(GtkWidget *scale)
 	return gtk_range_get_value(GTK_RANGE(scale));
 }
 
-GtkWidget *Control::create_hbox(GtkWidget *parent, int cell_space)
+GtkWidget *Control::create_hbox(GtkWidget *parent, int cell_space, gboolean expand)
 {
 //	g_print("create_hbox\n");
 	int cs = (cell_space >= 0 ? cell_space : cellspace);
@@ -463,11 +479,11 @@ GtkWidget *Control::create_hbox(GtkWidget *parent, int cell_space)
 #else
 	GtkWidget *box = gtk_hbox_new(FALSE, cs);
 #endif
-	add_widget(parent, box);
+	add_widget(parent, box, expand, expand);
 	return box;
 }
 
-GtkWidget *Control::create_vbox(GtkWidget *parent, int cell_space)
+GtkWidget *Control::create_vbox(GtkWidget *parent, int cell_space, gboolean expand)
 {
 //	g_print("create_vbox\n");
 	int cs = (cell_space >= 0 ? cell_space : cellspace);
@@ -476,7 +492,7 @@ GtkWidget *Control::create_vbox(GtkWidget *parent, int cell_space)
 #else
 	GtkWidget *box = gtk_vbox_new(FALSE, cs);
 #endif
-	add_widget(parent, box);
+	add_widget(parent, box, expand, expand);
 	return box;
 }
 
@@ -505,21 +521,22 @@ void Control::attach_to_grid(GtkWidget *grid, GtkWidget *child, int col, int row
 #endif
 }
 
-GtkWidget *Control::create_scroll_win(GtkWidget *parent, int width, int height)
+GtkWidget *Control::create_scroll_win(GtkWidget *parent, int width, int height, gboolean expand)
 {
 //	g_print("create_scroll_win\n");
 	GtkWidget *swin = gtk_scrolled_window_new(NULL, NULL);
 	gtk_widget_set_size_request(swin, width, height);
-	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(swin),GTK_SHADOW_IN);
-	add_widget(parent, swin);
+	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(swin), GTK_SHADOW_IN);
+	gtk_widget_set_vexpand(swin, expand);
+	add_widget(parent, swin, expand, expand);
 	return swin;
 }
 
-void Control::add_widget(GtkWidget *parent, GtkWidget *child)
+void Control::add_widget(GtkWidget *parent, GtkWidget *child, gboolean expand, gboolean fill)
 {
 	if (!parent || !child) return;
 	if (GTK_IS_BOX(parent)) {
-		gtk_box_pack_start(GTK_BOX(parent), child, FALSE, FALSE, cellspace);
+		gtk_box_pack_start(GTK_BOX(parent), child, expand, fill, cellspace);
 #if !GTK_CHECK_VERSION(3,8,0)
 	} else if (GTK_IS_SCROLLED_WINDOW(parent)) {
 		gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW(parent), child);
@@ -557,12 +574,34 @@ bool DialogBox::Show(GtkWidget *parent_window)
 	return true;
 }
 
+bool DialogBox::ShowModal(GtkWidget *parent_window)
+{
+	bool rc = Show(parent_window);
+	if (!rc) return rc;
+	gint response = gtk_dialog_run(GTK_DIALOG(dialog));
+	return (response == GTK_RESPONSE_ACCEPT);
+}
+
 void DialogBox::Hide()
 {
 	if (dialog) {
 		gtk_widget_destroy(dialog);
 		dialog = NULL;
 	}
+}
+
+bool DialogBox::IsVisible() const
+{
+	if (dialog) {
+		gboolean rc = FALSE;
+#if GTK_CHECK_VERSION(3,8,0)
+		rc = gtk_widget_is_visible(dialog);
+#else
+		rc = gtk_widget_get_visible(dialog);
+#endif
+		return (rc == TRUE);
+	}
+	return false;
 }
 
 GtkWidget *DialogBox::create_dialog(GtkWidget *parent, const char *title)
@@ -579,6 +618,22 @@ GtkWidget *DialogBox::create_dialog(GtkWidget *parent, CMsg::Id titleid)
 	const char *title = CMSGV(titleid);
 	return create_dialog(parent, title);
 }
+
+GtkWidget *DialogBox::create_window(GtkWidget *parent, const char *title)
+{
+	int flags = GTK_DIALOG_DESTROY_WITH_PARENT;
+	dialog = gtk_dialog_new_with_buttons(title, GTK_WINDOW(parent),
+		(GtkDialogFlags)flags,
+		NULL,
+		NULL);
+	return dialog;
+}
+GtkWidget *DialogBox::create_window(GtkWidget *parent, CMsg::Id titleid)
+{
+	const char *title = CMSGV(titleid);
+	return create_window(parent, title);
+}
+
 GtkWidget *DialogBox::add_accept_button(CMsg::Id labelid)
 {
 	const char *label = CMSGV(labelid);

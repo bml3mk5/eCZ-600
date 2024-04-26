@@ -338,8 +338,8 @@ bool KeybindData::SetVkJoyCode(int row, int col, uint32_t code0, uint32_t code1,
 
 /// @brief Clear joystick code for host machine
 ///
-/// @param[in] row    : row in key map
-/// @param[in] obj    : columns object
+/// @param[in] tbl    : row table in key map
+/// @param[in] col    : column in key map
 /// @param[out] label : label string of specified code
 /// @return true
 bool KeybindData::ClearVkJoyCode(codetable_t *tbl, int col, _TCHAR *label)

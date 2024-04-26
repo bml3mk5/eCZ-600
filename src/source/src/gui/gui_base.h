@@ -231,6 +231,7 @@ public:
 #ifdef USE_HD1
 	virtual bool ShowOpenHardDiskDialog(int drv);
 	virtual bool ShowOpenBlankHardDiskDialog(int drv, uint8_t type);
+	virtual bool ShowSelectHardDiskDeviceTypeDialog(int drv);
 #endif
 
 #ifdef USE_CART1
@@ -275,6 +276,7 @@ public:
 
 	virtual bool ShowKeybindDialog(void);
 	virtual bool ShowConfigureDialog(void);
+	virtual bool ShowLoggingDialog(void);
 
 	virtual bool ShowAboutDialog(void);
 
@@ -448,6 +450,11 @@ public:
 	virtual void PostEtOpenRecentHardDiskMessage(int drv, int num);
 	virtual void PostEtCloseHardDiskMessage(int drv);
 	virtual bool MountedHardDisk(int drv);
+	virtual void PostEtToggleWriteProtectHardDisk(int drv);
+	virtual bool WriteProtectedHardDisk(int drv);
+	virtual int  GetHardDiskDeviceType(int drv);
+	virtual void ChangeHardDiskDeviceType(int drv, int num);
+	virtual int  GetCurrentHardDiskDeviceType(int drv);
 #endif
 
 #ifdef USE_CART1
@@ -557,6 +564,7 @@ public:
 
 	virtual void ToggleMessageBoard(void);
 	virtual bool IsShownMessageBoard(void);
+	virtual bool IsShownLoggingDialog(void);
 #ifdef USE_PERFORMANCE_METER
 	virtual void TogglePMeter(void);
 	virtual bool IsShownPMeter(void);
@@ -606,7 +614,8 @@ public:
 		FILE_TYPE_NONE = 0,
 		FILE_TYPE_DATAREC,
 		FILE_TYPE_FLOPPY,
-		FILE_TYPE_HARD_DISK,
+		FILE_TYPE_SASI_HARD_DISK,
+		FILE_TYPE_SCSI_HARD_DISK,
 		FILE_TYPE_STATE,
 		FILE_TYPE_AUTO_KEY,
 		FILE_TYPE_KEY_RECORD,

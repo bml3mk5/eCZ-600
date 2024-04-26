@@ -14,6 +14,7 @@
 #define FIFO_H
 
 #include "common.h"
+#include <stdlib.h>
 
 /**
 	@brief fifo buffer template

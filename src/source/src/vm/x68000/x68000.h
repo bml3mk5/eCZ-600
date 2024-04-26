@@ -56,6 +56,7 @@ class FDC;
 class FLOPPY;
 #endif
 class SASI;
+class SCSI;
 class RTC;
 #ifdef USE_PRINTER
 class PRINTER;
@@ -69,14 +70,24 @@ class KEYRECORD;
 /// for sleep/resume the machine
 #pragma pack(1)
 typedef struct vm_state_header_st {
-	char header[16];
-	uint16_t version;
-	uint16_t revision;
-	uint32_t param;
-	uint16_t emu_major;
-	uint16_t emu_minor;
-	uint16_t emu_rev;
-	uint16_t emu_build;
+	struct {
+		char header[16];
+		uint16_t version;
+		uint16_t revision;
+		uint32_t param;
+		uint16_t emu_major;
+		uint16_t emu_minor;
+		uint16_t emu_rev;
+		uint16_t emu_build;
+	} v1;
+	// version 2
+	struct {
+		uint8_t scsi_type;
+		uint8_t reserved1[15];
+
+		uint8_t hdd_device_type[24];
+		uint8_t reserved2[8];
+	} v2;
 } vm_state_header_t;
 #pragma pack()
 
@@ -129,6 +140,7 @@ protected:
 #endif
 #ifdef USE_HD1
 	SASI*		sasi;
+	SCSI*		scsi;
 #endif
 	RTC*		rtc;
 #ifdef USE_PRINTER
@@ -145,6 +157,7 @@ protected:
 	KEYRECORD* reckey;
 
 	void change_fdd_type(int num, bool reset);
+	void change_hdd_type();
 
 public:
 	DEVICE* first_device;
@@ -253,6 +266,12 @@ public:
 	bool open_hard_disk(int drv, const _TCHAR* file_path, uint32_t flags);
 	bool close_hard_disk(int drv, uint32_t flags);
 	bool hard_disk_mounted(int drv);
+	void toggle_hard_disk_write_protect(int drv);
+	bool hard_disk_write_protected(int drv);
+	void set_hard_disk_device_type(int drv, int num);
+	int  get_hard_disk_device_type(int drv);
+	void change_hard_disk_device_type(int drv, int num);
+	int  get_current_hard_disk_device_type(int drv);
 	bool is_same_hard_disk(int drv, const _TCHAR *file_path);
 	//@}
 #endif
@@ -306,6 +325,9 @@ public:
 		SRAM_KEY_REPEAT_DELAY = 0x3a,
 		SRAM_KEY_REPEAT_RATE = 0x3b,
 		SRAM_SASI_HDD_NUMS = 0x5a,
+		SRAM_SCSI_ENABLE_FLAG = 0x6f,
+		SRAM_SCSI_HOST_ID = 0x70,
+		SRAM_SASI_HDD_ON_SCSI = 0x71,
 	};
 	uint32_t get_sram_ram_size() const;
 	uint32_t get_sram_rom_start_address() const;
@@ -397,6 +419,12 @@ public:
 	void set_sram_key_led(int val);
 	int get_sram_sasi_hdd_nums() const;
 	void set_sram_sasi_hdd_nums(int val);
+	bool get_sram_scsi_enable_flag() const;
+	void set_sram_scsi_enable_flag(bool val);
+	int get_sram_scsi_host_id() const;
+	void set_sram_scsi_host_id(int val);
+	uint8_t get_sram_sasi_hdd_on_scsi() const;
+	void set_sram_sasi_hdd_on_scsi(uint8_t val);
 	//@}
 
 	// ----------------------------------------
@@ -433,6 +461,13 @@ public:
 		ParamRecAudioCodec,
 		ParamMainRamSizeNum,
 		ParamHideScreen,
+		ParamSCSIType,
+		ParamHDDeviceType0,
+		ParamHDDeviceType1,
+		ParamHDDeviceType2,
+		ParamHDDeviceType3,
+		ParamHDDeviceType4,
+		ParamHDDeviceType5,
 		ParamiUnknown
 	};
 	/// for EMU::get_paramv method
@@ -462,7 +497,7 @@ public:
 	// ----------------------------------------
 	/// @name load rom image
 	//@{
-	static bool load_data_from_file(const _TCHAR *file_path, const _TCHAR *file_name
+	static int load_data_from_file(const _TCHAR *file_path, const _TCHAR *file_name
 		, uint8_t *data, size_t size
 		, const uint8_t *first_data = NULL, size_t first_data_size = 0, size_t first_data_pos = 0
 		, const uint8_t *last_data = NULL,  size_t last_data_size = 0, size_t last_data_pos = 0);
@@ -497,6 +532,7 @@ protected:
 		DNM_FDC,
 		DNM_FDD,
 		DNM_SASI,
+		DNM_SCSI,
 		DNM_OPM,
 		DNM_ADPCM,
 		DNM_RTC,

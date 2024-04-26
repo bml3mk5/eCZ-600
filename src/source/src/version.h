@@ -16,11 +16,11 @@
 #define APP_FILENAME	"x68000.exe"
 #define APP_INTERNAME	"eCZ-600"
 #define APP_COPYRIGHT	"Copyright (C) 2011,2012-2024 Common Source Code Project, Sasaji"
-#define APP_VERSION		"0.0.1.320"
+#define APP_VERSION		"0.0.2.371"
 #define APP_VER_MAJOR	0
 #define APP_VER_MINOR	0
-#define APP_VER_REV		1
-#define APP_VER_BUILD	320
+#define APP_VER_REV		2
+#define APP_VER_BUILD	371
 
 #if defined(__MINGW32__)
 #if defined(x86_64) || defined(__x86_64)

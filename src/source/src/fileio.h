@@ -56,7 +56,7 @@ public:
 
 	bool Fopen(const _TCHAR *filename, FILEIO_MODES mode);
 	void Fclose();
-	bool IsOpened() { return (fp != NULL); }
+	bool IsOpened() const { return (fp != NULL); }
 	uint32_t FileLength();
 
 	bool FgetBool();

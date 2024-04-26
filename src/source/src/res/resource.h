@@ -153,19 +153,101 @@
 #define ID_RECENT_FD6                   20611 // 20611-20630
 #define ID_SELECT_D88_BANK6             20631 // 20631-20700
 
-#define ID_OPEN_HD1                     20701
-#define ID_CLOSE_HD1                    20702
-#define ID_OPEN_BLANK_10MB_HD1			20703
-#define ID_OPEN_BLANK_20MB_HD1			20704
-#define ID_OPEN_BLANK_40MB_HD1			20705
-#define ID_RECENT_HD1                   20711 // 20711-20730
+#define ID_OPEN_HD1                     19001
+#define ID_CLOSE_HD1                    19002
+#define ID_OPEN_BLANK_10MB_HD1			19003
+#define ID_OPEN_BLANK_20MB_HD1			19004
+#define ID_OPEN_BLANK_40MB_HD1			19005
+#define ID_WRITEPROTECT_HD1             19006
+#define ID_DEVICE_TYPE_HD1              19007
+#define ID_DEVICE_TYPE1_HD1             19008
+#define ID_DEVICE_TYPE2_HD1             19009
+#define ID_DEVICE_TYPE3_HD1             19010
+#define ID_RECENT_HD1                   19011 // 19011-19030
 
-#define ID_OPEN_HD2                     20731
-#define ID_CLOSE_HD2                    20732
-#define ID_OPEN_BLANK_10MB_HD2			20733
-#define ID_OPEN_BLANK_20MB_HD2			20734
-#define ID_OPEN_BLANK_40MB_HD2			20735
-#define ID_RECENT_HD2                   20741 // 20741-20760
+#define ID_OPEN_HD2                     19031
+#define ID_CLOSE_HD2                    19032
+#define ID_OPEN_BLANK_10MB_HD2			19033
+#define ID_OPEN_BLANK_20MB_HD2			19034
+#define ID_OPEN_BLANK_40MB_HD2			19035
+#define ID_WRITEPROTECT_HD2             19036
+#define ID_DEVICE_TYPE_HD2              19037
+#define ID_DEVICE_TYPE1_HD2             19038
+#define ID_DEVICE_TYPE2_HD2             19039
+#define ID_DEVICE_TYPE3_HD2             19040
+#define ID_RECENT_HD2                   19041 // 19041-19060
+
+#define ID_OPEN_HD3                     19061
+#define ID_CLOSE_HD3                    19062
+#define ID_OPEN_BLANK_10MB_HD3			19063
+#define ID_OPEN_BLANK_20MB_HD3			19064
+#define ID_OPEN_BLANK_40MB_HD3			19065
+#define ID_WRITEPROTECT_HD3             19066
+#define ID_DEVICE_TYPE_HD3              19067
+#define ID_DEVICE_TYPE1_HD3             19068
+#define ID_DEVICE_TYPE2_HD3             19069
+#define ID_DEVICE_TYPE3_HD3             19070
+#define ID_RECENT_HD3                   19071 // 19071-19090
+
+#define ID_OPEN_HD4                     19091
+#define ID_CLOSE_HD4                    19092
+#define ID_OPEN_BLANK_10MB_HD4			19093
+#define ID_OPEN_BLANK_20MB_HD4			19094
+#define ID_OPEN_BLANK_40MB_HD4			19095
+#define ID_WRITEPROTECT_HD4             19096
+#define ID_DEVICE_TYPE_HD4              19097
+#define ID_DEVICE_TYPE1_HD4             19098
+#define ID_DEVICE_TYPE2_HD4             19099
+#define ID_DEVICE_TYPE3_HD4             19100
+#define ID_RECENT_HD4                   19101 // 19101-19120
+
+#define ID_OPEN_HD17                    19481
+#define ID_CLOSE_HD17                   19482
+#define ID_OPEN_BLANK_10MB_HD17			19483
+#define ID_OPEN_BLANK_20MB_HD17			19484
+#define ID_OPEN_BLANK_40MB_HD17			19485
+#define ID_WRITEPROTECT_HD17            19486
+#define ID_DEVICE_TYPE_HD17             19487
+#define ID_DEVICE_TYPE1_HD17            19488
+#define ID_DEVICE_TYPE2_HD17            19489
+#define ID_DEVICE_TYPE3_HD17            19490
+#define ID_RECENT_HD17                  19491 // 19491-19510
+
+#define ID_OPEN_HD18                    19511
+#define ID_CLOSE_HD18                   19512
+#define ID_OPEN_BLANK_10MB_HD18			19513
+#define ID_OPEN_BLANK_20MB_HD18			19514
+#define ID_OPEN_BLANK_40MB_HD18			19515
+#define ID_WRITEPROTECT_HD18            19516
+#define ID_DEVICE_TYPE_HD18             19517
+#define ID_DEVICE_TYPE1_HD18            19518
+#define ID_DEVICE_TYPE2_HD18            19519
+#define ID_DEVICE_TYPE3_HD18            19520
+#define ID_RECENT_HD18                  19521 // 19521-19540
+
+#define ID_OPEN_HD19                    19541
+#define ID_CLOSE_HD19                   19542
+#define ID_OPEN_BLANK_10MB_HD19			19543
+#define ID_OPEN_BLANK_20MB_HD19			19544
+#define ID_OPEN_BLANK_40MB_HD19			19545
+#define ID_WRITEPROTECT_HD19            19546
+#define ID_DEVICE_TYPE_HD19             19547
+#define ID_DEVICE_TYPE1_HD19            19548
+#define ID_DEVICE_TYPE2_HD19            19549
+#define ID_DEVICE_TYPE3_HD19            19550
+#define ID_RECENT_HD19                  19551 // 19551-19570
+
+#define ID_OPEN_HD20                    19571
+#define ID_CLOSE_HD20                   19572
+#define ID_OPEN_BLANK_10MB_HD20			19573
+#define ID_OPEN_BLANK_20MB_HD20			19574
+#define ID_OPEN_BLANK_40MB_HD20			19575
+#define ID_WRITEPROTECT_HD20            19576
+#define ID_DEVICE_TYPE_HD20             19577
+#define ID_DEVICE_TYPE1_HD20            19578
+#define ID_DEVICE_TYPE2_HD20            19579
+#define ID_DEVICE_TYPE3_HD20            19580
+#define ID_RECENT_HD20                  19581 // 19581-19600
 
 #define ID_OPEN_CART                    20901
 #define ID_CLOSE_CART                   20902
@@ -292,25 +374,26 @@
 #define ID_SOUND_DEVICE_TYPE3           21134
 
 // [original]
-#define ID_OPTIONS_FDD_TYPE_A           21137
-#define ID_OPTIONS_LEDBOX_POS_A         21138
-#define ID_OPTIONS_LEDBOX_A             21139
-#define ID_OPTIONS_LEDBOX_INSIDE        21140
-#define ID_OPTIONS_LEDBOX_SHOW          21141
-#define ID_OPTIONS_MSGBOARD				21142
-#define ID_OPTIONS_CONFIG               21143
-#define ID_OPTIONS_KEYBIND              21144
-#define ID_OPTIONS_JOYPAD0              21145
-#define ID_OPTIONS_JOYPAD1              21146
-#define ID_OPTIONS_JOYPAD_A             21147
-#define ID_OPTIONS_LIGHTPEN             21148
-#define ID_OPTIONS_MOUSE                21149
-#define ID_OPTIONS_VKEYBOARD            21150
-#define ID_OPTIONS_USE_DINPUT           21151
-#define ID_OPTIONS_LOOSEN_KEY           21152
-#define ID_OPTIONS_KEY2JOYPAD           21153
-#define ID_OPTIONS_JOYSETTING           21154
-#define ID_OPTIONS_PMETER				21155
+#define ID_OPTIONS_FDD_TYPE_A           21135
+#define ID_OPTIONS_LEDBOX_POS_A         21136
+#define ID_OPTIONS_LEDBOX_A             21137
+#define ID_OPTIONS_LEDBOX_INSIDE        21138
+#define ID_OPTIONS_LEDBOX_SHOW          21139
+#define ID_OPTIONS_MSGBOARD				21140
+#define ID_OPTIONS_CONFIG               21141
+#define ID_OPTIONS_KEYBIND              21142
+#define ID_OPTIONS_JOYPAD0              21143
+#define ID_OPTIONS_JOYPAD1              21144
+#define ID_OPTIONS_JOYPAD_A             21145
+#define ID_OPTIONS_LIGHTPEN             21146
+#define ID_OPTIONS_MOUSE                21147
+#define ID_OPTIONS_VKEYBOARD            21148
+#define ID_OPTIONS_USE_DINPUT           21149
+#define ID_OPTIONS_LOOSEN_KEY           21150
+#define ID_OPTIONS_KEY2JOYPAD           21151
+#define ID_OPTIONS_JOYSETTING           21152
+#define ID_OPTIONS_PMETER				21153
+#define ID_OPTIONS_LOGGING              21154
 
 #define ID_PRINTER0_SAVE                21156
 #define ID_PRINTER0_PRINT               21157
@@ -1028,24 +1111,22 @@
 #define IDC_CHK_FDD_MOUNT3                      22040
 #define IDC_CHK_HDD_MOUNT0                      22041
 #define IDC_CHK_HDD_MOUNT1                      22042
-#define IDC_CHK_IOPORT1                         22044
-#define IDC_CHK_IOPORT2                         22045
-#define IDC_CHK_IOPORT3                         22046
-#define IDC_CHK_IOPORT4                         22047
-#define IDC_CHK_IOPORT5                         22048
-#define IDC_CHK_IOPORT6                         22049
-#define IDC_CHK_IOPORT7                         22050
-#define IDC_CHK_IOPORT8                         22051
-#define IDC_CHK_IOPORT9                         22052
-#define IDC_CHK_IOPORT10                        22053
-#define IDC_CHK_IOPORT11                        22054
-#define IDC_CHK_IOPORT12                        22055
-#define IDC_CHK_IOPORT13                        22056
-#define IDC_CHK_IOPORT14                        22057
-#define IDC_CHK_IOPORT15                        22058
-#define IDC_CHK_IOPORT16                        22059
-#define IDC_CHK_IOPORT17                        22060
-#define IDC_CHK_IOPORT18                        22061
+#define IDC_CHK_HDD_MOUNT2                      22043
+#define IDC_CHK_HDD_MOUNT3                      22044
+#define IDC_CHK_HDD_MOUNT4                      22045
+#define IDC_CHK_HDD_MOUNT5                      22046
+#define IDC_CHK_HDD_MOUNT6                      22047
+#define IDC_CHK_HDD_MOUNT7                      22048
+#define IDC_CHK_HDD_MOUNT8                      22049
+#define IDC_CHK_HDD_MOUNT9                      22050
+#define IDC_CHK_HDD_MOUNT10                     22051
+#define IDC_CHK_HDD_MOUNT11                     22052
+#define IDC_CHK_HDD_MOUNT12                     22053
+#define IDC_CHK_HDD_MOUNT13                     22054
+#define IDC_CHK_HDD_MOUNT14                     22055
+#define IDC_CHK_HDD_MOUNT15                     22056
+#define IDC_CHK_HDD_MOUNT16                     22057
+#define IDC_CHK_HDD_MOUNT17                     22058
 #define IDC_STATIC_IOPORT1                      22064
 #define IDC_STATIC_IOPORT2                      22065
 #define IDC_STATIC_IOPORT3                      22066
@@ -1061,9 +1142,9 @@
 #define IDC_STATIC_IOPORT13                     22076
 #define IDC_STATIC_IOPORT14                     22077
 #define IDC_STATIC_IOPORT15                     22078
-#define IDC_STATIC_IOPORT16                     22079
-#define IDC_STATIC_IOPORT17                     22080
-#define IDC_STATIC_IOPORT18                     22081
+#define IDC_RADIO_SCSI0                         22079
+#define IDC_RADIO_SCSI1                         22080
+#define IDC_RADIO_SCSI2                         22081
 #define IDC_CHK_SRAM_CLR_PWR_ON                 22082
 #define IDC_CHK_SRAM_SAVE_PWR_OFF               22083
 #define IDC_CHK_SRAM_CHG_BOOT_DEVICE            22084
@@ -1097,6 +1178,9 @@
 #define IDC_EDIT_SRAM_SASI_HDD                  22112
 #define IDC_SPIN_SRAM_SASI_HDD                  22113
 #define IDC_COMBO_POWER_STATE                   22114
+#define IDC_CHK_SRAM_SCSI_ENABLE                22115
+#define IDC_EDIT_SRAM_SCSI_ID                   22116
+#define IDC_EDIT_SRAM_SASI_ON_SCSI              22117
 
 #define IDC_EDIT_RASTER_INT_V                   22119
 #define IDC_SPIN_RASTER_INT_V                   22120
@@ -1250,3 +1334,8 @@
 #define IDC_SLIDER_JOY1                         22201
 #define IDC_SLIDER_AXIS1                        22301
 #define IDC_STATIC_AUTO                         23000
+#define IDD_LOGGING                             122
+#define IDC_TEXT_LOGPATH                        22197
+#define IDC_TEXT_LOG                            22198
+#define IDC_BTN_UPDATE                          22199
+#define IDD_HDTYPEBOX                           123

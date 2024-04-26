@@ -31,13 +31,18 @@ void CParseOptionsBase::allocate_buffers()
 {
 	tape_file = new CTchar();
 #ifdef USE_FD1
-	for(int i=0; i<USE_DRIVE; i++) {
+	for(int i=0; i<USE_FLOPPY_DISKS; i++) {
 		disk_file[i] = new CTchar();
 	}
 #endif
 #ifdef USE_HD1
-	for(int i=0; i<MAX_HARD_DISKS; i++) {
-		hard_disk_file[i] = new CTchar();
+	for(int i=0; i<USE_SASI_HARD_DISKS; i++) {
+		sasi_hard_disk_file[i] = new CTchar();
+	}
+#endif
+#ifdef USE_HD17
+	for(int i=0; i<USE_SCSI_HARD_DISKS; i++) {
+		scsi_hard_disk_file[i] = new CTchar();
 	}
 #endif
 	state_file = new CTchar();
@@ -49,13 +54,18 @@ void CParseOptionsBase::release_buffers()
 {
 	delete tape_file; tape_file = NULL;
 #ifdef USE_FD1
-	for(int i=0; i<USE_DRIVE; i++) {
+	for(int i=0; i<USE_FLOPPY_DISKS; i++) {
 		delete disk_file[i]; disk_file[i] = NULL;
 	}
 #endif
 #ifdef USE_HD1
-	for(int i=0; i<MAX_HARD_DISKS; i++) {
-		delete hard_disk_file[i]; hard_disk_file[i] = NULL;
+	for(int i=0; i<USE_SASI_HARD_DISKS; i++) {
+		delete sasi_hard_disk_file[i]; sasi_hard_disk_file[i] = NULL;
+	}
+#endif
+#ifdef USE_HD17
+	for(int i=0; i<USE_SCSI_HARD_DISKS; i++) {
+		delete scsi_hard_disk_file[i]; scsi_hard_disk_file[i] = NULL;
 	}
 #endif
 	delete state_file; state_file = NULL;
@@ -65,27 +75,27 @@ void CParseOptionsBase::release_buffers()
 
 const _TCHAR *CParseOptionsBase::get_app_path()
 {
-	return app_path;
+	return app_path.Get();
 }
 
 const _TCHAR *CParseOptionsBase::get_app_name()
 {
-	return app_name;
+	return app_name.Get();
 }
 
 const _TCHAR *CParseOptionsBase::get_ini_path()
 {
-	return ini_path;
+	return ini_path.Get();
 }
 
 const _TCHAR *CParseOptionsBase::get_ini_file()
 {
-	return ini_file;
+	return ini_file.Get();
 }
 
 const _TCHAR *CParseOptionsBase::get_res_path()
 {
-	return res_path;
+	return res_path.Get();
 }
 
 void CParseOptionsBase::print_usage()
@@ -155,7 +165,7 @@ bool CParseOptionsBase::set_file_by_option(_TCHAR opt, const _TCHAR *arg)
 		break;
 	case _T('d'):
 #ifdef USE_FD1
-		for(int drv=0; drv<USE_DRIVE; drv++) {
+		for(int drv=0; drv<USE_FLOPPY_DISKS; drv++) {
 			if (disk_file[drv]->Length() <= 0) {
 				disk_file[drv]->SetM(arg);
 				break;
@@ -165,9 +175,19 @@ bool CParseOptionsBase::set_file_by_option(_TCHAR opt, const _TCHAR *arg)
 		break;
 	case _T('x'):
 #ifdef USE_HD1
-		for(int drv=0; drv<MAX_HARD_DISKS; drv++) {
-			if (hard_disk_file[drv]->Length() <= 0) {
-				hard_disk_file[drv]->SetM(arg);
+		for(int idx=0; idx<USE_SASI_HARD_DISKS; idx++) {
+			if (sasi_hard_disk_file[idx]->Length() <= 0) {
+				sasi_hard_disk_file[idx]->SetM(arg);
+				break;
+			}
+		}
+#endif
+		break;
+	case _T('w'):
+#ifdef USE_HD17
+		for(int idx=0; idx<USE_SCSI_HARD_DISKS; idx++) {
+			if (scsi_hard_disk_file[idx]->Length() <= 0) {
+				scsi_hard_disk_file[idx]->SetM(arg);
 				break;
 			}
 		}
@@ -213,7 +233,7 @@ int CParseOptionsBase::check_supported_file_by_extension(const _TCHAR *path)
 		break;
 	case GUI_BASE::FILE_TYPE_FLOPPY:
 #ifdef USE_FD1
-		for(int drv=0; drv<USE_DRIVE; drv++) {
+		for(int drv=0; drv<USE_FLOPPY_DISKS; drv++) {
 			if (disk_file[drv]->Length() <= 0) {
 				disk_file[drv]->SetM(path);
 				break;
@@ -221,11 +241,20 @@ int CParseOptionsBase::check_supported_file_by_extension(const _TCHAR *path)
 		}
 #endif
 		break;
-	case GUI_BASE::FILE_TYPE_HARD_DISK:
+	case GUI_BASE::FILE_TYPE_SASI_HARD_DISK:
 #ifdef USE_HD1
-		for(int drv=0; drv<MAX_HARD_DISKS; drv++) {
-			if (hard_disk_file[drv]->Length() <= 0) {
-				hard_disk_file[drv]->SetM(path);
+		for(int idx=0; idx<USE_SASI_HARD_DISKS; idx++) {
+			if (sasi_hard_disk_file[idx]->Length() <= 0) {
+				sasi_hard_disk_file[idx]->SetM(path);
+				break;
+			}
+		}
+#endif
+	case GUI_BASE::FILE_TYPE_SCSI_HARD_DISK:
+#ifdef USE_HD17
+		for(int idx=0; idx<USE_SCSI_HARD_DISKS; idx++) {
+			if (scsi_hard_disk_file[idx]->Length() <= 0) {
+				scsi_hard_disk_file[idx]->SetM(path);
 				break;
 			}
 		}
@@ -287,18 +316,18 @@ void CParseOptionsBase::open_recent_file(GUI *gui)
 #endif
 #ifdef USE_FD1
 		// auto open recent file
-		for(int drv=(USE_DRIVE-1); drv>=0; drv--) {
+		for(int drv=(USE_FLOPPY_DISKS-1); drv>=0; drv--) {
 			path[0] = _T('\0');
 			int bank_num = 0;
 			if (disk_file[drv]->Length() > 0 && disk_file[drv]->MatchString(path) != 0) {
 				// specified file in the option
 				path[0] = _T('\0');
 				UTILITY::tcscpy(path, _MAX_PATH, disk_file[drv]->Get());
-			} else if ((pConfig->mount_fdd & (1 << drv)) != 0 && pConfig->recent_disk_path[drv].Count() > 0 && pConfig->recent_disk_path[drv][0]->path.Length() > 0) {
+			} else if ((pConfig->mount_fdd & (1 << drv)) != 0 && pConfig->GetRecentFloppyDiskPathCount(drv) > 0 && pConfig->GetRecentFloppyDiskPathLength(drv, 0) > 0) {
 				// recent file
 				path[0] = _T('\0');
-				UTILITY::tcscpy(path, _MAX_PATH, pConfig->recent_disk_path[drv][0]->path.Get());
-				bank_num = pConfig->recent_disk_path[drv][0]->num;
+				UTILITY::tcscpy(path, _MAX_PATH, pConfig->GetRecentFloppyDiskPathString(drv, 0));
+				bank_num = pConfig->GetRecentFloppyDiskPathNumber(drv, 0);
 			}
 			if (path[0] != _T('\0')) {
 				gui->PostEtOpenFloppyMessage(drv, path, bank_num, 0, false);
@@ -307,16 +336,37 @@ void CParseOptionsBase::open_recent_file(GUI *gui)
 #endif
 #ifdef USE_HD1
 		// auto open recent file
-		for(int drv=(MAX_HARD_DISKS-1); drv>=0; drv--) {
+		for(int drv=(USE_SASI_HARD_DISKS-1); drv>=0; drv--) {
+			int idx = drv;
 			path[0] = _T('\0');
-			if (hard_disk_file[drv]->Length() > 0 && hard_disk_file[drv]->MatchString(path) != 0) {
+			if (sasi_hard_disk_file[idx]->Length() > 0 && sasi_hard_disk_file[idx]->MatchString(path) != 0) {
 				// specified file in the option
 				path[0] = _T('\0');
-				UTILITY::tcscpy(path, _MAX_PATH, hard_disk_file[drv]->Get());
-			} else if ((pConfig->mount_hdd & (1 << drv)) != 0 && pConfig->recent_hard_disk_path[drv].Count() > 0 && pConfig->recent_hard_disk_path[drv][0]->path.Length() > 0) {
+				UTILITY::tcscpy(path, _MAX_PATH, sasi_hard_disk_file[idx]->Get());
+			} else if ((pConfig->mount_hdd & (1 << drv)) != 0 && pConfig->GetRecentHardDiskPathCount(drv) > 0 && pConfig->GetRecentHardDiskPathLength(drv, 0) > 0) {
 				// recent file
 				path[0] = _T('\0');
-				UTILITY::tcscpy(path, _MAX_PATH, pConfig->recent_hard_disk_path[drv][0]->path.Get());
+				UTILITY::tcscpy(path, _MAX_PATH, pConfig->GetRecentHardDiskPathString(drv, 0));
+//				bank_num = pConfig->recent_hard_disk_path[drv][0]->num;
+			}
+			if (path[0] != _T('\0')) {
+				gui->PostEtOpenHardDiskMessage(drv, path, 0);
+			}
+		}
+#endif
+#ifdef USE_HD17
+		// auto open recent file
+		for(int drv=(MAX_SASI_HARD_DISKS+USE_SCSI_HARD_DISKS-1); drv>=MAX_SASI_HARD_DISKS; drv--) {
+			int idx = TO_SCSI_DRIVE(drv);
+			path[0] = _T('\0');
+			if (scsi_hard_disk_file[idx]->Length() > 0 && scsi_hard_disk_file[idx]->MatchString(path) != 0) {
+				// specified file in the option
+				path[0] = _T('\0');
+				UTILITY::tcscpy(path, _MAX_PATH, scsi_hard_disk_file[idx]->Get());
+			} else if ((pConfig->mount_hdd & (1 << drv)) != 0 && pConfig->GetRecentHardDiskPathCount(drv) > 0 && pConfig->GetRecentHardDiskPathLength(drv, 0) > 0) {
+				// recent file
+				path[0] = _T('\0');
+				UTILITY::tcscpy(path, _MAX_PATH, pConfig->GetRecentHardDiskPathString(drv, 0));
 //				bank_num = pConfig->recent_hard_disk_path[drv][0]->num;
 			}
 			if (path[0] != _T('\0')) {

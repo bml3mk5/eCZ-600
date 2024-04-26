@@ -231,7 +231,7 @@ void COMM::enable_server()
 			logging->out_log(LOG_ERROR, _T("Network socket initialize failed."));
 			return;
 		}
-		if (!emu->connect_socket(m_server_ch, pConfig->comm_server_host[m_cfg_num], pConfig->comm_server_port[m_cfg_num], true)) {
+		if (!emu->connect_socket(m_server_ch, pConfig->comm_server_host[m_cfg_num].Get(), pConfig->comm_server_port[m_cfg_num], true)) {
 			m_server_ch = -1;
 			logging->out_log(LOG_ERROR, _T("Cannot start as comm server."));
 			return;
@@ -414,7 +414,7 @@ bool COMM::connect_socket()
 			logging->out_log(LOG_ERROR, _T("Network socket initialize failed."));
 			return false;
 		}
-		if (!emu->connect_socket(m_client_ch, pConfig->comm_server_host[m_cfg_num], pConfig->comm_server_port[m_cfg_num])) {
+		if (!emu->connect_socket(m_client_ch, pConfig->comm_server_host[m_cfg_num].Get(), pConfig->comm_server_port[m_cfg_num])) {
 			m_client_ch = -1;
 			logging->out_log(LOG_ERROR, _T("Cannot connect to comm server."));
 			return false;

@@ -14,6 +14,7 @@
 
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h>
+#import "cocoa_loggingpanel.h"
 #endif /* __OBJC__ */
 
 #include "../gui_base.h"
@@ -153,6 +154,8 @@ class GUI;
 - (void)ShowOpenHardDiskDialog:(id)sender;
 - (void)CloseHardDisk:(id)sender;
 - (void)ShowOpenBlankHardDiskDialog:(id)sender;
+- (void)ToggleWriteProtectHardDisk:(id)sender;
+- (void)ShowSelectHardDiskDeviceTypeDialog:(id)sender;
 - (void)OpenRecentHardDisk:(id)sender;
 
 - (void)UpdateRecentHardDiskList:(id)sender;
@@ -230,6 +233,7 @@ class GUI;
 - (void)ShowKeybindDialog:(id)sender;
 - (void)ShowConfigureDialog:(id)sender;
 - (void)ShowVirtualKeyboard:(id)sender;
+- (void)ShowLoggingDialog:(id)sender;
 
 #ifdef USE_DEBUGGER
 - (void)OpenDebugger:(id)sender;
@@ -297,9 +301,11 @@ class GUI : public GUI_BASE
 private:
 #ifdef __OBJC__
 	CocoaController *recv;
+	CocoaLoggingPanel *logging_dlg;
 /*	CocoaMenu *popupMenu; */
 #else
 	void *recv;
+	void *logging_dlg;
 /*	void *popupMenu; */
 #endif
 
@@ -337,6 +343,7 @@ public:
 #ifdef USE_HD1
 	virtual bool ShowOpenHardDiskDialog(int drv);
 	virtual bool ShowOpenBlankHardDiskDialog(int drv, uint8_t type);
+	virtual bool ShowSelectHardDiskDeviceTypeDialog(int drv);
 #endif
 
 	virtual bool ShowLoadStateDialog(void);
@@ -359,6 +366,8 @@ public:
 	virtual bool ShowJoySettingDialog(void);
 	virtual bool ShowKeybindDialog(void);
 	virtual bool ShowConfigureDialog(void);
+	virtual bool ShowLoggingDialog(void);
+	virtual bool IsShownLoggingDialog(void);
 
 	virtual bool ShowVirtualKeyboard(void);
 

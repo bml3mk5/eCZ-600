@@ -10,7 +10,6 @@
 	@note Original author is Takeda.Toshiya
 */
 
-#include <stdlib.h>
 #include "fifo.h"
 
 

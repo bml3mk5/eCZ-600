@@ -66,7 +66,7 @@ void SOUND_BASE::load_wav_files(NOISE *noises, int noise_nums, bool is_first_tim
 	// load wav file
 	const _TCHAR *app_path, *rom_path[2];
 
-	rom_path[0] = pConfig->rom_path;
+	rom_path[0] = pConfig->rom_path.Get();
 	rom_path[1] = vm->application_path();
 
 	for(int i=0; i<2; i++) {

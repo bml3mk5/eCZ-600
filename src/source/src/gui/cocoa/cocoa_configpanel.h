@@ -52,7 +52,6 @@
 	CocoaPopUpButton *popSramKRDelay;
 	CocoaPopUpButton *popSramKRRate;
 	CocoaCheckBox *chkSramAlarm;
-	CocoaStepper *stpSramNumHdds;
 	CocoaCheckBox *chkSramKLEDkana;
 	CocoaCheckBox *chkSramKLEDromaji;
 	CocoaCheckBox *chkSramKLEDcinput;
@@ -93,7 +92,7 @@
 #endif
 
 #ifdef USE_FD1
-	CocoaCheckBox *chkFddMount[MAX_DRIVE];
+	CocoaCheckBox *chkFddMount[USE_FLOPPY_DISKS];
 
 	CocoaCheckBox *chkDelayFd1;
 	CocoaCheckBox *chkDelayFd2;
@@ -102,10 +101,16 @@
 	CocoaCheckBox *chkFdSavePlain;
 #endif
 
-#ifdef USE_FD1
-	CocoaCheckBox *chkHddMount[MAX_HARD_DISKS];
+#ifdef USE_HD1
+	CocoaCheckBox *chkHddMount[USE_HARD_DISKS];
 
 	CocoaCheckBox *chkDelayHd2;
+	CocoaRadioButton *radSCSIType[SCSI_TYPE_END];
+
+	CocoaStepper *stpSramNumHdds;
+	CocoaCheckBox *chkSramScsiEn;
+	CocoaTextField *txtSramScsiId;
+	CocoaTextField *txtSramSasiOnScsi;
 #endif
 
 #ifdef MAX_PRINTER
@@ -149,6 +154,9 @@
 - (void)selectFddType:(CocoaRadioButton *)sender;
 - (void)selectIO:(CocoaCheckBox *)sender;
 - (void)selectCorrect:(CocoaCheckBox *)sender;
+#ifdef USE_HD1
+- (void)selectSCSIType:(CocoaRadioButton *)sender;
+#endif
 @end
 
 #endif /* COCOA_CONFIGPANEL_H */

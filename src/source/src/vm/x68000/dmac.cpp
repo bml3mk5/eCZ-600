@@ -18,10 +18,13 @@
 
 #ifdef _DEBUG
 //#define DEBUG_CH(ch) (ch == 0)
+//#define DEBUG_CH(ch) (ch == 1)
 //#define DEBUG_CH(ch) (ch == 2)
 //#define DEBUG_CH(ch) (ch == 3)
 //#define OUT_DEBUG_REQ(ch, ...) if (DEBUG_CH(ch)) logging->out_debugf(__VA_ARGS__)
 #define OUT_DEBUG_REQ(...)
+//#define OUT_DEBUG_START(ch, ...) if (DEBUG_CH(ch)) logging->out_debugf(__VA_ARGS__)
+#define OUT_DEBUG_START(...)
 //#define OUT_DEBUG_TRANS(ch, ...) if (DEBUG_CH(ch)) logging->out_debugf(__VA_ARGS__)
 #define OUT_DEBUG_TRANS(...)
 //#define OUT_DEBUG_REGW(ch, ...) if (DEBUG_CH(ch)) logging->out_debugf(__VA_ARGS__)
@@ -44,6 +47,7 @@
 #define OUT_DEBUG_IACK(...)
 #else
 #define OUT_DEBUG_REQ(...)
+#define OUT_DEBUG_START(...)
 #define OUT_DEBUG_TRANS(...)
 #define OUT_DEBUG_REGW(...)
 #define OUT_DEBUG_REGR(...)
@@ -118,7 +122,8 @@ void DMAC::warm_reset(bool por)
 	m_busreq = 0;
 	m_interrupt = 0;
 	m_intr_mask = 0;
-	m_now_iack = false;
+//	m_now_iack = false;
+	m_now_err = 0;
 
 	for(int i=0; i<END_OF_EVENT_IDS; i++) {
 		if (por) m_register_id[i] = -1;
@@ -166,6 +171,7 @@ void DMAC::write_io_n(uint32_t addr, uint32_t data, int width)
 
 		if (data & CSR_ERR) {
 			dma->cer = 0;
+			m_now_err = 0;
 		}
 		if (!(dma->csr & CSR_INTMASK)) {
 			// clear interrupt
@@ -356,6 +362,48 @@ void DMAC::write_io_n(uint32_t addr, uint32_t data, int width)
 	}
 }
 
+/// now interrupt, send vector number
+uint32_t DMAC::read_external_data8(uint32_t addr)
+{
+	uint32_t data = 0;
+
+	// decide channel which is occured interrupt
+	struct st_dma_regs *dma = NULL;
+	int channel = -1;
+	int pri = 4;
+	for(int ch=0; ch<4; ch++) {
+		if (m_interrupt & m_intr_mask & (1 << ch)) {
+			// priority
+			if (pri > m_dma[ch].cpr) {
+				channel = ch;
+				pri = m_dma[ch].cpr;
+			}
+		}
+	}
+	if (channel < 0) {
+		// why?
+		return data;
+	}
+
+	dma = &m_dma[channel];
+
+	// decide interrupt vector
+	if (dma->csr & CSR_ERR) {
+		// error occured
+		data = dma->eiv;
+	} else {
+		// success
+		data = dma->niv;
+	}
+
+	OUT_DEBUG_IACK(channel, _T("clk:%lu DMAC ch:%d IACK vector:%02X"), (uint32_t)get_current_clock(), channel, data);
+
+	// clear interrupt
+	update_irq(channel, false);
+
+	return data;
+}
+
 uint32_t DMAC::read_io8(uint32_t addr)
 {
 	return read_io_n(addr, 1);
@@ -377,42 +425,42 @@ uint32_t DMAC::read_io_n(uint32_t addr, int width)
 	int channel = (addr >> 6) & 0x3;
 	struct st_dma_regs *dma = &m_dma[channel];
 
-	if (m_now_iack) {
-		// decide channel which is occured interrupt
-		channel = -1;
-		int pri = 4;
-		for(int ch=0; ch<4; ch++) {
-			if (m_interrupt & m_intr_mask & (1 << ch)) {
-				// priority
-				if (pri > m_dma[ch].cpr) {
-					channel = ch;
-					pri = m_dma[ch].cpr;
-				}
-			}
-		}
-		if (channel < 0) {
-			// why?
-			return data;
-		}
-
-		dma = &m_dma[channel];
-
-		// decide interrupt vector
-		if (dma->csr & CSR_ERR) {
-			// error occured
-			data = dma->eiv;
-		} else {
-			// success
-			data = dma->niv;
-		}
-
-		OUT_DEBUG_IACK(channel, _T("clk:%lu DMAC ch:%d IACK vector:%02X"), (uint32_t)get_current_clock(), channel, data);
-
-		// clear interrupt
-		update_irq(channel, false);
-
-		return data;
-	}
+//	if (m_now_iack) {
+//		// decide channel which is occured interrupt
+//		channel = -1;
+//		int pri = 4;
+//		for(int ch=0; ch<4; ch++) {
+//			if (m_interrupt & m_intr_mask & (1 << ch)) {
+//				// priority
+//				if (pri > m_dma[ch].cpr) {
+//					channel = ch;
+//					pri = m_dma[ch].cpr;
+//				}
+//			}
+//		}
+//		if (channel < 0) {
+//			// why?
+//			return data;
+//		}
+//
+//		dma = &m_dma[channel];
+//
+//		// decide interrupt vector
+//		if (dma->csr & CSR_ERR) {
+//			// error occured
+//			data = dma->eiv;
+//		} else {
+//			// success
+//			data = dma->niv;
+//		}
+//
+//		OUT_DEBUG_IACK(channel, _T("clk:%lu DMAC ch:%d IACK vector:%02X"), (uint32_t)get_current_clock(), channel, data);
+//
+//		// clear interrupt
+//		update_irq(channel, false);
+//
+//		return data;
+//	}
 
 	if ((addr & 0xfe) == 0xfe) {
 		// General Control Register
@@ -562,6 +610,16 @@ uint32_t DMAC::read_io_n(uint32_t addr, int width)
 	return data;
 }
 
+uint32_t DMAC::read_via_debugger_data16(struct st_dma_regs *dma, uint32_t addr)
+{
+#ifdef USE_DEBUGGER
+	if (d_debugger->now_debugging()) {
+		return dma->d_dbg->read_dma_data16(addr);
+	} else
+#endif
+	return d_memory->read_dma_data16(addr);
+}
+
 void DMAC::write_via_debugger_data_n(struct st_dma_regs *dma, uint32_t addr, uint32_t data, int width)
 {
 #ifdef USE_DEBUGGER
@@ -645,9 +703,16 @@ void DMAC::write_signal(int id, uint32_t data, uint32_t mask)
 			}
 		}
 		break;
-	case SIG_IACK:
-		// receive interrupt ack signal
-		m_now_iack = ((data & mask) != 0);
+//	case SIG_IACK:
+//		// receive interrupt ack signal
+//		m_now_iack = ((data & mask) != 0);
+//		break;
+	case SIG_BUSERR:
+		// receive buserr signal
+		m_now_err &= ~NOW_ERR_REASON;
+		if ((data & mask) != 0) {
+			m_now_err |= NOW_ERR_BUSERR;
+		}
 		break;
 	case SIG_CPU_RESET:
 		now_reset= ((data & mask) != 0);
@@ -778,10 +843,10 @@ void DMAC::start_transfer(int channel)
 	switch(dma->ocr & OCR_CHAIN) {
 	case 0x8:
 		// array chaining mode
-		dma->mar = d_memory->read_data16(dma->bar);
+		dma->mar = read_via_debugger_data16(dma, dma->bar);
 		dma->mar <<= 16;
-		dma->mar |= d_memory->read_data16(dma->bar + 2);
-		dma->mtc = d_memory->read_data16(dma->bar + 4);
+		dma->mar |= read_via_debugger_data16(dma, dma->bar + 2);
+		dma->mtc = read_via_debugger_data16(dma, dma->bar + 4);
 		dma->bar += 6;
 		dma->next_pointer = dma->bar;
 
@@ -790,13 +855,13 @@ void DMAC::start_transfer(int channel)
 		break;
 	case 0xc:
 		// linked array chaining mode
-		dma->mar = d_memory->read_data16(dma->bar);
+		dma->mar = read_via_debugger_data16(dma, dma->bar);
 		dma->mar <<= 16;
-		dma->mar |= d_memory->read_data16(dma->bar + 2);
-		dma->mtc = d_memory->read_data16(dma->bar + 4);
-		dma->next_pointer = d_memory->read_data16(dma->bar + 6);
+		dma->mar |= read_via_debugger_data16(dma, dma->bar + 2);
+		dma->mtc = read_via_debugger_data16(dma, dma->bar + 4);
+		dma->next_pointer = read_via_debugger_data16(dma, dma->bar + 6);
 		dma->next_pointer <<= 16;
-		dma->next_pointer |= d_memory->read_data16(dma->bar + 8);
+		dma->next_pointer |= read_via_debugger_data16(dma, dma->bar + 8);
 
 		OUT_DEBUG_LNKARR(channel, _T("DMAC ch%d START LINK ARR CCR:%02X BAR:%06X MAR:%06X MTC:%04X next:%06X")
 			, channel, dma->ccr, dma->bar, dma->mar, dma->mtc, dma->next_pointer);
@@ -805,7 +870,7 @@ void DMAC::start_transfer(int channel)
 		break;
 	}
 
-	OUT_DEBUG_TRANS(channel, _T("clk:%lu DMAC ch%d START TRANSFER CCR:%02X OCR:%02X MAR:%08X MTC:%04X DAR:%08X")
+	OUT_DEBUG_START(channel, _T("clk:%lu DMAC ch%d START TRANSFER CCR:%02X OCR:%02X MAR:%08X MTC:%04X DAR:%08X")
 		, (uint32_t)get_current_clock()
 		, channel
 		, dma->ccr, dma->ocr, dma->mar, dma->mtc, dma->dar);
@@ -832,7 +897,7 @@ void DMAC::transfer(int channel)
 	int dev_unit;
 	int spent_clock = 0;
 
-	if(true) {
+	do {
 		// assert DACK signal to device
 		write_signals(&dma->outputs_ack, 1);
 
@@ -853,11 +918,19 @@ void DMAC::transfer(int channel)
 					data = read_via_debugger_io8(dma, dma->dar);
 				}
 				spent_clock += (4 * 1);
+				if (m_now_err) {
+					m_now_err |= NOW_ERR_IN_DAR;
+					break;
+				}
 				if (!(dma->dar & 1)) data >>= 8;
 				if (!(dma->mar & 1)) data <<= 8;
 				mem_unit = 1;
 				this->write_via_debugger_data_n(dma, dma->mar, data, 1);
 				spent_clock += (4 * 1);
+				if (m_now_err) {
+					m_now_err |= NOW_ERR_IN_MAR;
+					break;
+				}
 				break;
 			case 0x20:
 				// packing mode and transfer per 4bytes
@@ -890,6 +963,10 @@ void DMAC::transfer(int channel)
 					data |= (read_via_debugger_io8(dma, dma->dar + 6) & 0xff);
 					spent_clock += (4 * 4);
 				}
+				if (m_now_err) {
+					m_now_err |= NOW_ERR_IN_DAR;
+					break;
+				}
 				mem_unit = 4;
 				if (dma->mar & 1) {
 					// odd address
@@ -904,6 +981,10 @@ void DMAC::transfer(int channel)
 					data >>= 16;
 					this->write_via_debugger_data_n(dma, dma->mar, data & 0xffff, 2);
 					spent_clock += (4 * 2);
+				}
+				if (m_now_err) {
+					m_now_err |= NOW_ERR_IN_MAR;
+					break;
 				}
 				break;
 			case 0x10:
@@ -929,6 +1010,10 @@ void DMAC::transfer(int channel)
 					data |= (read_via_debugger_io8(dma, dma->dar + 2) & 0xff);
 					spent_clock += (4 * 2);
 				}
+				if (m_now_err) {
+					m_now_err |= NOW_ERR_IN_DAR;
+					break;
+				}
 				mem_unit = 2;
 				if (dma->mar & 1) {
 					// odd address
@@ -939,6 +1024,10 @@ void DMAC::transfer(int channel)
 				} else {
 					this->write_via_debugger_data_n(dma, dma->mar, data & 0xffff, 2);
 					spent_clock += (4 * 1);
+				}
+				if (m_now_err) {
+					m_now_err |= NOW_ERR_IN_MAR;
+					break;
 				}
 				break;
 			default:
@@ -956,6 +1045,10 @@ void DMAC::transfer(int channel)
 						data = read_via_debugger_io16(dma, dma->dar);
 						spent_clock += (4 * 1);
 					}
+					if (m_now_err) {
+						m_now_err |= NOW_ERR_IN_DAR;
+						break;
+					}
 					mem_unit = 1 * 2;
 					if (dma->mtc == 1) {
 						// last 1byte
@@ -971,6 +1064,10 @@ void DMAC::transfer(int channel)
 						this->write_via_debugger_data_n(dma, dma->mar, data & 0xffff, 2);
 						spent_clock += (4 * 1);
 					}
+					if (m_now_err) {
+						m_now_err |= NOW_ERR_IN_MAR;
+						break;
+					}
 					// 2bytes transfered
 					if (dma->mtc > 1) dma->mtc--;
 				} else {
@@ -978,6 +1075,10 @@ void DMAC::transfer(int channel)
 					dev_unit = 2;
 					data = read_via_debugger_io8(dma, dma->dar);
 					spent_clock += (4 * 1);
+					if (m_now_err) {
+						m_now_err |= NOW_ERR_IN_DAR;
+						break;
+					}
 					if (!(dma->dar & 1)) data >>= 8;
 
 					if (dma->pack_width == 0) {
@@ -1002,6 +1103,10 @@ void DMAC::transfer(int channel)
 						spent_clock += (4 * 1);
 						dma->pack_width = 0;
 					}
+					if (m_now_err) {
+						m_now_err |= NOW_ERR_IN_MAR;
+						break;
+					}
 				}
 				break;
 			}
@@ -1015,8 +1120,13 @@ void DMAC::transfer(int channel)
 				mem_unit = 1;
 				data = this->read_via_debugger_data_n(dma, dma->mar, 1);
 				spent_clock += (4 * 1);
+				if (m_now_err) {
+					m_now_err |= NOW_ERR_IN_MAR;
+					break;
+				}
 				if (!(dma->mar & 1)) data >>= 8;
 				if (!(dma->dar & 1)) data <<= 8;
+				OUT_DEBUG_TRANS(channel, _T("DMAC ch%d M->D MAR:%06X DAR:%06X data:%02x"), channel, dma->mar, dma->dar, data);
 				if (dma->dcr & DCR_DPS) {
 					// 2bytes
 					dev_unit = 2;
@@ -1027,6 +1137,10 @@ void DMAC::transfer(int channel)
 					dev_unit = 1;
 					write_via_debugger_io8(dma, dma->dar, data);
 					spent_clock += (4 * 1);
+				}
+				if (m_now_err) {
+					m_now_err |= NOW_ERR_IN_DAR;
+					break;
 				}
 				break;
 			case 0x20:
@@ -1042,6 +1156,10 @@ void DMAC::transfer(int channel)
 					data = (this->read_via_debugger_data_n(dma, dma->mar, 2) << 16);
 					data |= (this->read_via_debugger_data_n(dma, dma->mar + 2, 2) & 0xffff);
 					spent_clock += (4 * 2);
+				}
+				if (m_now_err) {
+					m_now_err |= NOW_ERR_IN_MAR;
+					break;
 				}
 				if (dma->dcr & DCR_DPS) {
 					// 2bytes
@@ -1072,6 +1190,10 @@ void DMAC::transfer(int channel)
 					write_via_debugger_io8(dma, dma->dar + 0, data & 0xff);
 					spent_clock += (4 * 4);
 				}
+				if (m_now_err) {
+					m_now_err |= NOW_ERR_IN_DAR;
+					break;
+				}
 				break;
 			case 0x10:
 				// packing mode and transfer per 2bytes
@@ -1084,6 +1206,10 @@ void DMAC::transfer(int channel)
 				} else {
 					data = this->read_via_debugger_data_n(dma, dma->mar, 2);
 					spent_clock += (4 * 1);
+				}
+				if (m_now_err) {
+					m_now_err |= NOW_ERR_IN_MAR;
+					break;
 				}
 				if (dma->dcr & DCR_DPS) {
 					// 2bytes
@@ -1106,6 +1232,10 @@ void DMAC::transfer(int channel)
 					write_via_debugger_io8(dma, dma->dar, data & 0xff);
 					spent_clock += (4 * 2);
 				}
+				if (m_now_err) {
+					m_now_err |= NOW_ERR_IN_DAR;
+					break;
+				}
 				break;
 			default:
 				// packing mode and transfer per 1byte
@@ -1121,6 +1251,10 @@ void DMAC::transfer(int channel)
 						data = this->read_via_debugger_data_n(dma, dma->mar, 2);
 						spent_clock += (4 * 1);
 					}
+					if (m_now_err) {
+						m_now_err |= NOW_ERR_IN_MAR;
+						break;
+					}
 					dev_unit = 2;
 					if (dma->mtc == 1) {
 						// last 1byte
@@ -1135,6 +1269,10 @@ void DMAC::transfer(int channel)
 					} else {
 						write_via_debugger_io16(dma, dma->dar, data);
 						spent_clock += (4 * 1);
+					}
+					if (m_now_err) {
+						m_now_err |= NOW_ERR_IN_DAR;
+						break;
 					}
 					// 2bytes transfered
 					if (dma->mtc > 1) dma->mtc--;
@@ -1163,14 +1301,25 @@ void DMAC::transfer(int channel)
 						data = dma->pack_data;
 						dma->pack_width = 0;
 					}
+					if (m_now_err) {
+						m_now_err |= NOW_ERR_IN_MAR;
+						break;
+					}
 
 					if (!(dma->dar & 1)) data <<= 8;
 					dev_unit = 2;
 					write_via_debugger_io8(dma, dma->dar, data);
 					spent_clock += (4 * 1);
+					if (m_now_err) {
+						m_now_err |= NOW_ERR_IN_DAR;
+						break;
+					}
 				}
 				break;
 			}
+		}
+		if (m_now_err) {
+			break;
 		}
 
 		// count up/down device address register
@@ -1199,6 +1348,7 @@ void DMAC::transfer(int channel)
 
 		// transfer complete?
 		if (dma->mtc) dma->mtc--;
+		OUT_DEBUG_CNT(channel, _T("DMAC ch%d MTC Remain:%d"), channel, dma->mtc);
 		if (dma->mtc == 0) {
 			// chain control
 			switch(dma->ocr & OCR_CHAIN) {
@@ -1209,10 +1359,10 @@ void DMAC::transfer(int channel)
 				if (dma->btc) {
 					// read next table on memory
 					uint32_t next_ptr = dma->next_pointer;
-					dma->mar = d_memory->read_data16(next_ptr);
+					dma->mar = read_via_debugger_data16(dma, next_ptr);
 					dma->mar <<= 16;
-					dma->mar |= d_memory->read_data16(next_ptr + 2);
-					dma->mtc = d_memory->read_data16(next_ptr + 4);
+					dma->mar |= read_via_debugger_data16(dma, next_ptr + 2);
+					dma->mtc = read_via_debugger_data16(dma, next_ptr + 4);
 					dma->bar += 6;
 					next_ptr += 6;
 					spent_clock += (4 * 3);
@@ -1239,13 +1389,13 @@ void DMAC::transfer(int channel)
 				if (dma->next_pointer != 0) {
 					// read next table on memory
 					uint32_t curr_ptr = dma->next_pointer;
-					dma->mar = d_memory->read_data16(curr_ptr);
+					dma->mar = read_via_debugger_data16(dma, curr_ptr);
 					dma->mar <<= 16;
-					dma->mar |= d_memory->read_data16(curr_ptr + 2);
-					dma->mtc = d_memory->read_data16(curr_ptr + 4);
-					uint32_t next_ptr = d_memory->read_data16(curr_ptr + 6);
+					dma->mar |= read_via_debugger_data16(dma, curr_ptr + 2);
+					dma->mtc = read_via_debugger_data16(dma, curr_ptr + 4);
+					uint32_t next_ptr = read_via_debugger_data16(dma, curr_ptr + 6);
 					next_ptr <<= 16;
-					next_ptr |= d_memory->read_data16(curr_ptr + 8);
+					next_ptr |= read_via_debugger_data16(dma, curr_ptr + 8);
 					spent_clock += (4 * 5);
 
 					OUT_DEBUG_LNKARR(channel, _T("DMAC ch%d NEXT LINK ARR MAR:%06X MTC:%04X next:%06X->%06X")
@@ -1285,9 +1435,26 @@ void DMAC::transfer(int channel)
 			next_transfer(dma, channel, spent_clock);
 		}
 
-		// negate DACK signal
-		write_signals(&dma->outputs_ack, 0);
+	} while(0);
+
+	if (m_now_err) {
+		// address or buserr
+		uint8_t reason = 0;
+		switch(m_now_err & NOW_ERR_REASON) {
+		case NOW_ERR_ADDRERR:
+			reason = CER_ADDRERR;
+			break;
+		default:
+			reason = CER_BUSERR;
+			break;
+		}
+		reason |= ((m_now_err & NOW_ERR_PHASE) | CSR_COC);
+		m_now_err = 0;
+		error_transfer(channel, reason);
 	}
+
+	// negate DACK signal
+	write_signals(&dma->outputs_ack, 0);
 }
 
 void DMAC::finish_transfer(struct st_dma_regs *dma, int channel)
@@ -1320,7 +1487,7 @@ void DMAC::continue_transfer(struct st_dma_regs *dma, int channel, int clock)
 	dma->ccr &= ~CCR_CNT;	// reset continue flag
 	dma->csr |= CSR_BTC;
 
-	OUT_DEBUG_CNT(channel, _T("clk:%lu DMAC ch%d CONTINUE TRANSFER CSR:%02X CER:%02X OCR:%02X MAR:%06X MTC:%04X MFC:%02X")
+	OUT_DEBUG_RES(channel, _T("clk:%lu DMAC ch%d CONTINUE TRANSFER CSR:%02X CER:%02X OCR:%02X MAR:%06X MTC:%04X MFC:%02X")
 		,(uint32_t)get_current_clock()
 		, channel
 		, dma->csr, dma->cer
@@ -1391,13 +1558,15 @@ void DMAC::abort_transfer(int channel)
 	update_irq(channel, true);
 }
 
+/// @param[in] channel : DMA channel
+/// @param[in] reason  : bit5-0: error reason  bit7: COC in CSR 
 void DMAC::error_transfer(int channel, uint8_t reason)
 {
 	struct st_dma_regs *dma = &m_dma[channel];
 
 	dma->csr &= ~(CSR_ACT);
-	dma->csr |= (CSR_ERR);
-	dma->cer = reason;
+	dma->csr |= (CSR_ERR | (reason & CSR_COC));
+	dma->cer = (reason & CER_MASK);
 	dma->ccr &= ~(CCR_OPE_ALL);
 
 	OUT_DEBUG_RES(channel, _T("clk:%lu DMAC ch%d ERROR TRANSFER CSR:%02X CER:%02X OCR:%02X MAR:%08X MTC:%04X DAR:%08X")
@@ -1544,7 +1713,7 @@ void DMAC::save_state(FILEIO *fio)
 	SET_Byte(m_gcr);
 	SET_Byte(m_busreq);	   ///< asserting bus request (bit3-0: each asserting channel, b7-b4:request signal)
 	SET_Byte(m_interrupt); ///< asserting interrupt
-	SET_Bool(m_now_iack);  ///< receiving IACK
+//	SET_Bool(m_now_iack);  ///< receiving IACK
 
 	for(int i=0; i<15 && i<END_OF_EVENT_IDS; i++) {
 		SET_Int32_LE(m_register_id[i]);
@@ -1604,7 +1773,7 @@ bool DMAC::load_state(FILEIO *fio)
 	GET_Byte(m_gcr);
 	GET_Byte(m_busreq);	   ///< asserting bus request (bit3-0: each asserting channel, b7-b4:request signal)
 	GET_Byte(m_interrupt); ///< asserting interrupt 
-	GET_Bool(m_now_iack);  ///< receiving IACK
+//	GET_Bool(m_now_iack);  ///< receiving IACK
 
 	for(int i=0; i<15 && i<END_OF_EVENT_IDS; i++) {
 		GET_Int32_LE(m_register_id[i]);

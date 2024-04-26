@@ -106,6 +106,8 @@ INT_PTR CALLBACK CDialogBox::Proc(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 			return myObj->onControlColorDialog(message, wParam, lParam);
 		case WM_SIZE:
 			return myObj->onSize(message, wParam, lParam);
+		case WM_GETMINMAXINFO:
+			return myObj->onMinMaxInfo(message, wParam, lParam);
 		break;
 
 	}
@@ -177,6 +179,11 @@ INT_PTR CDialogBox::onHelp(UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 INT_PTR CDialogBox::onSize(UINT message, WPARAM wParam, LPARAM lParam)
+{
+	return (INT_PTR)FALSE;
+}
+
+INT_PTR CDialogBox::onMinMaxInfo(UINT message, WPARAM wParam, LPARAM lParam)
 {
 	return (INT_PTR)FALSE;
 }
@@ -897,6 +904,32 @@ HWND CDialogBox::CreateEditBoxWithLabel(CBox *box, int nItemId, CMsg::Id label, 
 {
 	CreateStatic(box, IDC_STATIC, label);
 	HWND hCtrl = CreateEditBox(box, nItemId, digit, nMaxSize, align, ch);
+	return hCtrl;
+}
+
+/// @brief Create a text control.
+/// @param[in] box : layout box object
+/// @param[in] nItemId : control id of radio button
+/// @param[in] multi_line : control has multi line?
+/// @param[in] read_only : control is read only?
+/// @param[in] min_w : minimum width
+/// @param[in] min_h : minimum height
+/// @return : handle of control
+HWND CDialogBox::CreateTextControl(CBox *box, int nItemId, bool multi_line, bool read_only, int min_w, int min_h)
+{
+	DWORD dwStyle = WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_LEFT | ES_AUTOHSCROLL;
+	DWORD align = WS_EX_CLIENTEDGE;
+	if (multi_line) {
+		dwStyle |= (ES_MULTILINE | WS_HSCROLL | WS_VSCROLL | ES_AUTOVSCROLL);
+	}
+	if (read_only) {
+		dwStyle |= ES_READONLY;
+	}
+	HWND hCtrl = CreateWindowEx(align, WC_EDIT, _T(""), dwStyle, 0, 0, min_w, min_h, hDlg, (HMENU)(INT_PTR)nItemId, hInstance, NULL);
+	if (hCtrl) {
+		SendMessage(hCtrl, WM_SETFONT, (WPARAM)font->GetFont(), MAKELPARAM(TRUE, 0));
+		AdjustControl(box, nItemId, min_w, min_h);
+	}
 	return hCtrl;
 }
 

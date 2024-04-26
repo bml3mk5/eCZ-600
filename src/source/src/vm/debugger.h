@@ -83,6 +83,8 @@ public:
 	void write_io32w(uint32_t addr, uint32_t data, int* wait);
 	uint32_t read_io32w(uint32_t addr, int* wait);
 
+	void write_dma_data16(uint32_t addr, uint32_t data);
+	uint32_t read_dma_data16(uint32_t addr);
 	void write_dma_data_n(uint32_t addr, uint32_t data, int width);
 	uint32_t read_dma_data_n(uint32_t addr, int width);
 

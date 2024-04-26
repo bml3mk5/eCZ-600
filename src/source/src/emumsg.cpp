@@ -363,6 +363,11 @@ int EmuMsg::Process()
 				emu->close_hard_disk(item->GetDrv());
 			}
 			break;
+		case EMUMSG_ID_WRITEPROTECT_HD:
+			if (emu) {
+				emu->toggle_hard_disk_write_protect(item->GetDrv());
+			}
+			break;
 		case EMUMSG_ID_RECENT_HD:
 			if (emu) {
 				emu->open_hard_disk(item->GetDrv(), item->GetFile(), item->GetFlags());

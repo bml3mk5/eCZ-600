@@ -41,6 +41,7 @@ class RecVideoBox;
 class RecAudioBox;
 class FileBox;
 class JoySettingBox;
+class LoggingBox;
 }; /* namespace GUI_GTK_X11 */
 
 /**
@@ -85,6 +86,7 @@ private:
 	GUI_GTK_X11::RecVideoBox *recvidbox;
 	GUI_GTK_X11::RecAudioBox *recaudbox;
 	GUI_GTK_X11::FileBox *filebox;
+	GUI_GTK_X11::LoggingBox *loggingbox;
 	CB_PARAM filebox_param;
 	bool filebox_cont;
 
@@ -185,6 +187,10 @@ private:
 	static void OnUpdateOpenHardDisk(GtkWidget *widget, gpointer user_data);
 	static void OnSelectCloseHardDisk(GtkWidget *widget, gpointer user_data);
 	static void OnSelectOpenBlankHardDisk(GtkWidget *widget, gpointer user_data);
+	static void OnSelectWriteProtectHardDisk(GtkWidget *widget, gpointer user_data);
+	static void OnUpdateWriteProtectHardDisk(GtkWidget *widget, gpointer user_data);
+	static void OnSelectHardDiskDeviceType(GtkWidget *widget, gpointer user_data);
+	static void OnUpdateHardDiskDeviceType(GtkWidget *widget, gpointer user_data);
 
 	static void OnSelectOpenHardDiskFileBox(GUI_GTK_X11::FileBox *fbox, bool rc, void *data);
 	static void OnSelectOpenBlankHardDiskFileBox(GUI_GTK_X11::FileBox *fbox, bool rc, void *data);
@@ -306,6 +312,8 @@ private:
 	static void OnSelectConfigureBox(GtkWidget *widget, gpointer user_data);
 	static void OnSelectVirtualKeyboard(GtkWidget *widget, gpointer user_data);
 	static void OnUpdateVirtualKeyboard(GtkWidget *widget, gpointer user_data);
+	static void OnSelectLoggingBox(GtkWidget *widget, gpointer user_data);
+	static void OnUpdateLoggingBox(GtkWidget *widget, gpointer user_data);
 #ifdef USE_DEBUGGER
 	static void OnSelectOpenDebugger(GtkWidget *widget, gpointer user_data);
 	static void OnUpdateOpenDebugger(GtkWidget *widget, gpointer user_data);
@@ -387,6 +395,8 @@ public:
 	virtual bool ShowConfigureDialog();
 	virtual bool ShowKeybindDialog();
 	virtual bool ShowVolumeDialog();
+	virtual bool ShowLoggingDialog();
+	virtual bool IsShownLoggingDialog();
 #endif
 #ifdef USE_DATAREC
 	virtual bool ShowLoadDataRecDialog();
@@ -406,6 +416,7 @@ public:
 #ifdef USE_HD1
 	virtual bool ShowOpenHardDiskDialog(int drv);
 	virtual bool ShowOpenBlankHardDiskDialog(int drv, uint8_t type);
+	virtual bool ShowSelectHardDiskDeviceTypeDialog(int drv);
 #endif
 
 #ifdef USE_AUTO_KEY

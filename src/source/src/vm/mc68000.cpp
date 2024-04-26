@@ -3180,6 +3180,7 @@ void MC68000BASE::has_address_error_for_prog_read(uint32_t pc, uint32_t address,
 /// @param[in] pc : program counter read instruction
 /// @param[in] address : address to jump or branch
 /// @param[in] fc : function code
+/// @param[in] value : data on address
 void MC68000BASE::has_address_error_for_data_write(uint32_t pc, uint32_t address, uint32_t fc, uint32_t value)
 {
 	if(address & 1) {
@@ -3208,6 +3209,7 @@ void MC68000BASE::has_address_error_for_data_read(uint32_t pc, uint32_t address,
 /// @param[in] pc : program counter read instruction
 /// @param[in] address : address to jump or branch
 /// @param[in] fc : function code
+/// @param[in] value : data on address
 void MC68000BASE::has_address_error_for_stack_write(uint32_t pc, uint32_t address, uint32_t fc, uint32_t value)
 {
 	if(address & 1) {

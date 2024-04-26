@@ -110,7 +110,7 @@ private:
 	uint32_t m_alarm_led;	// for X68K
 	uint32_t m_clkout_led;	// for X68K
 
-	bool m_loaded;
+	int  m_loaded;
 
 	void load_file();
 	void save_file();

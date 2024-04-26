@@ -14,6 +14,7 @@
 #include "common.h"
 //#include "fileio.h"
 //#include "cmutex.h"
+#include "cchar.h"
 #include "msgs.h"
 
 class FILEIO;
@@ -71,6 +72,7 @@ class Logging
 private:
 #ifdef _LOG_FILE
 	FILEIO *fplog;
+	CTchar  m_log_path;
 #endif
 	LogMessageReceiver *recv;
 	CMutex *mux;
@@ -89,6 +91,8 @@ public:
 	void close_logfile();
 
 	void set_receiver(LogMessageReceiver *src) { recv = src; }
+
+	const _TCHAR *get_log_path() const;
 
 	// for narrow char
 	virtual void out_log(int level, const char* msg);
@@ -109,6 +113,9 @@ public:
 	// system error log
 	virtual void out_syserrlog(int level, int err_num, const char* premsg);
 
+	// get log
+	virtual int get_log(char *buffer, int buffer_size);
+
 #ifdef _UNICODE
 
 	virtual void out_log(int level, const wchar_t* msg);
@@ -124,6 +131,9 @@ public:
 	virtual void out_debugf(const wchar_t* format, ...);
 	// system error log
 	virtual void out_syserrlog(int level, int err_num, const wchar_t* premsg);
+
+	// get log
+	virtual int get_log(wchar_t *buffer, int buffer_size);
 
 #endif
 

@@ -894,14 +894,14 @@ bool EMU::open_auto_key(const _TCHAR *file_path)
 
 		parsed_auto_key(prev_code, prev_mod);
 
-		pConfig->opened_autokey_path.Set(file_path, 0);
+		pConfig->SetOpenedAutoKeyPath(file_path, 0);
 	} else {
 		logging->out_log(LOG_ERROR, _T("Auto key file couldn't be opened."));
 		rc = false;
 	}
 	delete fp;
 
-	pConfig->initial_autokey_path.SetFromPath(file_path);
+	pConfig->SetInitialAutoKeyPathFrom(file_path);
 
 	update_config();
 
@@ -1041,7 +1041,7 @@ void EMU::stop_auto_key()
 	autokey_shift = 0;
 	autokey_enabled = false;
 
-	pConfig->opened_autokey_path.Clear();
+	pConfig->ClearOpenedAutoKeyPath();
 
 	update_config();
 }

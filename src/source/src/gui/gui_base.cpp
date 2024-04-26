@@ -888,13 +888,17 @@ int GUI_BASE::ProcessCommand(int id, void *data1, void *data2)
 		FD_MENU_PREITEMS(5, ID_OPEN_FD6, ID_CLOSE_FD6, ID_CHANGE_FD6, ID_WRITEPROTECT_FD6, ID_OPEN_BLANK_2D_FD6, ID_OPEN_BLANK_2DD_FD6, ID_OPEN_BLANK_2HD_FD6)
 #endif
 #ifdef USE_HD1
-#define HD_MENU_PREITEMS(drv, ID_OPEN_HD, ID_CLOSE_HD, ID_OPEN_BLANK_10MB_HD, ID_OPEN_BLANK_20MB_HD, ID_OPEN_BLANK_40MB_HD) \
+#define HD_MENU_PREITEMS_A(drv, ID_OPEN_HD, ID_CLOSE_HD, ID_WRITEPROTECT_HD) \
 		case ID_OPEN_HD: \
 			ShowOpenHardDiskDialog(drv); \
 			return 0; \
 		case ID_CLOSE_HD: \
 			PostEtCloseHardDiskMessage(drv); \
 			return 0; \
+		case ID_WRITEPROTECT_HD: \
+			PostEtToggleWriteProtectHardDisk(drv); \
+			return 0;
+#define HD_MENU_PREITEMS_B(drv, ID_OPEN_BLANK_10MB_HD, ID_OPEN_BLANK_20MB_HD, ID_OPEN_BLANK_40MB_HD) \
 		case ID_OPEN_BLANK_10MB_HD: \
 			ShowOpenBlankHardDiskDialog(drv, 0); \
 			return 0; \
@@ -904,10 +908,58 @@ int GUI_BASE::ProcessCommand(int id, void *data1, void *data2)
 		case ID_OPEN_BLANK_40MB_HD: \
 			ShowOpenBlankHardDiskDialog(drv, 2); \
 			return 0;
-		HD_MENU_PREITEMS(0, ID_OPEN_HD1, ID_CLOSE_HD1, ID_OPEN_BLANK_10MB_HD1, ID_OPEN_BLANK_20MB_HD1, ID_OPEN_BLANK_40MB_HD1)
+#define HD_MENU_PREITEMS_C(drv, ID_DEVICE_TYPE_HD) \
+		case ID_DEVICE_TYPE_HD: \
+			ShowSelectHardDiskDeviceTypeDialog(drv); \
+			return 0;
+		HD_MENU_PREITEMS_A(0, ID_OPEN_HD1, ID_CLOSE_HD1, ID_WRITEPROTECT_HD1)
+		HD_MENU_PREITEMS_B(0, ID_OPEN_BLANK_10MB_HD1, ID_OPEN_BLANK_20MB_HD1, ID_OPEN_BLANK_40MB_HD1)
+		HD_MENU_PREITEMS_C(0, ID_DEVICE_TYPE_HD1)
 #endif
 #ifdef USE_HD2
-		HD_MENU_PREITEMS(1, ID_OPEN_HD2, ID_CLOSE_HD2, ID_OPEN_BLANK_10MB_HD2, ID_OPEN_BLANK_20MB_HD2, ID_OPEN_BLANK_40MB_HD2)
+		HD_MENU_PREITEMS_A(1, ID_OPEN_HD2, ID_CLOSE_HD2, ID_WRITEPROTECT_HD2)
+		HD_MENU_PREITEMS_B(1, ID_OPEN_BLANK_10MB_HD2, ID_OPEN_BLANK_20MB_HD2, ID_OPEN_BLANK_40MB_HD2)
+		HD_MENU_PREITEMS_C(1, ID_DEVICE_TYPE_HD2)
+#endif
+#ifdef USE_HD3
+		HD_MENU_PREITEMS_A(2, ID_OPEN_HD3, ID_CLOSE_HD3, ID_WRITEPROTECT_HD3)
+		HD_MENU_PREITEMS_C(2, ID_DEVICE_TYPE_HD3)
+#endif
+#ifdef USE_HD4
+		HD_MENU_PREITEMS_A(3, ID_OPEN_HD4, ID_CLOSE_HD4, ID_WRITEPROTECT_HD4)
+		HD_MENU_PREITEMS_C(3, ID_DEVICE_TYPE_HD4)
+#endif
+#ifdef USE_HD5
+		HD_MENU_PREITEMS_A(4, ID_OPEN_HD5, ID_CLOSE_HD5, ID_WRITEPROTECT_HD5)
+		HD_MENU_PREITEMS_C(4, ID_DEVICE_TYPE_HD5)
+#endif
+#ifdef USE_HD6
+		HD_MENU_PREITEMS_A(5, ID_OPEN_HD6, ID_CLOSE_HD6, ID_WRITEPROTECT_HD6)
+		HD_MENU_PREITEMS_C(5, ID_DEVICE_TYPE_HD6)
+#endif
+#ifdef USE_HD17
+		HD_MENU_PREITEMS_A(16, ID_OPEN_HD17, ID_CLOSE_HD17, ID_WRITEPROTECT_HD17)
+		HD_MENU_PREITEMS_C(16, ID_DEVICE_TYPE_HD17)
+#endif
+#ifdef USE_HD18
+		HD_MENU_PREITEMS_A(17, ID_OPEN_HD18, ID_CLOSE_HD18, ID_WRITEPROTECT_HD18)
+		HD_MENU_PREITEMS_C(17, ID_DEVICE_TYPE_HD18)
+#endif
+#ifdef USE_HD19
+		HD_MENU_PREITEMS_A(18, ID_OPEN_HD19, ID_CLOSE_HD19, ID_WRITEPROTECT_HD19)
+		HD_MENU_PREITEMS_C(18, ID_DEVICE_TYPE_HD19)
+#endif
+#ifdef USE_HD20
+		HD_MENU_PREITEMS_A(19, ID_OPEN_HD20, ID_CLOSE_HD20, ID_WRITEPROTECT_HD20)
+		HD_MENU_PREITEMS_C(19, ID_DEVICE_TYPE_HD20)
+#endif
+#ifdef USE_HD21
+		HD_MENU_PREITEMS_A(20, ID_OPEN_HD21, ID_CLOSE_HD21, ID_WRITEPROTECT_HD21)
+		HD_MENU_PREITEMS_C(20, ID_DEVICE_TYPE_HD21)
+#endif
+#ifdef USE_HD22
+		HD_MENU_PREITEMS_A(21, ID_OPEN_HD22, ID_CLOSE_HD22, ID_WRITEPROTECT_HD22)
+		HD_MENU_PREITEMS_C(21, ID_DEVICE_TYPE_HD22)
 #endif
 #ifdef USE_DATAREC
 		case ID_PLAY_DATAREC:
@@ -1388,6 +1440,9 @@ int GUI_BASE::ProcessCommand(int id, void *data1, void *data2)
 		case ID_OPTIONS_CONFIG:
 			ShowConfigureDialog();
 			return 0;
+		case ID_OPTIONS_LOGGING:
+			ShowLoggingDialog();
+			return 0;
 		case ID_OPTIONS_FDD_TYPE_A:
 			ChangeFddType(-1);
 			return 0;
@@ -1449,6 +1504,36 @@ int GUI_BASE::ProcessCommand(int id, void *data1, void *data2)
 			HD_MENU_RECENT(0, ID_RECENT_HD1)
 #ifdef USE_HD2
 			HD_MENU_RECENT(1, ID_RECENT_HD2)
+#endif
+#ifdef USE_HD3
+			HD_MENU_RECENT(2, ID_RECENT_HD3)
+#endif
+#ifdef USE_HD4
+			HD_MENU_RECENT(3, ID_RECENT_HD4)
+#endif
+#ifdef USE_HD5
+			HD_MENU_RECENT(4, ID_RECENT_HD5)
+#endif
+#ifdef USE_HD6
+			HD_MENU_RECENT(5, ID_RECENT_HD6)
+#endif
+#ifdef USE_HD17
+			HD_MENU_RECENT(16, ID_RECENT_HD17)
+#endif
+#ifdef USE_HD18
+			HD_MENU_RECENT(17, ID_RECENT_HD18)
+#endif
+#ifdef USE_HD19
+			HD_MENU_RECENT(18, ID_RECENT_HD19)
+#endif
+#ifdef USE_HD20
+			HD_MENU_RECENT(19, ID_RECENT_HD20)
+#endif
+#ifdef USE_HD21
+			HD_MENU_RECENT(20, ID_RECENT_HD21)
+#endif
+#ifdef USE_HD22
+			HD_MENU_RECENT(21, ID_RECENT_HD22)
 #endif
 #endif
 #ifdef USE_CART1
@@ -1598,6 +1683,11 @@ bool GUI_BASE::ShowOpenBlankHardDiskDialog(int drv, uint8_t type)
 {
 	return false;
 }
+
+bool GUI_BASE::ShowSelectHardDiskDeviceTypeDialog(int drv)
+{
+	return false;
+}
 #endif
 
 #ifdef USE_CART1
@@ -1705,6 +1795,11 @@ bool GUI_BASE::ShowKeybindDialog(void)
 }
 
 bool GUI_BASE::ShowConfigureDialog(void)
+{
+	return false;
+}
+
+bool GUI_BASE::ShowLoggingDialog(void)
 {
 	return false;
 }
@@ -2326,7 +2421,7 @@ void GUI_BASE::PostEtLoadDataRecMessage(const _TCHAR *file_path)
 }
 void GUI_BASE::PostEtLoadRecentDataRecMessage(int num)
 {
-	emumsg.Send(EMUMSG_ID_RECENT_DATAREC, pConfig->recent_datarec_path[num]->path);
+	emumsg.Send(EMUMSG_ID_RECENT_DATAREC, pConfig->GetRecentDataRecPathString(num));
 }
 
 void GUI_BASE::PostEtSaveDataRecMessage(const _TCHAR *file_path)
@@ -2357,7 +2452,7 @@ void GUI_BASE::PostEtToggleRealModeDataRecMessage(void)
 }
 bool GUI_BASE::NowRealModeDataRec(void)
 {
-	return pConfig->realmode_datarec;
+	return pConfig->NowRealModeDataRec();
 }
 bool GUI_BASE::IsOpenedLoadDataRecFile(void)
 {
@@ -2383,7 +2478,7 @@ void GUI_BASE::PostEtOpenFloppyMessage(int drv, const _TCHAR *file_path, int ban
 void GUI_BASE::PostEtOpenRecentFloppyMessage(int drv, int num)
 {
 	int new_drv = ShowSelectFloppyDriveDialog(drv);
-	emumsg.Send(EMUMSG_ID_RECENT_FD, new_drv, pConfig->recent_disk_path[drv][num]->path, pConfig->recent_disk_path[drv][num]->num, 0, true);
+	emumsg.Send(EMUMSG_ID_RECENT_FD, new_drv, pConfig->GetRecentFloppyDiskPathString(drv, num), pConfig->GetRecentFloppyDiskPathNumber(drv, num), 0, true);
 }
 /// send message to emu thread in order to open floppy disk image.
 void GUI_BASE::PostEtOpenFloppySelectedVolume(int drv, int bank_num)
@@ -2451,7 +2546,7 @@ void GUI_BASE::PostEtOpenHardDiskMessage(int drv, const _TCHAR *file_path, uint3
 /// send message to emu thread in order to open hard disk image.
 void GUI_BASE::PostEtOpenRecentHardDiskMessage(int drv, int num)
 {
-	emumsg.Send(EMUMSG_ID_RECENT_HD, drv, pConfig->recent_hard_disk_path[drv][num]->path, pConfig->recent_hard_disk_path[drv][num]->num, 0, false);
+	emumsg.Send(EMUMSG_ID_RECENT_HD, drv, pConfig->GetRecentHardDiskPathString(drv, num), pConfig->GetRecentHardDiskPathNumber(drv, num), 0, false);
 }
 void GUI_BASE::PostEtCloseHardDiskMessage(int drv)
 {
@@ -2460,6 +2555,26 @@ void GUI_BASE::PostEtCloseHardDiskMessage(int drv)
 bool GUI_BASE::MountedHardDisk(int drv)
 {
 	return emu->hard_disk_mounted(drv);
+}
+void GUI_BASE::PostEtToggleWriteProtectHardDisk(int drv)
+{
+	emumsg.Send(EMUMSG_ID_WRITEPROTECT_HD, drv, 0);
+}
+bool GUI_BASE::WriteProtectedHardDisk(int drv)
+{
+	return emu->hard_disk_write_protected(drv);
+}
+int GUI_BASE::GetHardDiskDeviceType(int drv)
+{
+	return emu->get_hard_disk_device_type(drv);
+}
+void GUI_BASE::ChangeHardDiskDeviceType(int drv, int num)
+{
+	emu->change_hard_disk_device_type(drv, num);
+}
+int GUI_BASE::GetCurrentHardDiskDeviceType(int drv)
+{
+	return emu->get_current_hard_disk_device_type(drv);
 }
 #endif
 
@@ -2722,7 +2837,7 @@ void GUI_BASE::PostEtLoadStatusMessage(const _TCHAR *file_path)
 void GUI_BASE::PostEtLoadRecentStatusMessage(int num)
 {
 #ifdef USE_STATE
-	emumsg.Send(EMUMSG_ID_RECENT_STATE, pConfig->recent_state_path[num]->path);
+	emumsg.Send(EMUMSG_ID_RECENT_STATE, pConfig->GetRecentStatePathString(num));
 #endif
 }
 void GUI_BASE::PostEtSaveStatusMessage(const _TCHAR *file_path, bool sys_pause)
@@ -2731,7 +2846,7 @@ void GUI_BASE::PostEtSaveStatusMessage(const _TCHAR *file_path, bool sys_pause)
 	_TCHAR path[_MAX_PATH];
 	UTILITY::get_long_full_path_name(file_path, path);
 	emumsg.Send(EMUMSG_ID_SAVE_STATE, path, sys_pause);
-	pConfig->initial_state_path.SetFromPath(path);
+	pConfig->SetInitialStatePathFrom(path);
 #endif
 }
 
@@ -2993,6 +3108,11 @@ bool GUI_BASE::IsShownMessageBoard(void)
 	return (emu->is_shown_message_board() > 0 ? true : false);
 }
 
+bool GUI_BASE::IsShownLoggingDialog(void)
+{
+	return false;
+}
+
 #ifdef USE_PERFORMANCE_METER
 void GUI_BASE::TogglePMeter(void)
 {
@@ -3207,10 +3327,16 @@ bool GUI_BASE::OpenFileByExtention(const _TCHAR *file_path)
 			// maybe record key file
 			PostEtLoadRecKeyMessage(file_path);
 			break;
-		case FILE_TYPE_HARD_DISK:
+		case FILE_TYPE_SASI_HARD_DISK:
 #ifdef USE_HD1
 			// maybe hard disk image file
 			PostEtOpenHardDiskMessage(0, file_path, 0);
+#endif
+			break;
+		case FILE_TYPE_SCSI_HARD_DISK:
+#ifdef USE_HD17
+			// maybe hard disk image file
+			PostEtOpenHardDiskMessage(16, file_path, 0);
 #endif
 			break;
 		default:
@@ -3269,10 +3395,18 @@ int GUI_BASE::CheckSupportedFile(const _TCHAR *file_path)
 	}
 
 #ifdef USE_HD1
-	rc = UTILITY::check_file_extensions(file_path, LABELS::hard_disk_exts);
+	rc = UTILITY::check_file_extensions(file_path, LABELS::sasi_hard_disk_exts);
 	if (rc) {
 		// hard disk image
-		return FILE_TYPE_HARD_DISK;
+		return FILE_TYPE_SASI_HARD_DISK;
+	}
+#endif
+
+#ifdef USE_HD17
+	rc = UTILITY::check_file_extensions(file_path, LABELS::scsi_hard_disk_exts);
+	if (rc) {
+		// hard disk image
+		return FILE_TYPE_SCSI_HARD_DISK;
 	}
 #endif
 

@@ -47,8 +47,10 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
   fmgen使用
 
 ●FDC
+・Seek / Recalibrate
 ・Read / Write Data
 ・Write ID (Format a track)
+・Read Diagnostic
 
 ●SCC
 ・マウスエミュレーション
@@ -67,7 +69,18 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 ●プリンタ
 
 ●SASI HDD
-・Read / Write / Format a track
+  IOCS標準で使用しているコマンドのみ実装。
+・実装しているコマンド:
+  Test Drive Ready / Recalibrate / Request Sense Status / Format Drive
+  Format Track / Read / Write / Seek / $C2(応答のみ)
+
+●SCSI HDD / SCSI MO
+  SCSIボード(CZ06BS1)相当。割り込みレベル2。
+  IOCS標準で使用しているコマンドのみ実装。
+・実装しているコマンド:
+  Test Unit Ready / Rezero Unit / Request Sense / Format Unit / Read / Write
+  Seek / Inquiry / Mode Sense / Read Capacity / Read(10) / Write(10)
+  Verify(10) / Start/Stop Unit(応答のみ) / Prevent/Allow Media Removal(応答のみ)
 
   -----
 ●エミュの機能
@@ -103,7 +116,7 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 ・Read a track
 
 ●HDC
-・SCSI
+・SCSI CD-ROM
 
 ●RTC
 ・16Hzを超えるクロック出力(CLKOUT)

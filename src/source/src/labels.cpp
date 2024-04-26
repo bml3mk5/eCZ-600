@@ -37,12 +37,20 @@ const CMsg::Id power_state[] = {
 };
 
 /// I/O port list
-const CMsg::Id io_port[] = { 
+const CMsg::Id io_port[] = {
+	CMsg::Floating_Point_Prosessor_Board_CZ_6BP1,
+	CMsg::SCSI_Board_CZ_6BS1,
+	CMsg::SCSI_Inner_Type,
+	CMsg::MIDI_Board_CZ_6BM1,
 	CMsg::End
 };
 
 /// I/O port bit position
 const uint8_t io_port_pos[] = {
+	0,
+	1,
+	2,
+	3,
 	0
 };
 
@@ -179,9 +187,13 @@ const char *datarec_exts = "l3;l3b;l3c;wav;t9x";
 const char *floppy_disk_exts = "d68;d88;xdf;hdm;2hd";
 const char *blank_floppy_disk_exts = "d68;d88";
 
-/// extension of a hard disk image
-const char *hard_disk_exts = "hdf";
-const char *blank_hard_disk_exts = "hdf";
+/// extension of a sasi hard disk image
+const char *sasi_hard_disk_exts = "hdf;hds;mos";
+const char *blank_sasi_hard_disk_exts = "hdf";
+
+/// extension of a sasi hard disk image
+const char *scsi_hard_disk_exts = "hds;mos;hdf";
+const char *blank_scsi_hard_disk_exts = "hds";
 
 /// extension of a state file
 const char *state_file_exts = "x6r";
@@ -338,6 +350,21 @@ const _TCHAR *key_repeat_rate[] = {
 	NULL
 };
 
+/// SCSI type
+const CMsg::Id scsi_type[] = {
+	CMsg::None_,
+	CMsg::SCSI_Board_CZ_6BS1,
+	CMsg::SCSI_Inner_Type,
+	CMsg::End
+};
+
 #endif
+
+const _TCHAR *hd_device_type[] = {
+	_T("SASI HDD"),
+	_T("SCSI HDD"),
+	_T("SCSI MO"),
+	NULL
+};
 
 }; /* namespace LABELS */

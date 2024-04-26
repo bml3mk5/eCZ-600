@@ -136,6 +136,20 @@ FONT 9, "Ms Shell Dlg"
     LTEXT           "", IDC_STATIC_0, 0, 5, 5, 270, SS_LEFT
 }
 
+IDD_LOGGING DIALOG 0, 0, 320, 200
+STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Log"
+FONT 9, "Ms Shell Dlg"
+{
+}
+
+IDD_HDTYPEBOX DIALOG 0, 0, 240, 121
+STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP
+CAPTION "Select Device Type"
+FONT 9, "Ms Shell Dlg"
+{
+}
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Menu
@@ -319,8 +333,10 @@ BEGIN
 #ifdef USE_HD1
     POPUP "&HDD"
     BEGIN
-		POPUP "SASI0"
+		POPUP "SASI0 u0"
 		BEGIN
+			MENUITEM "Device Type",				ID_DEVICE_TYPE_HD1
+            MENUITEM SEPARATOR
             MENUITEM "Mount...",                ID_OPEN_HD1
             MENUITEM "Unmount",                 ID_CLOSE_HD1
 			POPUP "New"
@@ -330,14 +346,18 @@ BEGIN
 				MENUITEM "Mount Blank 40MB...", ID_OPEN_BLANK_40MB_HD1
 			END
             MENUITEM SEPARATOR
+            MENUITEM "Write Protect",           ID_WRITEPROTECT_HD1
+            MENUITEM SEPARATOR
             POPUP "Recent Files"
             BEGIN
                 MENUITEM "None",                ID_RECENT_HD1
             END
 		END
 #ifdef USE_HD2
-		POPUP "SASI1"
+		POPUP "SASI0 u1"
 		BEGIN
+			MENUITEM "Device Type",				ID_DEVICE_TYPE_HD2
+            MENUITEM SEPARATOR
             MENUITEM "Mount...",                ID_OPEN_HD2
             MENUITEM "Unmount",                 ID_CLOSE_HD2
 //			POPUP "New"
@@ -347,9 +367,144 @@ BEGIN
 //				MENUITEM "Mount Blank 40MB...", ID_OPEN_BLANK_40MB_HD2
 //			END
             MENUITEM SEPARATOR
+            MENUITEM "Write Protect",           ID_WRITEPROTECT_HD2
+            MENUITEM SEPARATOR
             POPUP "Recent Files"
             BEGIN
                 MENUITEM "None",                ID_RECENT_HD2
+            END
+		END
+#endif
+#ifdef USE_HD3
+		POPUP "SASI1 u0"
+		BEGIN
+			MENUITEM "Device Type",				ID_DEVICE_TYPE_HD3
+            MENUITEM SEPARATOR
+            MENUITEM "Mount...",                ID_OPEN_HD3
+            MENUITEM "Unmount",                 ID_CLOSE_HD3
+//			POPUP "New"
+//			BEGIN
+//				MENUITEM "Mount Blank 10MB...", ID_OPEN_BLANK_10MB_HD3
+//				MENUITEM "Mount Blank 20MB...", ID_OPEN_BLANK_20MB_HD3
+//				MENUITEM "Mount Blank 40MB...", ID_OPEN_BLANK_40MB_HD3
+//			END
+            MENUITEM SEPARATOR
+            MENUITEM "Write Protect",           ID_WRITEPROTECT_HD3
+            MENUITEM SEPARATOR
+            POPUP "Recent Files"
+            BEGIN
+                MENUITEM "None",                ID_RECENT_HD3
+            END
+		END
+#endif
+#ifdef USE_HD4
+		POPUP "SASI1 u1"
+		BEGIN
+			MENUITEM "Device Type",				ID_DEVICE_TYPE_HD4
+            MENUITEM SEPARATOR
+            MENUITEM "Mount...",                ID_OPEN_HD4
+            MENUITEM "Unmount",                 ID_CLOSE_HD4
+//			POPUP "New"
+//			BEGIN
+//				MENUITEM "Mount Blank 10MB...", ID_OPEN_BLANK_10MB_HD4
+//				MENUITEM "Mount Blank 20MB...", ID_OPEN_BLANK_20MB_HD4
+//				MENUITEM "Mount Blank 40MB...", ID_OPEN_BLANK_40MB_HD4
+//			END
+            MENUITEM SEPARATOR
+            MENUITEM "Write Protect",           ID_WRITEPROTECT_HD4
+            MENUITEM SEPARATOR
+            POPUP "Recent Files"
+            BEGIN
+                MENUITEM "None",                ID_RECENT_HD4
+            END
+		END
+#endif
+#ifdef USE_HD17
+        MENUITEM SEPARATOR
+		POPUP "SCSI0"
+		BEGIN
+			MENUITEM "Device Type",				ID_DEVICE_TYPE_HD17
+            MENUITEM SEPARATOR
+            MENUITEM "Mount...",                ID_OPEN_HD17
+            MENUITEM "Unmount",                 ID_CLOSE_HD17
+//			POPUP "New"
+//			BEGIN
+//				MENUITEM "Mount Blank 10MB...", ID_OPEN_BLANK_10MB_HD17
+//				MENUITEM "Mount Blank 20MB...", ID_OPEN_BLANK_20MB_HD17
+//				MENUITEM "Mount Blank 40MB...", ID_OPEN_BLANK_40MB_HD17
+//			END
+            MENUITEM SEPARATOR
+            MENUITEM "Write Protect",           ID_WRITEPROTECT_HD17
+            MENUITEM SEPARATOR
+            POPUP "Recent Files"
+            BEGIN
+                MENUITEM "None",                ID_RECENT_HD17
+            END
+		END
+#endif
+#ifdef USE_HD18
+		POPUP "SCSI1"
+		BEGIN
+			MENUITEM "Device Type",				ID_DEVICE_TYPE_HD18
+            MENUITEM SEPARATOR
+            MENUITEM "Mount...",                ID_OPEN_HD18
+            MENUITEM "Unmount",                 ID_CLOSE_HD18
+//			POPUP "New"
+//			BEGIN
+//				MENUITEM "Mount Blank 10MB...", ID_OPEN_BLANK_10MB_HD18
+//				MENUITEM "Mount Blank 20MB...", ID_OPEN_BLANK_20MB_HD18
+//				MENUITEM "Mount Blank 40MB...", ID_OPEN_BLANK_40MB_HD18
+//			END
+            MENUITEM SEPARATOR
+            MENUITEM "Write Protect",           ID_WRITEPROTECT_HD18
+            MENUITEM SEPARATOR
+            POPUP "Recent Files"
+            BEGIN
+                MENUITEM "None",                ID_RECENT_HD18
+            END
+		END
+#endif
+#ifdef USE_HD19
+		POPUP "SCSI2"
+		BEGIN
+			MENUITEM "Device Type",				ID_DEVICE_TYPE_HD19
+            MENUITEM SEPARATOR
+            MENUITEM "Mount...",                ID_OPEN_HD19
+            MENUITEM "Unmount",                 ID_CLOSE_HD19
+//			POPUP "New"
+//			BEGIN
+//				MENUITEM "Mount Blank 10MB...", ID_OPEN_BLANK_10MB_HD19
+//				MENUITEM "Mount Blank 20MB...", ID_OPEN_BLANK_20MB_HD19
+//				MENUITEM "Mount Blank 40MB...", ID_OPEN_BLANK_40MB_HD19
+//			END
+            MENUITEM SEPARATOR
+            MENUITEM "Write Protect",           ID_WRITEPROTECT_HD19
+            MENUITEM SEPARATOR
+            POPUP "Recent Files"
+            BEGIN
+                MENUITEM "None",                ID_RECENT_HD19
+            END
+		END
+#endif
+#ifdef USE_HD20
+		POPUP "SCSI3"
+		BEGIN
+			MENUITEM "Device Type",				ID_DEVICE_TYPE_HD20
+            MENUITEM SEPARATOR
+            MENUITEM "Mount...",                ID_OPEN_HD20
+            MENUITEM "Unmount",                 ID_CLOSE_HD20
+//			POPUP "New"
+//			BEGIN
+//				MENUITEM "Mount Blank 10MB...", ID_OPEN_BLANK_10MB_HD20
+//				MENUITEM "Mount Blank 20MB...", ID_OPEN_BLANK_20MB_HD20
+//				MENUITEM "Mount Blank 40MB...", ID_OPEN_BLANK_40MB_HD20
+//			END
+            MENUITEM SEPARATOR
+            MENUITEM "Write Protect",           ID_WRITEPROTECT_HD20
+            MENUITEM SEPARATOR
+            POPUP "Recent Files"
+            BEGIN
+                MENUITEM "None",                ID_RECENT_HD20
             END
 		END
 #endif
@@ -519,8 +674,9 @@ BEGIN
         MENUITEM "Show LED\tAlt+L",             ID_OPTIONS_LEDBOX_SHOW
         MENUITEM "Inside LED\tAlt+L",           ID_OPTIONS_LEDBOX_INSIDE
         MENUITEM "Show Message\tAlt+Z",         ID_OPTIONS_MSGBOARD
+        MENUITEM "Log...",                      ID_OPTIONS_LOGGING
 #ifdef USE_PERFORMANCE_METER
-        MENUITEM "Show Performance Meter",      ID_OPTIONS_PMETER
+        MENUITEM "Performance Meter...",        ID_OPTIONS_PMETER
 #endif
 #ifdef USE_MOUSE
         MENUITEM SEPARATOR

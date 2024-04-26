@@ -608,6 +608,15 @@ uint32_t DEVICE::read_memory_mapped_io32w(uint32_t addr, int* wait)
 	return val;
 }
 
+void DEVICE::write_external_data8(uint32_t addr, uint32_t data)
+{
+}
+
+uint32_t DEVICE::read_external_data8(uint32_t addr)
+{
+	return 0;
+}
+
 // device to device
 
 void DEVICE::init_output_signals(outputs_t *items)
@@ -903,6 +912,11 @@ int  DEVICE::search_sector(int channel)
 }
 
 int  DEVICE::search_sector(int channel, int track, int sect, bool compare_side, int side)
+{
+	return 0;
+}
+
+int  DEVICE::search_sector_by_index(int channel, int track, int index, bool compare_sect, int sect, bool compare_side, int side)
 {
 	return 0;
 }

@@ -18,6 +18,10 @@
 extern EMU *emu;
 #endif
 
+
+/**
+	Text size on control
+*/
 @implementation CocoaTextSize
 + (NSSize)size:(NSControl *)ctrl constTo:(NSSize)constraint
 {
@@ -39,6 +43,10 @@ extern EMU *emu;
 }
 @end
 
+
+/**
+	Static label
+*/
 @implementation CocoaLabel
 + (CocoaLabel *)create:(NSRect)re title:(const char *)title
 {
@@ -223,6 +231,10 @@ extern EMU *emu;
 }
 @end
 
+
+/**
+	Text field
+*/
 @implementation CocoaTextField
 #ifdef COCOA_USE_OLDSTYLE_LAYOUT
 + (CocoaTextField *)create:(NSRect)re num:(int)num action:(SEL)action
@@ -359,8 +371,51 @@ extern EMU *emu;
 	[layout addControl:me width:width];
 	return me;
 }
++ (CocoaTextField *)create:(CocoaLayout *)layout action:(SEL)action width:(int)width height:(int)height
+{
+	CocoaTextField *me = [CocoaTextField alloc];
+
+	[me init];
+//	[me setStringValue:[NSString stringWithUTF8String:text]];
+	[me setEditable:NO];
+	[me setBezeled:YES];
+	[me setDrawsBackground:YES];
+	[me setSelectable:YES];
+	[me setAction:action];
+//	[me setAlignment:align];
+	/*	[[me cell] setUsesSingleLineMode:YES]; */
+	[layout addControl:me width:width height:height];
+
+	return me;
+}
 @end
 
+
+/**
+	Text view
+*/
+@implementation CocoaTextView : NSTextView
+@synthesize parent;
++ (CocoaTextView *)create:(CocoaLayout *)layout edit:(bool)edit hasvs:(bool)hasvs hashs:(bool)hashs width:(int)width height:(int)height
+{
+	CocoaScrollView *sview = [CocoaScrollView create:layout hasvs:hasvs hashs:hashs width:width height:height];
+
+	NSRect re = NSMakeRect(0,0,width,height);
+	CocoaTextView *me = [[CocoaTextView alloc] initWithFrame:re];
+	[me setEditable:edit];
+	[me setDrawsBackground:YES];
+	[me setSelectable:YES];
+
+	[sview setDocumentView:me];
+	[me setParent:sview];
+	return me;
+}
+@end
+
+
+/**
+	for button control
+*/
 @implementation CocoaObjectStructure
 @synthesize obj1;
 @synthesize obj2;
@@ -375,6 +430,10 @@ extern EMU *emu;
 }
 @end
 
+
+/**
+	Button control
+*/
 @implementation CocoaButton
 @synthesize relatedObject;
 + (CocoaButton *)create:(NSRect)re title:(const char *)title action:(SEL)action
@@ -435,6 +494,10 @@ extern EMU *emu;
 }
 @end
 
+
+/**
+	Popup button
+*/
 @implementation CocoaPopUpButton
 + (CocoaPopUpButton *)create:(NSRect)re items:(const char **)items action:(SEL)action selidx:(int)selidx
 {
@@ -564,6 +627,10 @@ extern EMU *emu;
 }
 @end
 
+
+/**
+	Check button
+*/
 @implementation CocoaCheckBox
 @synthesize index;
 + (CocoaCheckBox *)create:(NSRect)re title:(const char *)title action:(SEL)action value:(bool)value
@@ -652,6 +719,10 @@ extern EMU *emu;
 }
 @end
 
+
+/**
+	Radio button
+*/
 @implementation CocoaRadioButton
 @synthesize index;
 + (CocoaRadioButton *)createT:(const char *)title action:(SEL)action value:(bool)value
@@ -704,6 +775,10 @@ extern EMU *emu;
 }
 @end
 
+
+/**
+	Radio button group
+*/
 @implementation CocoaRadioGroup
 + (CocoaRadioGroup *)create:(NSRect)re rows:(int)rows cols:(int)cols titles:(const char **)titles action:(SEL)action selidx:(int)selidx
 {
@@ -822,6 +897,10 @@ extern EMU *emu;
 }
 @end
 
+
+/**
+	Slider control
+*/
 @implementation CocoaSlider
 @synthesize index;
 #ifdef COCOA_USE_OLDSTYLE_LAYOUT
@@ -895,6 +974,10 @@ extern EMU *emu;
 }
 @end
 
+
+/**
+	Stepper control
+*/
 @implementation CocoaStepper
 @synthesize text;
 - (void)changeStepperValue:(CocoaStepper *)sender
@@ -946,6 +1029,10 @@ extern EMU *emu;
 }
 @end
 
+
+/**
+	Tab view
+*/
 @implementation CocoaTabView
 #ifdef COCOA_USE_OLDSTYLE_LAYOUT
 + (CocoaTabView *)create:(NSRect)re
@@ -1068,6 +1155,10 @@ extern EMU *emu;
 #endif
 @end
 
+
+/**
+	Static surrounding box
+*/
 @implementation CocoaBox
 #ifdef COCOA_USE_OLDSTYLE_LAYOUT
 + (CocoaBox *)create:(NSRect)re title:(const char *)title
@@ -1139,7 +1230,36 @@ extern EMU *emu;
 @end
 
 
+/**
+	Scroll view
+*/
+@implementation CocoaScrollView
++ (CocoaScrollView *)create:(CocoaLayout *)layout hasvs:(bool)hasvs hashs:(bool)hashs width:(int)width height:(int)height
+{
+	CocoaScrollView *me = [[CocoaScrollView alloc] init];
 
+	if (hasvs) {
+		NSRect re = NSMakeRect(0,0,24,height);
+		NSScroller *vs = [[NSScroller alloc] initWithFrame:re];
+		[me setVerticalScroller:vs];
+		[me setHasVerticalScroller:YES];
+	}
+	if (hashs) {
+		NSRect re = NSMakeRect(0,0,width,24);
+		NSScroller *hs = [[NSScroller alloc] initWithFrame:re];
+		[me setHorizontalScroller:hs];
+		[me setHasHorizontalScroller:YES];
+	}
+
+	[layout addControl:me width:width height:height];
+	return me;
+}
+@end
+
+
+/**
+	Base view
+*/
 @implementation CocoaView
 @synthesize max_bottom;
 @synthesize max_right;
@@ -1236,7 +1356,9 @@ extern EMU *emu;
 @end
 
 
-
+/**
+	Base panel
+*/
 @implementation CocoaBasePanel
 - (id)init
 {
@@ -1270,7 +1392,9 @@ extern EMU *emu;
 @end
 
 
-
+/**
+	Layout widget controls
+*/
 @implementation CocoaLayoutControls
 @synthesize box;
 @synthesize ctrl;
@@ -1302,7 +1426,9 @@ extern EMU *emu;
 @end
 
 
-
+/**
+	Manage layouting widget controls
+*/
 @implementation CocoaLayout
 @synthesize contentView;
 @synthesize orient;

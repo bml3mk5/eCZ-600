@@ -76,7 +76,7 @@ EMU::EMU(const _TCHAR *new_app_path, const _TCHAR *new_ini_path, const _TCHAR *n
 
 	// d88 bank switch
 //	memset(d88_file, 0, sizeof(d88_file));
-//	for(int drv=0; drv < MAX_DRIVE; drv++) d88_file[drv].prev_bank = -2;
+//	for(int drv=0; drv < USE_FLOPPY_DISKS; drv++) d88_file[drv].prev_bank = -2;
 }
 
 void EMU::initialize()
@@ -253,7 +253,7 @@ void EMU::reset()
 
 		// restore inserted floppy disks
 #ifdef USE_FD1
-		for(int drv = 0; drv < MAX_DRIVE; drv++) {
+		for(int drv = 0; drv < USE_FLOPPY_DISKS; drv++) {
 			if(disk_insert[drv].path[0] != _T('\0')) {
 				vm->open_disk(drv, disk_insert[drv].path, disk_insert[drv].offset);
 			}
@@ -745,25 +745,24 @@ bool EMU::open_floppy_disk(int drv, const _TCHAR* file_path, int bank_num, int o
 	if (vm && file_path && file_path[0] != 0) {
 		rc = open_floppy_disk_main(drv, file_path, offset, flags);
 		if (!rc) {
-			pConfig->opened_disk_path[drv].Clear();
-			pConfig->recent_disk_path[drv].Update(file_path, bank_num);
-			pConfig->opened_disk_path[drv].Set(file_path, bank_num);
+			pConfig->UpdateRecentFloppyDiskPath(drv, file_path, bank_num);
+			pConfig->SetNewOpenedFloppyDiskPath(drv, file_path, bank_num);
 		} else {
 			if (rc == -1) {
 				// open error message
 				logging->out_logf_x(LOG_ERROR, CMsg::Floppy_image_on_drive_VDIGIT_couldn_t_be_opened, drv);
 			}
 		}
-		pConfig->initial_disk_path.SetFromPath(file_path);
+		pConfig->SetInitialFloppyDiskPathFrom(file_path);
 	}
 	return (rc == 0);
 }
 
 void EMU::update_floppy_disk_info(int drv, const _TCHAR* file_path, int bank_num)
 {
-	pConfig->recent_disk_path[drv].Update(file_path, bank_num);
-	pConfig->opened_disk_path[drv].Set(file_path, bank_num);
-	pConfig->initial_disk_path.SetFromPath(file_path);
+	pConfig->UpdateRecentFloppyDiskPath(drv, file_path, bank_num);
+	pConfig->SetOpenedFloppyDiskPath(drv, file_path, bank_num);
+	pConfig->SetInitialFloppyDiskPathFrom(file_path);
 }
 
 /// @brief open floppy disk with parsing multi volume
@@ -829,7 +828,7 @@ void EMU::close_floppy_disk(int drv, uint32_t flags)
 
 	if (!vm->close_floppy_disk(drv, flags)) return;
 
-	pConfig->opened_disk_path[drv].Clear();
+	pConfig->ClearOpenedFloppyDiskPath(drv);
 	d88_files.GetFile(drv).Clear();
 }
 void EMU::initialize_disk_insert()
@@ -840,7 +839,7 @@ void EMU::update_disk_insert()
 {
 	if (!vm) return;
 
-	for(int drv = 0; drv < MAX_DRIVE; drv++) {
+	for(int drv = 0; drv < USE_FLOPPY_DISKS; drv++) {
 		if(disk_insert[drv].wait_count != 0 && --disk_insert[drv].wait_count == 0) {
 			vm->open_floppy_disk(drv, disk_insert[drv].path, disk_insert[drv].offset, disk_insert[drv].flags);
 		}
@@ -924,23 +923,19 @@ bool EMU::open_hard_disk(int drv, const _TCHAR* file_path, uint32_t flags)
 	if (vm && file_path && file_path[0] != 0) {
 		rc = vm->open_hard_disk(drv, file_path, flags);
 		if (rc) {
-			pConfig->opened_hard_disk_path[drv].Clear();
-			pConfig->recent_hard_disk_path[drv].Update(file_path, 0);
-			pConfig->opened_hard_disk_path[drv].Set(file_path, 0);
-		} else {
-			// open error message
-			logging->out_logf_x(LOG_ERROR, CMsg::Hard_disk_image_on_unit_VDIGIT_couldn_t_be_opened, drv);
+			pConfig->UpdateRecentHardDiskPath(drv, file_path, 0);
+			pConfig->SetNewOpenedHardDiskPath(drv, file_path, 0);
 		}
-		pConfig->initial_hard_disk_path.SetFromPath(file_path);
+		pConfig->SetInitialHardDiskPathFrom(file_path);
 	}
 	return rc;
 }
 
 void EMU::update_hard_disk_info(int drv, const _TCHAR* file_path, int bank_num)
 {
-	pConfig->recent_hard_disk_path[drv].Update(file_path, bank_num);
-	pConfig->opened_hard_disk_path[drv].Set(file_path, bank_num);
-	pConfig->initial_hard_disk_path.SetFromPath(file_path);
+	pConfig->UpdateRecentHardDiskPath(drv, file_path, bank_num);
+	pConfig->SetOpenedHardDiskPath(drv, file_path, bank_num);
+	pConfig->SetInitialHardDiskPathFrom(file_path);
 }
 
 void EMU::close_hard_disk(int drv, uint32_t flags)
@@ -949,15 +944,51 @@ void EMU::close_hard_disk(int drv, uint32_t flags)
 
 	if (!vm->close_hard_disk(drv, flags)) return;
 
-	pConfig->opened_hard_disk_path[drv].Clear();
+	pConfig->ClearOpenedHardDiskPath(drv);
 }
+
 void EMU::initialize_hard_disk_insert()
 {
 }
+
 bool EMU::hard_disk_mounted(int drv)
 {
 	return (vm ? vm->hard_disk_mounted(drv) : false);
 }
+
+void EMU::toggle_hard_disk_write_protect(int drv)
+{
+	if (!vm) return;
+
+	vm->toggle_hard_disk_write_protect(drv);
+}
+
+bool EMU::hard_disk_write_protected(int drv)
+{
+	return (vm ? vm->hard_disk_write_protected(drv) : false);
+}
+
+int EMU::get_hard_disk_device_type(int drv)
+{
+	if (!vm) return 0;
+
+	return vm->get_hard_disk_device_type(drv);
+}
+
+void EMU::change_hard_disk_device_type(int drv, int num)
+{
+	if (!vm) return;
+
+	vm->change_hard_disk_device_type(drv, num);
+}
+
+int EMU::get_current_hard_disk_device_type(int drv)
+{
+	if (!vm) return 0;
+
+	return vm->get_current_hard_disk_device_type(drv);
+}
+
 /// @brief create blank hard disk image
 /// @param[in] file_path : file path
 /// @param[in] type: 0 = 10M, 1 = 20M, 2 = 40M
@@ -992,16 +1023,16 @@ bool EMU::is_same_hard_disk(int drv, const _TCHAR *file_path)
 bool EMU::play_datarec(const _TCHAR* file_path)
 {
 	bool rc = false;
-	pConfig->opened_datarec_path.Clear();
+	pConfig->ClearOpenedDataRecPath();
 	if (vm && file_path && file_path[0] != 0) {
 		if (vm->play_datarec(file_path)) {
-			pConfig->recent_datarec_path.Update(file_path, 0);
-			pConfig->opened_datarec_path.Set(file_path, 0);
+			pConfig->UpdateRecentDataRecPath(file_path, 0);
+			pConfig->SetOpenedDataRecPath(file_path, 0);
 			rc = true;
 		} else {
 			logging->out_log_x(LOG_ERROR, CMsg::Tape_image_couldn_t_be_opened);
 		}
-		pConfig->initial_datarec_path.SetFromPath(file_path);
+		pConfig->SetInitialDataRecPathFrom(file_path);
 	}
 
 	return rc;
@@ -1009,16 +1040,16 @@ bool EMU::play_datarec(const _TCHAR* file_path)
 bool EMU::rec_datarec(const _TCHAR* file_path)
 {
 	bool rc = false;
-	pConfig->opened_datarec_path.Clear();
+	pConfig->ClearOpenedDataRecPath();
 	if (vm && file_path && file_path[0] != 0) {
 		if (vm->rec_datarec(file_path)) {
-			pConfig->recent_datarec_path.Update(file_path, 0);
-			pConfig->opened_datarec_path.Set(file_path, 0);
+			pConfig->UpdateRecentDataRecPath(file_path, 0);
+			pConfig->SetOpenedDataRecPath(file_path, 0);
 			rc = true;
 		} else {
 			logging->out_log_x(LOG_ERROR, CMsg::Tape_image_couldn_t_be_saved);
 		}
-		pConfig->initial_datarec_path.SetFromPath(file_path);
+		pConfig->SetInitialDataRecPathFrom(file_path);
 	}
 
 	return rc;
@@ -1027,7 +1058,7 @@ void EMU::close_datarec()
 {
 	if (!vm) return;
 
-	pConfig->opened_datarec_path.Clear();
+	pConfig->ClearOpenedDataRecPath();
 
 	vm->close_datarec();
 }
@@ -1250,7 +1281,7 @@ bool EMU::save_printer(int dev, const _TCHAR *file_path)
 		} else {
 			logging->out_log_x(LOG_ERROR, CMsg::Print_image_couldn_t_be_saved);
 		}
-		pConfig->initial_printer_path.SetFromPath(file_path);
+		pConfig->SetInitialPrinterPathFrom(file_path);
 	}
 	return rc;
 }
@@ -1499,16 +1530,16 @@ bool EMU::save_state(const _TCHAR* file_path)
 {
 	bool rc = false;
 #ifdef USE_STATE
-	pConfig->saved_state_path.Clear();
+	pConfig->ClearSavedStatePath();
 	if (vm && file_path && file_path[0] != 0) {
 		if (vm->save_state(file_path)) {
-			pConfig->recent_state_path.Update(file_path, 0);
-			pConfig->saved_state_path.Set(file_path, 0);
+			pConfig->UpdateRecentStatePath(file_path, 0);
+			pConfig->SetSavedStatePath(file_path, 0);
 			rc = true;
 		} else {
 			logging->out_log_x(LOG_ERROR, CMsg::Status_image_couldn_t_be_saved);
 		}
-		pConfig->initial_state_path.SetFromPath(file_path);
+		pConfig->SetInitialStatePathFrom(file_path);
 	}
 #endif
 	return rc;
@@ -1523,12 +1554,12 @@ bool EMU::load_state(const _TCHAR* file_path)
 #ifdef USE_STATE
 	if (vm && file_path && file_path[0] != 0) {
 		if (vm->load_state(file_path)) {
-			pConfig->recent_state_path.Update(file_path, 0);
+			pConfig->UpdateRecentStatePath(file_path, 0);
 			rc = true;
 		} else {
 			logging->out_log_x(LOG_ERROR, CMsg::Status_image_couldn_t_be_loaded);
 		}
-		pConfig->initial_state_path.SetFromPath(file_path);
+		pConfig->SetInitialStatePathFrom(file_path);
 	}
 #endif
 	return rc;
@@ -1547,7 +1578,7 @@ bool EMU::play_reckey(const _TCHAR* file_path)
 		} else {
 			logging->out_log_x(LOG_ERROR, CMsg::Auto_key_file_couldn_t_be_opened);
 		}
-		pConfig->initial_state_path.SetFromPath(file_path);
+		pConfig->SetInitialStatePathFrom(file_path);
 	}
 	return rc;
 }
@@ -1564,7 +1595,7 @@ bool EMU::record_reckey(const _TCHAR* file_path)
 		} else {
 			logging->out_log_x(LOG_ERROR, CMsg::Record_key_file_couldn_t_be_saved);
 		}
-		pConfig->initial_state_path.SetFromPath(file_path);
+		pConfig->SetInitialStatePathFrom(file_path);
 	}
 	return rc;
 }
@@ -1649,36 +1680,86 @@ void EMU::update_params()
 /// @param[in]  last_data       : (nullable) last pattern to compare to loaded data
 /// @param[in]  last_data_size  : size of last_data
 /// @param[in]  last_data_pos   : comparing position in loaded data
-/// @return successfully loaded
-bool EMU::load_data_from_file(const _TCHAR *file_path, const _TCHAR *file_name
+/// @return 1:successfully loaded  2:data loaded but unmatch pattern or size  0:unloaded
+int EMU::load_data_from_file(const _TCHAR *file_path, const _TCHAR *file_name
 	, uint8_t *data, size_t size
 	, const uint8_t *first_data, size_t first_data_size, size_t first_data_pos
 	, const uint8_t *last_data,  size_t last_data_size, size_t last_data_pos)
 {
 	_TCHAR path[_MAX_PATH];
 	FILEIO fio;
-	bool loaded = false;
+	int loaded = 0;
 
 	UTILITY::concat(path, _MAX_PATH, file_path, file_name, NULL);
 	if(fio.Fopen(path, FILEIO::READ_BINARY)) {
 		size_t len = (size_t)fio.FileLength();
 		fio.Fread(data, size, 1);
 		fio.Fclose();
-		loaded = true;
+		loaded = 1;
 		logging->out_logf_x(LOG_INFO, CMsg::VSTR_was_loaded, file_name);
 		if (size > len) {
 			logging->out_logf_x(LOG_WARN, CMsg::VSTR_is_VDIGIT_bytes_smaller_than_assumed_one, file_name, (int)size - len);
+			loaded = 2;
 		}
 		if (first_data != NULL && first_data_size > 0
 		 && memcmp(&data[first_data_pos], first_data, first_data_size) != 0) {
 			logging->out_logf_x(LOG_WARN, CMsg::VSTR_is_different_image_from_assumed_one, file_name);
+			loaded = 2;
 		}
 		if (last_data != NULL && last_data_size > 0
 		 && memcmp(&data[last_data_pos], last_data, last_data_size) != 0) {
 			logging->out_logf_x(LOG_WARN, CMsg::VSTR_is_different_image_from_assumed_one, file_name);
+			loaded = 2;
 		}
 	}
 	return loaded;
+}
+
+/// @brief load a data from file (filename is case-insensifile)
+///
+/// @param[in]  file_path : directory
+/// @param[in]  file_name : data file
+/// @param[out] data      : loaded data
+/// @param[in]  size      : buffer size of data
+/// @param[in]  first_data      : (nullable) first pattern to compare to loaded data
+/// @param[in]  first_data_size : size of first_data
+/// @param[in]  first_data_pos  : comparing position in loaded data
+/// @param[in]  last_data       : (nullable) last pattern to compare to loaded data
+/// @param[in]  last_data_size  : size of last_data
+/// @param[in]  last_data_pos   : comparing position in loaded data
+/// @return 1:successfully loaded  2:data loaded but unmatch pattern or size  0:unloaded
+int EMU::load_data_from_file_i(const _TCHAR *file_path, const _TCHAR *file_name
+	, uint8_t *data, size_t size
+	, const uint8_t *first_data, size_t first_data_size, size_t first_data_pos
+	, const uint8_t *last_data,  size_t last_data_size, size_t last_data_pos)
+{
+#ifdef _WIN32
+	return load_data_from_file(file_path, file_name, data, size
+			,first_data, first_data_size, first_data_pos
+			,last_data, last_data_size, last_data_pos);
+#else
+	CTchar n_file_name;
+	int rc = 0;
+	for(int i=0; i<3 && !rc; i++) {
+		switch(i) {
+		case 2:
+			// lower case
+			n_file_name.ToLower();
+			break;
+		case 1:
+			// upper case
+			n_file_name.ToUpper();
+			break;
+		default:
+			n_file_name.Set(file_name);
+			break;
+		}
+		rc = load_data_from_file(file_path, n_file_name.Get(), data, size
+			,first_data, first_data_size, first_data_pos
+			,last_data, last_data_size, last_data_pos);
+	}
+	return rc;
+#endif
 }
 
 /// @return current clock on vm

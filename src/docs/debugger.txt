@@ -234,7 +234,7 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
   残りの指定方法は、DL,DSコマンドと同じです。
 
 
-  ◆ DIS - メモリ内容をbmpファイルにセーブする。
+  ◆ DIS - メモリ内容を画像ファイルにセーブする。
 
   書式: DIS <type>
   <type> - メモリの種類を指定。

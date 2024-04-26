@@ -46,7 +46,7 @@ DebuggerSocket::~DebuggerSocket()
 void DebuggerSocket::enable_server(bool enable)
 {
 	if (enable) {
-		if (pConfig->debugger_server_port == 0 || _tcslen(pConfig->debugger_server_host) == 0) {
+		if (pConfig->debugger_server_port == 0 || _tcslen(pConfig->debugger_server_host.Get()) == 0) {
 			enable = false;
 		}
 	}
@@ -69,7 +69,7 @@ void DebuggerSocket::enable_server(bool enable)
 			logging->out_log(LOG_ERROR, _T("Network socket initialize failed."));
 			return;
 		}
-		if (!emu->connect_socket(server_ch, pConfig->debugger_server_host, pConfig->debugger_server_port, true)) {
+		if (!emu->connect_socket(server_ch, pConfig->debugger_server_host.Get(), pConfig->debugger_server_port, true)) {
 			server_ch = -1;
 			logging->out_log(LOG_ERROR, _T("Cannot start as debugger server."));
 			return;
@@ -106,7 +106,7 @@ bool DebuggerSocket::connect_socket()
 			logging->out_log(LOG_ERROR, _T("Network socket initialize failed."));
 			return false;
 		}
-		if (!emu->connect_socket(client_ch, pConfig->debugger_server_host, pConfig->debugger_server_port)) {
+		if (!emu->connect_socket(client_ch, pConfig->debugger_server_host.Get(), pConfig->debugger_server_port)) {
 			client_ch = -1;
 			logging->out_log(LOG_ERROR, _T("Cannot connect to debugger server."));
 			return false;

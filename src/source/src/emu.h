@@ -256,7 +256,7 @@ protected:
 #endif
 	/// @brief joystick #1, #2 button mashing mask (b16-b31)
 	uint32_t joy_mashing_mask[MAX_JOYSTICKS][16];
-	/// @breif joystick button mashing count
+	/// @brief joystick button mashing count
 	int joy_mashing_count;
 #endif
 
@@ -436,7 +436,7 @@ protected:
 		int wait_count;
 		uint32_t flags;
 	} disk_insert_t;
-	disk_insert_t disk_insert[MAX_DRIVE];
+	disk_insert_t disk_insert[USE_FLOPPY_DISKS];
 
 	// d88 bank switch
 	D88Files d88_files;
@@ -681,6 +681,11 @@ public:
 	void update_hard_disk_info(int drv, const _TCHAR* file_path, int bank_num);
 	void close_hard_disk(int drv, uint32_t flags = 0);
 	bool hard_disk_mounted(int drv);
+	void toggle_hard_disk_write_protect(int drv);
+	bool hard_disk_write_protected(int drv);
+	int  get_hard_disk_device_type(int drv);
+	void change_hard_disk_device_type(int drv, int num);
+	int  get_current_hard_disk_device_type(int drv);
 	bool create_blank_hard_disk(const _TCHAR* file_path, uint8_t type);
 	bool is_same_hard_disk(int drv, const _TCHAR *file_path);
 	//@}
@@ -1106,7 +1111,11 @@ public:
 #endif
 	/// @name load rom image
 	//@{
-	static bool load_data_from_file(const _TCHAR *file_path, const _TCHAR *file_name
+	static int load_data_from_file(const _TCHAR *file_path, const _TCHAR *file_name
+		, uint8_t *data, size_t size
+		, const uint8_t *first_data = NULL, size_t first_data_size = 0, size_t first_data_pos = 0
+		, const uint8_t *last_data = NULL,  size_t last_data_size = 0, size_t last_data_pos = 0);
+	static int load_data_from_file_i(const _TCHAR *file_path, const _TCHAR *file_name
 		, uint8_t *data, size_t size
 		, const uint8_t *first_data = NULL, size_t first_data_size = 0, size_t first_data_pos = 0
 		, const uint8_t *last_data = NULL,  size_t last_data_size = 0, size_t last_data_pos = 0);

@@ -19,9 +19,11 @@
 #include "gtk_volumebox.h"
 #include "gtk_keybindbox.h"
 #include "gtk_joysetbox.h"
+#include "gtk_hdtypebox.h"
 #include "gtk_recvidbox.h"
 #include "gtk_recaudbox.h"
 #include "gtk_aboutbox.h"
+#include "gtk_loggingbox.h"
 #include "../../depend.h"
 #include "../../utility.h"
 #include "../../labels.h"
@@ -116,6 +118,7 @@ GUI::GUI(int argc, char **argv, EMU *new_emu)
 	recaudbox = new RecAudioBox(this);
 	filebox = new FileBox();
 	filebox_cont = false;
+	loggingbox = NULL;
 }
 
 GUI::~GUI()
@@ -129,6 +132,7 @@ GUI::~GUI()
 	delete recvidbox;
 	delete recaudbox;
 	delete filebox;
+	delete loggingbox;
 }
 
 #if defined(USE_GTK)
@@ -521,7 +525,8 @@ int GUI::CreateMenu()
 		create_recent_menu(menu, DATAREC, 0);
 	}
 #endif
-	for(int drv=0; drv<USE_DRIVE; drv++) {
+#ifdef USE_FD1
+	for(int drv=0; drv<USE_FLOPPY_DISKS; drv++) {
 		sprintf(name,CMSG(FDDVDIGIT),drv);
 		menu = create_sub_menu(menubar, name);
 		{
@@ -539,12 +544,27 @@ int GUI::CreateMenu()
 			create_recent_menu(menu, FLOPPY, drv);
 		}
 	}
+#endif
+#ifdef USE_HD1
 	menu = create_sub_menu(menubar, CMsg::HDD);
 	{
 		for(int drv=0; drv<MAX_HARD_DISKS; drv++) {
-			sprintf(name,CMSG(SASIVDIGIT),drv);
+			int idx = pConfig->GetHardDiskIndex(drv);
+			if (idx < 0) continue;
+			if (drv<MAX_SASI_HARD_DISKS) {
+				int sdrv = drv / SASI_UNITS_PER_CTRL;
+				int sunit = drv % SASI_UNITS_PER_CTRL;
+				UTILITY::sprintf(name,sizeof(name),CMSG(SASIVDIGIT_uVDIGIT),sdrv,sunit);
+			} else {
+				UTILITY::sprintf(name,sizeof(name),CMSG(SCSIVDIGIT),drv-MAX_SASI_HARD_DISKS);
+			}
+			if (drv==MAX_SASI_HARD_DISKS) {
+				create_separator_menu(menu);
+			}
 			submenu = create_sub_menu(menu, name);
 			{
+				create_menu_item(submenu, CMsg::Device_Type, OnSelectHardDiskDeviceType, OnUpdateHardDiskDeviceType, drv, 0);
+				create_separator_menu(submenu);
 				create_check_menu_item(submenu, CMsg::Mount_, OnSelectOpenHardDisk, OnUpdateOpenHardDisk, drv, 0);
 				create_menu_item(submenu, CMsg::Unmount, OnSelectCloseHardDisk, NULL, drv);
 				if (drv == 0) {
@@ -556,10 +576,13 @@ int GUI::CreateMenu()
 					}
 				}
 				create_separator_menu(submenu);
+				create_check_menu_item(submenu, CMsg::Write_Protect, OnSelectWriteProtectHardDisk, OnUpdateWriteProtectHardDisk, drv);
+				create_separator_menu(submenu);
 				create_recent_menu(submenu, HARDDISK, drv);
 			}
 		}
 	}
+#endif
 	menu = create_sub_menu(menubar, CMsg::Screen);
 	{
 		submenu = create_sub_menu(menu, CMsg::Frame_Rate);
@@ -728,6 +751,7 @@ int GUI::CreateMenu()
 		create_check_menu_item(menu, CMsg::Inside_LED, OnSelectInsideLed, OnUpdateInsideLed, 0, 0, GDK_KEY_L);
 #endif
 		create_check_menu_item(menu, CMsg::Show_Message, OnSelectMsgBoard, OnUpdateMsgBoard, 0, 0, GDK_KEY_Z);
+		create_check_menu_item(menu, CMsg::Log_, OnSelectLoggingBox, OnUpdateLoggingBox, 0, 0, 0);
 #ifdef USE_PERFORMANCE_METER
 		create_check_menu_item(menu, CMsg::Show_Performance_Meter, OnSelectPMeter, OnUpdatePMeter, 0, 0, 0);
 #endif
@@ -928,6 +952,25 @@ bool GUI::ShowVolumeDialog()
 	volumebox->Show(widget_window);
 	return true;
 }
+
+bool GUI::ShowLoggingDialog()
+{
+	if (!loggingbox) {
+		loggingbox = new LoggingBox(this);
+	}
+	if (!IsShownLoggingDialog()) {
+		loggingbox->Show(widget_window);
+	} else {
+		loggingbox->Hide();
+	}
+	return true;
+}
+
+bool GUI::IsShownLoggingDialog()
+{
+	return loggingbox ? loggingbox->IsVisible() : false;
+}
+
 #endif
 bool GUI::ShowRecordVideoDialog(int fps_num)
 {
@@ -967,28 +1010,13 @@ bool GUI::ShowAboutDialog()
 #ifdef USE_DATAREC
 bool GUI::ShowLoadDataRecDialog()
 {
-//	const CMsg::Id filter[] =
-//#if defined(DATAREC_PC8801)
-//		{ CMsg::Supported_Files_cas_cmt_t88, CMsg::All_Files_, CMsg::End };
-//#elif defined(DATAREC_BINARY_ONLY)
-//		{ CMsg::Supported_Files_cas_cmt, CMsg::All_Files_, CMsg::End };
-//#elif defined(DATAREC_TAP)
-//		{ CMsg::Supported_Files_wav_cas_tap, CMsg::All_Files_, CMsg::End };
-//#elif defined(DATAREC_MZT)
-//		{ CMsg::Supported_Files_wav_cas_mzt_m12, CMsg::All_Files_, CMsg::End };
-//#elif defined(USE_EMU_INHERENT_SPEC)
-//		{ CMsg::Supported_Files_l3_l3b_l3c_wav_t9x, CMsg::All_Files_, CMsg::End };
-//#else
-//		{ CMsg::Supported_Files_wav_cas),CMsg::All_Files_, CMsg::End };
-//#endif
 	const char *filter = LABELS::datarec_exts;
 
 	SystemPause(true);
 	bool rc = filebox->Show(widget_window,
 		filter,
 		CMsg::Play_Data_Recorder_Tape,
-		pConfig->initial_datarec_path,
-//		_T("l3"),
+		pConfig->GetInitialDataRecPath(),
 		false,
 		NULL,
 		OnSelectLoadDataRecFileBox,
@@ -1008,28 +1036,13 @@ void GUI::OnSelectLoadDataRecFileBox(FileBox *fbox, bool rc, void *data)
 
 bool GUI::ShowSaveDataRecDialog()
 {
-//	const CMsg::Id filter[] =
-//#if defined(DATAREC_PC8801)
-//		{ CMsg::Supported_Files_cas_cmt, CMsg::All_Files_, CMsg::End };
-//#elif defined(DATAREC_BINARY_ONLY)
-//		{ CMsg::Supported_Files_cas_cmt, CMsg::All_Files_, CMsg::End };
-//#elif defined(DATAREC_TAP)
-//		{ CMsg::Supported_Files_wav_cas, CMsg::All_Files_, CMsg::End };
-//#elif defined(DATAREC_MZT)
-//		{ CMsg::Supported_Files_wav_cas, CMsg::All_Files_, CMsg::End };
-//#elif defined(USE_EMU_INHERENT_SPEC)
-//		{ CMsg::L3_File_l3, CMsg::L3B_File_l3b, CMsg::L3C_File_l3c, CMsg::Wave_File_wav, CMsg::T9X_File_t9x, CMsg::All_Files_, CMsg::End };
-//#else
-//		{ CMsg::Supported_Files_wav_cas, CMsg::All_Files_, CMsg::End };
-//#endif
 		const char *filter = LABELS::datarec_exts;
 
 	SystemPause(true);
 	bool rc = filebox->Show(widget_window,
 		filter,
 		CMsg::Record_Data_Recorder_Tape,
-		pConfig->initial_datarec_path,
-//		_T("l3"),
+		pConfig->GetInitialDataRecPath(),
 		true,
 		NULL,
 		OnSelectSaveDataRecFileBox,
@@ -1055,12 +1068,6 @@ void GUI::set_datarec_file_menu(uint32_t uItem)
 #ifdef USE_FD1
 bool GUI::ShowOpenFloppyDiskDialog(int drv)
 {
-//	const CMsg::Id filter[] =
-//#ifndef USE_EMU_INHERENT_SPEC
-//		{ CMsg::Supported_Files_d88_d77_td0_imd_dsk_fdi_hdm_tfd_xdf_2d_sf7, CMsg::All_Files_, CMsg::End };
-//#else
-//		{ CMsg::Supported_Files_d88_td0_imd_dsk_fdi_hdm_tfd_xdf_2d_sf7, CMsg::All_Files_, CMsg::End };
-//#endif
 	const char *filter = LABELS::floppy_disk_exts;
 
 	_TCHAR title[128];
@@ -1071,7 +1078,7 @@ bool GUI::ShowOpenFloppyDiskDialog(int drv)
 	bool rc = filebox->Show(widget_window,
 		filter,
 		title,
-		pConfig->initial_disk_path,
+		pConfig->GetInitialFloppyDiskPath(),
 //		_T("d88"),
 		false,
 		NULL,
@@ -1098,12 +1105,6 @@ void GUI::set_disk_file_menu(uint32_t uItem, int drv)
 
 bool GUI::ShowOpenBlankFloppyDiskDialog(int drv, uint8_t type)
 {
-//	const CMsg::Id filter[] =
-//#ifndef USE_EMU_INHERENT_SPEC
-//		{ CMsg::Supported_Files_d88_d77, CMsg::All_Files_, CMsg::End };
-//#else
-//		{ CMsg::Supported_Files_d88, CMsg::All_Files_, CMsg::End };
-//#endif
 	const char *filter = LABELS::blank_floppy_disk_exts;
 
 	_TCHAR title[128];
@@ -1117,7 +1118,7 @@ bool GUI::ShowOpenBlankFloppyDiskDialog(int drv, uint8_t type)
 	bool rc = filebox->Show(widget_window,
 		filter,
 		title,
-		pConfig->initial_disk_path,	
+		pConfig->GetInitialFloppyDiskPath(),	
 //		_T("d88"),
 		true,
 		file_name,
@@ -1154,23 +1155,24 @@ void GUI::set_disk_side_menu(uint32_t uItem, int drv)
 #ifdef USE_HD1
 bool GUI::ShowOpenHardDiskDialog(int drv)
 {
-//	const CMsg::Id filter[] =
-//#ifndef USE_EMU_INHERENT_SPEC
-//		{ CMsg::Supported_Files_hdf, CMsg::All_Files_, CMsg::End };
-//#else
-//		{ CMsg::Supported_Files_hdf, CMsg::All_Files_, CMsg::End };
-//#endif
-	const char *filter = LABELS::hard_disk_exts;
-
+	const char *filter;
 	_TCHAR title[128];
-	_stprintf(title, CMSG(Open_Hard_Disk_VDIGIT), drv);
+	if (drv<MAX_SASI_HARD_DISKS) {
+		filter = LABELS::sasi_hard_disk_exts;
+		int sdrv = drv / SASI_UNITS_PER_CTRL;
+		int sunit = drv % SASI_UNITS_PER_CTRL;
+		UTILITY::sprintf(title, 128, CMSG(Open_SASI_Disk_VDIGIT_unit_VDIGIT), sdrv, sunit);
+	} else {
+		filter = LABELS::scsi_hard_disk_exts;
+		UTILITY::sprintf(title, 128, CMSG(Open_SCSI_Disk_VDIGIT), drv - MAX_SASI_HARD_DISKS);
+	}
 
 	SystemPause(true);
 	filebox_param.Set(emu, this, 0, drv, 0);
 	bool rc = filebox->Show(widget_window,
 		filter,
 		title,
-		pConfig->initial_hard_disk_path,
+		pConfig->GetInitialHardDiskPath(),
 //		_T("hdf"),
 		false,
 		NULL,
@@ -1192,26 +1194,27 @@ void GUI::OnSelectOpenHardDiskFileBox(FileBox *fbox, bool rc, void *data)
 }
 bool GUI::ShowOpenBlankHardDiskDialog(int drv, uint8_t type)
 {
-//	const CMsg::Id filter[] =
-//#ifndef USE_EMU_INHERENT_SPEC
-//		{ CMsg::Supported_Files_hdf, CMsg::All_Files_, CMsg::End };
-//#else
-//		{ CMsg::Supported_Files_hdf, CMsg::All_Files_, CMsg::End };
-//#endif
-	const char *filter = LABELS::blank_hard_disk_exts;
-
+	const char *filter;
 	_TCHAR title[128];
-	_stprintf(title, CMSG(New_Hard_Disk_VDIGIT), drv);
-
 	_TCHAR file_name[_MAX_PATH];
-	UTILITY::create_date_file_path(NULL, file_name, _MAX_PATH, _T("hdf"));
+	if (drv<MAX_SASI_HARD_DISKS) {
+		filter = LABELS::sasi_hard_disk_exts;
+		int sdrv = drv / SASI_UNITS_PER_CTRL;
+		int sunit = drv % SASI_UNITS_PER_CTRL;
+		UTILITY::sprintf(title, 128, CMSG(New_SASI_Disk_VDIGIT_unit_VDIGIT), sdrv, sunit);
+		UTILITY::create_date_file_path(NULL, file_name, _MAX_PATH, _T("hdf"));
+	} else {
+		filter = LABELS::scsi_hard_disk_exts;
+		UTILITY::sprintf(title, 128, CMSG(New_SCSI_Disk_VDIGIT), drv - MAX_SASI_HARD_DISKS);
+		UTILITY::create_date_file_path(NULL, file_name, _MAX_PATH, _T("hds"));
+	}
 
 	SystemPause(true);
 	filebox_param.Set(emu, this, 0, drv, type);
 	bool rc = filebox->Show(widget_window,
 		filter,
 		title,
-		pConfig->initial_hard_disk_path,	
+		pConfig->GetInitialHardDiskPath(),	
 //		_T("hdf"),
 		true,
 		file_name,
@@ -1236,21 +1239,32 @@ void GUI::OnSelectOpenBlankHardDiskFileBox(FileBox *fbox, bool rc, void *data)
 		gui->SystemPause(false);
 	}
 }
+bool GUI::ShowSelectHardDiskDeviceTypeDialog(int drv)
+{
+	int num = GetHardDiskDeviceType(drv);
+
+	HDTypeBox dlg(this, drv, num);
+
+	SystemPause(true);
+	bool rc = dlg.ShowModal(widget_window);
+	if (rc) {
+		ChangeHardDiskDeviceType(drv, dlg.GetDeviceType());
+	}
+	SystemPause(false);
+	return rc;
+}
 #endif	// USE_HD1
 
 #ifdef USE_AUTO_KEY
 bool GUI::ShowOpenAutoKeyDialog()
 {
-//	const CMsg::Id filter[] =
-//		{ CMsg::Supported_Files_txt_bas_lpt, CMsg::All_Files_, CMsg::End };
 	const char *filter = LABELS::autokey_file_exts;
 
 	SystemPause(true);
 	bool rc = filebox->Show(widget_window,
 		filter,
 		CMsg::Open_Text_File,
-		pConfig->initial_autokey_path,
-//		_T("txt"),
+		pConfig->GetInitialAutoKeyPath(),
 		false,
 		NULL,
 		OnSelectOpenAutoKeyFileBox,
@@ -1272,17 +1286,14 @@ void GUI::OnSelectOpenAutoKeyFileBox(FileBox *fbox, bool rc, void *data)
 #ifdef USE_EMU_INHERENT_SPEC
 bool GUI::ShowSaveStateDialog()
 {
-//	const CMsg::Id filter[] =
-//		{ CMsg::Supported_Files_l3r, CMsg::All_Files_, CMsg::End };
 	const char *filter = LABELS::state_file_exts;
 
 	SystemPause(true);
-	pConfig->saved_state_path.Clear();
+	pConfig->ClearSavedStatePath();
 	bool rc = filebox->Show(widget_window,
 		filter,
 		CMsg::Save_Status_Data,
-		pConfig->initial_state_path,
-//		_T("l3r"),
+		pConfig->GetInitialStatePath(),
 		true,
 		NULL,
 		OnSelectSaveStateFileBox,
@@ -1307,16 +1318,13 @@ void GUI::OnSelectSaveStateFileBox(FileBox *fbox, bool rc, void *data)
 
 bool GUI::ShowLoadStateDialog()
 {
-//	const CMsg::Id filter[] =
-//		{ CMsg::Supported_Files_l3r, CMsg::All_Files_, CMsg::End };
 	const char *filter = LABELS::state_file_exts;
 
 	SystemPause(true);
 	bool rc = filebox->Show(widget_window,
 		filter,
 		CMsg::Load_Status_Data,
-		pConfig->initial_state_path,
-//		_T("l3r"),
+		pConfig->GetInitialStatePath(),
 		false,
 		NULL,
 		OnSelectLoadStateFileBox,
@@ -1337,16 +1345,13 @@ void GUI::OnSelectLoadStateFileBox(FileBox *fbox, bool rc, void *data)
 #ifdef USE_KEY_RECORD
 bool GUI::ShowPlayRecKeyDialog()
 {
-//	const CMsg::Id filter[] =
-//		{ CMsg::Supported_Files_l3k, CMsg::All_Files_, CMsg::End };
 	const char *filter = LABELS::key_rec_file_exts;
 
 	SystemPause(true);
 	bool rc = filebox->Show(widget_window,
 		filter,
 		CMsg::Play_Recorded_Keys,
-		pConfig->initial_state_path,
-//		_T("l3k"),
+		pConfig->GetInitialStatePath(),
 		false,
 		NULL,
 		OnSelectLoadRecKeyFileBox,
@@ -1366,16 +1371,13 @@ void GUI::OnSelectLoadRecKeyFileBox(FileBox *fbox, bool rc, void *data)
 
 bool GUI::ShowRecordRecKeyDialog()
 {
-//	const CMsg::Id filter[] =
-//		{ CMsg::Supported_Files_l3k, CMsg::All_Files_, CMsg::End };
 	const char *filter = LABELS::key_rec_file_exts;
 
 	SystemPause(true);
 	bool rc = filebox->Show(widget_window,
 		filter,
 		CMsg::Record_Input_Keys,
-		pConfig->initial_state_path,
-//		_T("l3k"),
+		pConfig->GetInitialStatePath(),
 		true,
 		NULL,
 		OnSelectSaveRecKeyFileBox,
@@ -1406,8 +1408,6 @@ bool GUI::ShowRecordStateAndRecKeyDialog()
 #ifdef USE_PRINTER
 bool GUI::ShowSavePrinterDialog(int drv)
 {
-//	const CMsg::Id filter[] =
-//		{ CMsg::Supported_Files_lpt, CMsg::All_Files_, CMsg::End };
 	const char *filter = LABELS::printing_file_exts;
 
 	SystemPause(true);
@@ -1415,8 +1415,7 @@ bool GUI::ShowSavePrinterDialog(int drv)
 	bool rc = filebox->Show(widget_window,
 		filter,
 		CMsg::Save_Printing_Data,
-		pConfig->initial_printer_path,
-//		_T("lpt"),
+		pConfig->GetInitialPrinterPath(),
 		true,
 		NULL,
 		OnSelectSavePrinterFileBox,
@@ -1832,21 +1831,21 @@ void GUI::OnSelectRecentFile(GtkWidget *widget, gpointer user_data)
 	switch(type) {
 #ifdef USE_DATAREC
 		case DATAREC:
-			gui->PostEtLoadDataRecMessage(pConfig->recent_datarec_path[num]->path);
+			gui->PostEtLoadDataRecMessage(pConfig->GetRecentDataRecPathString(num));
 			break;
 #endif
 #ifdef USE_FD1
 		case FLOPPY:
-			gui->PostEtOpenFloppyMessage(drv, pConfig->recent_disk_path[drv][num]->path, 0, 0, true);
+			gui->PostEtOpenFloppyMessage(drv, pConfig->GetRecentFloppyDiskPathString(drv, num), 0, 0, true);
 			break;
 #endif
 #ifdef USE_HD1
 		case HARDDISK:
-			gui->PostEtOpenHardDiskMessage(drv, pConfig->recent_hard_disk_path[drv][num]->path, 0);
+			gui->PostEtOpenHardDiskMessage(drv, pConfig->GetRecentHardDiskPathString(drv, num), 0);
 			break;
 #endif
 		case STATE:
-			gui->PostEtLoadStatusMessage(pConfig->recent_state_path[num]->path);
+			gui->PostEtLoadStatusMessage(pConfig->GetRecentStatePathString(num));
 			break;
 	}
 }
@@ -1867,21 +1866,21 @@ void GUI::OnUpdateRecentFile(GtkWidget *widget, gpointer user_data)
 	switch(type) {
 #ifdef USE_DATAREC
 	case DATAREC:
-		max_history = pConfig->recent_datarec_path.Count();
+		max_history = pConfig->GetRecentDataRecPathCount();
 		break;
 #endif
 #ifdef USE_FD1
 	case FLOPPY:
-		max_history = pConfig->recent_disk_path[drv].Count();
+		max_history = pConfig->GetRecentFloppyDiskPathCount(drv);
 		break;
 #endif
 #ifdef USE_HD1
 	case HARDDISK:
-		max_history = pConfig->recent_hard_disk_path[drv].Count();
+		max_history = pConfig->GetRecentHardDiskPathCount(drv);
 		break;
 #endif
 	case STATE:
-		max_history = pConfig->recent_state_path.Count();
+		max_history = pConfig->GetRecentStatePathCount();
 		break;
 	}
 
@@ -1890,22 +1889,22 @@ void GUI::OnUpdateRecentFile(GtkWidget *widget, gpointer user_data)
 		switch(type) {
 #ifdef USE_DATAREC
 		case DATAREC:
-			file = pConfig->recent_datarec_path[num]->path;
+			file = pConfig->GetRecentDataRecPathString(num);
 			break;
 #endif
 #ifdef USE_FD1
 		case FLOPPY:
-			file = pConfig->recent_disk_path[drv][num]->path;
-			bank_num = pConfig->recent_disk_path[drv][num]->num;
+			file = pConfig->GetRecentFloppyDiskPathString(drv, num);
+			bank_num = pConfig->GetRecentFloppyDiskPathNumber(drv, num);
 			break;
 #endif
 #ifdef USE_HD1
 		case HARDDISK:
-			file = pConfig->recent_hard_disk_path[drv][num]->path;
+			file = pConfig->GetRecentHardDiskPathString(drv, num);
 			break;
 #endif
 		case STATE:
-			file = pConfig->recent_state_path[num]->path;
+			file = pConfig->GetRecentStatePathString(num);
 			break;
 		}
 		if (file == NULL || file[0] == '\0') break;
@@ -2421,6 +2420,42 @@ void GUI::OnSelectOpenBlankHardDisk(GtkWidget *widget, gpointer user_data)
 
 	SKIP_WHEN_MENU_OPENING(widget);
 	gui->ShowOpenBlankHardDiskDialog(drv, (uint8_t)num);
+}
+void GUI::OnSelectWriteProtectHardDisk(GtkWidget *widget, gpointer user_data)
+{
+	GUI *gui = (GUI *)user_data;
+	int drv = (int)(intptr_t)g_object_get_data(G_OBJECT(widget),"drv");
+
+	SKIP_WHEN_MENU_OPENING(widget);
+	gui->PostEtToggleWriteProtectHardDisk(drv);
+}
+void GUI::OnUpdateWriteProtectHardDisk(GtkWidget *widget, gpointer user_data)
+{
+	GUI *gui = (GUI *)user_data;
+	int drv = (int)(intptr_t)g_object_get_data(G_OBJECT(widget),"drv");
+	GtkCheckMenuItem *item = (GtkCheckMenuItem *)widget;
+
+	gtk_check_menu_item_set_active(item, gui->WriteProtectedHardDisk(drv));
+}
+void GUI::OnSelectHardDiskDeviceType(GtkWidget *widget, gpointer user_data)
+{
+	GUI *gui = (GUI *)user_data;
+	int drv = (int)(intptr_t)g_object_get_data(G_OBJECT(widget),"drv");
+
+	SKIP_WHEN_MENU_OPENING(widget);
+	gui->ShowSelectHardDiskDeviceTypeDialog(drv);
+}
+void GUI::OnUpdateHardDiskDeviceType(GtkWidget *widget, gpointer user_data)
+{
+	GUI *gui = (GUI *)user_data;
+	int drv = (int)(intptr_t)g_object_get_data(G_OBJECT(widget),"drv");
+	int num = gui->GetCurrentHardDiskDeviceType(drv);
+	char label[64];
+	UTILITY::strcpy(label, sizeof(label), CMSG(Device_Type));
+	UTILITY::strcat(label, sizeof(label), CMSG(LB_Now_SP));
+	UTILITY::strcat(label, sizeof(label), LABELS::hd_device_type[num]);
+	UTILITY::strcat(label, sizeof(label), ")...");
+	gtk_menu_item_set_label(GTK_MENU_ITEM(widget), label);
 }
 #endif /* USE_HD1 */
 
@@ -3110,6 +3145,22 @@ void GUI::OnUpdateVirtualKeyboard(GtkWidget *widget, gpointer user_data)
 	GtkCheckMenuItem *item = (GtkCheckMenuItem *)widget;
 
 	gtk_check_menu_item_set_active(item, gui->IsShownVirtualKeyboard());
+}
+
+void GUI::OnSelectLoggingBox(GtkWidget *widget, gpointer user_data)
+{
+	GUI *gui = (GUI *)user_data;
+
+	SKIP_WHEN_MENU_OPENING(widget);
+	gui->ShowLoggingDialog();
+}
+
+void GUI::OnUpdateLoggingBox(GtkWidget *widget, gpointer user_data)
+{
+	GUI *gui = (GUI *)user_data;
+	GtkCheckMenuItem *item = (GtkCheckMenuItem *)widget;
+
+	gtk_check_menu_item_set_active(item, gui->IsShownLoggingDialog());
 }
 
 void GUI::OnSelectAbout(GtkWidget *widget, gpointer user_data)

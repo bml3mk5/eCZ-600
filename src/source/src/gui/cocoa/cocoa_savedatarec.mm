@@ -27,7 +27,7 @@
 	[self setAllowsOtherFileTypes:YES];
 	[self setExtensionHidden:NO];
 	// set current folder
-	[self setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->initial_datarec_path]]];
+	[self setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->GetInitialDataRecPath()]]];
 
 	//
 	NSRect re = NSMakeRect(0, 0, 380, 26);

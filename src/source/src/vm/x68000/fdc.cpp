@@ -48,7 +48,7 @@
 #define OUT_DEBUG_TIME(...)
 #endif
 
-#define DRIVE_MASK		(MAX_DRIVE - 1)
+#define DRIVE_MASK		(USE_FLOPPY_DISKS - 1)
 
 #define GET_USEC()		(64 >> (m_clk_num + m_density))
 
@@ -800,7 +800,7 @@ uint8_t FDC::get_devstat(int drv)
 	uint8_t status;
 	uint8_t ready = (d_fdd->read_signal(SIG_FLOPPY_READY) != 0 ? ST3_RY : 0);
 
-	if(drv >= MAX_DRIVE) {
+	if(drv >= USE_FLOPPY_DISKS) {
 		status = drv
 			| (m_command.hdu & ST3_HD)	// side select
 			| ST3_TS	// two sides
@@ -1084,7 +1084,7 @@ void FDC::accept_cmd_read_diagnostic()
 void FDC::cmd_read_diagnostic()
 {
 	get_sector_params();
-	start_transfer_index();
+	start_transfer_diagnostic();
 }
 
 /// read a track
@@ -1239,13 +1239,6 @@ void FDC::read_diagnostic()
 			is_error = true;
 			break;
 		}
-
-		// make a track stream image
-		if(!make_track()) {
-			m_result = ST0_AT | ST1_MA;
-			is_error = true;
-			break;
-		}
 	} while(0);
 
 	if(is_error) {
@@ -1263,27 +1256,9 @@ void FDC::read_diagnostic()
 
 	m_data_size = MIN(m_data_size, length);
 
+	shift_to_read();
+
 	return;
-
-#if 0
-	if(disk[drv]->get_sector(trk, side, 0)) {
-		if(disk[drv]->id[0] != m_command.rw.c || disk[drv]->id[1] != m_command.rw.h || disk[drv]->id[2] != m_command.rw.r || disk[drv]->id[3] != m_command.rw.n) {
-			m_result = ST1_ND;
-		}
-	}
-	if (search_sector(side, false) != 0) {
-		m_result = ST1_ND;
-	}
-
-	// FIXME: we need to consider the case that the first sector does not have a data field
-	// start reading at the first sector data
-//	memcpy(m_buffer.b, disk[drv]->track + disk[drv]->data_position[0], disk[drv]->get_track_size() - disk[drv]->data_position[0]);
-//	memcpy(m_buffer.b + disk[drv]->get_track_size() - disk[drv]->data_position[0], disk[drv]->track, disk[drv]->data_position[0]);
-//	m_fdc[drv].next_trans_position = disk[drv]->data_position[0];
-
-//	shift_to_read(0x80 << MIN(m_command.rw.n, 7));
-	return;
-#endif
 }
 
 #if 0
@@ -1463,7 +1438,7 @@ uint32_t FDC::check_cond()
 	int drv = m_command.hdu & 3;
 //	m_command.hdue = m_command.hdu;
 
-	if(drv >= MAX_DRIVE) {
+	if(drv >= USE_FLOPPY_DISKS) {
 		// abnormal termination / not ready
 		return ST0_AT | ST0_NR;
 	}
@@ -2030,7 +2005,7 @@ void FDC::start_transfer_data()
 	int delay_clock = 100;
 
 	// specified sector exists or not
-	m_result = search_sector((m_command.hdu & 4) >> 2, false);
+	m_result = search_sector((m_command.hdu & 4) >> 2, m_command.rw.r, false);
 	if (!FLG_DELAY_FDSEARCH) {
 		if (m_result & ST1_ND) {
 			// no sector found
@@ -2041,6 +2016,31 @@ void FDC::start_transfer_data()
 			// calcrate time to reach to the target sector
 			delay_clock = d_fdd->calc_sector_search_clock(m_channel, m_command.rw.r);
 		}
+		if (!d_fdd->read_signal(SIG_FLOPPY_HEADLOAD | m_channel)) {
+			// delay time for loading head
+			delay_clock += (m_head_load_time * CPU_CLOCKS / 1000);
+		}
+	}
+
+	OUT_DEBUG_TIME(_T("FDC: Cmd:%02X Delay clock:%d"), m_command.cmd, delay_clock);
+
+	register_phase_event_by_clock(PHASE_EXEC, delay_clock);
+
+//	cancel_my_event(EVENT_UNLOAD_0 + drv);
+	d_fdd->write_signal(SIG_FLOPPY_HEADLOAD | m_channel, 1, 1);
+}
+
+void FDC::start_transfer_diagnostic()
+{
+//	int drv = m_command.hdu & 3;
+	int delay_clock = 100;
+
+	// specified sector exists or not
+	m_result = search_sector_by_index((m_command.hdu & 4) >> 2, 0, m_command.rw.r, false);
+	if (!FLG_DELAY_FDSEARCH) {
+		// calcrate time to reach to the index hole
+		delay_clock = d_fdd->calc_index_hole_search_clock(m_channel);
+
 		if (!d_fdd->read_signal(SIG_FLOPPY_HEADLOAD | m_channel)) {
 			// delay time for loading head
 			delay_clock += (m_head_load_time * CPU_CLOCKS / 1000);
@@ -2123,7 +2123,7 @@ int FDC::get_cur_position(int drv)
 
 double FDC::get_usec_to_exec_phase()
 {
-	uint32_t rc = search_sector(m_command.rw.h, false);
+	uint32_t rc = search_sector(m_command.rw.h, m_command.rw.r, false);
 	if (rc != 0) {
 		// no data
 		m_result = rc;
@@ -2156,10 +2156,11 @@ uint32_t FDC::verify_track()
 	return 0;
 }
 
-/// @param[in] side
-/// @param[in] compare
+/// @param[in] side    : side number
+/// @param[in] sector  : sector number
+/// @param[in] compare_side : for compare side number
 /// @return ST1_ND : No Data
-uint32_t FDC::search_sector(int side, bool compare)
+uint32_t FDC::search_sector(int side, int sector, bool compare_side)
 {
 	int drv = m_command.hdu & 3;
 
@@ -2170,7 +2171,7 @@ uint32_t FDC::search_sector(int side, bool compare)
 	}
 
 	// scan sectors
-	int stat = d_fdd->search_sector(m_channel, m_fdc[drv].cur_track, m_command.rw.r, compare, side);
+	int stat = d_fdd->search_sector(m_channel, m_fdc[drv].cur_track, sector, compare_side, side);
 	if (stat != 1) {
 		// sector exists
 		m_data_count = 0;
@@ -2179,6 +2180,31 @@ uint32_t FDC::search_sector(int side, bool compare)
 
 	// sector not found
 	return ST1_ND;
+}
+
+/// @param[in] side   : side number
+/// @param[in] index  : index number of sector 
+/// @param[in] sector  : sector number
+/// @param[in] compare_side : for compare side number
+/// @return ST1_ND : No Data
+uint32_t FDC::search_sector_by_index(int side, int index, int sector, bool compare_side)
+{
+	int drv = m_command.hdu & 3;
+
+	// get track
+	if(!d_fdd->search_track(m_channel)) {
+		// no track
+		return (ST2_WC | ST1_ND);
+	}
+
+	// scan sectors
+	int stat = d_fdd->search_sector_by_index(m_channel, m_fdc[drv].cur_track, index, true, sector, compare_side, side);
+
+	uint32_t rc = 0;
+	if (stat & 4) rc |= ST2_CM;
+	if (stat & 2) rc |= ST2_DD | ST1_DE;
+	if (stat & 1) rc |= ST1_ND;
+	return rc;
 }
 
 /// search id in address mark

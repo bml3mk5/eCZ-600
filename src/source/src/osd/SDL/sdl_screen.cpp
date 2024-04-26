@@ -572,10 +572,22 @@ bool EMU_OSD::create_offlinesurface()
 	return true;
 }
 
+void EMU_OSD::set_screen_filter_type()
+{
+#if defined(USE_SDL2) || defined(USE_WX2)
+	char hint[4];
+	hint[0] = pConfig->gl_filter_type + 0x30;
+	hint[1] = 0;
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, hint);
+#endif
+}
+
 #if defined(USE_SDL2) || defined(USE_WX2)
 bool EMU_OSD::create_sdl_texture()
 {
 	if (renderer) {
+		set_screen_filter_type();
+
 		if (sufMixed->IsEnable() && !texMixed) {
 			texMixed = new CTexture(renderer, sufMixed->Width(), sufMixed->Height());
 			if (!texMixed) {
@@ -1615,6 +1627,8 @@ void EMU_OSD::create_opengl_texture()
 
 void EMU_OSD::change_opengl_attr()
 {
+	set_screen_filter_type();
+
 	if (!use_opengl) {
 		return;
 	}

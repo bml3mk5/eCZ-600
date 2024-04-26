@@ -376,7 +376,7 @@ void KEYBOARD::load_ini_file_one(CSimpleIni *ini, const _TCHAR *section_name, in
 		const CSimpleIniItem *item = csection->Item(idx);
 		int k = 0;
 		int i = 0;
-		int rc = _stscanf(item->GetKey(), _T("%02x_%d"), &k, &i);
+		int rc = _stscanf(item->GetKey().Get(), _T("%02x_%d"), &k, &i);
 		if (rc != 2 || k < 0 || k >= rows || i < 0 || i >= cols) {
 			continue;
 		}
@@ -396,7 +396,7 @@ void KEYBOARD::load_ini_file_one(CSimpleIni *ini, const _TCHAR *section_name, in
 			const CSimpleIniItem *item = csection->Item(idx);
 			int k = 0;
 			int i = 0;
-			int rc = _stscanf(item->GetKey(), _T("%02x_%d"), &k, &i);
+			int rc = _stscanf(item->GetKey().Get(), _T("%02x_%d"), &k, &i);
 			if (rc != 2 || k < 0 || k >= rows || i < 0 || i >= cols) {
 				continue;
 			}

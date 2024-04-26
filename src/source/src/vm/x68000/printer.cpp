@@ -330,7 +330,7 @@ bool PRINTER::connect_socket()
 			logging->out_log(LOG_ERROR, _T("Network socket initialize failed."));
 			return false;
 		}
-		if (!emu->connect_socket(m_client_ch, pConfig->printer_server_host[m_cfg_num], pConfig->printer_server_port[m_cfg_num])) {
+		if (!emu->connect_socket(m_client_ch, pConfig->printer_server_host[m_cfg_num].Get(), pConfig->printer_server_port[m_cfg_num])) {
 			logging->out_log(LOG_ERROR, _T("Cannot connect to printer server."));
 			return false;
 		}

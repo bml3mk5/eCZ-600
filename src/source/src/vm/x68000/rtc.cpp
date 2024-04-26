@@ -48,7 +48,7 @@ void RTC::initialize()
 	memset(m_regs, 0, sizeof(m_regs));
 
 	// load data
-	m_loaded = false;
+	m_loaded = 0;
 	load_file();
 
 	if (!m_loaded) {

@@ -20,6 +20,7 @@
 #include "win_configbox.h"
 #include "win_keybindbox.h"
 #include "win_volumebox.h"
+#include "win_loggingbox.h"
 #ifdef USE_REC_VIDEO
 #include "win_recvidbox.h"
 #endif
@@ -41,16 +42,13 @@ class GUI : public GUI_BASE
 private:
 	HINSTANCE hInstance;
 	CFont *font;
-//	GUI_WIN::ConfigBox *configbox;
-//	GUI_WIN::KeybindBox *keybindbox;
-//	GUI_WIN::VolumeBox *volumebox;
 #ifdef USE_REC_VIDEO
 	GUI_WIN::RecVideoBox *recvidbox;
 #endif
 #ifdef USE_REC_AUDIO
 	GUI_WIN::RecAudioBox *recaudbox;
 #endif
-//	GUI_WIN::AboutBox *aboutbox;
+	GUI_WIN::LoggingBox *loggingbox;
 
 	/// menu
 	bool now_menu;
@@ -63,7 +61,7 @@ private:
 
 	void update_control_menu(HMENU hMenu);
 	void update_fdd_menu(HMENU hMenu, int drv, int ID_OPEN_FD, int ID_CHANGE_FD, int ID_WRITEPROTECT_FD, int ID_RECENT_FD, int ID_SELECT_D88_BANK);
-	void update_hdd_menu(HMENU hMenu, int drv, int ID_OPEN_HD, int ID_RECENT_HD);
+	void update_hdd_menu(HMENU hMenu, int drv, int idx, int ID_OPEN_HD, int ID_WRITEPROTECT_HD, int ID_DEVICETYPE_HD, int ID_RECENT_HD);
 	void update_tape_menu(HMENU hMenu);
 	void update_screen_menu(HMENU hMenu);
 	void update_sound_menu(HMENU hMenu);
@@ -114,6 +112,8 @@ public:
 	virtual bool ShowKeybindDialog();
 	virtual bool ShowJoySettingDialog();
 	virtual bool ShowVolumeDialog();
+	virtual bool ShowLoggingDialog();
+	virtual bool IsShownLoggingDialog();
 #ifdef USE_DEBUG_SOUND_FILTER
 	virtual bool ShowSndFilterDialog();
 #endif
@@ -136,7 +136,9 @@ public:
 #ifdef USE_HD1
 	virtual bool ShowOpenHardDiskDialog(int drv);
 	virtual bool ShowOpenBlankHardDiskDialog(int drv, uint8_t type);
+	virtual bool ShowSelectHardDiskDeviceTypeDialog(int drv);
 	void set_hard_disk_file_menu(HMENU hMenu, UINT uItem, int drv);
+	void set_hard_disk_type_menu(HMENU hMenu, UINT uItem, int drv, int idx);
 #endif
 	void set_file_name_for_menu(bool ok, CMsg::Id ok_prefix, CMsg::Id ng_prefix, const _TCHAR *path, int num, _TCHAR *str);
 #ifdef USE_CART1

@@ -122,7 +122,7 @@ int D88Files::Parse(int drv, const _TCHAR* file_path, int bank_num)
 	files[drv].ClearBank();
 	files[drv].SetPath(file_path);
 
-	if (drv < 0 || MAX_DRIVE <= drv) {
+	if (drv < 0 || USE_FLOPPY_DISKS <= drv) {
 		return 0;
 	}
 
@@ -167,7 +167,7 @@ int D88Files::Parse(int drv, const _TCHAR* file_path, int bank_num)
 
 D88File &D88Files::GetFile(int drv)
 {
-	if (drv < 0 || MAX_DRIVE <= drv) {
+	if (drv < 0 || USE_FLOPPY_DISKS <= drv) {
 		drv = 0;
 	}
 	return files[drv];

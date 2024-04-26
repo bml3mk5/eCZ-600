@@ -35,12 +35,12 @@ INT_PTR SelDrvBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 
 	// layout
 	_TCHAR label[64];
-	HWND bh[MAX_DRIVE];
+	HWND bh[USE_FLOPPY_DISKS];
 
 	CBox *box_all = new CBox(CBox::HorizontalBox, 0, margin);
 
 	// button
-	for(int drv=0; drv<MAX_DRIVE; drv++) {
+	for(int drv=0; drv<USE_FLOPPY_DISKS; drv++) {
 		int pdrv = (drv == 0 ? def_drv : (drv == def_drv ? 0 : drv));
 		UTILITY::sprintf_utf8(label, 64, _T("%s%d"), prefix, pdrv);
 		bh[pdrv] = CreateButton(box_all, IDC_BUTTON + pdrv, label, 6);
@@ -63,7 +63,7 @@ INT_PTR SelDrvBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 INT_PTR SelDrvBox::onCommand(UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int id = (int)LOWORD(wParam);
-	if (id >= IDC_BUTTON && id < (IDC_BUTTON + MAX_DRIVE)) {
+	if (id >= IDC_BUTTON && id < (IDC_BUTTON + USE_FLOPPY_DISKS)) {
 		::EndDialog(hDlg, id - IDC_BUTTON);
 		hDlg = NULL;
 		return (INT_PTR)TRUE;

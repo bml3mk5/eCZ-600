@@ -37,6 +37,8 @@ class CSimpleIni;
 /// @ingroup Enums
 /// @brief bit mask of Config::io_port
 enum IOPORT_MASKS {
+	IOPORT_FPCOPRO		= 0x00000001,
+	IOPORT_MIDI			= 0x00000002,
 	IOPORT_MSK_ALL		= 0x00000000,
 };
 
@@ -144,6 +146,15 @@ enum OPTIONHDD_MASKS {
 ///@}
 
 /// @ingroup Enums
+/// @brief SCSI type
+enum SCSI_TYPE_POS {
+	SCSI_TYPE_NONE = 0,
+	SCSI_TYPE_EX,
+	SCSI_TYPE_END,
+	SCSI_TYPE_IN = 2,
+};
+
+/// @ingroup Enums
 /// @brief sound volumes
 enum VOLUME_POS {
 	VOLUME_MASTER = 0,
@@ -163,8 +174,8 @@ public:
 private:
 	void Set(const CDirPath &) {}
 	void Set(const _TCHAR *, int) {}
-	CDirPath &operator=(const CTchar &src);
-	CDirPath &operator=(const _TCHAR *src_str);
+//	CDirPath &operator=(const CTchar &src);
+//	CDirPath &operator=(const _TCHAR *src_str);
 };
 
 /// file path
@@ -216,24 +227,19 @@ public:
 	int version1;	// config file version
 	int version2;
 
+protected:
 	// recent files
 #ifdef USE_FD1
 	CDirPath initial_disk_path;
-#if defined(USE_FD8) || defined(USE_FD7)
-	CRecentPathList recent_disk_path[8];
-	CRecentPath opened_disk_path[8];
-#elif defined(USE_FD6) || defined(USE_FD5)
-	CRecentPathList recent_disk_path[6];
-	CRecentPath opened_disk_path[6];
-#else
-	CRecentPathList recent_disk_path[4];
-	CRecentPath opened_disk_path[4];
-#endif
+	CRecentPathList recent_disk_path[USE_FLOPPY_DISKS];
+	CRecentPath opened_disk_path[USE_FLOPPY_DISKS];
 #endif
 #ifdef USE_HD1
 	CDirPath initial_hard_disk_path;
-	CRecentPathList recent_hard_disk_path[MAX_HARD_DISKS];
-	CRecentPath opened_hard_disk_path[MAX_HARD_DISKS];
+	CRecentPathList recent_hard_disk_path[USE_HARD_DISKS];
+	CRecentPath opened_hard_disk_path[USE_HARD_DISKS];
+	int hd_device_type[USE_HARD_DISKS];
+	int hd_drv2idx[MAX_HARD_DISKS];
 #endif
 #ifdef USE_DATAREC
 	CDirPath initial_datarec_path;
@@ -257,7 +263,20 @@ public:
 	CDirPath initial_binary_path;
 	CRecentPath recent_binary_path[2];
 #endif
+#ifdef USE_STATE
+	CDirPath initial_state_path;
+	CRecentPath saved_state_path;
+	CRecentPathList recent_state_path;
+#endif
+#ifdef USE_AUTO_KEY
+	CDirPath initial_autokey_path;
+	CRecentPath opened_autokey_path;
+#endif
+#ifdef USE_PRINTER
+	CDirPath initial_printer_path;
+#endif
 
+public:
 	// screen
 	int window_mode;
 	int window_position_x;
@@ -357,12 +376,8 @@ public:
 #ifdef USE_HD1
 	// bit1: ignore delay by seeking track
 	int option_hdd;
-#endif
 
-#ifdef USE_STATE
-	CDirPath initial_state_path;
-	CRecentPath saved_state_path;
-	CRecentPathList recent_state_path;
+	int scsi_type;
 #endif
 
 	int fps_no;
@@ -392,11 +407,6 @@ public:
 	bool hdd_mute;
 #endif
 
-#ifdef USE_AUTO_KEY
-	CDirPath initial_autokey_path;
-	CRecentPath opened_autokey_path;
-#endif
-
 	//
 #if defined(GUI_TYPE_AGAR)
 	CTchar menu_fontname;
@@ -410,9 +420,6 @@ public:
 	bool adpcm_mute;
 #endif
 
-#ifdef USE_PRINTER
-	CDirPath initial_printer_path;
-#endif
 #ifdef MAX_PRINTER
 	CTchar printer_server_host[MAX_PRINTER];
 	int    printer_server_port[MAX_PRINTER];
@@ -509,6 +516,102 @@ public:
 
 	static bool get_number_in_path(_TCHAR *path, int *number);
 	static bool set_number_in_path(_TCHAR *path, size_t size, int number);
+
+#ifdef USE_DATAREC
+	const _TCHAR *GetInitialDataRecPath() const;
+	const _TCHAR *GetInitialDataRecPathForWinGUI();
+	void SetInitialDataRecPathFrom(const _TCHAR *path);
+	CRecentPathList &GetRecentDataRecPathList();
+	int GetRecentDataRecPathCount() const;
+	int GetRecentDataRecPathLength(int pos) const;
+	const _TCHAR *GetRecentDataRecPathString(int pos) const;
+	int GetRecentDataRecPathNumber(int pos) const;
+	void UpdateRecentDataRecPath(const _TCHAR *path, int num);
+	bool UpdatedRecentDataRecPath() const;
+	void RecentDataRecPathUpdated(bool val);
+	CRecentPath &GetOpenedDataRecPath();
+	const _TCHAR *GetOpenedDataRecPathString() const;
+	int GetOpenedDataRecPathNumber() const;
+	void SetOpenedDataRecPath(const _TCHAR *path, int num);
+	void SetNewOpenedDataRecPath(const _TCHAR *path, int num);
+	void ClearOpenedDataRecPath();
+	bool NowRealModeDataRec() const;
+	void SetRealModeDataRec(bool val);
+#endif
+#ifdef USE_FD1
+	const _TCHAR *GetInitialFloppyDiskPath() const;
+	const _TCHAR *GetInitialFloppyDiskPathForWinGUI();
+	void SetInitialFloppyDiskPathFrom(const _TCHAR *path);
+	CRecentPathList &GetRecentFloppyDiskPathList(int drv);
+	int GetRecentFloppyDiskPathCount(int drv) const;
+	int GetRecentFloppyDiskPathLength(int drv, int pos) const;
+	const _TCHAR *GetRecentFloppyDiskPathString(int drv, int pos) const;
+	int GetRecentFloppyDiskPathNumber(int drv, int pos) const;
+	void UpdateRecentFloppyDiskPath(int drv, const _TCHAR *path, int num);
+	bool UpdatedRecentFloppyDiskPath(int drv) const;
+	void RecentFloppyDiskPathUpdated(int drv, bool val);
+	CRecentPath &GetOpenedFloppyDiskPath(int drv);
+	const _TCHAR *GetOpenedFloppyDiskPathString(int drv) const;
+	int GetOpenedFloppyDiskPathNumber(int drv) const;
+	void SetOpenedFloppyDiskPath(int drv, const _TCHAR *path, int num);
+	void SetNewOpenedFloppyDiskPath(int drv, const _TCHAR *path, int num);
+	void ClearOpenedFloppyDiskPath(int drv);
+#endif
+#ifdef USE_HD1
+	const _TCHAR *GetInitialHardDiskPath() const;
+	const _TCHAR *GetInitialHardDiskPathForWinGUI();
+	void SetInitialHardDiskPathFrom(const _TCHAR *path);
+	CRecentPathList &GetRecentHardDiskPathList(int drv);
+	int GetRecentHardDiskPathCount(int drv) const;
+	int GetRecentHardDiskPathLength(int drv, int pos) const;
+	const _TCHAR *GetRecentHardDiskPathString(int drv, int pos) const;
+	int GetRecentHardDiskPathNumber(int drv, int pos) const;
+	void UpdateRecentHardDiskPath(int drv, const _TCHAR *path, int num);
+	CRecentPath &GetOpenedHardDiskPath(int drv);
+	const _TCHAR *GetOpenedHardDiskPathString(int drv) const;
+	int GetOpenedHardDiskPathNumber(int drv) const;
+	void SetOpenedHardDiskPath(int drv, const _TCHAR *path, int num);
+	void SetNewOpenedHardDiskPath(int drv, const _TCHAR *path, int num);
+	void ClearOpenedHardDiskPath(int drv);
+	int GetHardDiskDeviceType(int drv) const;
+	void SetHardDiskDeviceType(int drv, int num);
+	int GetHardDiskIndex(int drv) const;
+#endif
+#ifdef USE_STATE
+	const _TCHAR *GetInitialStatePath() const;
+	const _TCHAR *GetInitialStatePathForWinGUI();
+	void SetInitialStatePathFrom(const _TCHAR *path);
+	CRecentPathList &GetRecentStatePathList();
+	int GetRecentStatePathCount() const;
+	int GetRecentStatePathLength(int pos) const;
+	const _TCHAR *GetRecentStatePathString(int pos) const;
+	int GetRecentStatePathNumber(int pos) const;
+	void UpdateRecentStatePath(const _TCHAR *path, int num);
+	bool UpdatedRecentStatePath() const;
+	void RecentStatePathUpdated(bool val);
+	CRecentPath &GetSavedStatePath();
+	const _TCHAR *GetSavedStatePathString() const;
+	int GetSavedStatePathNumber() const;
+	void SetSavedStatePath(const _TCHAR *path, int num);
+	void SetNewSavedStatePath(const _TCHAR *path, int num);
+	void ClearSavedStatePath();
+#endif
+#ifdef USE_AUTO_KEY
+	const _TCHAR *GetInitialAutoKeyPath() const;
+	const _TCHAR *GetInitialAutoKeyPathForWinGUI();
+	void SetInitialAutoKeyPathFrom(const _TCHAR *path);
+	CRecentPath &GetOpenedAutoKeyPath();
+	const _TCHAR *GetOpenedAutoKeyPathString() const;
+	int GetOpenedAutoKeyPathNumber() const;
+	void SetOpenedAutoKeyPath(const _TCHAR *path, int num);
+	void SetNewOpenedAutoKeyPath(const _TCHAR *path, int num);
+	void ClearOpenedAutoKeyPath();
+#endif
+#ifdef USE_PRINTER
+	const _TCHAR *GetInitialPrinterPath() const;
+	const _TCHAR *GetInitialPrinterPathForWinGUI();
+	void SetInitialPrinterPathFrom(const _TCHAR *path);
+#endif
 
 private:
 	CSimpleIni *ini;

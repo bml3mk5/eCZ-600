@@ -39,6 +39,7 @@
 #endif
 #ifdef USE_HD1
 #include "sasi.h"
+#include "scsi.h"
 #endif
 #include "rtc.h"
 #ifdef USE_PRINTER
@@ -61,9 +62,14 @@
 VM::VM(EMU* parent_emu) : emu(parent_emu)
 {
 	//
-//	emu->set_parami(ParamFddType, pConfig->fdd_type);
 	emu->set_parami(ParamIOPort, pConfig->io_port);
 	emu->set_parami(ParamMainRamSizeNum, pConfig->main_ram_size_num);
+#ifdef USE_HD1
+	emu->set_parami(ParamSCSIType, pConfig->scsi_type);
+	for(int drv = 0; drv < MAX_HARD_DISKS; drv++) {
+		set_hard_disk_device_type(drv, pConfig->GetHardDiskDeviceType(drv));
+	}
+#endif
 
 	// create devices
 	first_device = last_device = NULL;
@@ -93,6 +99,7 @@ VM::VM(EMU* parent_emu) : emu(parent_emu)
 #endif
 #ifdef USE_HD1
 	sasi = new SASI(this, emu, NULL);
+	scsi = new SCSI(this, emu, NULL); 
 #endif
 	rtc = new RTC(this, emu, NULL);
 #ifdef USE_PRINTER
@@ -129,6 +136,7 @@ VM::VM(EMU* parent_emu) : emu(parent_emu)
 #endif
 #ifdef USE_HD1
 	main_event->set_context_sound(sasi);
+	main_event->set_context_sound(scsi);
 #endif
 	main_event->set_context_display(display);
 #ifdef USE_KEY_RECORD
@@ -199,6 +207,7 @@ VM::VM(EMU* parent_emu) : emu(parent_emu)
 #endif
 #ifdef USE_HD1
 	memory->set_context_sasi(sasi);
+	memory->set_context_scsi(scsi);
 #endif
 	memory->set_context_pio(pio);
 	memory->set_context_rtc(rtc);
@@ -287,11 +296,11 @@ VM::VM(EMU* parent_emu) : emu(parent_emu)
 	fdd->set_context_board(board);
 #endif
 
-#ifdef USE_HD1
-	// sasi hdd
-	sasi->set_context_irq(board, SIG_CPU_IRQ, 0x100002);	// IRQ to IPL1
-	sasi->set_context_drq(dmac, DMAC::SIG_REQ_1, 1);
-#endif
+//#ifdef USE_HD1
+//	// sasi hdd
+//	sasi->set_context_irq(board, SIG_CPU_IRQ, 0x100002);	// IRQ to IPL1
+//	sasi->set_context_drq(dmac, DMAC::SIG_REQ_1, 1);
+//#endif
 
 #ifdef USE_PRINTER
 	printer[0]->set_context_busy(board, SIG_CPU_IRQ, 0x200002, 0xffffffff);	// IRQ to IPL1 (negative)
@@ -313,6 +322,7 @@ VM::VM(EMU* parent_emu) : emu(parent_emu)
 #endif
 #ifdef USE_HD1
 	cpu->set_context_reset(sasi, SIG_CPU_RESET, 1);
+	cpu->set_context_reset(scsi, SIG_CPU_RESET, 1);
 #endif
 	cpu->set_context_reset(pio, SIG_CPU_RESET, 1);
 
@@ -331,6 +341,7 @@ VM::VM(EMU* parent_emu) : emu(parent_emu)
 #endif
 #ifdef USE_HD1
 	board->set_context_reset(sasi, SIG_CPU_RESET, 1);
+	board->set_context_reset(scsi, SIG_CPU_RESET, 1);
 #endif
 	board->set_context_reset(pio, SIG_CPU_RESET, 1);
 	board->set_context_reset(rtc, SIG_CPU_RESET, 1);
@@ -346,9 +357,10 @@ VM::VM(EMU* parent_emu) : emu(parent_emu)
 	// halt signal
 	board->set_context_halt(cpu, SIG_CPU_HALT, 0xffffffff);
 	// iack signal
-	board->set_context_iack(mfp, MFP::SIG_IACK, 0xffffffff);
-	board->set_context_iack(dmac, DMAC::SIG_IACK, 0xffffffff);
-	board->set_context_iack(scc, SCC::SIG_IACK, 0xffffffff);
+//	board->set_context_iack(6, mfp, MFP::SIG_IACK, 0xffffffff);
+//	board->set_context_iack(3, dmac, DMAC::SIG_IACK, 0xffffffff);
+//	board->set_context_iack(5, scc, SCC::SIG_IACK, 0xffffffff);
+//	board->set_context_iack(2, scsi, SCSI::SIG_IACK, 0xffffffff);
 
 	board->set_context_cpu(cpu);
 	board->set_context_mfp(mfp);
@@ -416,7 +428,6 @@ void VM::reset()
 	board->write_signal(BOARD::SIG_BOARD_POWER, board->get_front_power_on() ? 1 : 0, 1);
 	// update alarm on/off signal on MFP
 	rtc->write_signal(RTC::SIG_UPDATE_ALARM, 1, 1);
-
 }
 
 void VM::force_reset()
@@ -502,6 +513,14 @@ void VM::update_params()
 {
 //	change_fdd_type(emu->get_parami(ParamFddType), true);
 	pConfig->main_ram_size_num = emu->get_parami(ParamMainRamSizeNum);
+#ifdef USE_HD1
+	pConfig->scsi_type = emu->get_parami(ParamSCSIType);
+	for(int drv = 0; drv < MAX_HARD_DISKS; drv++) {
+		pConfig->SetHardDiskDeviceType(drv, get_hard_disk_device_type(drv));
+	}
+
+	change_hdd_type();
+#endif
 
 	set_volume();
 }
@@ -556,6 +575,7 @@ const struct VM::st_device_name_map VM::c_device_names_map[] = {
 	{ _T("FDC"), DNM_FDC },
 	{ _T("FDD"), DNM_FDD },
 	{ _T("SASI"), DNM_SASI },
+	{ _T("SCSI"), DNM_SCSI },
 	{ _T("OPM"), DNM_OPM },
 	{ _T("ADPCM"), DNM_ADPCM },
 	{ _T("RTC"), DNM_RTC },
@@ -645,6 +665,10 @@ bool VM::debug_write_reg(uint32_t num, uint32_t reg_num, uint32_t data)
 		// SASI HDD
 		if (sasi) valid = sasi->debug_write_reg(reg_num, data);
 		break;
+	case DNM_SCSI:
+		// SCSI HDD
+		if (scsi) valid = scsi->debug_write_reg(reg_num, data);
+		break;
 	case DNM_OPM:
 		// OPM
 		if (opm) valid = opm->debug_write_reg(reg_num, data);
@@ -721,6 +745,10 @@ bool VM::debug_write_reg(uint32_t num, const _TCHAR *reg, uint32_t data)
 		// SASI HDD
 		if (sasi) valid = sasi->debug_write_reg(reg, data);
 		break;
+	case DNM_SCSI:
+		// SCSI HDD
+		if (scsi) valid = scsi->debug_write_reg(reg, data);
+		break;
 	case DNM_OPM:
 		// OPM
 		if (opm) valid = opm->debug_write_reg(reg, data);
@@ -791,6 +819,10 @@ void VM::debug_regs_info(uint32_t num, _TCHAR *buffer, size_t buffer_len)
 	case DNM_SASI:
 		// SASI HDD
 		if (sasi) sasi->debug_regs_info(buffer, buffer_len);
+		break;
+	case DNM_SCSI:
+		// SCSI HDD
+		if (scsi) scsi->debug_regs_info(buffer, buffer_len);
 		break;
 	case DNM_OPM:
 		// OPM
@@ -905,6 +937,8 @@ uint64_t VM::update_led()
 #ifdef USE_HD1
 	// b12: sasi hdd
 	status |= (sasi->get_led_status());
+	// b12: scsi hdd
+	status |= (scsi->get_led_status());
 #endif
 	// b13: hireso
 	status |= crtc->get_led_status();
@@ -936,6 +970,7 @@ void VM::initialize_sound(int rate, int samples)
 #endif
 #ifdef USE_HD1
 	sasi->initialize_sound(rate, 0);
+	scsi->initialize_sound(rate, 0);
 #endif
 
 	//
@@ -968,6 +1003,7 @@ void VM::set_volume()
 #endif
 #ifdef USE_HD1
 	sasi->set_volume(pConfig->hdd_volume - 81, pConfig->hdd_mute);
+	scsi->set_volume(pConfig->hdd_volume - 81, pConfig->hdd_mute);
 #endif
 }
 
@@ -1101,17 +1137,52 @@ bool VM::is_same_floppy_disk(int drv, const _TCHAR *file_path, int offset)
 #ifdef USE_HD1
 bool VM::open_hard_disk(int drv, const _TCHAR* file_path, uint32_t flags)
 {
-	bool rc = sasi->open_disk(drv, file_path, flags);
+	bool rc = false;
+	if (IS_SASI_DRIVE(drv)) {
+		rc = sasi->open_disk(drv, file_path, flags);
+	} else {
+		rc = scsi->open_disk(TO_SCSI_DRIVE(drv), file_path, flags);
+	}
 	if (rc) {
 		if (!(flags & OPEN_DISK_FLAGS_FORCELY)) {
-			int sdrv = sasi->mounted_disk_another_drive(drv, file_path);
-			if (sdrv >= 0) {
-				int drvmin = MIN(drv, sdrv);
-				int drvmax = MAX(drv, sdrv);
-				logging->out_logf_x(LOG_WARN, CMsg::There_is_the_same_hard_disk_in_VSTR_VDIGIT_and_VSTR_VDIGIT
-					, _T("SASI"), drvmin
-					, _T("SASI"), drvmax);
+			int samedrv = -1;
+			if (samedrv < 0) {
+				samedrv = sasi->mounted_disk_another_drive(drv, file_path);
 			}
+			if (samedrv < 0) {
+				samedrv = scsi->mounted_disk_another_drive(TO_SCSI_DRIVE(drv), file_path);
+				if (samedrv >= 0) samedrv = FROM_SCSI_DRIVE(samedrv);
+			}
+			if (samedrv >= 0) {
+				_TCHAR str1[128];
+				_TCHAR str2[128];
+				if (IS_SASI_DRIVE(drv)) {
+					int sdrv = drv / SASI_UNITS_PER_CTRL;
+					int sunit = drv % SASI_UNITS_PER_CTRL;
+					UTILITY::stprintf(str1, 128, _T("SASI%du%d"), sdrv, sunit);
+				} else {
+					UTILITY::stprintf(str1, 128, _T("SCSI%d"), TO_SCSI_DRIVE(drv));
+				}
+				if (IS_SASI_DRIVE(samedrv)) {
+					int sdrv = samedrv / SASI_UNITS_PER_CTRL;
+					int sunit = samedrv % SASI_UNITS_PER_CTRL;
+					UTILITY::stprintf(str2, 128, _T("SASI%du%d"), sdrv, sunit);
+				} else {
+					UTILITY::stprintf(str2, 128, _T("SCSI%d"), TO_SCSI_DRIVE(samedrv));
+				}
+				logging->out_logf_x(LOG_WARN, CMsg::There_is_the_same_hard_disk_in_VSTR_and_VSTR
+					, str1
+					, str2);
+			}
+		}
+	} else {
+		// open error message
+		if (IS_SASI_DRIVE(drv)) {
+			int sdrv = drv / SASI_UNITS_PER_CTRL;
+			int sunit = drv % SASI_UNITS_PER_CTRL;
+			logging->out_logf_x(LOG_ERROR, CMsg::Disk_image_on_SASI_VDIGIT_unit_VDIGIT_couldn_t_be_opened, sdrv, sunit);
+		} else {
+			logging->out_logf_x(LOG_ERROR, CMsg::Disk_image_on_SCSI_VDIGIT_couldn_t_be_opened, TO_SCSI_DRIVE(drv));
 		}
 	}
 	return rc;
@@ -1119,17 +1190,86 @@ bool VM::open_hard_disk(int drv, const _TCHAR* file_path, uint32_t flags)
 
 bool VM::close_hard_disk(int drv, uint32_t flags)
 {
-	return sasi->close_disk(drv, flags);
+	if (IS_SASI_DRIVE(drv)) {
+		return sasi->close_disk(drv, flags);
+	} else {
+		return scsi->close_disk(TO_SCSI_DRIVE(drv), flags);
+	}
 }
 
 bool VM::hard_disk_mounted(int drv)
 {
-	return sasi->disk_mounted(drv);
+	if (IS_SASI_DRIVE(drv)) {
+		return sasi->disk_mounted(drv);
+	} else {
+		return scsi->disk_mounted(TO_SCSI_DRIVE(drv));
+	}
+}
+
+void VM::toggle_hard_disk_write_protect(int drv)
+{
+	if (IS_SASI_DRIVE(drv)) {
+		sasi->toggle_disk_write_protect(drv);
+	} else {
+		scsi->toggle_disk_write_protect(TO_SCSI_DRIVE(drv));
+	}
+}
+
+bool VM::hard_disk_write_protected(int drv)
+{
+	if (IS_SASI_DRIVE(drv)) {
+		return sasi->disk_write_protected(drv);
+	} else {
+		return scsi->disk_write_protected(TO_SCSI_DRIVE(drv));
+	}
+}
+
+void VM::set_hard_disk_device_type(int drv, int num)
+{
+	int idx = drv / 4;
+	int sft = (drv % 4) * 8;
+	int val = emu->get_parami(VM::ParamHDDeviceType0 + idx);
+	val &= ~(0xff << sft);
+	val |= (num << sft);
+	emu->set_parami(VM::ParamHDDeviceType0 + idx, val);
+}
+
+int VM::get_hard_disk_device_type(int drv)
+{
+	int idx = drv / 4;
+	int sft = (drv % 4) * 8;
+	return (emu->get_parami(VM::ParamHDDeviceType0 + idx) >> sft) & 0xff;
+}
+
+void VM::change_hard_disk_device_type(int drv, int num)
+{
+	// set on config only
+	int units;
+	if (IS_SASI_DRIVE(drv)) {
+		units = SASI_UNITS_PER_CTRL;
+	} else {
+		units = SCSI_UNITS_PER_CTRL;
+	}
+	drv /= units;
+	drv *= units;
+	for(int unit = 0; unit < units; unit++) {
+		set_hard_disk_device_type(drv, num);
+		drv++;
+	}
+}
+
+int VM::get_current_hard_disk_device_type(int drv)
+{
+	return pConfig->GetHardDiskDeviceType(drv);
 }
 
 bool VM::is_same_hard_disk(int drv, const _TCHAR *file_path)
 {
-	return sasi->is_same_disk(drv, file_path);
+	if (IS_SASI_DRIVE(drv)) {
+		return sasi->is_same_disk(drv, file_path);
+	} else {
+		return scsi->is_same_disk(TO_SCSI_DRIVE(drv), file_path);
+	}
 }
 #endif
 
@@ -1514,6 +1654,38 @@ void VM::set_sram_sasi_hdd_nums(int val)
 	memory->set_sram8(SRAM_SASI_HDD_NUMS, val & 0xf);
 }
 
+bool VM::get_sram_scsi_enable_flag() const
+{
+	return (memory->get_sram8(SRAM_SCSI_ENABLE_FLAG) == 0x56);
+}
+
+void VM::set_sram_scsi_enable_flag(bool val)
+{
+	memory->set_sram8(SRAM_SCSI_ENABLE_FLAG, val ? 0x56 : 0);
+}
+
+int VM::get_sram_scsi_host_id() const
+{
+	return memory->get_sram8(SRAM_SCSI_HOST_ID) & 0x7;
+}
+
+void VM::set_sram_scsi_host_id(int val)
+{
+	val &= 0x7;
+	val |= memory->get_sram8(SRAM_SCSI_HOST_ID) & ~0x7;
+	memory->set_sram8(SRAM_SCSI_HOST_ID, val & 0xff);
+}
+
+uint8_t VM::get_sram_sasi_hdd_on_scsi() const
+{
+	return memory->get_sram8(SRAM_SASI_HDD_ON_SCSI);
+}
+
+void VM::set_sram_sasi_hdd_on_scsi(uint8_t val)
+{
+	memory->set_sram8(SRAM_SASI_HDD_ON_SCSI, val);
+}
+
 // ----------------------------------------------------------------------------
 void VM::change_archtecture(int id, int num, bool reset)
 {
@@ -1521,6 +1693,38 @@ void VM::change_archtecture(int id, int num, bool reset)
 
 void VM::change_fdd_type(int num, bool reset)
 {
+}
+
+void VM::change_hdd_type()
+{
+#ifdef USE_HD1
+	sasi->init_context_irq();
+	sasi->init_context_drq();
+	scsi->init_context_irq();
+	scsi->init_context_drq();
+	switch(pConfig->scsi_type) {
+	case SCSI_TYPE_IN:
+		scsi->set_context_irq(board, SIG_CPU_IRQ, 0x100002);	// INT1 // same as SASI
+		scsi->set_context_drq(dmac, DMAC::SIG_REQ_1, 1);
+		break;
+	case SCSI_TYPE_EX:
+		scsi->set_context_irq(board, SIG_CPU_IRQ, 0x100004);	// INT2
+		// [: through :]
+	default:
+		sasi->set_context_irq(board, SIG_CPU_IRQ, 0x100002);	// IRQ to IPL1
+		sasi->set_context_drq(dmac, DMAC::SIG_REQ_1, 1);
+		break;
+	}
+	for(int drv=0; drv<MAX_HARD_DISKS; drv++) {
+		int idx = pConfig->GetHardDiskIndex(drv);
+		if (idx < 0) continue;
+		if (IS_SASI_DRIVE(drv)) {
+			sasi->change_device_type(drv, pConfig->GetHardDiskDeviceType(drv));
+		} else {
+			scsi->change_device_type(TO_SCSI_DRIVE(drv), pConfig->GetHardDiskDeviceType(drv));
+		}
+	}
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -1537,8 +1741,8 @@ void VM::change_fdd_type(int num, bool reset)
 /// @param[in]  last_data       : (nullable) last pattern to compare to loaded data
 /// @param[in]  last_data_size  : size of last_data
 /// @param[in]  last_data_pos   : comparing position in loaded data
-/// @return successfully loaded
-bool VM::load_data_from_file(const _TCHAR *file_path, const _TCHAR *file_name
+/// @return 1:successfully loaded  2:data loaded but unmatch pattern or size  0:unloaded
+int VM::load_data_from_file(const _TCHAR *file_path, const _TCHAR *file_name
 	, uint8_t *data, size_t size
 	, const uint8_t *first_data, size_t first_data_size, size_t first_data_pos
 	, const uint8_t *last_data,  size_t last_data_size, size_t last_data_pos)
@@ -1622,14 +1826,19 @@ bool VM::save_state(const _TCHAR* filename)
 
 	// header
 	memset(&vm_state_h, 0, sizeof(vm_state_h));
-	UTILITY::strncpy(vm_state_h.header, sizeof(vm_state_h.header), RESUME_FILE_HEADER, 16);
-	vm_state_h.version = Uint16_LE(RESUME_FILE_VERSION);
-	vm_state_h.revision = Uint16_LE(RESUME_FILE_REVISION);
-	vm_state_h.param = Uint32_LE(0);
-	vm_state_h.emu_major = Uint16_LE(APP_VER_MAJOR);
-	vm_state_h.emu_minor = Uint16_LE(APP_VER_MINOR);
-	vm_state_h.emu_rev   = Uint16_LE(APP_VER_REV);
-	vm_state_h.emu_build = Uint16_LE(APP_VER_BUILD);
+	UTILITY::strncpy(vm_state_h.v1.header, sizeof(vm_state_h.v1.header), RESUME_FILE_HEADER, 16);
+	vm_state_h.v1.version = Uint16_LE(RESUME_FILE_VERSION);
+	vm_state_h.v1.revision = Uint16_LE(RESUME_FILE_REVISION);
+	vm_state_h.v1.param = Uint32_LE(0);
+	vm_state_h.v1.emu_major = Uint16_LE(APP_VER_MAJOR);
+	vm_state_h.v1.emu_minor = Uint16_LE(APP_VER_MINOR);
+	vm_state_h.v1.emu_rev   = Uint16_LE(APP_VER_REV);
+	vm_state_h.v1.emu_build = Uint16_LE(APP_VER_BUILD);
+	// version 2
+	vm_state_h.v2.scsi_type = (pConfig->scsi_type & 0xf) | ((emu->get_parami(ParamSCSIType) & 0xf) << 4);
+	for(int drv=0; drv<MAX_HARD_DISKS; drv++) {
+		vm_state_h.v2.hdd_device_type[drv] = (pConfig->GetHardDiskDeviceType(drv) & 0xf) | ((get_hard_disk_device_type(drv) & 0xf) << 4);
+	}
 
 	FILEIO fio;
 	bool rc = false;
@@ -1658,16 +1867,40 @@ bool VM::load_state(const _TCHAR* filename)
 			break;
 		}
 		// read header
-		fio.Fread(&vm_state_h, sizeof(vm_state_h), 1);
+		fio.Fread(&vm_state_h.v1, sizeof(vm_state_h.v1), 1);
 		// check header
-		if (strncmp(vm_state_h.header, RESUME_FILE_HEADER, 16) != 0) {
+		if (strncmp(vm_state_h.v1.header, RESUME_FILE_HEADER, 16) != 0) {
 			logging->out_log_x(LOG_ERROR, CMsg::Load_State_Unsupported_file);
 			break;
 		}
-		if (Uint16_LE(vm_state_h.version) != RESUME_FILE_VERSION) {
+
+		uint16_t version = Uint16_LE(vm_state_h.v1.version);
+		if (version == 2) {
+			// version 2
+			// read more
+			fio.Fread(&vm_state_h.v2, sizeof(vm_state_h.v2), 1);
+
+			pConfig->scsi_type = (vm_state_h.v2.scsi_type & 0xf);
+			emu->set_parami(ParamSCSIType, (vm_state_h.v2.scsi_type >> 4) & 0xf);
+			for(int drv=0; drv<MAX_HARD_DISKS; drv++) {
+				pConfig->SetHardDiskDeviceType(drv, vm_state_h.v2.hdd_device_type[drv] & 0xf);
+				set_hard_disk_device_type(drv, (vm_state_h.v2.hdd_device_type[drv] >> 4) & 0xf);
+			}
+
+		} else if (version == 1) {
+			// version 1
+			memset(&vm_state_h.v2, 0, sizeof(vm_state_h.v2));
+
+			pConfig->scsi_type = (vm_state_h.v2.scsi_type & 0xf);
+			for(int drv=0; drv<MAX_HARD_DISKS; drv++) {
+				pConfig->SetHardDiskDeviceType(drv, vm_state_h.v2.hdd_device_type[drv] & 0xf);
+			}
+
+		} else {
 			logging->out_log_x(LOG_ERROR, CMsg::Load_State_Invalid_version);
 			break;
 		}
+
 		// read data
 		rc = true;
 		for(DEVICE* device = first_device; rc && device != NULL; device = device->get_next_device()) {
@@ -1678,6 +1911,8 @@ bool VM::load_state(const _TCHAR* filename)
 			logging->out_log_x(LOG_ERROR, CMsg::Load_State_Invalid_version);
 			break;
 		}
+		//
+		change_hdd_type();
 		//
 		set_volume();
 	} while(0);

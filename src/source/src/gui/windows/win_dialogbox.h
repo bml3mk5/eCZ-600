@@ -68,6 +68,7 @@ protected:
 	virtual INT_PTR onHScroll(UINT, WPARAM, LPARAM);
 	virtual INT_PTR onVScroll(UINT, WPARAM, LPARAM);
 	virtual INT_PTR onSize(UINT, WPARAM, LPARAM);
+	virtual INT_PTR onMinMaxInfo(UINT, WPARAM, LPARAM);
 	virtual INT_PTR onOK(UINT, WPARAM, LPARAM);
 	virtual INT_PTR onClose(UINT, WPARAM, LPARAM);
 	virtual INT_PTR onHelp(UINT, WPARAM, LPARAM);
@@ -148,6 +149,7 @@ public:
 	virtual HWND CreateEditBox(CBox *box, int nItemId, int digit, int nMaxSize, int align = 0, const _TCHAR ch = _T('m'));
 	virtual HWND CreateEditBoxWithLabel(CBox *box, int nItemId, CMsg::Id label, const _TCHAR *text, int nMaxSize, int align = 0, const _TCHAR ch = _T('m'));
 	virtual HWND CreateEditBoxWithLabel(CBox *box, int nItemId, CMsg::Id label, int digit, int nMaxSize, int align = 0, const _TCHAR ch = _T('m'));
+	virtual HWND CreateTextControl(CBox *box, int nItemId, bool multi_line = false, bool read_only = false, int min_w = 0, int min_h = 0);
 	virtual HWND CreateSlider(CBox *box, int nItemId, int min_w, int min_h, int range_min, int range_max, int ticks, int value, bool vertical = true);
 	virtual HWND CreateUpDown(CBox *box, int nItemId, HWND hEdit, int range_min, int range_max, int value);
 

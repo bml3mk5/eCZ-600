@@ -49,6 +49,7 @@
 #define NSControlStateValueMixed NSMixedState
 #endif
 
+@class CocoaScrollView;
 @class CocoaLayout;
 
 /**
@@ -118,6 +119,19 @@
 + (CocoaTextField *)createT:(CocoaLayout *)layout text:(const char *)text action:(SEL)action align:(NSTextAlignment)align width:(int)width;
 + (CocoaTextField *)createI:(CocoaLayout *)layout text:(CMsg::Id)textid action:(SEL)action width:(int)width;
 + (CocoaTextField *)createI:(CocoaLayout *)layout text:(CMsg::Id)textid action:(SEL)action align:(NSTextAlignment)align width:(int)width;
++ (CocoaTextField *)create:(CocoaLayout *)layout action:(SEL)action width:(int)width height:(int)height;
+@end
+
+/**
+	@brief Text view
+	@note This view is in a scroll view.
+*/
+@interface CocoaTextView : NSTextView
+{
+	CocoaScrollView *parent;
+}
+@property (assign) CocoaScrollView *parent;
++ (CocoaTextView *)create:(CocoaLayout *)layout edit:(bool)edit hasvs:(bool)hasvs hashs:(bool)hashs width:(int)width height:(int)height;
 @end
 
 /**
@@ -313,6 +327,13 @@
 @end
 
 /**
+	@brief Scroll view
+*/
+@interface CocoaScrollView : NSScrollView
++ (CocoaScrollView *)create:(CocoaLayout *)layout hasvs:(bool)hasvs hashs:(bool)hashs width:(int)width height:(int)height;
+@end
+
+/**
 	@brief Base view
 */
 @interface CocoaView : NSView
@@ -344,6 +365,7 @@
 //- (NSRect)adjustFrameSize:(NSRect)re;
 #endif
 @end
+
 
 /**
 	@brief Base panel

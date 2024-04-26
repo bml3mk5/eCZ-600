@@ -219,7 +219,7 @@ bool FILEIO::Fopen(const _TCHAR *filename, FILEIO_MODES mode)
 # ifdef _MSC_VER
 	// for Visual C++
 //	return ((_tfopen_s(&fp, tfilename, fopen_mode)) == 0);
-	return ((fp = _tfsopen(filename, fopen_mode, _SH_DENYNO)) != NULL);
+	return ((fp = _tfsopen(tfilename, fopen_mode, _SH_DENYNO)) != NULL);
 # else
 	return ((fp = _tfopen(tfilename, fopen_mode)) != NULL);
 # endif

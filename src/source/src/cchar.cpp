@@ -12,6 +12,8 @@
 #include "depend.h"
 #include <windows.h>
 #endif
+#include <ctype.h>
+#include <wctype.h>
 #include "utility.h"
 
 //
@@ -20,29 +22,55 @@
 //
 CNchar::CNchar() : CCharTemp<char>()
 {
+	init();
 }
 CNchar::CNchar(const CNchar &src) : CCharTemp<char>(src)
 {
+	init();
 }
 CNchar::CNchar(const char *src_str) : CCharTemp<char>(src_str, src_str ? (int)strlen(src_str) : 0)
 {
+	init();
 }
 CNchar::CNchar(const char *src_str, int src_len) : CCharTemp<char>(src_str, src_len)
 {
+	init();
 }
 CNchar::CNchar(const wchar_t *src_str) : CCharTemp<char>()
 {
+	init();
 	this->SetW(src_str); 
 }
 CNchar::CNchar(const wchar_t *src_str, int src_len) : CCharTemp<char>()
 {
+	init();
 	this->SetW(src_str, src_len); 
 }
 CNchar::CNchar(int size) : CCharTemp<char>(size)
 {
+	init();
 }
 CNchar::~CNchar()
 {
+	term();
+}
+/// @brief 初期化
+void CNchar::init()
+{
+#if defined(USE_UTF8_ON_MBCS)
+	m_mbuf = NULL;
+#endif
+	m_wbuf = NULL;
+}
+/// @brief 後処理
+void CNchar::term()
+{
+#if defined(USE_UTF8_ON_MBCS)
+	delete m_mbuf;
+	m_mbuf = NULL;
+#endif
+	delete m_wbuf;
+	m_wbuf = NULL;
 }
 
 /// @brief 文字列をセット
@@ -69,7 +97,7 @@ void CNchar::SetN(const char *src_str, int src_len)
 /// @return true / false
 bool CNchar::MatchString(const char *value) const
 {
-	if (str != NULL && value != NULL && strcmp(str, value) == 0) {
+	if (m_str != NULL && value != NULL && strcmp(m_str, value) == 0) {
 		return true;
 	}
 	return false;
@@ -79,7 +107,7 @@ bool CNchar::MatchString(const char *value) const
 /// @return true / false
 bool CNchar::MatchSubString(const char *value) const
 {
-	if (str != NULL && value != NULL && (strstr(str, value) != NULL || strstr(value, str) != NULL)) {
+	if (m_str != NULL && value != NULL && (strstr(m_str, value) != NULL || strstr(value, m_str) != NULL)) {
 		return true;
 	}
 	return false;
@@ -132,16 +160,17 @@ void CNchar::SetW(const wchar_t *src_str, int src_len)
 {
 	CNchar buf(src_len * 4);
 	int len = UTILITY::conv_wcs_to_mbs(src_str, src_len, buf.Ptr(), src_len * 4);
-	CopyData(buf, len);
+	CopyData(buf.Get(), len);
 }
 /// @brief MBCS->ワイド文字に変換して返す
 /// @return 文字列へのポインタ
 /// @attention Windows only
-CWchar CNchar::GetW() const
+const wchar_t *CNchar::GetW()
 {
-	CWchar buf(Length());
-	UTILITY::conv_mbs_to_wcs(Get(), Length(), buf.Ptr(), Length());
-	return buf.Get();
+	delete m_wbuf;
+	m_wbuf = new CWchar(Length());
+	UTILITY::conv_mbs_to_wcs(Get(), Length(), m_wbuf->Ptr(), Length());
+	return m_wbuf->Get();
 }
 /// @brief MBCS->ワイド文字に変換してコピー
 /// @param[out] dst_str コピー先
@@ -153,12 +182,13 @@ void CNchar::GetW(wchar_t *dst_str, int dst_len) const
 
 /// @brief UTF-8文字をMBCSに変換して渡す
 /// @note Windows MBCS environment only
-CNchar CNchar::GetM() const
+const char *CNchar::GetM()
 {
 #if defined(USE_UTF8_ON_MBCS)
-	CNchar buf(Length() * 2);
-	UTILITY::conv_utf8_to_mbs(Get(), Length(), buf.Ptr(), Length() * 2);
-	return buf.Get();
+	delete m_mbuf;
+	m_mbuf = new CNchar(Length() * 2);
+	UTILITY::conv_utf8_to_mbs(Get(), Length(), m_mbuf->Ptr(), Length() * 2);
+	return m_mbuf->Get();
 #else
 	return Get();
 #endif
@@ -172,7 +202,7 @@ void CNchar::SetM(const char *src_str)
 	int src_len = (int)strlen(src_str);
 	CNchar buf(src_len * 2);
 	UTILITY::conv_mbs_to_utf8(src_str, src_len, buf.Ptr(), src_len * 2);
-	Set(buf);
+	Set(buf.m_str);
 #else
 	Set(src_str);
 #endif
@@ -181,17 +211,34 @@ void CNchar::SetM(const char *src_str)
 /// @brief MBCS/UTF-8->ワイド文字に変換して返す
 /// @return 文字列へのポインタ
 /// @attention Windows only
-CWchar CNchar::GetWM() const
+const wchar_t *CNchar::GetWM()
 {
-	CWchar buf(Length());
+	delete m_wbuf;
+	m_wbuf = new CWchar(Length());
 #if defined(USE_WIN)
 	// MBCS -> WideChar
-	UTILITY::conv_mbs_to_wcs(Get(), Length(), buf.Ptr(), Length());
+	UTILITY::conv_mbs_to_wcs(Get(), Length(), m_wbuf->Ptr(), Length());
 #else
 	// UTF-8 -> WideChar
-	UTILITY::conv_utf8_to_wcs(Get(), Length(), buf.Ptr(), Length());
+	UTILITY::conv_utf8_to_wcs(Get(), Length(), m_wbuf->Ptr(), Length());
 #endif
-	return buf.Get();
+	return m_wbuf->Get();
+}
+
+/// @brief 大文字にする
+void CNchar::ToUpper()
+{
+	for(int i = 0; i < m_len; i++) {
+		m_str[i] = toupper(m_str[i]);
+	}
+}
+
+/// @brief 小文字にする
+void CNchar::ToLower()
+{
+	for(int i = 0; i < m_len; i++) {
+		m_str[i] = tolower(m_str[i]);
+	}
 }
 
 //
@@ -200,27 +247,46 @@ CWchar CNchar::GetWM() const
 //
 CWchar::CWchar() : CCharTemp<wchar_t>()
 {
+	init();
 }
 CWchar::CWchar(const CWchar &src) : CCharTemp<wchar_t>(src)
 {
+	init();
 }
 CWchar::CWchar(const wchar_t *src_str) : CCharTemp<wchar_t>(src_str, src_str ? (int)wcslen(src_str) : 0)
 {
+	init();
 }
 CWchar::CWchar(const wchar_t *src_str, int src_len) : CCharTemp<wchar_t>(src_str, src_len)
 {
+	init();
 }
 CWchar::CWchar(int size) : CCharTemp<wchar_t>(size)
 {
+	init();
 }
 CWchar::~CWchar()
 {
+	term();
 }
+/// @brief 初期化
+void CWchar::init()
+{
+	m_nbuf = NULL;
+}
+/// @brief 後処理
+void CWchar::term()
+{
+	delete m_nbuf;
+	m_nbuf = NULL;
+}
+
 /// @brief 文字列をセット(変換あり)
 /// @param[in] src_str 値
 /// @return true / false
 CWchar::CWchar(const char *src_str)
 {
+	init();
 	SetN(src_str);
 }
 /// @brief 文字列をセット(変換あり)
@@ -229,6 +295,7 @@ CWchar::CWchar(const char *src_str)
 /// @return true / false
 CWchar::CWchar(const char *src_str, int src_len)
 {
+	init();
 	SetN(src_str, src_len);
 }
 /// @brief 文字列をセット
@@ -269,23 +336,24 @@ void CWchar::SetN(const char *src_str, int src_len)
 {
 	CWchar buf(src_len);
 	int len = UTILITY::conv_mbs_to_wcs(src_str, src_len, buf.Ptr(), src_len);
-	CopyData(buf, len);
+	CopyData(buf.Get(), len);
 }
 /// @brief 文字列を取得(変換あり)
 /// @param[in] codepage コードページ
 /// @return 文字列
-CNchar CWchar::GetN(int codepage) const
+const char *CWchar::GetN(int codepage)
 {
-	CNchar buf(Length() * 4);
+	delete m_nbuf;
+	m_nbuf = new CNchar(Length() * 4);
 #ifdef _WIN32
 	UINT acp = (codepage < 0 ? GetACP() : codepage);
 	// convert to narrow char from wide char
 	// copy data
-	WideCharToMultiByte(acp, 0, Get(), Length(), buf.Ptr(), Length() * 4, NULL, NULL);
+	WideCharToMultiByte(acp, 0, Get(), Length(), m_nbuf->Ptr(), Length() * 4, NULL, NULL);
 #else
-	UTILITY::conv_wcs_to_utf8(Get(), Length(), buf.Ptr(), Length() * 4);
+	UTILITY::conv_wcs_to_utf8(Get(), Length(), m_nbuf->Ptr(), Length() * 4);
 #endif
-	return buf.Get();
+	return m_nbuf->Get();
 }
 /// @brief 文字列をコピー(変換あり)
 /// @param[out] dst_str コピー先
@@ -305,7 +373,7 @@ void CWchar::GetN(char *dst_str, int dst_len, int codepage) const
 /// @return true / false
 bool CWchar::MatchString(const wchar_t *value) const
 {
-	if (str != NULL && wcscmp(str, value) == 0) {
+	if (m_str != NULL && wcscmp(m_str, value) == 0) {
 		return true;
 	}
 	return false;
@@ -315,7 +383,7 @@ bool CWchar::MatchString(const wchar_t *value) const
 /// @return true / false
 bool CWchar::MatchSubString(const wchar_t *value) const
 {
-	if (str != NULL && (wcsstr(str, value) != NULL || wcsstr(value, str) != NULL)) {
+	if (m_str != NULL && (wcsstr(m_str, value) != NULL || wcsstr(value, m_str) != NULL)) {
 		return true;
 	}
 	return false;
@@ -349,4 +417,20 @@ void CWchar::SetM(const wchar_t *src_str)
 const wchar_t *CWchar::GetWM() const
 {
 	return Get();
+}
+
+/// @brief 大文字にする
+void CWchar::ToUpper()
+{
+	for(int i = 0; i < m_len; i++) {
+		m_str[i] = towupper(m_str[i]);
+	}
+}
+
+/// @brief 小文字にする
+void CWchar::ToLower()
+{
+	for(int i = 0; i < m_len; i++) {
+		m_str[i] = towlower(m_str[i]);
+	}
 }

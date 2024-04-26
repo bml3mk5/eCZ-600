@@ -126,7 +126,7 @@ private:
 private:
 	uint8_t m_regs[MFP_REGS_END];
 	uint8_t m_vector;	///< vector number on interrupt
-	bool m_now_iack;	///< receiving IACK
+//	bool m_now_iack;	///< receiving IACK
 
 	int m_timer_clock;	///< Timer clock
 	int m_timer_register_id[4];	///< for timer event
@@ -161,7 +161,7 @@ private:
 	struct vm_state_st {
 		uint8_t m_regs[MFP_REGS_END];
 		uint8_t m_vector;	///< vector number on interrupt
-		uint8_t m_now_iack;	///< receiving IACK
+		uint8_t reserved0;	// m_now_iack;	///< receiving IACK
 		uint8_t m_timer_output;		///< bit0 timer A, bit 1 timer B
 		uint8_t m_timer_counter[4];	///< count down timer
 
@@ -221,6 +221,7 @@ public:
 	void warm_reset(bool por);
 
 	void write_io8(uint32_t addr, uint32_t data);
+	uint32_t read_external_data8(uint32_t addr);
 	uint32_t read_io8(uint32_t addr);
 
 	void write_signal(int id, uint32_t data, uint32_t mask);

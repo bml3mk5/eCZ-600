@@ -138,7 +138,9 @@ add_executable(${PROJECT_NAME}
 	${SRCDEP}/scc.cpp
 	${SRCDEP}/sprite_bg.cpp
 	${SRCDEP}/sysport.cpp
+	${SRCDEP}/sxsi.cpp
 	${SRCDEP}/sasi.cpp
+	${SRCDEP}/scsi.cpp
 	${SRCDEP}/x68000.cpp
 
 	${SRCGUI}/gui_base.cpp
@@ -202,7 +204,9 @@ if(APPLE)
 	${SRCGUICOCOA}/cocoa_ledbox.mm
 	${SRCGUICOCOA}/cocoa_vkeyboard.mm
 	${SRCGUICOCOA}/cocoa_joysetpanel.mm
+	${SRCGUICOCOA}/cocoa_hdtypepanel.mm
 	${SRCGUICOCOA}/cocoa_configpanel.mm
+	${SRCGUICOCOA}/cocoa_loggingpanel.mm
 
 	${SRCVIDWAV}/wav_rec_audio.cpp
 #	${SRCVIDFFM}/ffm_loadlib.cpp
@@ -285,6 +289,8 @@ elseif(LINUX)
 	${SRCGUIGTKX11}/gtk_aboutbox.cpp
 	${SRCGUIGTKX11}/gtk_vkeyboard.cpp
 	${SRCGUIGTKX11}/gtk_joysetbox.cpp
+	${SRCGUIGTKX11}/gtk_hdtypebox.cpp
+	${SRCGUIGTKX11}/gtk_loggingbox.cpp
 	${SRCGUIGTKX11}/gtk_ledbox.cpp
 
 	${SRCVIDWAV}/wav_rec_audio.cpp
@@ -352,6 +358,8 @@ elseif(MSVC)
 	${SRCGUIWIN}/win_ledbox.cpp
 	${SRCGUIWIN}/win_vkeyboard.cpp
 	${SRCGUIWIN}/win_joysetbox.cpp
+	${SRCGUIWIN}/win_hdtypebox.cpp
+	${SRCGUIWIN}/win_loggingbox.cpp
 	${SRCGUIWIN}/win_gui.cpp
 
 	${SRCVIDWAV}/wav_rec_audio.cpp
@@ -423,6 +431,8 @@ else()
 	${SRCGUIWIN}/win_ledbox.cpp
 	${SRCGUIWIN}/win_vkeyboard.cpp
 	${SRCGUIWIN}/win_joysetbox.cpp
+	${SRCGUIWIN}/win_hdtypebox.cpp
+	${SRCGUIWIN}/win_loggingbox.cpp
 	${SRCGUIWIN}/win_gui.cpp
 
 	${SRCVIDWAV}/wav_rec_audio.cpp

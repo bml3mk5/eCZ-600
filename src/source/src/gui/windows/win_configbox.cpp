@@ -39,8 +39,7 @@ ConfigBox::ConfigBox(HINSTANCE hInst, CFont *new_font, EMU *new_emu, GUI *new_gu
 {
 	hInstance = hInst;
 
-//	fdd_type  = pConfig->fdd_type;
-	io_port = pConfig->io_port;
+	io_port = 0;
 
 	selected_tabctrl = 0;
 }
@@ -56,11 +55,8 @@ INT_PTR ConfigBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 	//
 	CDialogBox::onInitDialog(message, wParam, lParam);
 
-//	fdd_type = emu->get_parami(VM::ParamFddType);
+	// get current flags
 	io_port = emu->get_parami(VM::ParamIOPort);
-#if defined(_MBS1)
-	sys_mode = emu->get_parami(VM::ParamSysMode);
-#endif
 
 	CBox *vbox;
 	CBox *hbox;
@@ -188,13 +184,6 @@ INT_PTR ConfigBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 	hbox = box_1l->AddBox(CBox::HorizontalBox, 0, 0, _T("booth"));
 	vali = vm->get_sram_boot_device();
 	CreateComboBoxWithLabel(hbox, IDC_COMBO_SRAM_BOOT_DEVICE, CMsg::Boot_Device, LABELS::boot_devices, vali, 6);
-
-	// number of SASI HDD
-	hbox = box_1l->AddBox(CBox::HorizontalBox, 0, 0, _T("sasinum"));
-	vali = vm->get_sram_sasi_hdd_nums();
-	CreateStatic(hbox, IDC_STATIC, CMsg::Number_of_HDDs);
-	hCtrl = CreateEditBox(hbox, IDC_EDIT_SRAM_SASI_HDD, 0, 6);
-	CreateUpDown(hbox, IDC_SPIN_SRAM_SASI_HDD, hCtrl, 0, 15, vali);
 
 	// RS-232C
 	int w_232c = 100;
@@ -457,7 +446,7 @@ INT_PTR ConfigBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 	// mount fdd
 	hbox = box_fdd->AddBox(CBox::HorizontalBox, 0, 0, _T("fdd_mount"));
 	CreateStatic(hbox, IDC_STATIC, CMsg::When_start_up_mount_disk_at_);
-	for(int i=0; i<MAX_DRIVE; i++) {
+	for(int i=0; i<USE_FLOPPY_DISKS; i++) {
 		UTILITY::stprintf(str, sizeof(str), _T("%d"), i);
 		CreateCheckBox(hbox, IDC_CHK_FDD_MOUNT0 + i, str, (pConfig->mount_fdd & (1 << i)) != 0);
 	}
@@ -471,17 +460,86 @@ INT_PTR ConfigBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 
 	// HDD
 #ifdef USE_HD1
-	CBox *box_hdd = CreateGroup(box_3all, IDC_STATIC, CMsg::Hard_Disk_Drive, CBox::VerticalBox);
+	CBox *boxall_hdd_h = box_3all->AddBox(CBox::HorizontalBox, 0, 0, _T("hdd"));
+	CBox *box_hdd_l = boxall_hdd_h->AddBox(CBox::VerticalBox, 0, 0, _T("hddl"));
+	CBox *box_hdd = CreateGroup(box_hdd_l, IDC_STATIC, CMsg::Hard_Disk_Drive, CBox::VerticalBox);
 
 	// mount hdd
-	hbox = box_hdd->AddBox(CBox::HorizontalBox, 0, 0, _T("hdd_mount"));
+	hbox = box_hdd->AddBox(CBox::HorizontalBox, 0, 0, _T("hdd_mnt"));
 	CreateStatic(hbox, IDC_STATIC, CMsg::When_start_up_mount_disk_at_);
-	for(int i=0; i<MAX_HARD_DISKS; i++) {
-		UTILITY::stprintf(str, sizeof(str), _T("%d"), i);
-		CreateCheckBox(hbox, IDC_CHK_HDD_MOUNT0 + i, str, (pConfig->mount_hdd & (1 << i)) != 0);
+	for(int drv=0; drv<MAX_HARD_DISKS; drv++) {
+		int idx = pConfig->GetHardDiskIndex(drv);
+		if (idx < 0) continue;
+		if ((drv & 3) == 0) {
+			hbox = box_hdd->AddBox(CBox::HorizontalBox, 0, 0);
+			CreateStatic(hbox, IDC_STATIC, _T("  "));
+		}
+		if (idx < USE_SASI_HARD_DISKS) {
+			int sdrv = drv / 2;
+			int unit = drv % 2;
+			UTILITY::stprintf(str, sizeof(str), _T("SASI%d u%d"), sdrv, unit);
+		} else {
+			UTILITY::stprintf(str, sizeof(str), _T("SCSI%d"), TO_SCSI_DRIVE(drv));
+		}
+		CreateCheckBox(hbox, IDC_CHK_HDD_MOUNT0 + idx, str, (pConfig->mount_hdd & (1 << drv)) != 0);
 	}
 
 	CreateCheckBox(box_hdd, IDC_CHK_DELAYHD2, CMsg::Ignore_delays_to_seek_track, FLG_DELAY_HDSEEK != 0);
+
+	// SRAM for HD
+	CBox *box_hdd_r = boxall_hdd_h->AddBox(CBox::VerticalBox, 0, 0, _T("hddr"));
+	CBox *box_hsram = CreateGroup(box_hdd_r, IDC_STATIC, CMsg::Parameters_for_hard_disk_in_SRAM, CBox::VerticalBox);
+
+	// number of SASI HDD
+	hbox = box_hsram->AddBox(CBox::HorizontalBox, 0, 0, _T("sasinum"));
+	vali = vm->get_sram_sasi_hdd_nums();
+	CreateStatic(hbox, IDC_STATIC, CMsg::Number_of_SASI_HDDs);
+	hCtrl = CreateEditBox(hbox, IDC_EDIT_SRAM_SASI_HDD, 0, 6);
+	CreateUpDown(hbox, IDC_SPIN_SRAM_SASI_HDD, hCtrl, 0, 15, vali);
+
+	// SCSI enable flag 
+	hbox = box_hsram->AddBox(CBox::HorizontalBox, 0, 0, _T("scsien"));
+	CreateCheckBox(hbox, IDC_CHK_SRAM_SCSI_ENABLE, CMsg::SCSI_enable_flag, vm->get_sram_scsi_enable_flag());
+
+	// SCSI host ID
+	hbox = box_hsram->AddBox(CBox::HorizontalBox, 0, 0, _T("scsiid"));
+	vali = vm->get_sram_scsi_host_id();
+	CreateEditBoxWithLabel(hbox, IDC_EDIT_SRAM_SCSI_ID, CMsg::SCSI_host_ID, vali, 6);
+
+	// SASI HDDs on SCSI
+	hbox = box_hsram->AddBox(CBox::HorizontalBox, 0, 0, _T("scsion"));
+	valu = vm->get_sram_sasi_hdd_on_scsi();
+	UTILITY::stprintf(str, sizeof(str), _T("%x"), valu);
+	CreateEditBoxWithLabel(hbox, IDC_EDIT_SRAM_SASI_ON_SCSI, CMsg::SASI_HDDs_on_SCSI, str, 6);
+
+
+	// scsi type
+	CBox *box_scsi = CreateGroup(box_3all, IDC_STATIC, CMsg::SCSI_Type_ASTERISK, CBox::VerticalBox);
+	hbox = box_scsi->AddBox(CBox::HorizontalBox, 0, 0, _T("hdd_scsi"));
+	for(int i=0; i<SCSI_TYPE_END; i++) {
+		CreateRadioButton(hbox, IDC_RADIO_SCSI0 + i, LABELS::scsi_type[i], (i == 0));
+	}
+	switch(emu->get_parami(VM::ParamSCSIType)) {
+	case SCSI_TYPE_EX:
+		CheckDlgButton(hDlg, IDC_RADIO_SCSI1, true);
+		break;
+	case SCSI_TYPE_IN:
+#ifdef USE_SCSI_TYPE_IN
+		CheckDlgButton(hDlg, IDC_RADIO_SCSI2, true);
+#else
+		CheckDlgButton(hDlg, IDC_RADIO_SCSI1, true);
+#endif
+		break;
+	default:
+		CheckDlgButton(hDlg, IDC_RADIO_SCSI0, true);
+		break;
+	}
+
+//	hbox = box_scsi->AddBox(CBox::HorizontalBox, 0, 0, _T("scsi_now"));
+	UTILITY::tcscpy(str, sizeof(str), CMSGM(LB_Now_SP));
+	UTILITY::tcscat(str, sizeof(str), CMSGVM(LABELS::scsi_type[pConfig->scsi_type]));
+	UTILITY::tcscat(str, sizeof(str), _T(")"));
+	CreateStatic(hbox, IDC_STATIC, str);
 #endif
 
 	// ----------------------------------------
@@ -496,7 +554,7 @@ INT_PTR ConfigBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 		hbox = box_4all->AddBox(CBox::HorizontalBox, 0, 0, _T("hh"));
 		UTILITY::stprintf(str, sizeof(str), CMSGM(Printer_Hostname), i); 
 		CreateStatic(hbox, IDC_STATIC, str, 100);
-		CreateEditBox(hbox, IDC_HOSTNAME_LPT0 + i, pConfig->printer_server_host[i], 12, WS_EX_LEFT);
+		CreateEditBox(hbox, IDC_HOSTNAME_LPT0 + i, pConfig->printer_server_host[i].Get(), 12, WS_EX_LEFT);
 		CreateEditBoxWithLabel(hbox, IDC_PORT_LPT0 + i, CMsg::_Port, pConfig->printer_server_port[i], 6, WS_EX_RIGHT);
 		UTILITY::stprintf(str, sizeof(str), _T("%.1f"), pConfig->printer_delay[i]);
 		CreateEditBoxWithLabel(hbox, IDC_DELAY_LPT0 + i, CMsg::_Print_delay, str, 6, WS_EX_RIGHT);
@@ -509,7 +567,7 @@ INT_PTR ConfigBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 		hbox = box_4all->AddBox(CBox::HorizontalBox, 0, 0, _T("hh"));
 		UTILITY::stprintf(str, sizeof(str), CMSGM(Communication_Hostname), i); 
 		CreateStatic(hbox, IDC_STATIC, str, 100);
-		CreateEditBox(hbox, IDC_HOSTNAME_COM0 + i, pConfig->comm_server_host[i], 12, WS_EX_LEFT);
+		CreateEditBox(hbox, IDC_HOSTNAME_COM0 + i, pConfig->comm_server_host[i].Get(), 12, WS_EX_LEFT);
 		CreateEditBoxWithLabel(hbox, IDC_PORT_COM0 + i, CMsg::_Port, pConfig->comm_server_port[i], 6, WS_EX_RIGHT);
 //		CreateComboBox(hbox, IDC_COMBO_COM0 + i, LABELS::comm_baud, pConfig->comm_dipswitch[i] - 1, 8);
 	}
@@ -517,7 +575,7 @@ INT_PTR ConfigBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 #ifdef USE_DEBUGGER
 	// Debugger
 	hbox = box_4all->AddBox(CBox::HorizontalBox, 0, 0, _T("dbg"));
-	CreateEditBoxWithLabel(hbox, IDC_HOSTNAME_DBGR, CMsg::Connectable_host_to_Debugger, pConfig->debugger_server_host, 12, WS_EX_LEFT);
+	CreateEditBoxWithLabel(hbox, IDC_HOSTNAME_DBGR, CMsg::Connectable_host_to_Debugger, pConfig->debugger_server_host.Get(), 12, WS_EX_LEFT);
 	CreateEditBoxWithLabel(hbox, IDC_PORT_DBGR, CMsg::_Port, pConfig->debugger_server_port, 6, WS_EX_RIGHT);
 #endif
 	// uart
@@ -861,7 +919,7 @@ INT_PTR ConfigBox::onOK(UINT message, WPARAM wParam, LPARAM lParam)
 
 #ifdef USE_FD1
 	pConfig->mount_fdd = 0;
-	for (int i=0; i<MAX_DRIVE; i++) {
+	for (int i=0; i<USE_FLOPPY_DISKS; i++) {
 		pConfig->mount_fdd |= (IsDlgButtonChecked(hDlg, IDC_CHK_FDD_MOUNT0 + i) == BST_CHECKED ? 1 << i : 0);
 	}
 	pConfig->option_fdd = (IsDlgButtonChecked(hDlg, IDC_CHK_DELAYFD1) == BST_CHECKED ? MSK_DELAY_FDSEARCH : 0)
@@ -873,10 +931,15 @@ INT_PTR ConfigBox::onOK(UINT message, WPARAM wParam, LPARAM lParam)
 
 #ifdef USE_HD1
 	pConfig->mount_hdd = 0;
-	for (int i=0; i<MAX_HARD_DISKS; i++) {
-		pConfig->mount_hdd |= (IsDlgButtonChecked(hDlg, IDC_CHK_HDD_MOUNT0 + i) == BST_CHECKED ? 1 << i : 0);
+	for (int drv=0; drv<MAX_HARD_DISKS; drv++) {
+		int idx = pConfig->GetHardDiskIndex(drv);
+		if (idx < 0) continue;
+		pConfig->mount_hdd |= (IsDlgButtonChecked(hDlg, IDC_CHK_HDD_MOUNT0 + idx) == BST_CHECKED ? 1 << drv : 0);
 	}
 	pConfig->option_hdd = (IsDlgButtonChecked(hDlg, IDC_CHK_DELAYHD2) == BST_CHECKED ? MSK_DELAY_HDSEEK : 0);
+
+	valuel = IsDlgButtonChecked(hDlg, IDC_RADIO_SCSI1) == BST_CHECKED ? 1 : 0;
+	emu->set_parami(VM::ParamSCSIType, valuel);
 #endif
 
 #ifdef USE_DATAREC
@@ -897,6 +960,7 @@ INT_PTR ConfigBox::onOK(UINT message, WPARAM wParam, LPARAM lParam)
 	pConfig->wav_sample_bits = (uint8_t)SendDlgItemMessage(hDlg, IDC_COMBO_SBITS, CB_GETCURSEL, 0, 0);
 #endif
 
+#if 0
 	// I/O port address
 	for(int i=0; LABELS::io_port[i] != CMsg::End; i++) {
 		int pos = LABELS::io_port_pos[i];
@@ -908,6 +972,7 @@ INT_PTR ConfigBox::onOK(UINT message, WPARAM wParam, LPARAM lParam)
 			}
 		}
 	}
+#endif
 	// crtc
 	valuel = GetDlgItemInt(hDlg, IDC_EDIT_RASTER_INT_V, &rc, true);
 	if (rc == TRUE && -128 <= valuel && valuel <= 128) {
@@ -1138,12 +1203,29 @@ INT_PTR ConfigBox::onOK(UINT message, WPARAM wParam, LPARAM lParam)
 	valuel |= IsDlgButtonChecked(hDlg, IDC_CHK_SRAM_KLED_ZENKAKU) ? 64 : 0;
 	vm->set_sram_key_led(valuel);
 
+#ifdef USE_HD1
 	// number of SASI HDDs
 	valuel = (int)GetDlgItemInt(hDlg, IDC_EDIT_SRAM_SASI_HDD, &rc, TRUE);
 	if(0 <= valuel && valuel <= 15) {
 		vm->set_sram_sasi_hdd_nums(valuel);
 	}
+	// SCSI enable flag
+	vm->set_sram_scsi_enable_flag(IsDlgButtonChecked(hDlg, IDC_CHK_SRAM_SCSI_ENABLE) != 0);
 
+	// SCSI host ID
+	valuel = (int)GetDlgItemInt(hDlg, IDC_EDIT_SRAM_SCSI_ID, &rc, TRUE);
+	if(0 <= valuel && valuel <= 7) {
+		vm->set_sram_scsi_host_id(valuel);
+	}
+
+	// SASI HDDs on SCSI
+	GetDlgItemText(hDlg, IDC_EDIT_SRAM_SASI_ON_SCSI, buf, _MAX_PATH);
+	endptr = NULL;
+	vall = _tcstol(buf, &endptr, 16);
+	if (endptr && *endptr == _T('\0')) {
+		vm->set_sram_sasi_hdd_on_scsi(vall & 0xff);
+	}
+#endif
 #endif // _X68000
 
 	// message font

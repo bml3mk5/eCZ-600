@@ -1754,14 +1754,25 @@ void DISPLAY::mix_render_text_sprite_bg_one_line_sub_tx_only(int width, int src_
 void DISPLAY::mix_render_text_sprite_bg_one_line_sub_sp_tx(int width, int src_left, int src_y, int dst_y)
 {
 	int src = src_y + src_left;
+	bool gr_is_top = (m_vc_priority[PR_GR] == 0);
 	for(int dst_x = 0; dst_x < width; dst_x++) {
 		src &= 0xfffff; // TODO
 		uint32_t pal_num = rb_tvram[src];
 #if 1
-		if (pal_num != 0 && (mx_txspbg[dst_y + dst_x] & MX_TXSPBG_PALETTE_L4) == 0) {
-			mx_txspbg[dst_y + dst_x] = (MX_TXSPBG_TEXT | 0x100 | pal_num);
+		if ((mx_txspbg[dst_y + dst_x] & MX_TXSPBG_PALETTE_L4) == 0) {
+			if (gr_is_top) {
+				if (pal_num != 0) {
+					mx_txspbg[dst_y + dst_x] = (MX_TXSPBG_TEXT | 0x100 | pal_num);
+				}
+			} else {
+				uint32_t pal = m_palette[0x100 | pal_num];
+				if (pal_num != 0 || pal != 0) {
+					mx_txspbg[dst_y + dst_x] = (MX_TXSPBG_TEXT | 0x100 | pal_num);
+				}
+			}
 		}
-#else
+#endif
+#if 0
 		uint32_t pal = m_palette[0x100 | pal_num];
 		if (pal != 0 && (mx_txspbg[dst_y + dst_x] & MX_TXSPBG_PALETTE_L4) == 0) {
 			mx_txspbg[dst_y + dst_x] = (MX_TXSPBG_TEXT | 0x100 | pal_num);

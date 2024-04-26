@@ -163,7 +163,9 @@ DEPOBJS:=$(SRCDEP)/adpcm.o \
 	$(SRCDEP)/scc.o \
 	$(SRCDEP)/sprite_bg.o \
 	$(SRCDEP)/sysport.o \
+	$(SRCDEP)/sxsi.o \
 	$(SRCDEP)/sasi.o \
+	$(SRCDEP)/scsi.o \
 	$(SRCDEP)/x68000.o
 
 GUIOBJSAGAR:=$(SRCGUIAGAR)/ag_gui_base.o \
@@ -199,6 +201,8 @@ GUIOBJSWIN:=$(SRCGUIWIN)/win_dialogbox.o \
 	$(SRCGUIWIN)/win_ledbox.o \
 	$(SRCGUIWIN)/win_vkeyboard.o \
 	$(SRCGUIWIN)/win_joysetbox.o \
+	$(SRCGUIWIN)/win_hdtypebox.o \
+	$(SRCGUIWIN)/win_loggingbox.o \
 	$(SRCGUIWIN)/win_gui.o
 
 VIDOBJSWAV:=$(SRCVIDWAV)/wav_rec_audio.o

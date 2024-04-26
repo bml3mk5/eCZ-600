@@ -371,7 +371,8 @@ private:
 
 	// image handler
 	uint32_t verify_track();
-	uint32_t search_sector(int side, bool compare);
+	uint32_t search_sector(int side, int sector, bool compare_side);
+	uint32_t search_sector_by_index(int side, int index, int sector, bool compare_side);
 	uint32_t search_addr();
 	bool make_track();
 	bool parse_track();
@@ -401,6 +402,7 @@ private:
 	void set_to_result7_event(uint8_t c, uint8_t h, uint8_t r, uint8_t n);
 	void start_transfer_old();
 	void start_transfer_data();
+	void start_transfer_diagnostic();
 	void start_transfer_id();
 	void start_transfer_index();
 	void finish_transfer();

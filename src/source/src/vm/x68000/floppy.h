@@ -169,10 +169,10 @@ private:
 		uint8_t closed_intr;	///< delay time of asserting interrupt after ejected disk
 		uint8_t force_eject;	///< enable eject forcely while over zero 
 	} fdd_t;
-	fdd_t m_fdd[MAX_DRIVE];
+	fdd_t m_fdd[USE_FLOPPY_DISKS];
 
 	// diskette info
-	DISK* p_disk[MAX_DRIVE];
+	DISK* p_disk[USE_FLOPPY_DISKS];
 
 	// index hole
 	int m_delay_index_hole;	///< spent clocks per round (cpu clocks)
@@ -328,8 +328,8 @@ public:
 	bool verify_track(int channel, int track);
 	int  get_current_track_number(int channel);
 	int  search_sector(int channel);
-//	int  search_sector(int channel, int sect);
 	int  search_sector(int channel, int track, int sect, bool compare_side, int side);
+	int  search_sector_by_index(int channel, int track, int index, bool compare_sect, int sect, bool compare_side, int side);
 	bool make_track(int channel);
 	bool parse_track(int channel);
 

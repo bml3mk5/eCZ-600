@@ -1492,7 +1492,7 @@ void EMU_OSD::set_window(int mode, int cur_width, int cur_height)
 			}
 			// get width and height
 			const CDisplayDevice *dd = screen_mode.GetDisp(disp_no);
-			dev_name = dd->name;
+			dev_name = dd->name.Get();
 			left = dd->re.x;
 			top = dd->re.y;
 			width = dd->re.w;
@@ -1510,7 +1510,7 @@ void EMU_OSD::set_window(int mode, int cur_width, int cur_height)
 			sm = screen_mode.GetMode(disp_no, (mode - 8) % VIDEO_MODE_MAX);
 
 			const CDisplayDevice *dd = screen_mode.GetDisp(disp_no);
-			dev_name = dd->name;
+			dev_name = dd->name.Get();
 			left =  dd->re.x;
 			top = dd->re.y;
 			width = sm ? sm->width : dd->re.w;

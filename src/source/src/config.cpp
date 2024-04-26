@@ -77,7 +77,7 @@ void CDirPath::Set(const _TCHAR *dir_path)
 	}
 	CTchar::Set(path);
 }
-
+#if 0
 CDirPath &CDirPath::operator=(const CTchar &src)
 {
 	CTchar::operator=(src);
@@ -89,6 +89,7 @@ CDirPath &CDirPath::operator=(const _TCHAR *src_str)
 	CTchar::operator=(src_str);
 	return *this;
 }
+#endif
 
 //
 //
@@ -218,14 +219,24 @@ void Config::initialize()
 	version2 = CONFIG_VERSION;
 
 #ifdef USE_FD1
-#if defined(USE_FD8) || defined(USE_FD7)
-	for (int i=0; i<8; i++) {
-#elif defined(USE_FD6) || defined(USE_FD5)
-	for (int i=0; i<6; i++) {
-#else
-	for (int i=0; i<4; i++) {
-#endif
+	for (int i=0; i<USE_FLOPPY_DISKS; i++) {
 		recent_disk_path[i].updated = true;
+	}
+#endif
+
+#ifdef USE_HD1
+	for(int drv=0, n=0; drv<MAX_HARD_DISKS; drv++) {
+		if (drv<USE_SASI_HARD_DISKS || (MAX_SASI_HARD_DISKS<=drv && drv<(MAX_SASI_HARD_DISKS+USE_SCSI_HARD_DISKS))) {
+			hd_drv2idx[drv] = n;
+			n++;
+		} else {
+			hd_drv2idx[drv] = -1;
+		}
+	}
+	for(int drv=0; drv<MAX_HARD_DISKS; drv++) {
+		int idx = hd_drv2idx[drv];
+		if (idx < 0) continue;
+		hd_device_type[idx] = (IS_SASI_DRIVE(drv) ? 0 : 1);
 	}
 #endif
 
@@ -300,6 +311,8 @@ void Config::initialize()
 #ifdef USE_HD1
 	mount_hdd = 0x1;
 	option_hdd = 0;
+
+	scsi_type = 0;
 #endif
 
 	io_port = 0;
@@ -441,13 +454,13 @@ void Config::load(const _TCHAR *file)
 	ini_file.Set(file);
 
 	//
-	load_ini_file(ini_file);
+	load_ini_file(ini_file.Get());
 }
 
 void Config::save()
 {
 	//
-	save_ini_file(ini_file);
+	save_ini_file(ini_file.Get());
 }
 
 void Config::release()
@@ -534,13 +547,7 @@ bool Config::load_ini_file(const _TCHAR *ini_file)
 	option_fdd = (int)valuel;
 	ignore_crc = ini->GetBoolValue(SECTION_FDD, _T("IgnoreCRC"), ignore_crc);
 
-#if defined(USE_FD8) || defined(USE_FD7)
-	for (int i=0; i<8; i++) {
-#elif defined(USE_FD6) || defined(USE_FD5)
-	for (int i=0; i<6; i++) {
-#else
-	for (int i=0; i<4; i++) {
-#endif
+	for (int i=0; i<USE_FLOPPY_DISKS; i++) {
 		UTILITY::stprintf(section, 100, _T("%s%d"), SECTION_FDD, i);
 		for (int j=0; j<MAX_HISTORY; j++) {
 			UTILITY::stprintf(key, 100, _T("File%d"), j+1);
@@ -549,7 +556,7 @@ bool Config::load_ini_file(const _TCHAR *ini_file)
 		recent_disk_path[i].updated = true;
 
 		valueb = ini->GetBoolValue(section, _T("MountWhenStartUp"), (mount_fdd & (1 << i)) != 0);
-		mount_fdd = (valueb ? mount_fdd | (1 << i) : mount_fdd & ~(1 << i));
+		BIT_ONOFF(mount_fdd, (1 << i), valueb);
 	}
 #endif
 
@@ -559,16 +566,30 @@ bool Config::load_ini_file(const _TCHAR *ini_file)
 	valuel |= ((ini->GetLongValue(SECTION_HDD, _T("IgnoreDelay"), (option_fdd & MSK_DELAY_HD_MASK) >> MSK_DELAY_HD_SFT) << MSK_DELAY_HD_SFT) & MSK_DELAY_HD_MASK);
 	option_hdd = (int)valuel;
 
-	for (int i=0; i<MAX_HARD_DISKS; i++) {
-		UTILITY::stprintf(section, 100, _T("%s%d"), SECTION_HDD, i);
+	for (int drv=0; drv<MAX_HARD_DISKS; drv++) {
+		int idx = hd_drv2idx[drv];
+		if (idx < 0) {
+			continue;
+		}
+		UTILITY::stprintf(section, 100, _T("%s%d"), SECTION_HDD, drv);
 		for (int j=0; j<MAX_HISTORY; j++) {
 			UTILITY::stprintf(key, 100, _T("File%d"), j+1);
-			get_recentpath_value(section, key, recent_hard_disk_path[i]);
+			get_recentpath_value(section, key, recent_hard_disk_path[idx]);
 		}
-		recent_hard_disk_path[i].updated = true;
+		recent_hard_disk_path[idx].updated = true;
 
-		valueb = ini->GetBoolValue(section, _T("MountWhenStartUp"), (mount_hdd & (1 << i)) != 0);
-		mount_hdd = (valueb ? mount_hdd | (1 << i) : mount_hdd & ~(1 << i));
+		valueb = ini->GetBoolValue(section, _T("MountWhenStartUp"), (mount_hdd & (1 << drv)) != 0);
+		BIT_ONOFF(mount_hdd, (1 << drv), valueb);
+
+		valuel = ini->GetLongValue(section, _T("DeviceType"), hd_device_type[idx]);
+		if (0 <= valuel && valuel <= 2) {
+			hd_device_type[idx] = (int)valuel;
+		}
+	}
+
+	valuel = ini->GetLongValue(SECTION_HDD, _T("SCSIType"), scsi_type);
+	if (SCSI_TYPE_NONE <= valuel && valuel < SCSI_TYPE_END) {
+		scsi_type = (int)valuel;
 	}
 #endif
 
@@ -994,23 +1015,17 @@ void Config::save_ini_file(const _TCHAR *ini_file)
 #endif
 
 #ifdef USE_FD1
-	ini->SetValue(SECTION_FDD, _T("Path"), conv_from_npath(initial_disk_path));
+	ini->SetValue(SECTION_FDD, _T("Path"), conv_from_npath(initial_disk_path.Get()));
 	ini->SetLongValue(SECTION_FDD, _T("IgnoreDelay"), (option_fdd & MSK_DELAY_FD_MASK) >> MSK_DELAY_FD_SFT);
 	ini->SetLongValue(SECTION_FDD, _T("CheckMedia"), (option_fdd & MSK_CHECK_FD_MASK) >> MSK_CHECK_FD_SFT);
 	ini->SetLongValue(SECTION_FDD, _T("SaveImage"), (option_fdd & MSK_SAVE_FD_MASK) >> MSK_SAVE_FD_SFT);
 	ini->SetBoolValue(SECTION_FDD, _T("IgnoreCRC"), ignore_crc);
 
-#if defined(USE_FD8) || defined(USE_FD7)
-	for (int i=0; i<8; i++) {
-#elif defined(USE_FD6) || defined(USE_FD5)
-	for (int i=0; i<6; i++) {
-#else
-	for (int i=0; i<4; i++) {
-#endif
+	for (int i=0; i<USE_FLOPPY_DISKS; i++) {
 		UTILITY::stprintf(section, 100, _T("%s%d"), SECTION_FDD, i);
 		for (int j=0; j<MAX_HISTORY && j<recent_disk_path[i].Count(); j++) {
 			UTILITY::stprintf(key, 100, _T("File%d"), j+1);
-			UTILITY::tcscpy(buf, _MAX_PATH, recent_disk_path[i][j]->path);
+			UTILITY::tcscpy(buf, _MAX_PATH, recent_disk_path[i][j]->path.Get());
 			set_number_in_path(buf, _MAX_PATH, recent_disk_path[i][j]->num);
 			ini->SetValue(section, key, conv_from_npath(buf));
 		}
@@ -1019,26 +1034,34 @@ void Config::save_ini_file(const _TCHAR *ini_file)
 #endif
 	
 #ifdef USE_HD1
-	ini->SetValue(SECTION_HDD, _T("Path"), conv_from_npath(initial_hard_disk_path));
+	ini->SetValue(SECTION_HDD, _T("Path"), conv_from_npath(initial_hard_disk_path.Get()));
 	ini->SetLongValue(SECTION_HDD, _T("IgnoreDelay"), (option_hdd & MSK_DELAY_HD_MASK) >> MSK_DELAY_HD_SFT);
 
-	for (int i=0; i<MAX_HARD_DISKS; i++) {
-		UTILITY::stprintf(section, 100, _T("%s%d"), SECTION_HDD, i);
-		for (int j=0; j<MAX_HISTORY && j<recent_hard_disk_path[i].Count(); j++) {
+	for (int drv=0; drv<MAX_HARD_DISKS; drv++) {
+		int idx = hd_drv2idx[drv];
+		if (idx < 0) {
+			continue;
+		}
+		UTILITY::stprintf(section, 100, _T("%s%d"), SECTION_HDD, drv);
+		for (int j=0; j<MAX_HISTORY && j<recent_hard_disk_path[idx].Count(); j++) {
 			UTILITY::stprintf(key, 100, _T("File%d"), j+1);
-			UTILITY::tcscpy(buf, _MAX_PATH, recent_hard_disk_path[i][j]->path);
-			set_number_in_path(buf, _MAX_PATH, recent_hard_disk_path[i][j]->num);
+			UTILITY::tcscpy(buf, _MAX_PATH, recent_hard_disk_path[idx][j]->path.Get());
+			set_number_in_path(buf, _MAX_PATH, recent_hard_disk_path[idx][j]->num);
 			ini->SetValue(section, key, conv_from_npath(buf));
 		}
-		ini->SetBoolValue(section, _T("MountWhenStartUp"), (mount_hdd & (1 << i)) != 0);
+		ini->SetBoolValue(section, _T("MountWhenStartUp"), (mount_hdd & (1 << drv)) != 0);
+
+		ini->SetLongValue(section, _T("DeviceType"), hd_device_type[idx]);
 	}
+
+	ini->SetLongValue(SECTION_HDD, _T("SCSIType"), scsi_type);
 #endif
 
 #ifdef USE_DATAREC
-	ini->SetValue(SECTION_TAPE, _T("Path"), conv_from_npath(initial_datarec_path));
+	ini->SetValue(SECTION_TAPE, _T("Path"), conv_from_npath(initial_datarec_path.Get()));
 	for (int j=0; j<MAX_HISTORY && j<recent_datarec_path.Count(); j++) {
 		UTILITY::stprintf(key, 100, _T("File%d"), j+1);
-		ini->SetValue(SECTION_TAPE, key, conv_from_npath(recent_datarec_path[j]->path));
+		ini->SetValue(SECTION_TAPE, key, conv_from_npath(recent_datarec_path[j]->path.Get()));
 	}
 	ini->SetBoolValue(SECTION_TAPE, _T("RealMode"), realmode_datarec);
 
@@ -1106,7 +1129,7 @@ void Config::save_ini_file(const _TCHAR *ini_file)
 
 	ini->SetLongValue(SECTION_SCREEN, _T("VideoSize"), screen_video_size);
 
-	ini->SetValue(SECTION_SCREEN, _T("Language"), language);
+	ini->SetValue(SECTION_SCREEN, _T("Language"), language.Get());
 
 	ini->SetLongValue(SECTION_CONTROL, _T("IoPort"), io_port, NULL, true);
 	ini->SetLongValue(SECTION_CONTROL, _T("OriginalSettings"), original, NULL, true);
@@ -1140,22 +1163,22 @@ void Config::save_ini_file(const _TCHAR *ini_file)
 	ini->SetLongValue(SECTION_CONTROL, _T("FpsNo"), fps_no);
 
 #ifdef USE_STATE
-	ini->SetValue(SECTION_STATE, _T("Path"), conv_from_npath(initial_state_path));
+	ini->SetValue(SECTION_STATE, _T("Path"), conv_from_npath(initial_state_path.Get()));
 	for (int j=0; j<MAX_HISTORY && j<recent_state_path.Count(); j++) {
 		UTILITY::stprintf(key, 100, _T("File%d"), j+1);
-		ini->SetValue(SECTION_STATE, key, conv_from_npath(recent_state_path[j]->path));
+		ini->SetValue(SECTION_STATE, key, conv_from_npath(recent_state_path[j]->path.Get()));
 	}
 #endif
 #ifdef USE_AUTO_KEY
-	ini->SetValue(SECTION_AUTOKEY, _T("Path"), conv_from_npath(initial_autokey_path));
+	ini->SetValue(SECTION_AUTOKEY, _T("Path"), conv_from_npath(initial_autokey_path.Get()));
 #endif
 
 #ifdef USE_PRINTER
-	ini->SetValue(SECTION_PRINTER, _T("Path"), conv_from_npath(initial_printer_path));
+	ini->SetValue(SECTION_PRINTER, _T("Path"), conv_from_npath(initial_printer_path.Get()));
 #endif
 #ifdef USE_MESSAGE_BOARD
-	ini->SetValue(SECTION_MSGBOARD, _T("InfoFontName"), conv_from_npath(msgboard_info_fontname));
-	ini->SetValue(SECTION_MSGBOARD, _T("MessageFontName"), conv_from_npath(msgboard_msg_fontname));
+	ini->SetValue(SECTION_MSGBOARD, _T("InfoFontName"), conv_from_npath(msgboard_info_fontname.Get()));
+	ini->SetValue(SECTION_MSGBOARD, _T("MessageFontName"), conv_from_npath(msgboard_msg_fontname.Get()));
 	ini->SetLongValue(SECTION_MSGBOARD, _T("InfoFontSize"), msgboard_info_fontsize);
 	ini->SetLongValue(SECTION_MSGBOARD, _T("MessageFontSize"), msgboard_msg_fontsize);
 #endif
@@ -1163,7 +1186,7 @@ void Config::save_ini_file(const _TCHAR *ini_file)
 	ini->SetValue(SECTION_MENU, _T("FontName"), conv_from_npath(menu_fontname));
 	ini->SetLongValue(SECTION_MENU, _T("FontSize"), menu_fontsize);
 #endif
-	ini->SetValue(SECTION_ROM, _T("Path"), conv_from_npath(rom_path));
+	ini->SetValue(SECTION_ROM, _T("Path"), conv_from_npath(rom_path.Get()));
 
 	ini->SetLongValue(SECTION_SOUND,  _T("Volume"), volume);
 	ini->SetBoolValue(SECTION_SOUND, _T("Mute"), mute);
@@ -1186,7 +1209,7 @@ void Config::save_ini_file(const _TCHAR *ini_file)
 #ifdef MAX_PRINTER
 	for(int i=0; i<MAX_PRINTER; i++) {
 		UTILITY::stprintf(section, 100, _T("%s%d"), SECTION_PRINTER, i);
-		ini->SetValue(section, _T("ServerHost"), printer_server_host[i]);
+		ini->SetValue(section, _T("ServerHost"), printer_server_host[i].Get());
 		ini->SetLongValue(section, _T("ServerPort"), printer_server_port[i]);
 		ini->SetDoubleValue(section, _T("DelayMsec"), printer_delay[i]);
 		ini->SetBoolValue(section, _T("Online"), printer_online[i]);
@@ -1205,13 +1228,13 @@ void Config::save_ini_file(const _TCHAR *ini_file)
 	for(int i=0; i<MAX_COMM; i++) {
 		UTILITY::stprintf(section, 100, _T("%s%d"), SECTION_COMM, i);
 		ini->SetLongValue(section, _T("DipSwitch"), comm_dipswitch[i]);
-		ini->SetValue(section, _T("ServerHost"), comm_server_host[i]);
+		ini->SetValue(section, _T("ServerHost"), comm_server_host[i].Get());
 		ini->SetLongValue(section, _T("ServerPort"), comm_server_port[i]);
 		ini->SetBoolValue(section, _T("ThroughMode"), comm_through[i]);
 	}
 #endif
 
-	ini->SetValue(SECTION_SNAPSHOT, _T("Path"), conv_from_npath(snapshot_path));
+	ini->SetValue(SECTION_SNAPSHOT, _T("Path"), conv_from_npath(snapshot_path.Get()));
 
 #ifdef USE_LEDBOX
 	ini->SetBoolValue(SECTION_LEDBOX, _T("Show"), FLG_SHOWLEDBOX ? true : false);
@@ -1229,17 +1252,17 @@ void Config::save_ini_file(const _TCHAR *ini_file)
 	ini->Delete(SECTION_CONTROL, _T("LEDPosition"));
 
 #if defined(USE_WIN)
-	ini->SetValue(SECTION_FONT, _T("File"), conv_from_npath(font_path));
+	ini->SetValue(SECTION_FONT, _T("File"), conv_from_npath(font_path.Get()));
 #endif
 #if defined(USE_SDL) || defined(USE_SDL2)
-	ini->SetValue(SECTION_FONT, _T("Path"), conv_from_npath(font_path));
+	ini->SetValue(SECTION_FONT, _T("Path"), conv_from_npath(font_path.Get()));
 #endif
 #ifdef USE_DIRECTINPUT
 	ini->SetBoolValue(SECTION_CONTROL, _T("UseDirectInput"), (use_direct_input & 1) != 0);
 #endif
 #ifdef USE_DEBUGGER
 	ini->SetLongValue(SECTION_DEBUGGER, _T("ImmediateStart"), debugger_imm_start);
-	ini->SetValue(SECTION_DEBUGGER, _T("ServerHost"), debugger_server_host);
+	ini->SetValue(SECTION_DEBUGGER, _T("ServerHost"), debugger_server_host.Get());
 	ini->SetLongValue(SECTION_DEBUGGER, _T("ServerPort"), debugger_server_port);
 #endif
 #ifdef USE_PERFORMANCE_METER
@@ -1331,7 +1354,7 @@ void Config::get_str_value(const _TCHAR *section, const _TCHAR *key, CTchar &str
 	_TCHAR buf[_MAX_PATH];
 
 	*buf = _T('\0');
-	const _TCHAR *p = ini->GetValue(section, key, str);
+	const _TCHAR *p = ini->GetValue(section, key, str.Get());
 	if (p) {
 		UTILITY::tcscpy(buf, _MAX_PATH, conv_to_npath(p));
 	}
@@ -1343,7 +1366,7 @@ void Config::get_dirpath_value(const _TCHAR *section, const _TCHAR *key, CDirPat
 	_TCHAR buf[_MAX_PATH];
 
 	*buf = _T('\0');
-	const _TCHAR *p = ini->GetValue(section, key, path);
+	const _TCHAR *p = ini->GetValue(section, key, path.Get());
 	if (p) {
 		UTILITY::tcscpy(buf, _MAX_PATH, conv_to_npath(p));
 	}
@@ -1355,7 +1378,7 @@ void Config::get_filepath_value(const _TCHAR *section, const _TCHAR *key, CFileP
 	_TCHAR buf[_MAX_PATH];
 
 	*buf = _T('\0');
-	const _TCHAR *p = ini->GetValue(section, key, path);
+	const _TCHAR *p = ini->GetValue(section, key, path.Get());
 	if (p) {
 		UTILITY::tcscpy(buf, _MAX_PATH, conv_to_npath(p));
 	}
@@ -1378,3 +1401,400 @@ void Config::get_recentpath_value(const _TCHAR *section, const _TCHAR *key, CRec
 		}
 	}
 }
+
+#ifdef USE_DATAREC
+const _TCHAR *Config::GetInitialDataRecPath() const
+{
+	return initial_datarec_path.Get();
+}
+const _TCHAR *Config::GetInitialDataRecPathForWinGUI()
+{
+	return initial_datarec_path.GetM();
+}
+void Config::SetInitialDataRecPathFrom(const _TCHAR *path)
+{
+	initial_datarec_path.SetFromPath(path);
+}
+CRecentPathList &Config::GetRecentDataRecPathList()
+{
+	return recent_datarec_path;
+}
+int Config::GetRecentDataRecPathCount() const
+{
+	return recent_datarec_path.Count();
+}
+int Config::GetRecentDataRecPathLength(int pos) const
+{
+	return recent_datarec_path[pos]->path.Length();
+}
+const _TCHAR *Config::GetRecentDataRecPathString(int pos) const
+{
+	return recent_datarec_path[pos]->path.Get();
+}
+int Config::GetRecentDataRecPathNumber(int pos) const
+{
+	return recent_datarec_path[pos]->num;
+}
+void Config::UpdateRecentDataRecPath(const _TCHAR *path, int num)
+{
+	return recent_datarec_path.Update(path, num);
+}
+bool Config::UpdatedRecentDataRecPath() const
+{
+	return recent_datarec_path.updated;
+}
+void Config::RecentDataRecPathUpdated(bool val)
+{
+	recent_datarec_path.updated = val;
+}
+CRecentPath &Config::GetOpenedDataRecPath()
+{
+	return opened_datarec_path;
+}
+const _TCHAR *Config::GetOpenedDataRecPathString() const
+{
+	return opened_datarec_path.path.Get();
+}
+int Config::GetOpenedDataRecPathNumber() const
+{
+	return opened_datarec_path.num;
+}
+void Config::SetOpenedDataRecPath(const _TCHAR *path, int num)
+{
+	opened_datarec_path.Set(path, num);
+}
+void Config::SetNewOpenedDataRecPath(const _TCHAR *path, int num)
+{
+	opened_datarec_path.Clear();
+	opened_datarec_path.Set(path, num);
+}
+void Config::ClearOpenedDataRecPath()
+{
+	opened_datarec_path.Clear();
+}
+bool Config::NowRealModeDataRec() const
+{
+	return realmode_datarec;
+}
+void Config::SetRealModeDataRec(bool val)
+{
+	realmode_datarec = val;
+}
+#endif
+
+#ifdef USE_FD1
+const _TCHAR *Config::GetInitialFloppyDiskPath() const
+{
+	return initial_disk_path.Get();
+}
+const _TCHAR *Config::GetInitialFloppyDiskPathForWinGUI()
+{
+	return initial_disk_path.GetM();
+}
+void Config::SetInitialFloppyDiskPathFrom(const _TCHAR *path)
+{
+	initial_disk_path.SetFromPath(path);
+}
+CRecentPathList &Config::GetRecentFloppyDiskPathList(int drv)
+{
+	return recent_disk_path[drv];
+}
+int Config::GetRecentFloppyDiskPathCount(int drv) const
+{
+	return recent_disk_path[drv].Count();
+}
+int Config::GetRecentFloppyDiskPathLength(int drv, int pos) const
+{
+	return recent_disk_path[drv][pos]->path.Length();
+}
+const _TCHAR *Config::GetRecentFloppyDiskPathString(int drv, int pos) const
+{
+	return recent_disk_path[drv][pos]->path.Get();
+}
+int Config::GetRecentFloppyDiskPathNumber(int drv, int pos) const
+{
+	return recent_disk_path[drv][pos]->num;
+}
+void Config::UpdateRecentFloppyDiskPath(int drv, const _TCHAR *path, int num)
+{
+	recent_disk_path[drv].Update(path, num);
+}
+bool Config::UpdatedRecentFloppyDiskPath(int drv) const
+{
+	return recent_disk_path[drv].updated;
+}
+void Config::RecentFloppyDiskPathUpdated(int drv, bool val)
+{
+	recent_disk_path[drv].updated = val;
+}
+CRecentPath &Config::GetOpenedFloppyDiskPath(int drv)
+{
+	return opened_disk_path[drv];
+}
+const _TCHAR *Config::GetOpenedFloppyDiskPathString(int drv) const
+{
+	return opened_disk_path[drv].path.Get();
+}
+int Config::GetOpenedFloppyDiskPathNumber(int drv) const
+{
+	return opened_disk_path[drv].num;
+}
+void Config::SetOpenedFloppyDiskPath(int drv, const _TCHAR *path, int num)
+{
+	opened_disk_path[drv].Set(path, num);
+}
+void Config::SetNewOpenedFloppyDiskPath(int drv, const _TCHAR *path, int num)
+{
+	opened_disk_path[drv].Clear();
+	opened_disk_path[drv].Set(path, num);
+}
+void Config::ClearOpenedFloppyDiskPath(int drv)
+{
+	opened_disk_path[drv].Clear();
+}
+#endif
+
+#ifdef USE_HD1
+const _TCHAR *Config::GetInitialHardDiskPath() const
+{
+	return initial_hard_disk_path.Get();
+}
+const _TCHAR *Config::GetInitialHardDiskPathForWinGUI()
+{
+	return initial_hard_disk_path.GetM();
+}
+void Config::SetInitialHardDiskPathFrom(const _TCHAR *path)
+{
+	initial_hard_disk_path.SetFromPath(path);
+}
+CRecentPathList &Config::GetRecentHardDiskPathList(int drv)
+{
+	int idx = hd_drv2idx[drv];
+	if (idx < 0) return recent_hard_disk_path[0];
+
+	return recent_hard_disk_path[idx];
+}
+int Config::GetRecentHardDiskPathCount(int drv) const
+{
+	int idx = hd_drv2idx[drv];
+	if (idx < 0) return 0;
+
+	return recent_hard_disk_path[idx].Count();
+}
+int Config::GetRecentHardDiskPathLength(int drv, int pos) const
+{
+	int idx = hd_drv2idx[drv];
+	if (idx < 0) return 0;
+
+	return recent_hard_disk_path[idx][pos]->path.Length();
+}
+const _TCHAR *Config::GetRecentHardDiskPathString(int drv, int pos) const
+{
+	int idx = hd_drv2idx[drv];
+	if (idx < 0) return NULL;
+
+	return recent_hard_disk_path[idx][pos]->path.Get();
+}
+int Config::GetRecentHardDiskPathNumber(int drv, int pos) const
+{
+	int idx = hd_drv2idx[drv];
+	if (idx < 0) return 0;
+
+	return recent_hard_disk_path[idx][pos]->num;
+}
+void Config::UpdateRecentHardDiskPath(int drv, const _TCHAR *path, int num)
+{
+	int idx = hd_drv2idx[drv];
+	if (idx < 0) return;
+
+	recent_hard_disk_path[idx].Update(path, num);
+}
+CRecentPath &Config::GetOpenedHardDiskPath(int drv)
+{
+	int idx = hd_drv2idx[drv];
+	if (idx < 0) return opened_hard_disk_path[0];
+
+	return opened_hard_disk_path[idx];
+}
+const _TCHAR *Config::GetOpenedHardDiskPathString(int drv) const
+{
+	int idx = hd_drv2idx[drv];
+	if (idx < 0) return NULL;
+
+	return opened_hard_disk_path[idx].path.Get();
+}
+int Config::GetOpenedHardDiskPathNumber(int drv) const
+{
+	int idx = hd_drv2idx[drv];
+	if (idx < 0) return -1;
+
+	return opened_hard_disk_path[idx].num;
+}
+void Config::SetOpenedHardDiskPath(int drv, const _TCHAR *path, int num)
+{
+	int idx = hd_drv2idx[drv];
+	if (idx < 0) return;
+
+	opened_hard_disk_path[idx].Set(path, num);
+}
+void Config::SetNewOpenedHardDiskPath(int drv, const _TCHAR *path, int num)
+{
+	int idx = hd_drv2idx[drv];
+	if (idx < 0) return;
+
+	opened_hard_disk_path[idx].Clear();
+	opened_hard_disk_path[idx].Set(path, num);
+}
+void Config::ClearOpenedHardDiskPath(int drv)
+{
+	int idx = hd_drv2idx[drv];
+	if (idx < 0) return;
+
+	opened_hard_disk_path[idx].Clear();
+}
+int Config::GetHardDiskDeviceType(int drv) const
+{
+	int idx = hd_drv2idx[drv];
+	if (idx < 0) return 0;
+
+	return hd_device_type[idx];
+}
+void Config::SetHardDiskDeviceType(int drv, int num)
+{
+	int idx = hd_drv2idx[drv];
+	if (idx < 0) return;
+
+	hd_device_type[idx] = num;
+}
+int Config::GetHardDiskIndex(int drv) const
+{
+	return hd_drv2idx[drv];
+}
+#endif
+
+#ifdef USE_STATE
+const _TCHAR *Config::GetInitialStatePath() const
+{
+	return initial_state_path.Get();
+}
+const _TCHAR *Config::GetInitialStatePathForWinGUI()
+{
+	return initial_state_path.GetM();
+}
+void Config::SetInitialStatePathFrom(const _TCHAR *path)
+{
+	initial_state_path.SetFromPath(path);
+}
+CRecentPathList &Config::GetRecentStatePathList()
+{
+	return recent_state_path;
+}
+int Config::GetRecentStatePathCount() const
+{
+	return recent_state_path.Count();
+}
+int Config::GetRecentStatePathLength(int pos) const
+{
+	return recent_state_path[pos]->path.Length();
+}
+const _TCHAR *Config::GetRecentStatePathString(int pos) const
+{
+	return recent_state_path[pos]->path.Get();
+}
+int Config::GetRecentStatePathNumber(int pos) const
+{
+	return recent_state_path[pos]->num;
+}
+void Config::UpdateRecentStatePath(const _TCHAR *path, int num)
+{
+	recent_state_path.Update(path, num);
+}
+bool Config::UpdatedRecentStatePath() const
+{
+	return recent_state_path.updated;
+}
+void Config::RecentStatePathUpdated(bool val)
+{
+	recent_state_path.updated = val;
+}
+CRecentPath &Config::GetSavedStatePath()
+{
+	return saved_state_path;
+}
+const _TCHAR *Config::GetSavedStatePathString() const
+{
+	return saved_state_path.path.Get();
+}
+int Config::GetSavedStatePathNumber() const
+{
+	return saved_state_path.num;
+}
+void Config::SetSavedStatePath(const _TCHAR *path, int num)
+{
+	saved_state_path.Set(path, num);
+}
+void Config::SetNewSavedStatePath(const _TCHAR *path, int num)
+{
+	saved_state_path.Clear();
+	saved_state_path.Set(path, num);
+}
+void Config::ClearSavedStatePath()
+{
+	saved_state_path.Clear();
+}
+#endif
+
+#ifdef USE_AUTO_KEY
+const _TCHAR *Config::GetInitialAutoKeyPath() const
+{
+	return initial_autokey_path.Get();
+}
+const _TCHAR *Config::GetInitialAutoKeyPathForWinGUI()
+{
+	return initial_autokey_path.GetM();
+}
+void Config::SetInitialAutoKeyPathFrom(const _TCHAR *path)
+{
+	initial_autokey_path.SetFromPath(path);
+}
+CRecentPath &Config::GetOpenedAutoKeyPath()
+{
+	return opened_autokey_path;
+}
+const _TCHAR *Config::GetOpenedAutoKeyPathString() const
+{
+	return opened_autokey_path.path.Get();
+}
+int Config::GetOpenedAutoKeyPathNumber() const
+{
+	return opened_autokey_path.num;
+}
+void Config::SetOpenedAutoKeyPath(const _TCHAR *path, int num)
+{
+	opened_autokey_path.Set(path, num);
+}
+void Config::SetNewOpenedAutoKeyPath(const _TCHAR *path, int num)
+{
+	opened_autokey_path.Clear();
+	opened_autokey_path.Set(path, num);
+}
+void Config::ClearOpenedAutoKeyPath()
+{
+	opened_autokey_path.Clear();
+}
+#endif
+
+#ifdef USE_PRINTER
+const _TCHAR *Config::GetInitialPrinterPath() const
+{
+	return initial_printer_path.Get();
+}
+const _TCHAR *Config::GetInitialPrinterPathForWinGUI()
+{
+	return initial_printer_path.GetM();
+}
+void Config::SetInitialPrinterPathFrom(const _TCHAR *path)
+{
+	initial_printer_path.SetFromPath(path);
+}
+#endif

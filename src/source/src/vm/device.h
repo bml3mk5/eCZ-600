@@ -169,6 +169,12 @@ public:
 	virtual uint32_t read_memory_mapped_io32w(uint32_t addr, int* wait);
 	///@}
 
+	/// @name external bus (optional, user dependent)
+	///@{
+	virtual void    write_external_data8(uint32_t addr, uint32_t data);
+	virtual uint32_t read_external_data8(uint32_t addr);
+	///@}
+
 	/// device information to send signal
 	typedef struct {
 		DEVICE *device;
@@ -249,6 +255,7 @@ public:
 	virtual uint32_t search_sector(int side, bool compare);
 	virtual int  search_sector(int channel);
 	virtual int  search_sector(int channel, int track, int sect, bool compare_side, int side);
+	virtual int  search_sector_by_index(int channel, int track, int index, bool compare_sect, int sect, bool compare_side, int side);
 	virtual bool make_track();
 	virtual bool make_track(int channel);
 	virtual bool parse_track();

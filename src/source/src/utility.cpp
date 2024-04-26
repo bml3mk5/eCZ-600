@@ -452,7 +452,7 @@ void get_long_full_path_name(const _TCHAR* src, _TCHAR* dst, size_t dst_size)
 	_TCHAR tmp[_MAX_PATH];
 
 	memset(tmp, 0, sizeof(tmp));
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(USE_UTF8_ON_MBCS)
 # ifdef _UNICODE
 	if(GetFullPathNameW(src, _MAX_PATH, tmp, NULL) == 0)
 # else
@@ -944,10 +944,10 @@ int conv_mbs_to_utf8(const char *srcStart, int srcMaxSize, char *dstStart, int d
 #if defined(_WIN32)
 	wchar_t *dstTemp = new wchar_t[srcMaxSize + 1];
 	// MBS -> WideChar
-	len = MultiByteToWideChar(CP_ACP, 0, srcStart, -1, dstTemp, srcMaxSize + 1);
+	len = MultiByteToWideChar(CP_ACP, 0, srcStart, srcMaxSize + 1, dstTemp, srcMaxSize + 1);
 	if (len > 0) {
 		// WideChar -> UTF-8
-		len = WideCharToMultiByte(CP_UTF8, 0, dstTemp, -1, dstStart, dstMaxSize, NULL, NULL);
+		len = WideCharToMultiByte(CP_UTF8, 0, dstTemp, len, dstStart, dstMaxSize, NULL, NULL);
 	}
 	delete [] dstTemp;
 #endif
@@ -1028,10 +1028,10 @@ int conv_utf8_to_mbs(const char *srcStart, int srcMaxSize, char *dstStart, int d
 #if defined(_WIN32)
 	wchar_t dstTemp[1024];
 	// UTF-8 -> WideChar
-	len = MultiByteToWideChar(CP_UTF8, 0, srcStart, -1, dstTemp, 1024);
+	len = MultiByteToWideChar(CP_UTF8, 0, srcStart, srcMaxSize + 1, dstTemp, 1024);
 	if (len > 0) {
 		// WideChar -> MBS
-		len = WideCharToMultiByte(CP_ACP, 0, dstTemp, -1, dstStart, dstMaxSize, NULL, NULL);
+		len = WideCharToMultiByte(CP_ACP, 0, dstTemp, len, dstStart, dstMaxSize, NULL, NULL);
 	}
 #endif
 	if (len == 0) {

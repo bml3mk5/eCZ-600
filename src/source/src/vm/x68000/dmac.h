@@ -34,6 +34,7 @@ public:
 		SIG_REQ_3,
 		SIG_BG,
 		SIG_IACK,
+		SIG_BUSERR,
 	};
 
 private:
@@ -51,16 +52,20 @@ private:
 		CER_NO_ERROR = 0x00,
 		CER_CONFIGURATION = 0x01,
 		CER_OPERATION_TIMING = 0x02,
+		CER_ADDRERR = 0x04,
 		CER_ADDRERR_IN_MAR = 0x05,
 		CER_ADDRERR_IN_DAR = 0x06,
 		CER_ADDRERR_IN_BAR = 0x07,
+		CER_BUSERR = 0x08,
 		CER_BUSERR_IN_MAR = 0x09,
 		CER_BUSERR_IN_DAR = 0x0a,
 		CER_BUSERR_IN_BAR = 0x0b,
+		CER_COUNTERR = 0x0c,
 		CER_COUNTERR_IN_MTC = 0x0d,
 		CER_COUNTERR_IN_BTC = 0x0f,
 		CER_EXTERNAL_ABORT = 0x10,
 		CER_SOFTWARE_ABORT = 0x11,
+		CER_MASK = 0x1f,
 	};
 	enum en_dcr_flags {
 		DCR_XRM = 0xc0,	// external request mode
@@ -178,7 +183,20 @@ private:
 	uint8_t m_busreq;	 ///< asserting bus request (bit3-0: each asserting channel, b7-b4:request signal)
 	uint8_t m_interrupt; ///< asserting interrupt (bit3-0)
 	uint8_t m_intr_mask; ///< interrupt mask INT on CCR (bit3-0)
-	bool m_now_iack;	 ///< receiving IACK
+//	bool m_now_iack;	 ///< receiving IACK
+	uint8_t m_now_err;	///< receiving BUSERR
+	enum en_err_flags {
+		NOW_ERR_REASON	= 0xe0,
+		NOW_ERR_PHASE	= 0x03,
+		NOW_ERR_HALT	= 0x20,
+		NOW_ERR_BUSERR	= 0x40,
+		NOW_ERR_RETRY	= 0x60,
+		NOW_ERR_ADDRERR = 0xc0,
+		NOW_ERR_RESET	= 0xe0,
+		NOW_ERR_IN_MAR	= 0x01,
+		NOW_ERR_IN_DAR	= 0x02,
+		NOW_ERR_IN_BAR	= 0x03,
+	};
 
 	int m_register_id[END_OF_EVENT_IDS];
 
@@ -221,12 +239,13 @@ private:
 		uint8_t m_gcr;
 		uint8_t m_busreq;	 ///< asserting bus request (bit3-0: each asserting channel, b7-b4:request signal)
 		uint8_t m_interrupt; ///< asserting interrupt 
-		uint8_t m_now_iack;	 ///< receiving IACK
+		uint8_t reserved0;	// m_now_iack;	 ///< receiving IACK
 
 		int m_register_id[15];
 	};
 #pragma pack()
 
+	uint32_t read_via_debugger_data16(struct st_dma_regs *dma, uint32_t addr);
 	void write_via_debugger_data_n(struct st_dma_regs *dma, uint32_t addr, uint32_t data, int width);
 	uint32_t read_via_debugger_data_n(struct st_dma_regs *dma, uint32_t addr, int width);
 	void write_via_debugger_io8(struct st_dma_regs *dma, uint32_t addr, uint32_t data);
@@ -283,6 +302,7 @@ public:
 	void write_io8(uint32_t addr, uint32_t data);
 	void write_io16(uint32_t addr, uint32_t data);
 	void write_io_n(uint32_t addr, uint32_t data, int width);
+	uint32_t read_external_data8(uint32_t addr);
 	uint32_t read_io8(uint32_t addr);
 	uint32_t read_io16(uint32_t addr);
 	uint32_t read_io_n(uint32_t addr, int width);

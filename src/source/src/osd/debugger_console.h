@@ -115,7 +115,7 @@ public:
 //	bool IsHistoryEnabled(int index) const;
 
 	void SetCurrentCPUName(const char *name);
-	const _TCHAR *GetCurrentCPUName() const { return current_cpu_name; }
+	const _TCHAR *GetCurrentCPUName() const { return current_cpu_name.Get(); }
 
 	void Running(bool val) { now_running = val; }
 	bool NowRunning() const { return now_running; }

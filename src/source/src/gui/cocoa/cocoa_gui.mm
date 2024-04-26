@@ -20,6 +20,7 @@
 #import "cocoa_recaudpanel.h"
 #import "cocoa_seldrvpanel.h"
 #import "cocoa_joysetpanel.h"
+#import "cocoa_hdtypepanel.h"
 //#import "cocoa_savedatarec.h"
 #import "cocoa_ledbox.h"
 #ifdef USE_VKEYBOARD
@@ -238,7 +239,7 @@ static NSWindow *get_main_window()
 		char str[_MAX_PATH];
 		[menu removeAllItems];
 		for(int i = 0; i < list.Count(); i++) {
-			if (!gui->GetRecentFileStr(list[i]->path, list[i]->num, str, 64)) break;
+			if (!gui->GetRecentFileStr(list[i]->path.Get(), list[i]->num, str, 64)) break;
 			[menu add_menu_item:str:self:action:drv:i:0];
 			flag = true;
 		}
@@ -463,6 +464,17 @@ static NSWindow *get_main_window()
 	int num = [sender num];
 
 	gui->ShowOpenBlankHardDiskDialog(drv, (uint8_t)num);
+}
+- (void)ToggleWriteProtectHardDisk:(id)sender
+{
+	int drv = [sender drv];
+	gui->PostEtToggleWriteProtectHardDisk(drv);
+}
+- (void)ShowSelectHardDiskDeviceTypeDialog:(id)sender
+{
+	int drv = [sender drv];
+
+	gui->ShowSelectHardDiskDeviceTypeDialog(drv);
 }
 - (void)OpenRecentHardDisk:(id)sender
 {
@@ -743,6 +755,10 @@ static NSWindow *get_main_window()
 {
 	gui->ShowVirtualKeyboard();
 }
+- (void)ShowLoggingDialog:(id)sender
+{
+	gui->ShowLoggingDialog();
+}
 
 #ifdef USE_DEBUGGER
 - (void)OpenDebugger:(id)sender
@@ -819,7 +835,7 @@ static NSWindow *get_main_window()
 			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(UpdateRecentStateList:)) {
-		[self UpdateRecentFiles:menuItem:pConfig->recent_state_path:0:@selector(LoadRecentState:)];
+		[self UpdateRecentFiles:menuItem:pConfig->GetRecentStatePathList():0:@selector(LoadRecentState:)];
 //	} else if (act == @selector(StopRecordRecKey:)) {
 //		if (!gui->NowRecordingRecKey()) {
 //			enable = FALSE;
@@ -834,7 +850,7 @@ static NSWindow *get_main_window()
 			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(ToggleRealModeDataRec:)) {
-		if (pConfig->realmode_datarec) {
+		if (pConfig->NowRealModeDataRec()) {
 			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(RewindDataRec:)
@@ -845,7 +861,7 @@ static NSWindow *get_main_window()
 			enable = FALSE;
 		}
 	} else if (act == @selector(UpdateRecentDataRecList:)) {
-		[self UpdateRecentFiles:menuItem:pConfig->recent_datarec_path:0:@selector(LoadRecentDataRec:)];
+		[self UpdateRecentFiles:menuItem:pConfig->GetRecentDataRecPathList():0:@selector(LoadRecentDataRec:)];
 #endif
 #ifdef USE_FD1
 	} else if (act == @selector(ShowOpenFloppyDiskDialog:)) {
@@ -863,7 +879,7 @@ static NSWindow *get_main_window()
 			state = NSControlStateValueOn;
 		}
 	} else if (act == @selector(UpdateRecentFloppyList:)) {
-		[self UpdateRecentFiles:menuItem:pConfig->recent_disk_path[drv]:drv:@selector(OpenRecentFloppy:)];
+		[self UpdateRecentFiles:menuItem:pConfig->GetRecentFloppyDiskPathList(drv):drv:@selector(OpenRecentFloppy:)];
 	} else if (act == @selector(UpdateVolumeFloppyList:)) {
 		CocoaMenu *menu = (CocoaMenu *)[menuItem submenu];
 		if (menu != nil) {
@@ -900,8 +916,20 @@ static NSWindow *get_main_window()
 		if (!gui->MountedHardDisk(drv)) {
 			enable = FALSE;
 		}
+	} else if (act == @selector(ToggleWriteProtectHardDisk:)) {
+		if (gui->WriteProtectedHardDisk(drv)) {
+			state = NSControlStateValueOn;
+		}
+	} else if (act == @selector(ShowSelectHardDiskDeviceTypeDialog:)) {
+		char label[64];
+		int num = gui->GetCurrentHardDiskDeviceType(drv);
+		UTILITY::strcpy(label, sizeof(label), CMSG(Device_Type));
+		UTILITY::strcat(label, sizeof(label), CMSG(LB_Now_SP));
+		UTILITY::strcat(label, sizeof(label), LABELS::hd_device_type[num]);
+		UTILITY::strcat(label, sizeof(label), ")...");
+		[menuItem setTitle:[NSString stringWithUTF8String:label]];
 	} else if (act == @selector(UpdateRecentHardDiskList:)) {
-		[self UpdateRecentFiles:menuItem:pConfig->recent_hard_disk_path[drv]:drv:@selector(OpenRecentHardDisk:)];
+		[self UpdateRecentFiles:menuItem:pConfig->GetRecentHardDiskPathList(drv):drv:@selector(OpenRecentHardDisk:)];
 #endif
 	} else if (act == @selector(ChangeFrameRate:)) {
 		int num = [menuItem num];
@@ -1130,6 +1158,10 @@ static NSWindow *get_main_window()
 		if (gui->IsShownVirtualKeyboard()) {
 			state = NSControlStateValueOn;
 		}
+	} else if (act == @selector(ShowLoggingDialog:)) {
+		if (gui->IsShownLoggingDialog()) {
+			state = NSControlStateValueOn;
+		}
 #ifdef USE_DEBUGGER
 	} else if (act == @selector(OpenDebugger:)) {
 //		int num = [menuItem num];
@@ -1268,6 +1300,7 @@ GUI::GUI(int argc, char **argv, EMU *new_emu) : GUI_BASE(argc, argv, new_emu)
 {
 	recv = [[CocoaController alloc] init];
 	[recv setGui:this];
+	logging_dlg = nil;
 }
 
 GUI::~GUI()
@@ -1483,7 +1516,7 @@ void GUI::setup_menu(void)
 
 	// fdd menu
 
-	for(drv = 0; drv < USE_DRIVE; drv++) {
+	for(drv = 0; drv < USE_FLOPPY_DISKS; drv++) {
 		UTILITY::sprintf(name, sizeof(name), CMSG(FDDVDIGIT), drv);
 
 		CocoaMenu *fddMenu = [CocoaMenu create_menu:name];
@@ -1526,9 +1559,26 @@ void GUI::setup_menu(void)
 	CocoaMenu *hddMenu = [CocoaMenu create_menu_by_id:CMsg::HDD];
 
 	for(drv = 0; drv < MAX_HARD_DISKS; drv++) {
-		UTILITY::sprintf(name, sizeof(name), CMSG(SASIVDIGIT), drv);
+		if (pConfig->GetHardDiskIndex(drv) < 0) continue;
+		if (drv == MAX_SASI_HARD_DISKS) {
+			[hddMenu addItem:[NSMenuItem separatorItem]];
+		}
+
+		int hdrv, hunit;
+		if (drv < MAX_SASI_HARD_DISKS) {
+			hdrv = drv / SASI_UNITS_PER_CTRL;
+			hunit = drv % SASI_UNITS_PER_CTRL;
+			UTILITY::sprintf(name, sizeof(name), CMSG(SASIVDIGIT_uVDIGIT), hdrv, hunit);
+		} else {
+			hdrv = drv - MAX_SASI_HARD_DISKS;
+			UTILITY::sprintf(name, sizeof(name), CMSG(SCSIVDIGIT), hdrv);
+		}
 
 		CocoaMenu *hddSubMenu = [CocoaMenu create_menu:name];
+
+		[hddSubMenu add_menu_item_by_id:CMsg::Device_Type:recv:@selector(ShowSelectHardDiskDeviceTypeDialog:):drv:0:0];
+
+		[hddSubMenu addItem:[NSMenuItem separatorItem]];
 
 		[hddSubMenu add_menu_item_by_id:CMsg::Mount_:recv:@selector(ShowOpenHardDiskDialog:):drv:0:0];
 		[hddSubMenu add_menu_item_by_id:CMsg::Unmount:recv:@selector(CloseHardDisk:):drv:0:0];
@@ -1540,6 +1590,10 @@ void GUI::setup_menu(void)
 			[newBMenu add_menu_item_by_id:CMsg::Mount_Blank_40MB_:recv:@selector(ShowOpenBlankHardDiskDialog:):drv:2:0];
 			[hddSubMenu add_sub_menu_by_id:newBMenu:CMsg::New];
 		}
+		[hddSubMenu addItem:[NSMenuItem separatorItem]];
+
+		[hddSubMenu add_menu_item_by_id:CMsg::Write_Protect:recv:@selector(ToggleWriteProtectHardDisk:):drv:0:0];
+
 		[hddSubMenu addItem:[NSMenuItem separatorItem]];
 
 #ifdef USE_DELEGATE
@@ -1745,6 +1799,7 @@ void GUI::setup_menu(void)
 	[optionMenu add_menu_item_by_id:CMsg::Show_LED:recv:@selector(ToggleLedBox:):0:1:'l'];
 	[optionMenu add_menu_item_by_id:CMsg::Inside_LED:recv:@selector(ToggleLedBox:):0:2:'l'];
 	[optionMenu add_menu_item_by_id:CMsg::Show_Message:recv:@selector(ToggleMessageBoard:):0:0:'z'];
+	[optionMenu add_menu_item_by_id:CMsg::Log_:recv:@selector(ShowLoggingDialog:):0:0:0];
 #ifdef USE_PERFORMANCE_METER
 	[optionMenu add_menu_item_by_id:CMsg::Show_Performance_Meter:recv:@selector(TogglePMeter:):0:0:0];
 #endif
@@ -1829,7 +1884,7 @@ bool GUI::ShowLoadDataRecDialog(void)
 	[panel setAllowedFileTypes:fileTypes];
 	[panel setAllowsOtherFileTypes:YES];
 	// set current folder
-	[panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->initial_datarec_path]]];
+	[panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->GetInitialDataRecPath()]]];
 
 	// Display modal dialog
 	result = [panel runModal];
@@ -1891,7 +1946,7 @@ bool GUI::ShowOpenFloppyDiskDialog(int drv)
 	[panel setAllowedFileTypes:fileTypes];
 	[panel setAllowsOtherFileTypes:YES];
 	// set current folder
-	[panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->initial_disk_path]]];
+	[panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->GetInitialFloppyDiskPath()]]];
 
 	// Display modal dialog
 	result = [panel runModal];
@@ -1947,7 +2002,7 @@ bool GUI::ShowOpenBlankFloppyDiskDialog(int drv, uint8_t type)
 //	[panel setAllowsOtherFileTypes:YES];
 	[panel setExtensionHidden:NO];
 	// set current folder
-	[panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->initial_disk_path]]];
+	[panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->GetInitialFloppyDiskPath()]]];
 	// set default file name
 	char file_name[128];
 	UTILITY::create_date_file_path(NULL, file_name, 128, _T("d88"));
@@ -1988,11 +2043,16 @@ bool GUI::ShowOpenHardDiskDialog(int drv)
 	// title
 	[panel setTitle:[NSString stringWithUTF8String:title]];
 	// filtering file types
-	NSArray *fileTypes = get_file_filter(LABELS::hard_disk_exts);
+	NSArray *fileTypes;
+	if (drv < MAX_SASI_HARD_DISKS) {
+		fileTypes = get_file_filter(LABELS::sasi_hard_disk_exts);
+	} else {
+		fileTypes = get_file_filter(LABELS::scsi_hard_disk_exts);
+	}
 	[panel setAllowedFileTypes:fileTypes];
 	[panel setAllowsOtherFileTypes:YES];
 	// set current folder
-	[panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->initial_hard_disk_path]]];
+	[panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->GetInitialHardDiskPath()]]];
 
 	// Display modal dialog
 	result = [panel runModal];
@@ -2023,12 +2083,17 @@ bool GUI::ShowOpenBlankHardDiskDialog(int drv, uint8_t type)
 	// title
 	[panel setTitle:[NSString stringWithUTF8String:title]];
 	// filtering file types
-	NSArray *fileTypes = get_file_filter(LABELS::blank_hard_disk_exts);
+	NSArray *fileTypes;
+	if (drv < MAX_SASI_HARD_DISKS) {
+		fileTypes = get_file_filter(LABELS::blank_sasi_hard_disk_exts);
+	} else {
+		fileTypes = get_file_filter(LABELS::blank_scsi_hard_disk_exts);
+	}
 	[panel setAllowedFileTypes:fileTypes];
 //	[panel setAllowsOtherFileTypes:YES];
 	[panel setExtensionHidden:NO];
 	// set current folder
-	[panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->initial_hard_disk_path]]];
+	[panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->GetInitialHardDiskPath()]]];
 	// set default file name
 	char file_name[128];
 	UTILITY::create_date_file_path(NULL, file_name, 128, _T("hdf"));
@@ -2052,6 +2117,32 @@ bool GUI::ShowOpenBlankHardDiskDialog(int drv, uint8_t type)
 	SetFocusToMainWindow();
 	return rc;
 }
+
+bool GUI::ShowSelectHardDiskDeviceTypeDialog(int drv)
+{
+	NSInteger	result;
+
+	CocoaHDTypePanel *panel;
+
+	PostEtSystemPause(true);
+	GoWindowMode();
+
+	int num = GetHardDiskDeviceType(drv);
+	panel = [[CocoaHDTypePanel alloc] initWithType:drv type:num];
+
+	// Display modal dialog
+	result = [panel runModal];
+	if (result == NSModalResponseOK) {
+		num = [panel deviceType];
+		ChangeHardDiskDeviceType(drv, num);
+	}
+
+	[panel release];
+
+	PostEtSystemPause(false);
+	SetFocusToMainWindow();
+	return (result == NSModalResponseOK);
+}
 #endif	// USE_HD1
 
 bool GUI::ShowLoadStateDialog(void)
@@ -2070,7 +2161,7 @@ bool GUI::ShowLoadStateDialog(void)
 	[panel setAllowedFileTypes:fileTypes];
 
 	// set current folder
-	[panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->initial_state_path]]];
+	[panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->GetInitialStatePath()]]];
 
 	// Display modal dialog
 	result = [panel runModal];
@@ -2104,7 +2195,7 @@ bool GUI::ShowSaveStateDialog(bool cont)
 	[panel setExtensionHidden:NO];
 
 	// set current folder
-	[panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->initial_state_path]]];
+	[panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->GetInitialStatePath()]]];
 
 	// Display modal dialog
 	result = [panel runModal];
@@ -2137,7 +2228,7 @@ bool GUI::ShowOpenAutoKeyDialog(void)
 	[panel setAllowedFileTypes:fileTypes];
 
 	// set current folder
-	[panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->initial_autokey_path]]];
+	[panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->GetInitialAutoKeyPath()]]];
 
 	// Display modal dialog
 	result = [panel runModal];
@@ -2169,7 +2260,7 @@ bool GUI::ShowPlayRecKeyDialog(void)
 	NSArray *fileTypes = get_file_filter(LABELS::key_rec_file_exts);
 	[panel setAllowedFileTypes:fileTypes];
 	// set current folder
-	[panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->initial_state_path]]];
+	[panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->GetInitialStatePath()]]];
 
 	// Display modal dialog
 	result = [panel runModal];
@@ -2203,7 +2294,7 @@ bool GUI::ShowRecordRecKeyDialog(void)
 	[panel setExtensionHidden:NO];
 
 	// set current folder
-	[panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->initial_state_path]]];
+	[panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->GetInitialStatePath()]]];
 
 	// Display modal dialog
 	result = [panel runModal];
@@ -2238,7 +2329,7 @@ bool GUI::ShowSavePrinterDialog(int drv)
 	[panel setExtensionHidden:NO];
 
 	// set current folder
-	[panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->initial_printer_path]]];
+	[panel setDirectoryURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:pConfig->GetInitialPrinterPath()]]];
 
 	// Display modal dialog
 	result = [panel runModal];
@@ -2414,6 +2505,24 @@ bool GUI::ShowConfigureDialog(void)
 	return (result == NSModalResponseOK);
 }
 
+bool GUI::ShowLoggingDialog(void)
+{
+	if (!logging_dlg) {
+		logging_dlg = [[CocoaLoggingPanel alloc] init];
+	}
+	if (!IsShownLoggingDialog()) {
+		[logging_dlg run];
+	} else {
+		[logging_dlg close];
+	}
+	return true;
+}
+
+bool GUI::IsShownLoggingDialog(void)
+{
+	return logging_dlg ? [logging_dlg isVisible] == TRUE : false;
+}
+
 void GUI::GoWindowMode(void)
 {
 	if (IsFullScreen()) {
@@ -2449,12 +2558,8 @@ void remove_window_menu(void)
     if (i >= 0) [mainMenu removeItemAtIndex:i];
 }
 
-#ifdef _MBS1
-#define APPLE_MENU_STRING _TX("About mbs1"),_TX("Hide mbs1"),_TX("Hide Others"),_TX("Show All"),_TX("Quit mbs1"),_TX("Services"),_TX("Preferences…")
-#elif defined(_X68000)
-#define APPLE_MENU_STRING _TX("About x68000"),_TX("Hide x68000"),_TX("Hide Others"),_TX("Show All"),_TX("Quit x68000"),_TX("Services"),_TX("Preferences…")
-#else
-#define APPLE_MENU_STRING _TX("About bml3mk5"),_TX("Hide bml3mk5"),_TX("Hide Others"),_TX("Show All"),_TX("Quit bml3mk5"),_TX("Services"),_TX("Preferences…")
+#if defined(_X68000)
+#define APPLE_MENU_STRING _TX("About x68000"),_TX("Hide x68000"),_TX("Hide Others"),_TX("Show All"),_TX("Quit x68000"),_TX("Services"),_TX("Preferences…"),_TX("Window")
 #endif
 
 void translate_apple_menu(void)

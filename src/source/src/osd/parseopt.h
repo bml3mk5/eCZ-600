@@ -29,10 +29,13 @@ protected:
 
 	CTchar *tape_file;
 #ifdef USE_FD1
-	CTchar *disk_file[USE_DRIVE];
+	CTchar *disk_file[USE_FLOPPY_DISKS];
 #endif
 #ifdef USE_HD1
-	CTchar *hard_disk_file[MAX_HARD_DISKS];
+	CTchar *sasi_hard_disk_file[USE_SASI_HARD_DISKS];
+#endif
+#ifdef USE_HD17
+	CTchar *scsi_hard_disk_file[USE_SCSI_HARD_DISKS];
 #endif
 	CTchar *state_file;
 	CTchar *autokey_file;

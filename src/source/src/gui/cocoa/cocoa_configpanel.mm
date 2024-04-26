@@ -63,8 +63,11 @@ extern GUI *gui;
 	CocoaLayout *hbox;
 
 	int i;
+	int valuei = 0;
+	uint32_t valueu = 0;
 
 	_TCHAR bname[10];
+	char str[128];
 
 	// ----------------------------------------
 	// CPU, Memory tab
@@ -77,7 +80,7 @@ extern GUI *gui;
 
 	hbox = [box_one addBox:HorizontalBox :MiddlePos :0 :_T("ROMPath")];
 	[CocoaLabel createI:hbox title:CMsg::ROM_Path_ASTERISK];
-	txtROMPath = [CocoaTextField createT:hbox text:pConfig->rom_path action:nil width:300];
+	txtROMPath = [CocoaTextField createT:hbox text:pConfig->rom_path.Get() action:nil width:300];
 	btn = [CocoaButton createI:hbox title:CMsg::Folder_ action:@selector(showFolderPanel:)];
 	[btn setRelatedObject:txtROMPath];
 
@@ -151,9 +154,6 @@ extern GUI *gui;
 
 	// parameters in SRAM
 	VM *vm = emu->get_vm();
-	int valuei = 0;
-	uint32_t valueu = 0;
-	char str[128];
 
 	[box_one addControl:[[NSBox alloc] init] width:256 height:2];
 
@@ -196,12 +196,6 @@ extern GUI *gui;
 	[CocoaLabel createI:hbox title:CMsg::Boot_Device];
 	valuei = vm->get_sram_boot_device();
 	popSramBootDevice = [CocoaPopUpButton createT:hbox items:LABELS::boot_devices action:nil selidx:valuei];
-
-	// number of SASI HDDs
-	hbox = [lbox addBox:HorizontalBox :0 :0 :_T("numhdd")];
-	[CocoaLabel createI:hbox title:CMsg::Number_of_HDDs];
-	valuei = vm->get_sram_sasi_hdd_nums();
-	stpSramNumHdds = [CocoaStepper createN:hbox min:0 max:15 value:valuei width:80];
 
 	// RS-232C
 	bbox = [lbox addBox:BoxViewBox :0 :COCOA_DEFAULT_MARGIN :_T("RS232C")];
@@ -371,21 +365,21 @@ extern GUI *gui;
 	// Snapshot path
 	hbox = [box_one addBox:HorizontalBox :MiddlePos :0 :_T("SnapPath")];
 	[CocoaLabel createI:hbox title:CMsg::Snapshot_Path];
-	txtSnapPath = [CocoaTextField createT:hbox text:pConfig->snapshot_path action:nil width:360];
+	txtSnapPath = [CocoaTextField createT:hbox text:pConfig->snapshot_path.Get() action:nil width:360];
 	btn = [CocoaButton createI:hbox title:CMsg::Folder_ action:@selector(showFolderPanel:)];
 	[btn setRelatedObject:txtSnapPath];
 
 	// Font path
 	hbox = [box_one addBox:HorizontalBox :MiddlePos :0 :_T("FontPath")];
 	[CocoaLabel createI:hbox title:CMsg::Font_Path];
-	txtFontPath = [CocoaTextField createT:hbox text:pConfig->font_path action:nil width:360];
+	txtFontPath = [CocoaTextField createT:hbox text:pConfig->font_path.Get() action:nil width:360];
 	btn = [CocoaButton createI:hbox title:CMsg::Folder_ action:@selector(showFolderPanel:)];
 	[btn setRelatedObject:txtFontPath];
 
 	// Message font
 	hbox = [box_one addBox:HorizontalBox :MiddlePos :0 :_T("MsgFont")];
 	[CocoaLabel createI:hbox title:CMsg::Message_Font];
-	txtMsgFontName = [CocoaTextField createT:hbox text:pConfig->msgboard_msg_fontname action:nil width:200];
+	txtMsgFontName = [CocoaTextField createT:hbox text:pConfig->msgboard_msg_fontname.Get() action:nil width:200];
 
 	[CocoaLabel createI:hbox title:CMsg::_Size];
 	txtMsgFontSize = [CocoaTextField createN:hbox num:pConfig->msgboard_msg_fontsize action:nil width:100];
@@ -395,7 +389,7 @@ extern GUI *gui;
 	// Information font
 	hbox = [box_one addBox:HorizontalBox :MiddlePos :0 :_T("InfoFont")];
 	[CocoaLabel createI:hbox title:CMsg::Info_Font];
-	txtInfoFontName = [CocoaTextField createT:hbox text:pConfig->msgboard_info_fontname action:nil width:200];
+	txtInfoFontName = [CocoaTextField createT:hbox text:pConfig->msgboard_info_fontname.Get() action:nil width:200];
 
 	[CocoaLabel createI:hbox title:CMsg::_Size];
 	txtInfoFontSize = [CocoaTextField createN:hbox num:pConfig->msgboard_info_fontsize action:nil width:100];
@@ -477,7 +471,7 @@ extern GUI *gui;
 	// mount fdd
 	hbox = [vbox addBox:HorizontalBox :MiddlePos :0 :_T("MountH")];
 	[CocoaLabel createI:hbox title:CMsg::When_start_up_mount_disk_at_];
-	for(i=0; i<MAX_DRIVE; i++) {
+	for(i=0; i<USE_FLOPPY_DISKS; i++) {
 		char name[4];
 		UTILITY::sprintf(name, sizeof(name), "%d ", i);
 		chkFddMount[i] = [CocoaCheckBox createT:hbox title:name action:nil value:(pConfig->mount_fdd & (1 << i))];
@@ -492,21 +486,85 @@ extern GUI *gui;
 
 	// HDD
 #ifdef USE_HD1
-	bbox = [box_one addBox:BoxViewBox :0 :COCOA_DEFAULT_MARGIN :_T("Hdd2B")];
+	CocoaLayout *hbox_hdd = [box_one addBox:HorizontalBox :MiddlePos :0 :_T("HDD")];
+	bbox = [hbox_hdd addBox:BoxViewBox :0 :COCOA_DEFAULT_MARGIN :_T("Hdd2LB")];
 	[CocoaBox createI:bbox :CMsg::Hard_Disk_Drive :320 :1];
 
-	vbox = [bbox addBox:VerticalBox :0 :0 :_T("Hdd2V")];
+	vbox = [bbox addBox:VerticalBox :0 :0 :_T("Hdd2LV")];
 
 	// mount hdd
 	hbox = [vbox addBox:HorizontalBox :MiddlePos :0 :_T("MountH")];
 	[CocoaLabel createI:hbox title:CMsg::When_start_up_mount_disk_at_];
 	for(i=0; i<MAX_HARD_DISKS; i++) {
-		char name[4];
-		UTILITY::sprintf(name, sizeof(name), "%d ", i);
-		chkHddMount[i] = [CocoaCheckBox createT:hbox title:name action:nil value:(pConfig->mount_hdd & (1 << i))];
+		int idx = pConfig->GetHardDiskIndex(i);
+		if (idx < 0) continue;
+		char name[12];
+		if (i==0 || i==MAX_SASI_HARD_DISKS) {
+			hbox = [vbox addBox:HorizontalBox :MiddlePos :0];
+			[CocoaLabel createT:hbox title:"  "];
+		}
+		if (i<MAX_SASI_HARD_DISKS) {
+			int sdrv = i / SASI_UNITS_PER_CTRL;
+			int sunit = i % SASI_UNITS_PER_CTRL;
+			UTILITY::sprintf(name, sizeof(name), "SASI%d u%d ", sdrv, sunit);
+		} else {
+			UTILITY::sprintf(name, sizeof(name), "SCSI%d ", i - MAX_SASI_HARD_DISKS);
+		}
+		chkHddMount[idx] = [CocoaCheckBox createT:hbox title:name action:nil value:(pConfig->mount_hdd & (1 << i))];
 	}
 
 	chkDelayHd2 = [CocoaCheckBox createI:vbox title:CMsg::Ignore_delays_to_seek_track action:nil value:(FLG_DELAY_HDSEEK != 0)];
+
+	bbox = [hbox_hdd addBox:BoxViewBox :0 :COCOA_DEFAULT_MARGIN :_T("Hdd2RB")];
+	[CocoaBox createI:bbox :CMsg::Parameters_for_hard_disk_in_SRAM :200 :1];
+
+	vbox = [bbox addBox:VerticalBox :0 :0 :_T("Hdd2RV")];
+
+	// number of SASI HDDs
+	hbox = [vbox addBox:HorizontalBox :0 :0 :_T("numhdd")];
+	[CocoaLabel createI:hbox title:CMsg::Number_of_SASI_HDDs];
+	valuei = vm->get_sram_sasi_hdd_nums();
+	stpSramNumHdds = [CocoaStepper createN:hbox min:0 max:15 value:valuei width:60];
+
+	// SCSI enable flag
+	hbox = [vbox addBox:HorizontalBox :0 :0 :_T("scsien")];
+	chkSramScsiEn = [CocoaCheckBox createI:hbox title:CMsg::SCSI_enable_flag action:nil value:vm->get_sram_scsi_enable_flag()];
+
+	// SCSI host ID
+	hbox = [vbox addBox:HorizontalBox :0 :0 :_T("scsiid")];
+	[CocoaLabel createI:hbox title:CMsg::SCSI_host_ID];
+	valuei = vm->get_sram_scsi_host_id();
+	txtSramScsiId = [CocoaTextField createN:hbox num:valuei action:nil width:60];
+
+	// SASI HDDs on SCSI
+	hbox = [vbox addBox:HorizontalBox :0 :0 :_T("sasiscsi")];
+	[CocoaLabel createI:hbox title:CMsg::SASI_HDDs_on_SCSI];
+	valueu = vm->get_sram_sasi_hdd_on_scsi();
+	UTILITY::sprintf(str, sizeof(str), "%x", valueu);
+	txtSramSasiOnScsi = [CocoaTextField createT:hbox text:str action:nil width:60];
+
+
+	// scsi type
+	bbox = [box_one addBox:BoxViewBox :0 :COCOA_DEFAULT_MARGIN :_T("Hdd3B")];
+	[CocoaBox createI:bbox :CMsg::SCSI_Type_ASTERISK :320 :1];
+
+	vbox = [bbox addBox:VerticalBox :0 :0 :_T("Hdd3V")];
+
+	hbox = [vbox addBox:HorizontalBox :MiddlePos :0 :_T("SCSITY")];
+	valuei = emu->get_parami(VM::ParamSCSIType);
+#ifndef USE_SCSI_TYPE_IN
+	if (valuei > SCSI_TYPE_EX) valuei = SCSI_TYPE_EX;
+#endif
+	for(i=0; i<SCSI_TYPE_END; i++) {
+		radSCSIType[i] = [CocoaRadioButton createI:hbox title:LABELS::scsi_type[i] index:i action:@selector(selectSCSIType:) value:i == valuei];
+	}
+//	hbox = [vbox addBox:HorizontalBox :MiddlePos :0 :_T("SCSITYN")];
+	UTILITY::strcpy(str, sizeof(str), CMSG(LB_Now_SP));
+	UTILITY::strcat(str, sizeof(str), CMSGV(LABELS::scsi_type[pConfig->scsi_type]));
+	UTILITY::strcat(str, sizeof(str), _T(")"));
+	[CocoaLabel createT:hbox title:str];
+
+	[CocoaLabel createI:box_one title:CMsg::Need_restart_program_or_PowerOn];
 #endif
 
 	// ----------------------------------------
@@ -523,10 +581,10 @@ extern GUI *gui;
 		char name[128];
 		UTILITY::sprintf(name, sizeof(name), CMSG(Printer_Hostname), i);
 
-		UTILITY::stprintf(bname, sizeof(bname), _T("LPT%d"), i);
+		UTILITY::stprintf(bname, sizeof(bname)/sizeof(bname[0]), _T("LPT%d"), i);
 		hbox = [box_one addBox:HorizontalBox :MiddlePos :0 :bname];
 		[CocoaLabel createT:hbox title:name width:120];
-		txtLPTHost[i] = [CocoaTextField createT:hbox text:pConfig->printer_server_host[i] action:nil width:140];
+		txtLPTHost[i] = [CocoaTextField createT:hbox text:pConfig->printer_server_host[i].Get() action:nil width:140];
 
 		[CocoaLabel createI:hbox title:CMsg::_Port align:NSTextAlignmentRight];
 		txtLPTPort[i] = [CocoaTextField createN:hbox num:pConfig->printer_server_port[i] action:nil align:NSTextAlignmentRight width:80];
@@ -544,10 +602,10 @@ extern GUI *gui;
 		char name[128];
 		UTILITY::sprintf(name, sizeof(name), CMSG(Communication_Hostname), i);
 
-		UTILITY::stprintf(bname, sizeof(bname), _T("COM%d"), i);
+		UTILITY::stprintf(bname, sizeof(bname)/sizeof(bname[0]), _T("COM%d"), i);
 		hbox = [box_one addBox:HorizontalBox :0 :0 :bname];
 		[CocoaLabel createT:hbox title:name width:120];
-		txtCOMHost[i] = [CocoaTextField createT:hbox text:pConfig->comm_server_host[i] action:nil width:140];
+		txtCOMHost[i] = [CocoaTextField createT:hbox text:pConfig->comm_server_host[i].Get() action:nil width:140];
 
 		[CocoaLabel createI:hbox title:CMsg::_Port align:NSTextAlignmentRight];
 		txtCOMPort[i] = [CocoaTextField createN:hbox num:pConfig->comm_server_port[i] action:nil align:NSTextAlignmentRight width:80];
@@ -559,7 +617,7 @@ extern GUI *gui;
 	hbox = [box_one addBox:HorizontalBox :0 :0 :_T("Debugger")];
 
 	[CocoaLabel createI:hbox title:CMsg::Connectable_host_to_Debugger];
-	txtDbgrHost = [CocoaTextField createT:hbox text:pConfig->debugger_server_host action:nil width:140];
+	txtDbgrHost = [CocoaTextField createT:hbox text:pConfig->debugger_server_host.Get() action:nil width:140];
 
 	[CocoaLabel createI:hbox title:CMsg::_Port align:NSTextAlignmentRight];
 	txtDbgrPort = [CocoaTextField createN:hbox num:pConfig->debugger_server_port action:nil align:NSTextAlignmentRight width:80];
@@ -644,7 +702,7 @@ extern GUI *gui;
 	emu->set_parami(VM::ParamMainRamSizeNum, (int)[popMainRam indexOfSelectedItem]);
 
 #ifdef USE_FD1
-	for(i=0;i<MAX_DRIVE;i++) {
+	for(i=0;i<USE_FLOPPY_DISKS;i++) {
 		pConfig->mount_fdd = (([chkFddMount[i] state] == NSControlStateValueOn) ? pConfig->mount_fdd | (1 << i) : pConfig->mount_fdd & ~(1 << i));
 	}
 	pConfig->option_fdd = ([chkDelayFd1 state] == NSControlStateValueOn ? MSK_DELAY_FDSEARCH : 0)
@@ -656,9 +714,20 @@ extern GUI *gui;
 
 #ifdef USE_HD1
 	for(i=0;i<MAX_HARD_DISKS;i++) {
-		pConfig->mount_hdd = (([chkHddMount[i] state] == NSControlStateValueOn) ? pConfig->mount_hdd | (1 << i) : pConfig->mount_hdd & ~(1 << i));
+		int idx = pConfig->GetHardDiskIndex(i);
+		if (idx < 0) continue;
+		BIT_ONOFF(pConfig->mount_hdd, (1 << i), [chkHddMount[idx] state] == NSControlStateValueOn);
 	}
 	pConfig->option_hdd = ([chkDelayHd2 state] == NSControlStateValueOn ? MSK_DELAY_HDSEEK : 0);
+	
+	valuel = 0;
+	for(i=0;i<SCSI_TYPE_END;i++) {
+		if ([radSCSIType[i] state] == NSControlStateValueOn) {
+			valuel = i;
+			break;
+		}
+	}
+	emu->set_parami(VM::ParamSCSIType, valuel);
 #endif
 
 #if 0
@@ -843,11 +912,27 @@ extern GUI *gui;
 	valuel |= [chkSramKLEDzen state] == NSControlStateValueOn ? 64 : 0;
 	vm->set_sram_key_led(valuel);
 
+#ifdef USE_HD1
 	// number of SASI HDDs
 	valuel = [stpSramNumHdds intValue];
 	if (valuel >= 0 && valuel <= 15) {
 		vm->set_sram_sasi_hdd_nums(valuel);
 	}
+	// SCSI enable flag
+	vm->set_sram_scsi_enable_flag([chkSramScsiEn state] == NSControlStateValueOn);
+
+	// SCSI host ID
+	valuel = [txtSramScsiId intValue];
+	if (valuel >= 0 && valuel <= 7) {
+		vm->set_sram_scsi_host_id(valuel);
+	}
+
+	// SASI HDDs on SCSI
+	valueu = (uint32_t)strtol([[txtSramSasiOnScsi stringValue] UTF8String], &endptr, 16);
+	if (endptr && *endptr == 0) {
+		vm->set_sram_sasi_hdd_on_scsi(valueu & 0xff);
+	}
+#endif
 #endif
 
 	// set message font
@@ -1016,4 +1101,13 @@ extern GUI *gui;
 //	}
 }
 
+#ifdef USE_HD1
+- (void)selectSCSIType:(CocoaRadioButton *)sender
+{
+	int idx = [sender index];
+	for(int i=0; i<SCSI_TYPE_END; i++) {
+		[radSCSIType[i] setState:(i == idx ? NSControlStateValueOn : NSControlStateValueOff)];
+	}
+}
+#endif
 @end

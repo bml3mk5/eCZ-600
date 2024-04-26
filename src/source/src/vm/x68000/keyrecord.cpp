@@ -746,11 +746,11 @@ bool KEYRECORD::play_reckey(const _TCHAR* filename)
 		bool tape_playing = true;
 #endif
 #ifdef USE_FD1
-		_TCHAR *disk_file[MAX_DRIVE];
-		int disk_bank_num[MAX_DRIVE];
+		_TCHAR *disk_file[USE_FLOPPY_DISKS];
+		int disk_bank_num[USE_FLOPPY_DISKS];
 #endif
 #ifdef USE_HD1
-		_TCHAR *hard_disk_file[MAX_HARD_DISKS];
+		_TCHAR *hard_disk_file[USE_HARD_DISKS];
 #endif
 		int drv = 0;
 		int major = 0;
@@ -758,12 +758,12 @@ bool KEYRECORD::play_reckey(const _TCHAR* filename)
 		int revision = 0;
 
 #ifdef USE_FD1
-		for(drv = 0; drv < MAX_DRIVE; drv++) {
+		for(drv = 0; drv < USE_FLOPPY_DISKS; drv++) {
 			disk_file[drv] = NULL;
 		}
 #endif
 #ifdef USE_HD1
-		for(drv = 0; drv < MAX_HARD_DISKS; drv++) {
+		for(drv = 0; drv < USE_HARD_DISKS; drv++) {
 			hard_disk_file[drv] = NULL;
 		}
 #endif
@@ -787,7 +787,7 @@ bool KEYRECORD::play_reckey(const _TCHAR* filename)
 #endif
 #ifdef USE_FD1
 			} else if (sscanf(rec_key_tmp_buff, "Disk%dFile:", &drv) == 1) {
-				if (0 <= drv && drv < MAX_DRIVE) {
+				if (0 <= drv && drv < USE_FLOPPY_DISKS) {
 					get_file_path(base_path, &disk_file[drv], &disk_bank_num[drv]);
 					logging->out_debugf(_T("Disk%dFile:%s:%d"),drv,disk_file[drv],disk_bank_num[drv]);
 				}
@@ -795,8 +795,11 @@ bool KEYRECORD::play_reckey(const _TCHAR* filename)
 #ifdef USE_HD1
 			} else if (sscanf(rec_key_tmp_buff, "HardDisk%dFile:", &drv) == 1) {
 				if (0 <= drv && drv < MAX_HARD_DISKS) {
-					get_file_path(base_path, &hard_disk_file[drv], NULL);
-					logging->out_debugf(_T("HardDisk%dFile:%s"),drv,hard_disk_file[drv]);
+					int idx = pConfig->GetHardDiskIndex(drv);
+					if (idx >= 0) {
+						get_file_path(base_path, &hard_disk_file[idx], NULL);
+						logging->out_debugf(_T("HardDisk%dFile:%s"),drv,hard_disk_file[idx]);
+					}
 				}
 #endif
 			} else if (sscanf(rec_key_tmp_buff, "EmulatorVersion:%d.%d.%d", &major, &minor, &revision) == 3) {
@@ -818,7 +821,7 @@ bool KEYRECORD::play_reckey(const _TCHAR* filename)
 		}
 #endif
 #ifdef USE_FD1
-		for(drv = 0; drv < MAX_DRIVE; drv++) {
+		for(drv = 0; drv < USE_FLOPPY_DISKS; drv++) {
 			if (disk_file[drv]) {
 				if (!emu->is_same_floppy_disk(drv, disk_file[drv], disk_bank_num[drv])) {
 					emu->open_floppy_disk_by_bank_num(drv, disk_file[drv], disk_bank_num[drv], OPEN_DISK_FLAGS_FORCELY, false);
@@ -830,9 +833,11 @@ bool KEYRECORD::play_reckey(const _TCHAR* filename)
 #endif
 #ifdef USE_HD1
 		for(drv = 0; drv < MAX_HARD_DISKS; drv++) {
-			if (hard_disk_file[drv]) {
-				if (!emu->is_same_hard_disk(drv, hard_disk_file[drv])) {
-					emu->open_hard_disk(drv, hard_disk_file[drv], OPEN_DISK_FLAGS_FORCELY);
+			int idx = pConfig->GetHardDiskIndex(drv);
+			if (idx < 0) continue;
+			if (hard_disk_file[idx]) {
+				if (!emu->is_same_hard_disk(drv, hard_disk_file[idx])) {
+					emu->open_hard_disk(drv, hard_disk_file[idx], OPEN_DISK_FLAGS_FORCELY);
 				}
 			} else {
 				emu->close_hard_disk(drv);
@@ -845,12 +850,12 @@ bool KEYRECORD::play_reckey(const _TCHAR* filename)
 		delete [] tape_file;
 #endif
 #ifdef USE_FD1
-		for(drv = 0; drv < MAX_DRIVE; drv++) {
+		for(drv = 0; drv < USE_FLOPPY_DISKS; drv++) {
 			delete [] disk_file[drv];
 		}
 #endif
 #ifdef USE_HD1
-		for(drv = 0; drv < MAX_HARD_DISKS; drv++) {
+		for(drv = 0; drv < USE_HARD_DISKS; drv++) {
 			delete [] hard_disk_file[drv];
 		}
 #endif
@@ -903,10 +908,10 @@ bool KEYRECORD::record_reckey(const _TCHAR* filename)
 		UTILITY::sprintf(rec_key_tmp_buff, sizeof(rec_key_tmp_buff), "EmulatorVersion:%d.%d.%d\n", APP_VER_MAJOR, APP_VER_MINOR, APP_VER_REV);
 		fkro->Fwrite(rec_key_tmp_buff, strlen(rec_key_tmp_buff), 1);
 
-		set_relative_path("StateFile", base_path, pConfig->saved_state_path);
+		set_relative_path("StateFile", base_path, pConfig->GetSavedStatePath());
 
 #ifdef USE_DATAREC
-		if (set_relative_path("TapeFile", base_path, pConfig->opened_datarec_path)) {
+		if (set_relative_path("TapeFile", base_path, pConfig->GetOpenedDataRecPath())) {
 			if (emu->datarec_opened(true)) {
 				sprintf(rec_key_tmp_buff, "TapeType:Play\n");
 				fkro->Fwrite(rec_key_tmp_buff, strlen(rec_key_tmp_buff), 1);
@@ -917,15 +922,17 @@ bool KEYRECORD::record_reckey(const _TCHAR* filename)
 		}
 #endif
 #ifdef USE_FD1
-		for(int drv = 0; drv < MAX_DRIVE; drv++) {
+		for(int drv = 0; drv < USE_FLOPPY_DISKS; drv++) {
 			UTILITY::sprintf(keyname, sizeof(keyname), "Disk%dFile", drv);
-			set_relative_path(keyname, base_path, pConfig->opened_disk_path[drv]);
+			set_relative_path(keyname, base_path, pConfig->GetOpenedFloppyDiskPath(drv));
 		}
 #endif
 #ifdef USE_HD1
 		for(int drv = 0; drv < MAX_HARD_DISKS; drv++) {
+			int idx = pConfig->GetHardDiskIndex(drv);
+			if (idx < 0) continue;
 			UTILITY::sprintf(keyname, sizeof(keyname), "HardDisk%dFile", drv);
-			set_relative_path(keyname, base_path, pConfig->opened_hard_disk_path[drv]);
+			set_relative_path(keyname, base_path, pConfig->GetOpenedHardDiskPath(drv));
 		}
 #endif
 		UTILITY::sprintf(rec_key_tmp_buff, sizeof(rec_key_tmp_buff), "\n");
@@ -961,7 +968,7 @@ bool KEYRECORD::set_relative_path(const char *key, const _TCHAR *base_path, CRec
 	_TCHAR npath[_MAX_PATH];
 	char mpath[_MAX_PATH];
 
-	UTILITY::tcscpy(npath, _MAX_PATH, path.path);
+	UTILITY::tcscpy(npath, _MAX_PATH, path.path.Get());
 	UTILITY::make_relative_path(base_path, npath);
 	if (path.num > 0) pConfig->set_number_in_path(npath, _MAX_PATH, path.num);
 	UTILITY::cconv_from_native_path(npath, mpath, _MAX_PATH);

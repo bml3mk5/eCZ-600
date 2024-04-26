@@ -11,10 +11,10 @@ svn update
 cd source\VC++2010
 : VCExpress.exe %app%.vcxproj %tag% /build Release
 
-msbuild.exe %app%_sdl.vcxproj %tag% /p:Configuration=Release_SDL2;Platform=Win32
+rem msbuild.exe %app%_sdl.vcxproj %tag% /p:Configuration=Release_SDL2;Platform=Win32
 msbuild.exe %app%_sdl.vcxproj %tag% /p:Configuration=Release_SDL2;Platform=x64
 
-msbuild.exe %app%_sdl.vcxproj %tag% /p:Configuration=Release_SDL2_Dbgr;Platform=Win32
+rem msbuild.exe %app%_sdl.vcxproj %tag% /p:Configuration=Release_SDL2_Dbgr;Platform=Win32
 msbuild.exe %app%_sdl.vcxproj %tag% /p:Configuration=Release_SDL2_Dbgr;Platform=x64
 
 rem msbuild.exe %mmf%.vcxproj %tag% /p:Configuration=DLLRelease;Platform=Win32

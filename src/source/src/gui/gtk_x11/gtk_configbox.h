@@ -51,7 +51,6 @@ private:
 	GtkWidget *comSramKRDelay;
 	GtkWidget *comSramKRRate;
 	GtkWidget *chkSramAlarm;
-	GtkWidget *spnSramNumHdds;
 	GtkWidget *chkSramKLEDkana;
 	GtkWidget *chkSramKLEDromaji;
 	GtkWidget *chkSramKLEDcinput;
@@ -97,7 +96,7 @@ private:
 #endif
 
 #ifdef USE_FD1
-	GtkWidget *chkFDMount[MAX_DRIVE];
+	GtkWidget *chkFDMount[USE_FLOPPY_DISKS];
 
 	GtkWidget *chkDelayFd1;
 	GtkWidget *chkDelayFd2;
@@ -107,9 +106,15 @@ private:
 #endif
 
 #ifdef USE_HD1
-	GtkWidget *chkHDMount[MAX_HARD_DISKS];
+	GtkWidget *chkHDMount[USE_HARD_DISKS];
 
 	GtkWidget *chkDelayHd2;
+	GtkWidget *radSCSIType[SCSI_TYPE_END];
+
+	GtkWidget *spnSramNumHdds;
+	GtkWidget *chkSramScsiEn;
+	GtkWidget *txtSramScsiId;
+	GtkWidget *txtSramSasiOnScsi;
 #endif
 
 #ifdef MAX_PRINTER

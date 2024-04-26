@@ -59,14 +59,15 @@ private:
 	outputs_t outputs_reset;
 	outputs_t outputs_irq;
 	outputs_t outputs_halt;
-	outputs_t outputs_iack;
+//	outputs_t outputs_iack[8];
 
 	uint16_t now_halt;
 	uint16_t now_irq;
 	uint16_t now_wreset;
 
 	uint8_t m_now_fc;	///< function code on CPU
-	bool m_now_iack;	///< receiving IACK
+//	bool m_now_iack;	///< receiving IACK (int1)
+	uint16_t m_now_irq_ack;
 
 	uint8_t m_int1_mask;		///< int1 mask
 	uint8_t m_int1_mask_s;		///< int1 mask swap flags 0x80:FDC 0x40:FDD 0x20:Printer 0x10:HDD
@@ -92,9 +93,9 @@ private:
 		uint16_t now_halt;
 		uint16_t now_irq;
 		uint16_t now_wreset;
-		char reserved1[2];
+		uint16_t m_now_irq_ack;
 		uint8_t m_now_fc;	///< function code on CPU
-		uint8_t m_now_iack;	///< receiving IACK
+		uint8_t reserved0;	// m_now_iack;	///< receiving IACK
 		uint8_t m_int1_mask;		///< int1 mask
 		uint8_t m_int1_mask_s;		///< int1 mask swap flags 0x80:FDC 0x40:FDD 0x20:Printer 0x10:HDD
 
@@ -115,7 +116,9 @@ public:
 		init_output_signals(&outputs_reset);
 		init_output_signals(&outputs_irq);
 		init_output_signals(&outputs_halt);
-		init_output_signals(&outputs_iack);
+//		for(int i=0; i<8; i++) {
+//			init_output_signals(&outputs_iack[i]);
+//		}
 	}
 	~BOARD() {}
 
@@ -125,11 +128,13 @@ public:
 	void warm_reset(bool por);
 	void cancel_my_event(int &id);
 	void write_io8(uint32_t addr, uint32_t data);
+	uint32_t read_external_data8(uint32_t addr);
 	uint32_t read_io8(uint32_t addr);
 	void write_signal(int id, uint32_t data, uint32_t mask);
 	uint32_t read_signal(int id);
 	void event_callback(int event_id, int err);
 	void event_frame();
+	uint32_t get_intr_ack();
 
 	// unique functions
 	void set_context_power(DEVICE* device, int id, uint32_t mask, uint32_t negative) {
@@ -144,9 +149,9 @@ public:
 	void set_context_halt(DEVICE* device, int id, uint32_t mask) {
 		register_output_signal(&outputs_halt, device, id, mask);
 	}
-	void set_context_iack(DEVICE* device, int id, uint32_t mask) {
-		register_output_signal(&outputs_iack, device, id, mask);
-	}
+//	void set_context_iack(int irq_num, DEVICE* device, int id, uint32_t mask) {
+//		register_output_signal(&outputs_iack[irq_num], device, id, mask);
+//	}
 	void set_context_cpu(DEVICE *device) {
 		d_cpu = device;
 	}

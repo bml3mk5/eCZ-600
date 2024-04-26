@@ -22,7 +22,7 @@
 #ifdef _DEBUG
 //#define OUT_DEBUG_IRQ(p, n, ...) if ((p | n) & 0xe0) logging->out_debugf(__VA_ARGS__)
 #define OUT_DEBUG_IRQ(...)
-//#define OUT_DEBUG_IACK logging->out_debugf
+//#define OUT_DEBUG_IACK(...) logging->out_debugf(__VA_ARGS__)
 #define OUT_DEBUG_IACK(...)
 //#define OUT_DEBUG_INT1 logging->out_debugf
 #else
@@ -46,7 +46,8 @@ void BOARD::reset()
 	now_irq  = 1; write_signal(SIG_CPU_IRQ,  0, 1);
 	now_wreset = 0;
 	m_now_fc = 0;
-	m_now_iack = false;
+//	m_now_iack = false;
+	m_now_irq_ack = 0;
 
 	m_int1_mask = 0;
 	m_int1_mask_s = 0;
@@ -70,7 +71,8 @@ void BOARD::warm_reset(bool por)
 	now_irq  = 1; write_signal(SIG_CPU_IRQ,  0, 1);
 	now_wreset = 0;
 	m_now_fc = 0;
-	m_now_iack = false;
+//	m_now_iack = false;
+	m_now_irq_ack = 0;
 
 	m_int1_mask = 0;
 	m_int1_mask_s = 0;
@@ -113,21 +115,29 @@ void BOARD::write_io8(uint32_t addr, uint32_t data)
 	}
 }
 
+/// now interrupt, send vector number
+uint32_t BOARD::read_external_data8(uint32_t addr)
+{
+	// interrupt vector signal
+	uint32_t data = m_vector;
+	return data;
+}
+
 uint32_t BOARD::read_io8(uint32_t addr)
 {
 	// $E9C000
 	uint32_t data = 0;
-	if (m_now_iack) {
-		// interrupt vector signal
-		data = m_vector;
-	} else {
+//	if (m_now_iack) {
+//		// interrupt vector signal
+//		data = m_vector;
+//	} else {
 		switch(addr & 1) {
 		case 0:
 			// interrupt mask
 			data = m_int1_status | (m_int1_mask & 0xf);
 			break;
 		}
-	}
+//	}
 	return data;
 }
 
@@ -213,31 +223,63 @@ void BOARD::write_signal(int id, uint32_t data, uint32_t mask)
 					// NMI
 					d_cpu->write_signal(SIG_M68K_VPA_AVEC, 1, 1);
 				} else {
-					m_now_iack = true;
-					write_signals(&outputs_iack, 1);
-					for(int i=0; i<4; i++) {
-						if (m_int1_status & m_int1_mask_s & c_int1_priority[i]) {
-							m_vector = m_int1_vec_num | (i & 3);
-							break;
+//					uint16_t bit_irq = 0x40;
+//					for(int n=6; n>=2; n--) {
+//						if (now_irq & bit_irq) {
+//							write_signals(&outputs_iack[n], 1);
+//						}
+//						bit_irq >>= 1;
+//					}
+
+					if (now_irq & 0x02) {
+//						m_now_iack = true;
+						for(int i=0; i<4; i++) {
+							if (m_int1_status & m_int1_mask_s & c_int1_priority[i]) {
+								m_vector = m_int1_vec_num | (i & 3);
+								break;
+							}
 						}
 					}
+
 					OUT_DEBUG_IACK(_T("clk:%lld IRQ ACK ON  now:%04X")
 						, get_current_clock(), now_irq);
 				}
+				m_now_irq_ack = now_irq;
+
 			} else if (m_now_fc == 7) {
-				if (now_irq & 0x80) {
+				if (m_now_irq_ack & 0x80) {
 					// NMI
 					d_cpu->write_signal(SIG_M68K_VPA_AVEC, 0, 1);
 				} else {
-					m_now_iack = false;
-					write_signals(&outputs_iack, 0);
+//					uint16_t bit_irq = 0x40;
+//					for(int n=6; n>=2; n--) {
+//						if (m_now_irq_ack & bit_irq) {
+//							write_signals(&outputs_iack[n], 0);
+//							m_now_irq_ack &= ~bit_irq;
+//						}
+//						bit_irq >>= 1;
+//					}
+
+//					if (m_now_irq_ack & 0x02) {
+//						m_now_iack = false;
+//						m_now_irq_ack &= ~0x02;
+//					}
+
 					OUT_DEBUG_IACK(_T("clk:%lld IRQ ACK OFF now:%04X")
-						, get_current_clock(), now_irq);
+						, get_current_clock(), m_now_irq_ack);
 				}
+				m_now_irq_ack = now_irq;
+
 			}
 			m_now_fc = data;
 			break;
 	}
+}
+
+//
+uint32_t BOARD::get_intr_ack()
+{
+	return m_now_fc;
 }
 
 //                                        FDC   FDD   HDD   Printer 
@@ -301,7 +343,7 @@ void BOARD::save_state(FILEIO *fio)
 {
 	struct vm_state_st vm_state;
 
-	vm_state_ident.version = Uint16_LE(1);
+	vm_state_ident.version = Uint16_LE(2);
 	vm_state_ident.size = Uint32_LE(sizeof(vm_state_ident) + sizeof(vm_state));
 
 	memset(&vm_state, 0, sizeof(vm_state));
@@ -315,9 +357,10 @@ void BOARD::save_state(FILEIO *fio)
 	SET_Uint16_LE(now_halt);
 	SET_Uint16_LE(now_irq);
 	SET_Uint16_LE(now_wreset);
+	SET_Uint16_LE(m_now_irq_ack);
 
 	SET_Byte(m_now_fc);			///< function code on CPU
-	SET_Bool(m_now_iack);		///< receiving IACK
+//	SET_Bool(m_now_iack);		///< receiving IACK
 	SET_Byte(m_int1_mask);		///< int1 mask
 	SET_Byte(m_int1_mask_s);	///< int1 mask swap flags 0x80:FDC 0x40:FDD 0x20:Printer 0x10:HDD
 	SET_Byte(m_int1_status);	///< int1 flags  0x80:FDC 0x40:FDD 0x20:Printer 0x10:HDD
@@ -355,9 +398,10 @@ bool BOARD::load_state(FILEIO *fio)
 	GET_Uint16_LE(now_halt);
 	GET_Uint16_LE(now_irq);
 	GET_Uint16_LE(now_wreset);
+	GET_Uint16_LE(m_now_irq_ack);
 
 	GET_Byte(m_now_fc);			///< function code on CPU
-	GET_Bool(m_now_iack);		///< receiving IACK
+//	GET_Bool(m_now_iack);		///< receiving IACK
 	GET_Byte(m_int1_mask);		///< int1 mask
 	GET_Byte(m_int1_mask_s);	///< int1 mask swap flags 0x80:FDC 0x40:FDD 0x20:Printer 0x10:HDD
 	GET_Byte(m_int1_status);	///< int1 flags  0x80:FDC 0x40:FDD 0x20:Printer 0x10:HDD
@@ -368,6 +412,11 @@ bool BOARD::load_state(FILEIO *fio)
 	GET_Int32_LE(wreset_register_id);	// normal reset
 	GET_Int32_LE(preset_register_id);	// power on reset
 
+	if (vm_state_i.version ==  Uint16_LE(1)) {
+		if (m_now_fc == 7) {
+			m_now_irq_ack = now_irq;
+		}
+	}
 
 	vm->set_pause(3, pConfig->now_power_off);
 

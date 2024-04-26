@@ -869,11 +869,13 @@
     <ClCompile Include="..\src\gui\windows\win_folderbox.cpp" />
     <ClCompile Include="..\src\gui\windows\win_fontbox.cpp" />
     <ClCompile Include="..\src\gui\windows\win_gui.cpp" />
+    <ClCompile Include="..\src\gui\windows\win_hdtypebox.cpp" />
     <ClCompile Include="..\src\gui\windows\win_joysetbox.cpp" />
     <ClCompile Include="..\src\gui\windows\win_key_trans.cpp" />
     <ClCompile Include="..\src\gui\windows\win_keybindbox.cpp" />
     <ClCompile Include="..\src\gui\windows\win_keybindctrl.cpp" />
     <ClCompile Include="..\src\gui\windows\win_ledbox.cpp" />
+    <ClCompile Include="..\src\gui\windows\win_loggingbox.cpp" />
     <ClCompile Include="..\src\gui\windows\win_recaudbox.cpp" />
     <ClCompile Include="..\src\gui\windows\win_seldrvbox.cpp" />
     <ClCompile Include="..\src\gui\windows\win_vkeyboard.cpp" />
@@ -975,7 +977,9 @@
     <ClCompile Include="..\src\vm\x68000\rtc.cpp" />
     <ClCompile Include="..\src\vm\x68000\sasi.cpp" />
     <ClCompile Include="..\src\vm\x68000\scc.cpp" />
+    <ClCompile Include="..\src\vm\x68000\scsi.cpp" />
     <ClCompile Include="..\src\vm\x68000\sprite_bg.cpp" />
+    <ClCompile Include="..\src\vm\x68000\sxsi.cpp" />
     <ClCompile Include="..\src\vm\x68000\sysport.cpp" />
     <ClCompile Include="..\src\vm\x68000\x68000.cpp" />
     <ClCompile Include="..\src\vm\ym2151.cpp" />
@@ -1018,11 +1022,13 @@
     <ClInclude Include="..\src\gui\windows\win_folderbox.h" />
     <ClInclude Include="..\src\gui\windows\win_fontbox.h" />
     <ClInclude Include="..\src\gui\windows\win_gui.h" />
+    <ClInclude Include="..\src\gui\windows\win_hdtypebox.h" />
     <ClInclude Include="..\src\gui\windows\win_joysetbox.h" />
     <ClInclude Include="..\src\gui\windows\win_key_trans.h" />
     <ClInclude Include="..\src\gui\windows\win_keybindbox.h" />
     <ClInclude Include="..\src\gui\windows\win_keybindctrl.h" />
     <ClInclude Include="..\src\gui\windows\win_ledbox.h" />
+    <ClInclude Include="..\src\gui\windows\win_loggingbox.h" />
     <ClInclude Include="..\src\gui\windows\win_recaudbox.h" />
     <ClInclude Include="..\src\gui\windows\win_seldrvbox.h" />
     <ClInclude Include="..\src\gui\windows\win_vkeyboard.h" />
@@ -1134,7 +1140,9 @@
     <ClInclude Include="..\src\vm\x68000\rtc.h" />
     <ClInclude Include="..\src\vm\x68000\sasi.h" />
     <ClInclude Include="..\src\vm\x68000\scc.h" />
+    <ClInclude Include="..\src\vm\x68000\scsi.h" />
     <ClInclude Include="..\src\vm\x68000\sprite_bg.h" />
+    <ClInclude Include="..\src\vm\x68000\sxsi.h" />
     <ClInclude Include="..\src\vm\x68000\sysport.h" />
     <ClInclude Include="..\src\vm\x68000\x68000.h" />
     <ClInclude Include="..\src\vm\x68000\x68000_defs.h" />

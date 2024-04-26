@@ -83,7 +83,7 @@ void ScreenMode::Enum(int desktop_width, int desktop_height, int bits_per_pixel)
 			DEVMODE dev;
 			ZeroMemory(&dev, sizeof(dev));
 			dev.dmSize = sizeof(dev);
-			if(EnumDisplaySettings(dd->name, i, &dev) == 0) {
+			if(EnumDisplaySettings(dd->name.Get(), i, &dev) == 0) {
 				break;
 			}
 			w = dev.dmPelsWidth;
