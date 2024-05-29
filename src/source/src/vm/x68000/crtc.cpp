@@ -9,6 +9,8 @@
 */
 
 #include "crtc.h"
+#include "display.h"
+#include "sysport.h"
 #include "../../emu.h"
 #include "../../config.h"
 #include "../../fileio.h"
@@ -201,14 +203,23 @@ void CRTC::write_io_m(uint32_t addr, uint32_t data, uint32_t mask)
 		break;
 
 	case 21: // TX_ACCESS
+		STORE_DATA(m_regs[addrh], data & c_regs_mask[addrh], mask);
+//#ifdef OUT_DEBUG_GCLS
+//		OUT_DEBUG_GCLS(_T("CRTC R21 W:%04X"), data);
+//#endif
+		break;
+
 	case 22: // RASTER_COPY
+		STORE_DATA(m_regs[addrh], data & c_regs_mask[addrh], mask);
+		break;
+
 	case 23: // TX_BITMASK
 		STORE_DATA(m_regs[addrh], data & c_regs_mask[addrh], mask);
 		break;
 
 	case 0x240: // CRTC ACCESS PORT
 		STORE_DATA(m_vram_accs, data & 0x000f, mask);
-		m_trig_vram_accs |= (m_vram_accs & ~0x5);
+		m_trig_vram_accs |= (m_vram_accs & (OP_TCOPY | OP_GCLS));
 
 #ifdef OUT_DEBUG_ACCS
 		OUT_DEBUG_ACCS(_T("CRTC ACCS: W:%02X"), m_vram_accs);
@@ -219,13 +230,34 @@ void CRTC::write_io_m(uint32_t addr, uint32_t data, uint32_t mask)
 			OUT_DEBUG_ACCS(_T(" => START CLEAR GRAPHIC"));
 		}
 #endif
+#ifdef OUT_DEBUG_RASCPY
+		if (m_vram_accs & OP_TCOPY) {
+			OUT_DEBUG_RASCPY(_T("RASCPY START R21:%04X SRC:%d DST:%d")
+				,m_regs[CRTC_CONTROL1]
+				,((m_regs[CRTC_RASTER_ADDR] >> 8) & 0xff)
+				,(m_regs[CRTC_RASTER_ADDR] & 0xff)
+			);
+		}
+#endif
+#ifdef OUT_DEBUG_GCLS
+		if (m_vram_accs & OP_GCLS) {
+			OUT_DEBUG_GCLS(_T("GCLS START R21:%04X P0(%d,%d) P1(%d,%d) P2(%d,%d) P3(%d,%d)")
+				,m_regs[CRTC_CONTROL1]
+				,m_regs[CRTC_GSCROLL_X_0],m_regs[CRTC_GSCROLL_Y_0]
+				,m_regs[CRTC_GSCROLL_X_1],m_regs[CRTC_GSCROLL_Y_1]
+				,m_regs[CRTC_GSCROLL_X_2],m_regs[CRTC_GSCROLL_Y_2]
+				,m_regs[CRTC_GSCROLL_X_3],m_regs[CRTC_GSCROLL_Y_3]);
+		}
+#endif
 
+#if 0
 		// raster copy immediately
-		if (m_now_hsync && (m_trig_vram_accs & OP_TCOPY) != 0) {
+		if (m_now_hsync && (m_vram_accs & OP_TCOPY) != 0) {
 			raster_copy_tvram();
-			m_vram_accs &= ~OP_TCOPY;
+			// keep start flag for raster copy
 			m_trig_vram_accs &= ~OP_TCOPY;
 		}
+#endif
 
 		break;
 
@@ -269,9 +301,20 @@ void CRTC::set_max_raster_address(uint16_t data)
 void CRTC::event_pre_frame()
 {
 	if(m_timing_changed) {
+		DISPLAY::en_raster_modes raster_mode = DISPLAY::RASTER_NORMAL_NONINTER;
+		int left_base = 0;
+		int top_base = 0;
+		uint32_t hori_freq = 0;	// 0:31kHz 0x40:15kHz 0x80:24kHz
+
 		m_intr_vline_mask = ~0;
 
-		uint32_t ctrl0 = m_regs[CRTC_CONTROL0];
+		// calcrate horizontal
+		set_horizontal_params();
+
+		// calcrate vertical
+		set_vertical_params();
+
+		uint32_t ctrl0 = (m_regs[CRTC_CONTROL0] & (CONTROL0_RESOLUTION | CONTROL0_HIRESO));
 		if (ctrl0 & CONTROL0_HIRESO) {
 			// hireso
 			m_now_dot_clocks = m_dot_clocks[1];
@@ -279,31 +322,170 @@ void CRTC::event_pre_frame()
 			switch(ctrl0 & CONTROL0_HRES) {
 //			case CONTROL0_H1024:	// 0x11 is same as 0x10 on X68000 Compact or lator
 			case CONTROL0_H768:
-				m_now_dot_clocks /= (m_sysport_hrl ? 2. : 2.);
-				mv_display_width = 768;
+				// 768
+				m_now_dot_clocks /= 2.;
+				if (m_hz_total >= 1824) {
+					// 1536 dot mode (15kHz) (invalid)
+					mv_display_width = 1024;
+					left_base = 16;
+					hori_freq = 0x40;
+				} else if (m_hz_total >= 1272) {
+					// 1024 dot mode (24kHz) (invalid)
+					mv_display_width = 1024;
+					left_base = 16;
+					hori_freq = 0x80;
+				} else {
+					// 768 dot mode (31kHz)
+					mv_display_width = 768;
+					left_base = 14;
+				}
 				break;
 			case CONTROL0_H1024:	// 0x11 is same as 0x01 on X68000
 			case CONTROL0_H512:
-				m_now_dot_clocks /= (m_sysport_hrl ? 4. : 3.);
-				mv_display_width = 512;
+				// 512
+				if (m_sysport_hrl) {
+					m_now_dot_clocks /= 4.;
+					if (m_hz_total >= 912) {
+						// 768 dot mode (15kHz)
+						mv_display_width = 768;
+						left_base = 14;
+						hori_freq = 0x40;
+					} else if (m_hz_total >= 636) {
+						// 512 dot mode (24kHz)
+						mv_display_width = 512;
+						left_base = 8;
+						hori_freq = 0x80;
+					} else {
+						// 384 dot mode (31kHz)
+						mv_display_width = 384;
+						left_base = 6;
+					}
+				} else {
+					m_now_dot_clocks /= 3.;
+					if (m_hz_total >= 1216) {
+						// 1024 dot mode (15kHz) (invalid)
+						mv_display_width = 768;
+						left_base = 14;
+						hori_freq = 0x40;
+					} else if (m_hz_total >= 848) {
+						// 768 dot mode (24kHz)
+						mv_display_width = 768;
+						left_base = 8;
+						hori_freq = 0x80;
+					} else {
+						// 512 dot mode (31kHz)
+						mv_display_width = 512;
+						left_base = 8;
+					}
+				}
 				break;
 			default:
-				m_now_dot_clocks /= (m_sysport_hrl ? 8. : 6.);
-				mv_display_width = 256;
+				// 256
+				if (m_sysport_hrl) {
+					m_now_dot_clocks /= 8.;
+					if (m_hz_total >= 488) {
+						// 384 dot mode (15kHz)
+						mv_display_width = 384;
+						left_base = 6;
+						hori_freq = 0x40;
+					} else if (m_hz_total >= 328) {
+						// 256 dot mode (24kHz)
+						mv_display_width = 256;
+						left_base = 3;
+						hori_freq = 0x80;
+					} else {
+						// 192 dot mode (31kHz)
+						mv_display_width = 192;
+						left_base = 1;
+					}
+				} else {
+					m_now_dot_clocks /= 6.;
+					if (m_hz_total >= 608) {
+						// 512 dot mode (15kHz)
+						mv_display_width = 512;
+						left_base = 8;
+						hori_freq = 0x40;
+					} else if (m_hz_total >= 424) {
+						// 384 dot mode (24kHz)
+						mv_display_width = 384;
+						left_base = 2;
+						hori_freq = 0x80;
+					} else {
+						// 256 dot mode (31kHz)
+						mv_display_width = 256;
+						left_base = 2;
+					}
+				}
 				break;
 			}
 			// vertical
 			switch(ctrl0 & CONTROL0_VRES) {
 			case CONTROL0_V1024:
 			case CONTROL0_V768:
+				// interlace
+				raster_mode = DISPLAY::RASTER_HIRESO_INTERLACE_1024;
 				m_intr_vline_mask = ~0;
-				mv_display_height = 512;
+				switch(hori_freq) {
+				case 0x40:
+					// 256 line mode (15kHz)
+					mv_display_height = 256;
+					top_base = 16;
+					break;
+				case 0x80:
+					// 424 line mode (24kHz)
+					mv_display_height = 512;
+					top_base = 25;
+					break;
+				default:
+					// 512 line mode (31kHz)
+					mv_display_height = 512;
+					top_base = 35;
+					break;
+				}
 				break;
 			case CONTROL0_V512:
-				mv_display_height = 512;
+				raster_mode = DISPLAY::RASTER_HIRESO_NONINTER;
+				switch(hori_freq) {
+				case 0x40:
+					// 256 line mode (15kHz)
+					mv_display_height = 256;
+					top_base = 16;
+					break;
+				case 0x80:
+					// 424 line mode (24kHz)
+					mv_display_height = 512;
+					top_base = 25;
+					break;
+				default:
+					// 512 line mode (31kHz)
+					mv_display_height = 512;
+					top_base = 35;
+					break;
+				}
 				break;
 			default:
-				mv_display_height = 256;
+				// double raster
+				raster_mode = DISPLAY::RASTER_HIRESO_DOUBLE;
+				switch(hori_freq) {
+				case 0x40:
+					// 256 line mode (15kHz)
+					// double raster 128 x 2
+					mv_display_height = 256;
+					top_base = 16;
+					break;
+				case 0x80:
+					// 424 line mode (24kHz)
+					// double raster 212 x 2
+					mv_display_height = 512;
+					top_base = 25;
+					break;
+				default:
+					// 512 line mode (31kHz)
+					// double raster 256 x 2
+					mv_display_height = 512;
+					top_base = 35;
+					break;
+				}
 				break;
 			}
 		} else {
@@ -319,11 +501,39 @@ void CRTC::event_pre_frame()
 			case CONTROL0_H1024:	// 0x11 is same as 0x01 on X68000
 			case CONTROL0_H512:
 				m_now_dot_clocks /= 4.;
-				mv_display_width = 512;
+				if (m_hz_total >= 504) {
+					// 512 dot mode (15kHz)
+					mv_display_width = 512;
+					left_base = 2;
+					hori_freq = 0x40;
+				} else if (m_hz_total >= 354) {
+					// 384 dot mode (24kHz)
+					mv_display_width = 384;
+					left_base = 1;
+					hori_freq = 0x80;
+				} else {
+					// 256 dot mode (31kHz)
+					mv_display_width = 256;
+					left_base = -1;
+				}
 				break;
 			default:
 				m_now_dot_clocks /= 8.;
-				mv_display_width = 256;
+				if (m_hz_total >= 254) {
+					// 256 dot mode (15kHz)
+					mv_display_width = 256;
+					left_base = -1;
+					hori_freq = 0x40;
+				} else if (m_hz_total >= 176) {
+					// 192 dot mode (24kHz)
+					mv_display_width = 192;
+					left_base = -2;
+					hori_freq = 0x80;
+				} else {
+					// 128 dot mode (31kHz) (invalid)
+					mv_display_width = 128;
+					left_base = -3;
+				}
 				break;
 			}
 			// vertical
@@ -331,31 +541,49 @@ void CRTC::event_pre_frame()
 			case CONTROL0_V1024:
 			case CONTROL0_V768:
 			case CONTROL0_V512:
+				// interlace
+				raster_mode = DISPLAY::RASTER_NORMAL_INTERLACE_512;
 				m_intr_vline_mask = ~0;
-				mv_display_height = 512;
+				switch(hori_freq) {
+				case 0x40:
+					// 512 line mode (15kHz)
+					mv_display_height = 512;
+					top_base = 6;
+					break;
+				case 0x80:
+					// 768 line mode (24kHz) (invalid)
+					mv_display_height = 512;
+					top_base = 6;
+					break;
+				default:
+					// 1024 line mode (31kHz) (invalid)
+					mv_display_height = 512;
+					top_base = 6;
+					break;
+				}
 				break;
 			default:
-				mv_display_height = 256;
+				raster_mode = DISPLAY::RASTER_NORMAL_NONINTER;
+				switch(hori_freq) {
+				case 0x40:
+					// 256 line mode (15kHz)
+					mv_display_height = 256;
+					top_base = 6;
+					break;
+				case 0x80:
+					// 424 line mode (24kHz)
+					mv_display_height = 512;
+					top_base = 10;
+					break;
+				default:
+					// 512 line mode (31kHz)
+					mv_display_height = 512;
+					top_base = 14;
+					break;
+				}
 				break;
 			}
 		}
-
-#if CRTC_START_POSITION == CRTC_START_DISP
-		m_hz_total = (m_regs[CRTC_HORI_TOTAL] + 1) * 8;
-		m_hz_start = 0;
-		m_hz_disp = (m_regs[CRTC_HORI_END] - m_regs[CRTC_HORI_START]) * 8;
-		m_hs_start = m_hz_total - ((m_regs[CRTC_HORI_START] + 1) * 8);
-		m_hs_end = m_hs_start + ((m_regs[CRTC_HSYNC_END] + 1) * 8);
-
-#elif CRTC_START_POSITION == CRTC_START_HSYNC
-		m_hz_total = (m_regs[CRTC_HORI_TOTAL] + 1) * 8;
-		m_hz_start = (m_regs[CRTC_HORI_START] + 1) * 8;
-		m_hz_disp = (m_regs[CRTC_HORI_END] - m_regs[CRTC_HORI_START]) * 8;
-		m_hs_start = 0;
-		m_hs_end = (m_regs[CRTC_HSYNC_END] + 1) * 8;
-
-#endif
-		set_vertical_params();
 
 //		if (m_hz_total > 0) {
 //			double frames_per_sec = m_now_dot_clocks / (m_hz_total * m_vt_total);
@@ -384,6 +612,7 @@ void CRTC::event_pre_frame()
 			set_frames_per_sec(new_vt_frames_per_sec);
 		}
 
+#if 0
 		// adjust width
 		if (ctrl0 & CONTROL0_HIRESO) {
 			// hireso
@@ -429,8 +658,15 @@ void CRTC::event_pre_frame()
 				break;
 			}
 		}
+#endif
 
-		write_signals(&outputs_chsize, ctrl0);
+		d_display->set_display_mode(
+			left_base, top_base
+			, mv_display_width, mv_display_height
+			, ctrl0 | (m_sysport_hrl << 4) | hori_freq
+			, raster_mode
+		);
+//		write_signals(&outputs_chsize, ctrl0 | (m_sysport_hrl << 4));
 
 		emu->set_vm_screen_size(mv_display_width, mv_display_height, 0, 0, 1, 1);
 
@@ -458,6 +694,25 @@ void CRTC::event_pre_frame()
 }
 
 // ----------------------------------------------------------------------------
+
+void CRTC::set_horizontal_params()
+{
+#if CRTC_START_POSITION == CRTC_START_DISP
+	m_hz_total = (m_regs[CRTC_HORI_TOTAL] + 1) * 8;
+	m_hz_start = 0;
+	m_hz_disp = (m_regs[CRTC_HORI_END] - m_regs[CRTC_HORI_START]) * 8;
+	m_hs_start = m_hz_total - ((m_regs[CRTC_HORI_START] + 1) * 8);
+	m_hs_end = m_hs_start + ((m_regs[CRTC_HSYNC_END] + 1) * 8);
+
+#elif CRTC_START_POSITION == CRTC_START_HSYNC
+	m_hz_total = (m_regs[CRTC_HORI_TOTAL] + 1) * 8;
+	m_hz_start = (m_regs[CRTC_HORI_START] + 1) * 8;
+	m_hz_disp = (m_regs[CRTC_HORI_END] - m_regs[CRTC_HORI_START]) * 8;
+	m_hs_start = 0;
+	m_hs_end = (m_regs[CRTC_HSYNC_END] + 1) * 8;
+
+#endif
+}
 
 void CRTC::set_vertical_params()
 {
@@ -509,7 +764,8 @@ void CRTC::update_raster_intr()
 	if (m_intr_vline < 0) m_intr_vline += (m_regs[CRTC_VERT_TOTAL] + 1);
 
 
-	OUT_DEBUG_RASINT(_T("RASINT: VTOTAL:%03d VSTART:%03d RASINT:%03d -> val:%03d")
+	OUT_DEBUG_RASINT(_T("RASINT: %lld: VTOTAL:%03d VSTART:%03d RASINT:%03d -> val:%03d")
+		, get_current_clock()
 		, m_regs[CRTC_VERT_TOTAL] + 1, m_regs[CRTC_VERT_START] + 1
 		, m_regs[CRTC_RASTER_INT] + 1, m_intr_vline
 	);
@@ -598,10 +854,10 @@ void CRTC::event_vline(int v, int clock)
 void CRTC::process_command()
 {
 	// raster copy
-	if (m_trig_vram_accs & OP_TCOPY) {
+	if (m_vram_accs & OP_TCOPY) {
 		raster_copy_tvram();
-		m_vram_accs &= ~OP_TCOPY;
 		m_trig_vram_accs &= ~OP_TCOPY;
+//		m_trig_vram_accs |= (m_vram_accs & OP_TCOPY);
 	}
 	// high speed clear
 	if (m_gcls_count) {
@@ -656,7 +912,7 @@ void CRTC::raster_copy_tvram()
 		OUT_DEBUG_RASCPY(_T("RASTER COPY DIFF: prev:%02X src:%02X dst:%02X"), prev_src, src_base, dst_base);
 	}
 	prev_src = src_base;
-	OUT_DEBUG_RASCPY(_T("RASTER COPY: src:%02X dst:%02X"), src_base, dst_base);
+	OUT_DEBUG_RASCPY(_T("RASTER COPY: mask:%02X src:%02X dst:%02X"), mask, src_base, dst_base);
 #endif
 
 	src_base <<= 8;	// 256
@@ -678,36 +934,60 @@ void CRTC::raster_copy_tvram()
 /// clear on the graphic vram
 void CRTC::clear_gvram()
 {
-	if (m_regs[CRTC_CONTROL0] & CONTROL0_SIZE) {
-		// 1024 x 1024 mode
-		int width = 256;
-		if ((m_regs[CRTC_CONTROL0] & CONTROL0_HRES) != 0) {
-			// 512line
-			width <<= 1;
-		}
-		int top;
-		int bottom;
-		top = m_regs[CRTC_GSCROLL_Y_0];
-		bottom = top + width;
+	int height = m_vt_disp;
+	switch(m_regs[CRTC_CONTROL0] & (CONTROL0_HIRESO | CONTROL0_VRES)) {
+	case CONTROL0_HIRESO:
+		// hireso 256line
+		height >>= 1;
+		break;
+	case (CONTROL0_HIRESO | CONTROL0_V1024):
+		// hireso 1024line (interlace)
+		height <<= 1;
+		break;
+	case CONTROL0_V512:
+	case CONTROL0_V768:
+	case CONTROL0_V1024:
+		// normal 512line (interlace)
+		height <<= 1;
+		break;
+	default:
+		break;
+	}
 
-		int left = m_regs[CRTC_GSCROLL_X_0];
+	int width = 256;
+	if ((m_regs[CRTC_CONTROL0] & CONTROL0_HRES) != 0) {
+		// 512line
+		width <<= 1;
+	}
 
-		int by = top;
-		by <<= 9;
-#if 1
-		uint32_t data_mask_base = (((m_regs[CRTC_CONTROL1] & 8) << 9)
-							| ((m_regs[CRTC_CONTROL1] & 4) << 6)
-							| ((m_regs[CRTC_CONTROL1] & 2) << 3)
-							| ((m_regs[CRTC_CONTROL1] & 1))
+	uint32_t data_mask_base = (((m_regs[CRTC_CONTROL1] & CONTROL1_CP3) << 9)
+							| ((m_regs[CRTC_CONTROL1] & CONTROL1_CP2) << 6)
+							| ((m_regs[CRTC_CONTROL1] & CONTROL1_CP1) << 3)
+							| ((m_regs[CRTC_CONTROL1] & CONTROL1_CP0))
 							) * 15;
 
+	if (m_regs[CRTC_CONTROL0] & CONTROL0_SIZE) {
+		// 1024 x 1024 mode
+		int top = m_regs[CRTC_GSCROLL_Y_0];
+		int left = m_regs[CRTC_GSCROLL_X_0];
+		int bottom = top + height;
+
+#ifdef OUT_DEBUG_GCLS
+		OUT_DEBUG_GCLS(_T("GCLS 1024x1024: mask:%04X (%d,%d)"), data_mask_base, left, top);
+		uint32_t prev_page2 = ~0;
+#endif
+		int by = top;
+		by <<= 9;
 		for(int y = top; y < bottom; y++) {
 			by &= (0x1ff << 9);
 
 			uint32_t page2 = ((y & 0x200) >> 6);
 			uint32_t data_mask = data_mask_base & (0xff << page2);
 #ifdef OUT_DEBUG_GCLS
-			OUT_DEBUG_GCLS(_T("GCLS 1024x1024: bit:%X mask:%04X"), page_bit, data_mask);
+			if (prev_page2 != page2) {
+				OUT_DEBUG_GCLS(_T("GCLS 1024x1024: page2:%X"), page2);
+				prev_page2 = page2;
+			}
 #endif
 			data_mask = ~data_mask;
 
@@ -720,52 +1000,58 @@ void CRTC::clear_gvram()
 			}
 			by += (1 << 9);	//x512
 		}
-#else
-		for(int y = top; y < bottom; y++) {
-			by &= (0xff << 10);
 
-			uint32_t page = ((y >> 8) & 3);
-			uint32_t page_bit = (1 << page);
-			uint32_t data_mask = (0xf << (page * 4));
-#ifdef OUT_DEBUG_GCLS
-			OUT_DEBUG_GCLS(_T("GCLS 1024x1024: bit:%X mask:%04X"), page_bit, data_mask);
-#endif
-			if (m_regs[CRTC_CONTROL1] & page_bit) {
-				data_mask = ~data_mask;
-				int bx = left;
-				for(int x = 0; x < width; x++) {
-					bx &= 0x1ff;
-//					pu_gvram[by + bx] |= page_bit;
-					p_gvram[by + bx] &= data_mask;
-					p_gvram[(by + bx) | 0x200] &= data_mask;
-					bx++;
-				}
-			}
-			by += (1 << 10);	//x1024
-		}
-#endif
 	} else {
 		// 512 x 512 mode
-		int width = 256;
-		if ((m_regs[CRTC_CONTROL0] & CONTROL0_HRES) != 0) {
-			// 512line
-			width <<= 1;
-		}
-		uint32_t page_bit;
-		uint32_t data_mask;
+#if 1
+		int top  = m_regs[CRTC_GSCROLL_Y_0];
+		int left = m_regs[CRTC_GSCROLL_X_0];
 
-		data_mask = 0x000f;
-		for(int page = 0; page < 4; page++) {
-			page_bit = (1 << page);
-			if (m_regs[CRTC_CONTROL1] & page_bit) {
 #ifdef OUT_DEBUG_GCLS
-				OUT_DEBUG_GCLS(_T("GCLS 512x512: bit:%X mask:%04X"), page_bit, data_mask);
+		OUT_DEBUG_GCLS(_T("GCLS 512x512: mask:%04X (%d,%d)"), data_mask_base, left, top);
 #endif
-				data_mask = ~data_mask;
-				int top = m_regs[CRTC_GSCROLL_Y_0 + page * 2];
-				int left = m_regs[CRTC_GSCROLL_X_0 + page * 2];
+		int by = top;
+		by <<= 9;
+		uint32_t data_mask = ~data_mask_base;
+		for(int y = 0; y < height; y++) {
+			by &= (0x1ff << 9);
+			int bx = left;
+			for(int x = 0; x < width; x++) {
+				bx &= 0x1ff;
+//				pu_gvram[by + bx] |= page_bit;
+				p_gvram[by + bx] &= data_mask;
+				bx++;
+			}
+			by += (1 << 9);	//x512
+		}
+#else
+		uint32_t page_mask;
+
+		switch(m_regs[CRTC_CONTROL0] & CONTROL0_COLOR) {
+		case CONTROL0_COLOR65536:
+			page_mask = ~2;
+			break;
+		case CONTROL0_COLOR256:
+			page_mask = ~1;
+			break;
+		default:
+			page_mask = ~0;
+			break;
+		}
+
+		for(int pri = 0; pri < 4; pri++) {
+			int page = p_gr_pripage[pri];
+			uint32_t page_bit = (1 << page);
+			if (m_regs[CRTC_CONTROL1] & page_bit) {
+				uint32_t data_mask = (0xf << (page << 2));
+				int top = m_regs[CRTC_GSCROLL_Y_0 + (pri & page_mask) * 2];
+				int left = m_regs[CRTC_GSCROLL_X_0 + (pri & page_mask) * 2];
 				int by = top;
+#ifdef OUT_DEBUG_GCLS
+				OUT_DEBUG_GCLS(_T("GCLS 512x512: page:%d bit:%X mask:%04X (%d,%d)"), page, page_bit, data_mask, left, top);
+#endif
 				by <<= 9;
+				data_mask = ~data_mask;
 				for(int y = 0; y < width; y++) {
 					by &= (0x1ff << 9);
 					int bx = left;
@@ -777,10 +1063,9 @@ void CRTC::clear_gvram()
 					}
 					by += (1 << 9);	//x512
 				}
-				data_mask = ~data_mask;
 			}
-			data_mask <<= 4;
 		}
+#endif
 	}
 }
 
@@ -801,6 +1086,9 @@ void CRTC::set_raster(bool val)
 	if(m_now_raster != val) {
 		write_signals(&outputs_raster, val ? 0xffffffff : 0);
 		m_now_raster = val;
+		OUT_DEBUG_RASINT(_T("RASINT: %lld: %s")
+			, get_current_clock()
+			, val ? _T("ON") : _T("OFF")); 
 	}
 }
 
@@ -839,10 +1127,10 @@ void CRTC::write_signal(int id, uint32_t data, uint32_t mask)
 	switch(id) {
 	case SIG_HRL:
 		// select prescaler of the hireso clock $e8e007 SYSPORT:R4 bit1
-		if (m_sysport_hrl != (data & 2)) {
+		if (m_sysport_hrl != (data & SYSPORT::R4_HRL)) {
 			m_timing_changed = true;
 		}
-		m_sysport_hrl = (data & 2);
+		m_sysport_hrl = (data & SYSPORT::R4_HRL);
 		break;
 	}
 }
@@ -852,7 +1140,7 @@ uint32_t CRTC::read_signal(int id)
 	uint32_t data = 0;
 	switch(id) {
 	case SIG_HRL:
-		data = (m_sysport_hrl & 2);
+		data = (m_sysport_hrl & SYSPORT::R4_HRL);
 		break;
 	}
 	return data;
@@ -1196,5 +1484,8 @@ void CRTC::debug_regs_info(_TCHAR *buffer, size_t buffer_len)
 	if (vcnt >= m_vt_total) vcnt -= m_vt_total;
 	UTILITY::sntprintf(buffer, buffer_len
 		, _T(" CURRENT LINE:%04X (inner:%04X)\n"), vcnt, m_v_count);
+
+	UTILITY::sntprintf(buffer, buffer_len
+		, _T(" HRL (SYSPORT):%d\n"), m_sysport_hrl);
 }
 #endif

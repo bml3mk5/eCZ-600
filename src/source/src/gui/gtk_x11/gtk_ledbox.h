@@ -21,7 +21,7 @@
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
 #include <gdk/gdkx.h>
-#include <cairo/cairo.h>
+//#include <cairo/cairo.h>
 
 #define NO_TITLEBAR
 //#define LEDBOX_DEBUG 1
@@ -34,7 +34,7 @@ class LedBox : public LedBoxBase
 private:
 	GtkWidget  *parent;
 	GtkWidget  *window;
-	cairo_surface_t *cairosuf;
+//	cairo_surface_t *cairosuf;
 
 	VmPoint		pStart;
 

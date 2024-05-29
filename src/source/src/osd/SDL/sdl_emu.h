@@ -99,6 +99,9 @@ class MyGLCanvas;
 class wxJoystick;
 #endif
 #endif
+#ifdef USE_GTK
+class CCairoSurface;
+#endif
 
 /**
 	@brief emulation i/f
@@ -157,10 +160,15 @@ private:
 	void release_screen();
 #if defined(USE_SDL2)
 	bool create_sdl_texture();
+	bool create_sdl_mixedtexture();
 #endif
 	void set_screen_filter_type();
 	inline void mix_screen_sub();
-	inline void calc_vm_screen_size_sub();
+	inline void calc_vm_screen_size();
+	inline void calc_vm_screen_size_sub(const VmRectWH &src_size, VmRectWH &vm_size);
+	inline void set_ledbox_position(bool now_window);
+	inline void set_msgboard_position();
+	bool create_mixedsurface();
 
 #ifdef USE_OPENGL
 	void initialize_opengl();
@@ -198,21 +206,21 @@ private:
 #if defined(USE_GTK)
 	GtkWidget *screen;
 	GtkWidget *window;
-	cairo_surface_t *surface;
 	GdkCursor *bkup_cursor;
 # ifdef USE_OPENGL
 	GtkWidget *glscreen;
 # endif
+	CCairoSurface *casSource;
+	CCairoSurface *casMixed;
 
 #elif defined(USE_SDL2)
 	/* SDL2 */
 	SDL_Window *window;
 	SDL_Renderer *renderer;
+	CTexture *texSource;
 	CTexture *texMixed;
-#ifdef USE_SCREEN_SDL2_MIX_ON_RENDERER
 	CTexture *texLedBox;
 	CTexture *texMsgBoard;
-#endif
 # ifdef USE_OPENGL
 	SDL_GLContext glcontext;
 # endif
@@ -247,6 +255,7 @@ private:
 	uint8_t next_use_opengl;
 
 #ifdef USE_SCREEN_OPENGL_MIX_ON_RENDERER
+	CSurface *sufMain;
 	COpenGLTexture *texGLLedBox;
 	COpenGLTexture *texGLMsgBoard;
 #endif
@@ -394,6 +403,10 @@ public:
 #else
 	bool mix_screen();
 	void update_screen();
+	bool mix_screen_sdl();
+# ifdef USE_OPENGL
+	bool mix_screen_gl();
+# endif
 #endif
 	void need_update_screen();
 

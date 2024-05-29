@@ -43,9 +43,7 @@ private:
 		EVENT_MFP_TIMER_A	= 0,
 		EVENT_MFP_TIMER_B,
 		EVENT_MFP_TIMER_C,
-		EVENT_MFP_TIMER_D,
-//		EVENT_MFP_XMIT,
-		EVENT_MFP_IRQ
+		EVENT_MFP_TIMER_D
 	};
 	enum en_mfp_names {
 		MFP_GPDR = 0,
@@ -133,6 +131,7 @@ private:
 	uint8_t m_timer_counter[4];	///< count down timer
 	double  m_timer_period[4];	///< timer event clock (us)
 	uint8_t m_timer_output;		///< bit0 timer A, bit 1 timer B
+	uint8_t m_timer_onoff;		///< timer on/off flag
 
 	uint32_t m_timer_prev_input[2];	///< TAI and TBI diff 
 

@@ -91,9 +91,8 @@ void EMU::EMU_SCREEN()
 	sufRotate = new CSurface();
 #endif
 	sufSource = NULL;
-#ifdef USE_SCREEN_MIX_SURFACE
 	sufMixed = new CSurface();
-#endif
+
 #ifdef USE_SMOOTH_STRETCH
 	sufStretch1 = new CSurface();
 	sufStretch2 = new CSurface();
@@ -128,10 +127,9 @@ void EMU::release_screen()
 	delete sufRotate;
 	sufRotate = NULL;
 #endif
-#ifdef USE_SCREEN_MIX_SURFACE
 	delete sufMixed;
 	sufMixed = NULL;
-#endif
+
 #ifdef USE_SMOOTH_STRETCH
 	delete sufStretch1;
 	sufStretch1 = NULL;
@@ -215,8 +213,8 @@ void EMU::set_vm_display_size()
 //		int b = t + mixed_size.h;
 		int l = source_size.x;
 		int t = source_size.y;
-		int r = source_size.w - source_size.x;
-		int b = source_size.h - source_size.y;
+		int r = source_size.w;
+		int b = source_size.h;
 
 		// vm drawing area is same as area to capture and record screen
 //		if (rec_video_size[new_size].w > mixed_size.w) {

@@ -12,47 +12,47 @@
 
 // ----------------------------------------------------------------------------
 
-CSurface::CSurface()
+CSDLSurface::CSDLSurface()
 {
 	suf = NULL;
 }
-CSurface::CSurface(long width, long height)
+CSDLSurface::CSDLSurface(long width, long height)
 {
 	suf = NULL;
 
 	this->Create(width, height);
 }
-CSurface::CSurface(long width, long height, const CPixelFormat &pixel_format)
+CSDLSurface::CSDLSurface(long width, long height, const CPixelFormat &pixel_format)
 {
 	suf = NULL;
 
 	this->Create(width, height, pixel_format);
 }
-CSurface::CSurface(long width, long height, SDL_PixelFormat *pixel_format)
+CSDLSurface::CSDLSurface(long width, long height, SDL_PixelFormat *pixel_format)
 {
 	suf = NULL;
 
 	this->Create(width, height, pixel_format);
 }
-CSurface::CSurface(long width, long height, CPixelFormat::FormatId force_format)
+CSDLSurface::CSDLSurface(long width, long height, CPixelFormat::FormatId force_format)
 {
 	suf = NULL;
 
 	this->Create(width, height, force_format);
 }
-CSurface::~CSurface()
+CSDLSurface::~CSDLSurface()
 {
 	Release();
 }
 
 // Create surface
-bool CSurface::Create(long width, long height)
+bool CSDLSurface::Create(long width, long height)
 {
 	return Create(width, height, CPixelFormat());
 }
 
 // Create surface
-bool CSurface::Create(long width, long height, const CPixelFormat &pixel_format)
+bool CSDLSurface::Create(long width, long height, const CPixelFormat &pixel_format)
 {
 	SDL_PixelFormat format;
 	pixel_format.ConvTo(format);
@@ -61,7 +61,7 @@ bool CSurface::Create(long width, long height, const CPixelFormat &pixel_format)
 }
 
 // Create surface
-bool CSurface::Create(long width, long height, SDL_PixelFormat *pixel_format)
+bool CSDLSurface::Create(long width, long height, SDL_PixelFormat *pixel_format)
 {
 	SDL_PixelFormat format;
 	format = *pixel_format;
@@ -73,7 +73,7 @@ bool CSurface::Create(long width, long height, SDL_PixelFormat *pixel_format)
 }
 
 // Create surface
-bool CSurface::Create(long width, long height, CPixelFormat::FormatId force_format)
+bool CSDLSurface::Create(long width, long height, CPixelFormat::FormatId force_format)
 {
 	SDL_PixelFormat format;
 	CPixelFormat tmp(force_format);
@@ -82,22 +82,22 @@ bool CSurface::Create(long width, long height, CPixelFormat::FormatId force_form
 	return Create(width, height, &format);
 }
 
-bool CSurface::Create(const VmRectWH &srcrect)
+bool CSDLSurface::Create(const VmRectWH &srcrect)
 {
 	return Create(srcrect.w, srcrect.h);
 }
 
-bool CSurface::Create(const VmRectWH &srcrect, const CPixelFormat &srcformat)
+bool CSDLSurface::Create(const VmRectWH &srcrect, const CPixelFormat &srcformat)
 {
 	return Create(srcrect.w, srcrect.h, srcformat);
 }
 
-bool CSurface::Create(const VmRectWH &srcrect, CPixelFormat::FormatId force_format)
+bool CSDLSurface::Create(const VmRectWH &srcrect, CPixelFormat::FormatId force_format)
 {
 	return Create(srcrect.w, srcrect.h, force_format);
 }
 
-bool CSurface::Create(const VmRectWH &srcrect, CSurface &srcsurface, CPixelFormat::FormatId force_format)
+bool CSDLSurface::Create(const VmRectWH &srcrect, CSDLSurface &srcsurface, CPixelFormat::FormatId force_format)
 {
 	bool valid = Create(srcrect.w, srcrect.h, force_format);
 	if (valid) {
@@ -106,7 +106,7 @@ bool CSurface::Create(const VmRectWH &srcrect, CSurface &srcsurface, CPixelForma
 	return valid;
 }
 
-bool CSurface::Create(CSurface &srcsurface, const CPixelFormat &pixel_format)
+bool CSDLSurface::Create(CSDLSurface &srcsurface, const CPixelFormat &pixel_format)
 {
 	bool valid = Create(srcsurface.Width(), srcsurface.Height(), pixel_format);
 	if (valid) {
@@ -116,7 +116,7 @@ bool CSurface::Create(CSurface &srcsurface, const CPixelFormat &pixel_format)
 }
 
 // release surface
-void CSurface::Release()
+void CSDLSurface::Release()
 {
 	if (suf) {
 		SDL_FreeSurface(suf);
@@ -124,93 +124,93 @@ void CSurface::Release()
 	}
 }
 
-SDL_Surface *CSurface::Get()
+SDL_Surface *CSDLSurface::Get()
 {
 	return suf;
 }
 
-scrntype *CSurface::GetBuffer()
+scrntype *CSDLSurface::GetBuffer()
 {
 	return (scrntype *)suf->pixels;
 }
 
-scrntype *CSurface::GetBuffer(int y)
+scrntype *CSDLSurface::GetBuffer(int y)
 {
 	scrntype *p = (scrntype *)suf->pixels;
 	p += (suf->w * y);
 	return p;
 }
 
-int CSurface::GetBufferSize()
+int CSDLSurface::GetBufferSize()
 {
 	return suf->w * suf->h * suf->format->BytesPerPixel;
 }
 
-bool CSurface::IsEnable()
+bool CSDLSurface::IsEnable()
 {
 	return (suf != NULL);
 }
 
-int CSurface::Width()
+int CSDLSurface::Width()
 {
 	return suf->w;
 }
 
-int CSurface::Height()
+int CSDLSurface::Height()
 {
 	return suf->h;
 }
 
-int CSurface::BitsPerPixel()
+int CSDLSurface::BitsPerPixel()
 {
 	return suf->format->BitsPerPixel;
 }
 
-int CSurface::BytesPerPixel()
+int CSDLSurface::BytesPerPixel()
 {
 	return suf->format->BytesPerPixel;
 }
 
-int CSurface::BytesPerLine()
+int CSDLSurface::BytesPerLine()
 {
 	return suf->pitch;
 }
 
-SDL_PixelFormat *CSurface::GetNativePixelFormat()
+SDL_PixelFormat *CSDLSurface::GetNativePixelFormat()
 {
 	return suf->format;
 }
 
-CPixelFormat CSurface::GetPixelFormat() const
+CPixelFormat CSDLSurface::GetPixelFormat() const
 {
 	CPixelFormat tmp;
 	tmp.ConvFrom(*suf->format);
 	return tmp;
 }
 
-bool CSurface::Lock()
+bool CSDLSurface::Lock()
 {
 	return (suf != NULL && SDL_LockSurface(suf) == 0);
 }
 
-void CSurface::Unlock()
+void CSDLSurface::Unlock()
 {
 	if (suf) SDL_UnlockSurface(suf);
 }
 
-bool CSurface::Blit(CSurface &dst)
+bool CSDLSurface::Blit(CSDLSurface &dst)
 {
 	return (SDL_BlitSurface(suf, NULL, dst.Get(), NULL) >= 0);
 }
 
-bool CSurface::Blit(CSurface &dst, const VmRectWH &dst_re)
+bool CSDLSurface::Blit(CSDLSurface &dst, const VmRectWH &dst_re)
 {
 	SDL_Rect dst_sre;
 	CP_RECT(dst_re, dst_sre);
 	return (SDL_BlitSurface(suf, NULL, dst.Get(), &dst_sre) >= 0);
 }
 
-bool CSurface::Blit(const VmRectWH &src_re, CSurface &dst, const VmRectWH &dst_re)
+bool CSDLSurface::Blit(const VmRectWH &src_re, CSDLSurface &dst, const VmRectWH &dst_re)
 {
 	SDL_Rect src_sre, dst_sre;
 	CP_RECT(src_re, src_sre);
@@ -218,12 +218,12 @@ bool CSurface::Blit(const VmRectWH &src_re, CSurface &dst, const VmRectWH &dst_r
 	return (SDL_BlitSurface(suf, &src_sre, dst.Get(), &dst_sre) >= 0);
 }
 
-bool CSurface::Blit(CSurface &dst, SDL_Rect &dst_re)
+bool CSDLSurface::Blit(CSDLSurface &dst, SDL_Rect &dst_re)
 {
 	return (SDL_BlitSurface(suf, NULL, dst.Get(), &dst_re) >= 0);
 }
 
-bool CSurface::Blit(SDL_Rect &src_re, CSurface &dst, SDL_Rect &dst_re)
+bool CSDLSurface::Blit(SDL_Rect &src_re, CSDLSurface &dst, SDL_Rect &dst_re)
 {
 #if 0
 	SDL_Rect sre, dre;
@@ -246,14 +246,19 @@ bool CSurface::Blit(SDL_Rect &src_re, CSurface &dst, SDL_Rect &dst_re)
 #endif
 }
 
-bool CSurface::Blit(SDL_Surface &dst, const VmRectWH &dst_re)
+bool CSDLSurface::Blit(SDL_Surface &dst)
+{
+	return (SDL_BlitSurface(suf, NULL, &dst, NULL) >= 0);
+}
+
+bool CSDLSurface::Blit(SDL_Surface &dst, const VmRectWH &dst_re)
 {
 	SDL_Rect dst_sre;
 	CP_RECT(dst_re, dst_sre);
 	return (SDL_BlitSurface(suf, NULL, &dst, &dst_sre) >= 0);
 }
 
-bool CSurface::Blit(const VmRectWH &src_re, SDL_Surface &dst, const VmRectWH &dst_re)
+bool CSDLSurface::Blit(const VmRectWH &src_re, SDL_Surface &dst, const VmRectWH &dst_re)
 {
 #if 0
 	SDL_Rect sre, dre;
@@ -279,7 +284,7 @@ bool CSurface::Blit(const VmRectWH &src_re, SDL_Surface &dst, const VmRectWH &ds
 #endif
 }
 
-bool CSurface::Blit(SDL_Surface &dst, SDL_Rect &dst_re)
+bool CSDLSurface::Blit(SDL_Surface &dst, SDL_Rect &dst_re)
 {
 	return (SDL_BlitSurface(suf, NULL, &dst, &dst_re) >= 0);
 }
@@ -288,7 +293,7 @@ bool CSurface::Blit(SDL_Surface &dst, SDL_Rect &dst_re)
 /// @param[in] src_re : area to copy from src (cannot null)
 /// @param[out] dst
 /// @param[in] dst_re : area to copy on dst (cannot null)
-bool CSurface::Blit(SDL_Rect &src_re, SDL_Surface &dst, SDL_Rect &dst_re)
+bool CSDLSurface::Blit(SDL_Rect &src_re, SDL_Surface &dst, SDL_Rect &dst_re)
 {
 #if 0
 	SDL_Rect sre, dre;
@@ -311,7 +316,7 @@ bool CSurface::Blit(SDL_Rect &src_re, SDL_Surface &dst, SDL_Rect &dst_re)
 #endif
 }
 
-bool CSurface::StretchBlit(const VmRectWH &src_re, CSurface &dst, const VmRectWH &dst_re)
+bool CSDLSurface::StretchBlit(const VmRectWH &src_re, CSDLSurface &dst, const VmRectWH &dst_re)
 {
 	SDL_Rect src_sre, dst_sre;
 	CP_RECT(src_re, src_sre);
@@ -323,7 +328,7 @@ bool CSurface::StretchBlit(const VmRectWH &src_re, CSurface &dst, const VmRectWH
 #endif
 }
 
-bool CSurface::StretchBlit(const VmRectWH &src_re, SDL_Surface &dst, const VmRectWH &dst_re)
+bool CSDLSurface::StretchBlit(const VmRectWH &src_re, SDL_Surface &dst, const VmRectWH &dst_re)
 {
 	SDL_Rect src_sre, dst_sre;
 	CP_RECT(src_re, src_sre);
@@ -335,7 +340,7 @@ bool CSurface::StretchBlit(const VmRectWH &src_re, SDL_Surface &dst, const VmRec
 #endif
 }
 
-bool CSurface::StretchBlit(SDL_Rect &src_re, CSurface &dst, SDL_Rect &dst_re)
+bool CSDLSurface::StretchBlit(SDL_Rect &src_re, CSDLSurface &dst, SDL_Rect &dst_re)
 {
 #ifndef USE_SDL2
 	return StretchBlit(src_re, *dst.suf, dst_re);
@@ -349,7 +354,7 @@ bool CSurface::StretchBlit(SDL_Rect &src_re, CSurface &dst, SDL_Rect &dst_re)
 /// @param[out] dst
 /// @param[in] dst_re : area to copy on dst (cannot null)
 /// @note no error check. so you must specify valid rect.
-bool CSurface::StretchBlit(SDL_Rect &src_re, SDL_Surface &dst, SDL_Rect &dst_re)
+bool CSDLSurface::StretchBlit(SDL_Rect &src_re, SDL_Surface &dst, SDL_Rect &dst_re)
 {
 	scrntype *pSrc;
 	scrntype *pDst;
@@ -393,7 +398,7 @@ bool CSurface::StretchBlit(SDL_Rect &src_re, SDL_Surface &dst, SDL_Rect &dst_re)
 	return true;
 }
 
-bool CSurface::BlitFlipped(const VmRectWH &src_re, CSurface &dst, const VmRectWH &dst_re)
+bool CSDLSurface::BlitFlipped(const VmRectWH &src_re, CSDLSurface &dst, const VmRectWH &dst_re)
 {
 	SDL_Rect src_sre, dst_sre;
 	CP_RECT(src_re, src_sre);
@@ -406,7 +411,7 @@ bool CSurface::BlitFlipped(const VmRectWH &src_re, CSurface &dst, const VmRectWH
 /// @param[out] dst
 /// @param[in] dst_re : area to copy on dst (cannot null)
 /// @note no error check. so you must specify valid rect.
-bool CSurface::BlitFlipped(SDL_Rect &src_re, SDL_Surface &dst, SDL_Rect &dst_re)
+bool CSDLSurface::BlitFlipped(SDL_Rect &src_re, SDL_Surface &dst, SDL_Rect &dst_re)
 {
 	scrntype *pSrc;
 	scrntype *pDst;
@@ -439,7 +444,7 @@ bool CSurface::BlitFlipped(SDL_Rect &src_re, SDL_Surface &dst, SDL_Rect &dst_re)
 	return true;
 }
 
-bool CSurface::StretchBlitFlipped(const VmRectWH &src_re, CSurface &dst, const VmRectWH &dst_re)
+bool CSDLSurface::StretchBlitFlipped(const VmRectWH &src_re, CSDLSurface &dst, const VmRectWH &dst_re)
 {
 	SDL_Rect src_sre, dst_sre;
 	CP_RECT(src_re, src_sre);
@@ -452,7 +457,7 @@ bool CSurface::StretchBlitFlipped(const VmRectWH &src_re, CSurface &dst, const V
 /// @param[out] dst
 /// @param[in] dst_re : area to copy on dst (cannot null)
 /// @note no error check. so you must specify valid rect.
-bool CSurface::StretchBlitFlipped(SDL_Rect &src_re, SDL_Surface &dst, SDL_Rect &dst_re)
+bool CSDLSurface::StretchBlitFlipped(SDL_Rect &src_re, SDL_Surface &dst, SDL_Rect &dst_re)
 {
 	scrntype *pSrc;
 	scrntype *pDst;
@@ -499,7 +504,7 @@ bool CSurface::StretchBlitFlipped(SDL_Rect &src_re, SDL_Surface &dst, SDL_Rect &
 /// @param[in] data : pixel data to fill
 /// @param[in] mask : mask data
 /// @note no error check. so you must specify valid rect.
-void CSurface::Fill(scrntype data, scrntype mask)
+void CSDLSurface::Fill(scrntype data, scrntype mask)
 {
 	scrntype *pSrc;
 	SDL_LockSurface(suf);
@@ -519,7 +524,7 @@ void CSurface::Fill(scrntype data, scrntype mask)
 /// @param[in] texture
 /// @param[in] srcrect : area to copy from texture
 /// @param[in] dstrect : area to copy on renderer
-bool CSurface::Render(SDL_Renderer &renderer, SDL_Texture &texture, VmRectWH &srcrect, VmRectWH &dstrect)
+bool CSDLSurface::Render(SDL_Renderer &renderer, SDL_Texture &texture, VmRectWH &srcrect, VmRectWH &dstrect)
 {
 	SDL_Rect s_reSrc, s_reDst;
 	CP_RECT(srcrect, s_reSrc);
@@ -528,6 +533,170 @@ bool CSurface::Render(SDL_Renderer &renderer, SDL_Texture &texture, VmRectWH &sr
 }
 #endif
 
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+CSurface::CSurface()
+	: CSDLSurface()
+{
+}
+CSurface::CSurface(long width, long height)
+	: CSDLSurface(width, height)
+{
+}
+CSurface::CSurface(long width, long height, const CPixelFormat &pixel_format)
+	: CSDLSurface(width, height, pixel_format)
+{
+}
+CSurface::CSurface(long width, long height, SDL_PixelFormat *pixel_format)
+	: CSDLSurface(width, height, pixel_format)
+{
+}
+CSurface::CSurface(long width, long height, CPixelFormat::FormatId force_format)
+	: CSDLSurface(width, height, force_format)
+{
+}
+
+// ----------------------------------------------------------------------------
+
+#ifdef USE_GTK
+CCairoSurface::CCairoSurface()
+{
+	p_cas = NULL;
+}
+CCairoSurface::CCairoSurface(CSurface &buf, long width, long height)
+{
+	p_cas = NULL;
+	CreateC(buf, width, height);
+}
+CCairoSurface::CCairoSurface(CSurface &buf, const VmRectWH &srcrect)
+{
+	p_cas = NULL;
+	CreateC(buf, srcrect);
+}
+CCairoSurface::~CCairoSurface()
+{
+	ReleaseC();
+}
+
+bool CCairoSurface::CreateC(CSurface &buf, long width, long height)
+{
+	return CreateC(buf, width, height, CAIRO_FORMAT_RGB24);
+}
+
+bool CCairoSurface::CreateC(CSurface &buf, const VmRectWH &srcrect)
+{
+	return CreateC(buf, srcrect, CAIRO_FORMAT_RGB24);
+}
+
+bool CCairoSurface::CreateC(CSurface &buf, long width, long height, cairo_format_t format)
+{
+	ReleaseC();
+
+	p_cas = cairo_image_surface_create_for_data(
+		(unsigned char *)buf.GetBuffer()
+		, format
+		, width, height
+		, cairo_format_stride_for_width(format, buf.Width())
+	);
+	return (p_cas != NULL);
+}
+
+bool CCairoSurface::CreateC(CSurface &buf, const VmRectWH &srcrect, cairo_format_t format)
+{
+	return CreateC(buf, srcrect.w, srcrect.h, format);
+}
+
+// release surface
+void CCairoSurface::ReleaseC()
+{
+	if (p_cas) {
+		cairo_surface_finish(p_cas);
+		p_cas = NULL;
+	}
+}
+
+bool CCairoSurface::BlitC(cairo_t *dst)
+{
+	if (!p_cas) return false;
+	cairo_set_source_surface(dst, p_cas, 0.0, 0.0);
+	return true;
+}
+
+bool CCairoSurface::BlitC(cairo_t *dst, const VmRectWH &dst_re)
+{
+	if (!p_cas) return false;
+	cairo_matrix_t m, bm;
+	cairo_get_matrix(dst, &m);
+	bm = m;
+	m.xx = 1.0;
+	m.xy = 0.0;
+	m.yx = 0.0;
+	m.yy = 1.0;
+	m.x0 += (double)dst_re.x;
+	m.y0 += (double)dst_re.y;
+	cairo_set_matrix(dst, &m);
+	cairo_set_source_surface(dst, p_cas, 0.0, 0.0);
+	cairo_set_matrix(dst, &bm);
+	return true;
+}
+
+bool CCairoSurface::BlitC(cairo_t *dst, const SDL_Rect &dst_re)
+{
+	if (!p_cas) return false;
+	cairo_matrix_t m, bm;
+	cairo_get_matrix(dst, &m);
+	bm = m;
+	m.xx = 1.0;
+	m.xy = 0.0;
+	m.yx = 0.0;
+	m.yy = 1.0;
+	m.x0 += (double)dst_re.x;
+	m.y0 += (double)dst_re.y;
+	cairo_set_matrix(dst, &m);
+	cairo_set_source_surface(dst, p_cas, 0.0, 0.0);
+	cairo_set_matrix(dst, &bm);
+	return true;
+}
+
+bool CCairoSurface::BlitC(SDL_Rect &src_re, cairo_t *dst, SDL_Rect &dst_re)
+{
+	if (!p_cas) return false;
+	cairo_matrix_t m, bm;
+	cairo_get_matrix(dst, &m);
+	bm = m;
+	m.xx = 1.0;
+	m.xy = 0.0;
+	m.yx = 0.0;
+	m.yy = 1.0;
+	m.x0 += (double)dst_re.x;
+	m.y0 += (double)dst_re.y;
+	cairo_set_matrix(dst, &m);
+	cairo_set_source_surface(dst, p_cas, (double)-src_re.x, -(double)src_re.y);
+	cairo_set_matrix(dst, &bm);
+	return true;
+}
+
+bool CCairoSurface::StretchBlitC(const VmRectWH &src_re, cairo_t *dst, const VmRectWH &dst_re)
+{
+	if (!p_cas) return false;
+	cairo_matrix_t m, bm;
+	cairo_get_matrix(dst, &m);
+	bm = m;
+	m.xx = (double)dst_re.w/src_re.w;
+	m.xy = 0.0;
+	m.yx = 0.0;
+	m.yy = (double)dst_re.h/src_re.h;
+	m.x0 += (double)dst_re.x;
+	m.y0 += (double)dst_re.y;
+	cairo_set_matrix(dst, &m);
+	cairo_set_source_surface(dst, p_cas, (double)-src_re.x, -(double)src_re.y);
+	cairo_set_matrix(dst, &bm);
+	return true;
+}
+#endif /* USE_GTK */
+
+// ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
 #if defined(USE_SDL2) || defined(USE_WX2)

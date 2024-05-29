@@ -165,7 +165,11 @@ private:
 	void initialize_screen();
 	void release_screen();
 	void update_screen_dc(HDC hdc);
-	inline void calc_vm_screen_size_sub();
+	inline void calc_vm_screen_size();
+	inline void calc_vm_screen_size_sub(const VmRectWH &src_size, VmRectWH &vm_size);
+	inline void set_ledbox_position(bool now_window);
+	inline void set_msgboard_position();
+	bool create_mixedsurface();
 
 #ifdef USE_DIRECT3D
 	void initialize_d3device(HWND hWnd);
@@ -180,6 +184,7 @@ private:
 	inline void copy_d3dsuf_dib(PDIRECT3DSURFACE9 suf, scrntype *buf, bool to_dib);
 #endif
 	void create_d3dofflinesurface();
+	HRESULT create_d3dmixedsurface();
 	HRESULT reset_d3device(HWND hWnd);
 	void set_d3dpresent_interval();
 #ifdef USE_SCREEN_D3D_TEXTURE
@@ -191,6 +196,7 @@ private:
 	//@{
 	// screen settings
 	DWORD dwStyle;
+	DWORD dwExStyle;
 
 #if defined(USE_WIN)
 	HWND hWindow;

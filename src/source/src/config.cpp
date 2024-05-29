@@ -301,6 +301,11 @@ void Config::initialize()
 	use_opengl = 0;
 	gl_filter_type = 1;
 #endif
+#if defined(USE_WIN)
+	double_buffering = true;
+#else
+	double_buffering = false;
+#endif
 
 #ifdef USE_FD1
 	ignore_crc = true;
@@ -718,6 +723,7 @@ bool Config::load_ini_file(const _TCHAR *ini_file)
 	}
 	ini->Delete(SECTION_SCREEN, _T("UseDirect3D"));	// not use in this app
 #endif
+	double_buffering = ini->GetBoolValue(SECTION_SCREEN, _T("DoubleBuffering"), double_buffering);
 
 #if defined(_X68000)
 	valuel = ini->GetLongValue(SECTION_SCREEN, _T("RasterInterruptVerticalSkew"), raster_int_vskew);
@@ -1126,6 +1132,7 @@ void Config::save_ini_file(const _TCHAR *ini_file)
 	ini->SetLongValue(SECTION_SCREEN, _T("UseOpenGL"), use_opengl);
 	ini->SetLongValue(SECTION_SCREEN, _T("GLFilterType"), gl_filter_type);
 #endif
+	ini->SetBoolValue(SECTION_SCREEN, _T("DoubleBuffering"), double_buffering);
 
 	ini->SetLongValue(SECTION_SCREEN, _T("VideoSize"), screen_video_size);
 

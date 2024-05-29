@@ -340,6 +340,7 @@ public:
 	uint8_t use_opengl;
 	uint8_t gl_filter_type;
 #endif
+	bool double_buffering;
 
 #if defined(_X68000)
 	uint8_t main_ram_size_num;

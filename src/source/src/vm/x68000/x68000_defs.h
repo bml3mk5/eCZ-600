@@ -45,7 +45,8 @@
 #define MAX_SOUND	5
 
 //#define SCREEN_WIDTH		768
-#define SCREEN_WIDTH		800
+//#define SCREEN_WIDTH		800
+#define SCREEN_WIDTH		1024
 //#define SCREEN_HEIGHT		512
 #define SCREEN_HEIGHT		600
 #define LIMIT_MIN_WINDOW_WIDTH		768
@@ -135,6 +136,8 @@
 
 #elif defined(USE_SDL)
 #define USE_SCREEN_MIX_SURFACE
+
+#define USE_SCREEN_OPENGL_MIX_ON_RENDERER
 
 #elif defined(USE_SDL2)
 #define USE_SCREEN_MIX_SURFACE

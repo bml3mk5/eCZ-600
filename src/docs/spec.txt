@@ -117,6 +117,7 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 
 ●HDC
 ・SCSI CD-ROM
+・内蔵SCSI
 
 ●RTC
 ・16Hzを超えるクロック出力(CLKOUT)

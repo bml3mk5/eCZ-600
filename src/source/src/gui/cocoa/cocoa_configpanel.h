@@ -79,6 +79,9 @@
 	CocoaTextField *txtInfoFontName;
 	CocoaTextField *txtInfoFontSize;
 
+#ifdef USE_SCREEN_MIX_SURFACE
+	CocoaCheckBox *chkDoubleBuffer;
+#endif
 	CocoaCheckBox *chkBorderColor;
 
 #ifdef USE_DATAREC

@@ -360,6 +360,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		}
 		EndPaint(hWnd, &ps);
 		return 0;
+//	case WM_ERASEBKGND:
+//		return 0;
 	case WM_CREATE:
 #ifdef USE_BUTTON
 		memset(hFont, 0, sizeof(hFont));

@@ -1252,6 +1252,7 @@
 #define IDC_CHK_USE_OPN_EXPSG                   22186
 #define IDC_STATIC_Z80BCARD_IRQ                 22187
 #define IDC_COMBO_Z80BCARD_IRQ                  22188
+#define IDC_CHK_DOUBLE_BUFFERING                22189
 #define IDD_KEYBIND                             114
 #define IDC_TAB1                                22001
 #define IDC_CUSTOM0                             22032

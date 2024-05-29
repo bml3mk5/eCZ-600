@@ -13,7 +13,6 @@
 #define DISPLAY_H
 
 #include "../vm_defs.h"
-//#include "../../emu.h"
 #include "../device.h"
 
 #define DRAW_SCREEN_PER_FRAME	1
@@ -47,8 +46,16 @@ public:
 		SIG_DISPLAY_LPSTB,
 		SIG_DISPLAY_VSYNC,
 //		SIG_DISPLAY_WRITE_REGS,
-		SIG_DISPLAY_SIZE,
+//		SIG_DISPLAY_SIZE,
 		SIG_CONTRAST
+	};
+	enum en_raster_modes {
+		RASTER_NORMAL_NONINTER = 0,
+		RASTER_NORMAL_INTERLACE_512,
+		RASTER_HIRESO_DOUBLE,
+		RASTER_HIRESO_NONINTER,
+		RASTER_HIRESO_INTERLACE_512,
+		RASTER_HIRESO_INTERLACE_1024,
 	};
 
 private:
@@ -176,16 +183,19 @@ private:
 
 	enum en_mx_txspbg_masks {
 		MX_TXSPBG_TEXT			 = 0x8000,
-		MX_TXSPBG_SPBG			 = 0x4000,
-		MX_TXSPBG_SPRITE_PRIORITY	= 0x3000,	///< SPRITE and BG priority
-		MX_TXSPBG_SPRITE_PRIORITY_SFT = 12,
+		MX_TXSPBG_SPRITE		 = 0x4000,
+		MX_TXSPBG_BG			 = 0x2000,
+		MX_TXSPBG_TXSPBG_MASK	 = 0xe000,
+		MX_TXSPBG_SPRITEBG_MASK	 = 0x6000,
+		MX_TXSPBG_SPRITE_PRIORITY= 0x0c00,	///< SPRITE and BG priority
+		MX_TXSPBG_SPRITE_PRIORITY_SFT = 10,
 		MX_TXSPBG_SPBG_PALETTE	 = 0x01ff,
 		MX_TXSPBG_PALETTE_MASK	 = 0x00ff,
 		MX_TXSPBG_PALETTE_L4	 = 0x000f,
 //		MX_TXSPBG_WIDTH = 768,
 		MX_TXSPBG_WIDTH_SFT = 10
 	};
-	uint16_t mx_txspbg[(1 << MX_TXSPBG_WIDTH_SFT) * 512];		// TEXT, SPRITE and BG mixed buffer
+	uint16_t mx_txspbg[(1 << MX_TXSPBG_WIDTH_SFT) * SCREEN_HEIGHT];		// TEXT, SPRITE and BG mixed buffer
 	enum en_mx_buf_masks {
 		MX_BUF_COLOR		 = 0x0000ffff,	// color grbi
 		MX_BUF_GR_DATA		 = 0x01000000,	// graphic data is stored
@@ -195,7 +205,7 @@ private:
 //		MX_BUF_WIDTH = 768,
 		MX_BUF_WIDTH_SFT = 10
 	};
-	uint32_t mx_buf[(1 << MX_BUF_WIDTH_SFT) * 512];	// Mixed buffer
+	uint32_t mx_buf[(1 << MX_BUF_WIDTH_SFT) * SCREEN_HEIGHT];	// Mixed buffer
 
 	// synchronizable vertical range
 	int *p_crtc_vt_total;
@@ -206,14 +216,7 @@ private:
 	int *p_crtc_hz_disp;
 
 	int m_raster_even_odd;
-	enum en_raster_modes {
-		RASTER_NORMAL_NONINTER = 0,
-		RASTER_NORMAL_INTERLACE_512,
-		RASTER_HIRESO_DOUBLE,
-		RASTER_HIRESO_NONINTER,
-		RASTER_HIRESO_INTERLACE_512,
-		RASTER_HIRESO_INTERLACE_1024,
-	} m_raster_mode;
+	en_raster_modes m_raster_mode;
 
 	int m_show_screen;
 
@@ -243,9 +246,9 @@ private:
 
 
 	int screen_left;
-	int screen_right;
+	int screen_width;
 	int screen_top;
-	int screen_bottom;
+	int screen_height;
 
 	int skip_frame_count;
 
@@ -287,9 +290,9 @@ private:
 		int m_draw_even_odd;
 
 		int screen_left;
-		int screen_right;
+		int screen_width;
 		int screen_top;
-		int screen_bottom;
+		int screen_height;
 
 		int skip_frame_count;
 
@@ -309,7 +312,7 @@ private:
 
 //	void update_dws_params();
 //	void update_chr_clocks(int clk);
-	inline void set_display_mode(uint32_t data);
+//	inline void set_display_mode(uint32_t data);
 
 	inline void update_show_screen_flags();
 	inline void draw_screen_black(int y_even_odd, int y_step);
@@ -319,6 +322,7 @@ private:
 	inline void clear_mix_buffer_one_line(int width, int y);
 	inline void clear_mix_txspbg_render_one_line(int width, int y);
 	inline void mix_buffer_graphic_txspbg_one_line_sub_txsp_gr_sp(int width, int src_y, int dst_y);
+	inline void mix_buffer_graphic_txspbg_one_line_sub_txsp_gr_ht(int width, int src_y, int dst_y);
 	inline void mix_buffer_graphic_txspbg_one_line_sub_txsp_gr_n(int width, int src_y, int dst_y);
 	inline void mix_buffer_graphic_txspbg_one_line_sub_tx_gr_sp_sp(int width, int src_y, int dst_y);
 	inline void mix_buffer_graphic_txspbg_one_line_sub_tx_gr_sp_ht(int width, int src_y, int dst_y);
@@ -333,6 +337,7 @@ private:
 	inline void render_text_one_line_sub(int y);
 	inline void render_text_one_line(int y);
 	inline void mix_render_text_sprite_bg_one_line_sub_tx_only(int width, int src_left, int src_y, int dst_y);
+	inline void mix_render_text_sprite_bg_one_line_sub_sp_only(int width, int src_left, int src_y, int dst_y);
 	inline void mix_render_text_sprite_bg_one_line_sub_sp_tx(int width, int src_left, int src_y, int dst_y);
 	inline void mix_render_text_sprite_bg_one_line_sub_tx_sp(int width, int src_left, int src_y, int dst_y);
 	inline void mix_render_text_sprite_bg_one_line(int width, int src_y, int dst_y);
@@ -347,8 +352,8 @@ private:
 #else
 	inline void mix_render_sprite_cell_one_line_sub(int ptn_num, int hv, uint32_t bg_priority, int src_left, int src_y, int dst_left, int dst_right, int dst_y);
 #endif
-	inline void mix_render_sprite_cell_one_line(int size512, int width, int sp_num, int disp_left, int disp_top, int step_y, int dst_y);
-	inline void mix_render_sprite_one_line(int size512, int width, int disp_left, int disp_top, int step_y, int dst_y);
+	inline void mix_render_sprite_cell_one_line(int width, int height, int sp_num, int disp_left, int disp_top, int step_y, int dst_y);
+	inline void mix_render_sprite_one_line(int width, int height, int disp_left, int disp_top, int step_y, int dst_y);
 	inline void expand_pcg_one_line_sub_ad(uint32_t src_addr, uint8_t *buffer_n, uint8_t *buffer_h);
 	inline void expand_pcg_one_line_sub(uint32_t src_addr, uint32_t bg_palette, bool h_reverse, uint16_t *buffer);
 	inline void expand_pcg_one_data_ad(uint32_t src_addr, int width, uint8_t *buffer_n, uint8_t *buffer_h, uint8_t *buffer_v, uint8_t *buffer_hv);
@@ -470,6 +475,8 @@ private:
 	void debug_expand_graphic_dumper(int type, int width, int height, uint16_t *buffer);
 	void debug_expand_text_plane(int width, int height, scrntype *buffer);
 	void debug_expand_text_plane_dumper(int width, int height, uint16_t *buffer);
+	void debug_expand_mixed_buffer(int width, int height, scrntype *buffer);
+	void debug_expand_mixed_buffer_dumper(int width, int height, uint16_t *buffer);
 #endif
 
 //	void draw_screen_sub_afterimage1();
@@ -525,6 +532,10 @@ public:
 		p_crtc_vt_total = p_vt_total;
 		p_crtc_vt_disp = p_vt_disp;
 	}
+	int *get_gr_pripage() {
+		return m_vc_gr_pripage;
+	}
+	void set_display_mode(int left, int top, int width, int height, uint32_t mode, en_raster_modes raster);
 	void set_display_size(int left, int top, int right, int bottom);
 
 	void draw_screen();

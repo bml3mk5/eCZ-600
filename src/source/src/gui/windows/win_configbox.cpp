@@ -307,7 +307,10 @@ INT_PTR ConfigBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 	// opengl filter type
 	CreateComboBox(vbox, IDC_COMBO_OPENGL_FILTER, LABELS::opengl_filter, pConfig->gl_filter_type, 6);
 #endif
-
+#ifdef USE_SCREEN_MIX_SURFACE
+	// double buffering
+	CreateCheckBox(box_d3d, IDC_CHK_DOUBLE_BUFFERING, CMsg::Use_double_buffering_when_method_is_default, pConfig->double_buffering);
+#endif
 	// border color
 	CreateCheckBox(box_d3d, IDC_CHK_BORDER_COLOR, CMsg::Set_gray_color_on_the_border_area, FLG_ORIG_BORDER_COLOR != 0);
 
@@ -987,6 +990,10 @@ INT_PTR ConfigBox::onOK(UINT message, WPARAM wParam, LPARAM lParam)
 		pConfig->vdisp_skew = valuel;
 	}
 
+#ifdef USE_SCREEN_MIX_SURFACE
+	// double buffering
+	pConfig->double_buffering = (IsDlgButtonChecked(hDlg, IDC_CHK_DOUBLE_BUFFERING) == BST_CHECKED);
+#endif
 	// border color
 	BIT_ONOFF(pConfig->original, MSK_ORIG_BORDER_COLOR, IsDlgButtonChecked(hDlg, IDC_CHK_BORDER_COLOR) == BST_CHECKED);
 

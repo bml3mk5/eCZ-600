@@ -37,6 +37,7 @@ void EMU_OSD::EMU_SCREEN()
 	/* SDL2 */
 	window = NULL;
 	renderer = NULL;
+	texSource = NULL;
 	texMixed = NULL;
 #ifdef USE_SCREEN_SDL2_MIX_ON_RENDERER
 	texLedBox = NULL;
@@ -61,6 +62,7 @@ void EMU_OSD::EMU_SCREEN()
 	next_use_opengl = 0;
 
 #ifdef USE_SCREEN_OPENGL_MIX_ON_RENDERER
+	sufMain = new CSurface();
 	texGLLedBox = NULL;
 	texGLMsgBoard = NULL;
 #endif
@@ -127,6 +129,8 @@ void EMU_OSD::release_screen()
 #endif
 	delete texMixed;
 	texMixed = NULL;
+	delete texSource;
+	texSource = NULL;
 #endif
 }
 
@@ -323,6 +327,10 @@ bool EMU_OSD::create_screen(int disp_no, int x, int y, int width, int height, ui
 		if (texMixed) {
 			delete texMixed;
 			texMixed = NULL;
+		}
+		if (texSource) {
+			delete texSource;
+			texSource = NULL;
 		}
 		if (renderer) {
 			SDL_DestroyRenderer(renderer);
@@ -535,15 +543,19 @@ bool EMU_OSD::create_offlinesurface()
 		}
 	}
 #endif
-#ifdef USE_SCREEN_MIX_SURFACE
-	if (sufMixed) {
-		sufMixed->Release();
-		if (!sufMixed->Create(mixed_max_size.w, mixed_max_size.h, *pixel_format)) {
-			logging->out_log(LOG_ERROR, _T("EMU_OSD::create_offlinesurface sufMixed failed."));
-			return false;
-		}
+	if (!create_mixedsurface()) {
+		return false;
+	}
+
+#ifdef USE_OPENGL
+#ifdef USE_SCREEN_OPENGL_MIX_ON_RENDERER
+	if (!sufMain->Create(mixed_max_size.w, mixed_max_size.h, *pixel_format)) {
+		logging->out_log(LOG_ERROR, _T("EMU_OSD::create_offlinesurface sufMain failed."));
+		return false;
 	}
 #endif
+#endif
+
 #ifdef USE_SMOOTH_STRETCH
 	if (sufStretch1 && sufStretch2) {
 		sufStretch1->Release();
@@ -572,6 +584,20 @@ bool EMU_OSD::create_offlinesurface()
 	return true;
 }
 
+bool EMU_OSD::create_mixedsurface()
+{
+	if (sufMixed) {
+		sufMixed->Release();
+#ifdef USE_SCREEN_MIX_SURFACE
+		if (!sufMixed->Create(display_size.w, display_size.h, *pixel_format)) {
+			logging->out_log(LOG_ERROR, _T("EMU_OSD::create_offlinesurface sufMixed failed."));
+			return false;
+		}
+#endif
+	}
+	return true;
+}
+
 void EMU_OSD::set_screen_filter_type()
 {
 #if defined(USE_SDL2) || defined(USE_WX2)
@@ -588,13 +614,18 @@ bool EMU_OSD::create_sdl_texture()
 	if (renderer) {
 		set_screen_filter_type();
 
-		if (sufMixed->IsEnable() && !texMixed) {
-			texMixed = new CTexture(renderer, sufMixed->Width(), sufMixed->Height());
-			if (!texMixed) {
-				logging->out_logf(LOG_ERROR, _T("create_sdl_texture: texMixed: %s."), SDL_GetError());
+		if (!texSource) {
+			texSource = new CTexture(renderer, screen_size.w, screen_size.h);
+			if (!texSource) {
+				logging->out_logf(LOG_ERROR, _T("create_sdl_texture: texSource: %s."), SDL_GetError());
 				return false;
 			}
 		}
+
+		if (!create_sdl_mixedtexture()) {
+			return false;
+		}
+
 #ifdef USE_SCREEN_SDL2_MIX_ON_RENDERER
 #ifdef USE_LEDBOX
 		if (ledbox && !texLedBox) {
@@ -619,6 +650,19 @@ bool EMU_OSD::create_sdl_texture()
 		}
 #endif
 #endif
+	}
+	return true;
+}
+
+bool EMU_OSD::create_sdl_mixedtexture()
+{
+	if (renderer) {
+		delete texMixed;
+		texMixed = new CTexture(renderer, display_size.w, display_size.h);
+		if (!texMixed) {
+			logging->out_logf(LOG_ERROR, _T("create_sdl_mixedtexture: texMixed: %s."), SDL_GetError());
+			return false;
+		}
 	}
 	return true;
 }
@@ -884,7 +928,10 @@ void EMU_OSD::set_display_size(int width, int height, int power, bool now_window
 	logging->out_debugf(_T("          source: w:%d h:%d"), source_size.w, source_size.h);
 	logging->out_debugf(_T("   source aspect: w:%d h:%d"), source_aspect_size.w, source_aspect_size.h);
 	logging->out_debugf(_T("           mixed: w:%d h:%d"), mixed_size.w, mixed_size.h);
+	logging->out_debugf(_T("       mixed max: w:%d h:%d"), mixed_max_size.w, mixed_max_size.h);
 	logging->out_debugf(_T("         stretch: w:%d h:%d"), stretched_size.w, stretched_size.h);
+	logging->out_debugf(_T("     screen dest: x:%d y:%d"), screen_size.x, screen_size.y);
+	logging->out_debugf(_T("     source dest: x:%d y:%d"), source_size.x, source_size.y);
 	logging->out_debugf(_T("      mixed dest: x:%d y:%d"), mixed_size.x, mixed_size.y);
 	logging->out_debugf(_T("    stretch dest: x:%d y:%d"), stretched_size.x, stretched_size.y);
 	logging->out_debugf(_T(" stretch dest re: x:%d y:%d"), stretched_dest_real.x, stretched_dest_real.y);
@@ -895,7 +942,7 @@ void EMU_OSD::set_display_size(int width, int height, int power, bool now_window
 #endif
 #endif
 
-	calc_vm_screen_size_sub();
+	calc_vm_screen_size();
 
 	if (now_window) {
 		stretched_size.x += display_margin.left;
@@ -936,10 +983,24 @@ void EMU_OSD::set_display_size(int width, int height, int power, bool now_window
 		create_offlinesurface();
 	}
 #endif
+	create_mixedsurface();
+
+#if defined(USE_SDL2) || defined(USE_WX2)
+	create_sdl_mixedtexture();
+#endif
 
 	// send display size to vm
 	set_vm_display_size();
 
+	set_ledbox_position(now_window);
+
+	set_msgboard_position();
+
+	unlock_screen();
+}
+
+void EMU_OSD::set_ledbox_position(bool now_window)
+{
 #ifdef USE_LEDBOX
 	if (gui) {
 #ifdef USE_OPENGL
@@ -955,11 +1016,16 @@ void EMU_OSD::set_display_size(int width, int height, int power, bool now_window
 #ifdef USE_SCREEN_SDL2_MIX_ON_RENDERER
 			gui->SetLedBoxPosition(now_window, 0, 0, display_size.w, display_size.h, pConfig->led_pos | (is_fullscreen() ? 0x10 : 0));
 #else
-			gui->SetLedBoxPosition(now_window, mixed_size.x, mixed_size.y, mixed_size.w, mixed_size.h, pConfig->led_pos | (is_fullscreen() ? 0x10 : 0));
+//			gui->SetLedBoxPosition(now_window, mixed_size.x, mixed_size.y, mixed_size.w, mixed_size.h, pConfig->led_pos | (is_fullscreen() ? 0x10 : 0));
+			gui->SetLedBoxPosition(now_window, 0, 0, display_size.w, display_size.h, pConfig->led_pos | (is_fullscreen() ? 0x10 : 0));
 #endif
 		}
 	}
 #endif
+}
+
+void EMU_OSD::set_msgboard_position()
+{
 #ifdef USE_MESSAGE_BOARD
 	if (msgboard) {
 #ifdef USE_OPENGL
@@ -981,15 +1047,16 @@ void EMU_OSD::set_display_size(int width, int height, int power, bool now_window
 			msgboard->SetMessagePos(4, -4, 2);
 			msgboard->SetInfoPos(-4, 4, 1);
 #else
-			msgboard->SetSize(source_size.w, source_size.h);
-			msgboard->SetMessagePos(4 + mixed_size.x,  - 4 - source_size.h + mixed_size.y + mixed_size.h, 2);
-			msgboard->SetInfoPos(-4 - mixed_size.x, 4 + mixed_size.y, 1);
+//			msgboard->SetSize(source_size.w, source_size.h);
+//			msgboard->SetMessagePos(4 + mixed_size.x,  - 4 - source_size.h + mixed_size.y + mixed_size.h, 2);
+//			msgboard->SetInfoPos(-4 - mixed_size.x, 4 + mixed_size.y, 1);
+			msgboard->SetSize(display_size.w, display_size.h);
+			msgboard->SetMessagePos(4, -4, 2);
+			msgboard->SetInfoPos(-4, 4, 1);
 #endif
 		}
 	}
 #endif
-
-	unlock_screen();
 }
 
 ///
@@ -1058,17 +1125,15 @@ void EMU_OSD::draw_screen()
 	unlock_screen();
 }
 
+///
+/// copy src screen to mix screen
+///
 void EMU_OSD::mix_screen_sub()
 {
+#ifdef USE_SCREEN_MIX_SURFACE
 	lock_screen();
 
-#ifdef USE_SCREEN_MIX_SURFACE
-#if 0
-	sufSource->Blit(*sufMixed);
-#else
-	sufSource->StretchBlit(vm_screen_size, *sufMixed, mixed_size);
-#endif
-#endif
+	sufSource->StretchBlit(vm_screen_size, *sufMixed, stretched_size);
 
 	unlock_screen();
 
@@ -1080,9 +1145,10 @@ void EMU_OSD::mix_screen_sub()
 
 #ifdef USE_MESSAGE_BOARD
 	if (msgboard && FLG_SHOWMSGBOARD) {
-		msgboard->Draw(sufMixed);
+		msgboard->Draw(*sufMixed);
 	}
 #endif
+#endif /* USE_SCREEN_MIX_SURFACE */
 }
 
 ///
@@ -1096,146 +1162,75 @@ bool EMU_OSD::mix_screen()
 #ifdef USE_OPENGL
 	if (use_opengl > 0) {
 		/* OpenGL ********************/
-		if (texGLMixed) {
-#ifndef USE_SCREEN_OPENGL_MIX_ON_RENDERER
-			mix_screen_sub();
+		return mix_screen_gl();
 
-			if (first_invalidate) {
-#ifdef USE_OPENGL_WH_ORTHO
-				if (opengl->Version() <= 1) {
-					src_pyl_l = (GLfloat)rePyl.left;
-					src_pyl_t = (GLfloat)rePyl.top;
-					src_pyl_r = (GLfloat)rePyl.right;
-					src_pyl_b = (GLfloat)rePyl.bottom;
-				}
-#endif
-				texGLMixed->SetPos(src_pyl_l, src_pyl_t, src_pyl_r, src_pyl_b, src_tex_l, src_tex_t, src_tex_r, src_tex_b);
-				first_invalidate = false;
-			}
-
-			// draw texture using screen pixel buffer
-			texGLMixed->Draw(sufMixed->Width(), sufMixed->Height(), sufMixed->GetBuffer());
-
-			if (!self_invalidate) {
-				// call this only once at first.
-				change_opengl_attr();
-			}
-
-#else /*  USE_SCREEN_OPENGL_MIX_ON_RENDERER */
-			lock_screen();
-
-			SDL_Rect re;
-			RECT_IN(re, 0, 0, vm_screen_size.x + vm_screen_size.w, vm_screen_size.y + vm_screen_size.h);
-			sufSource->Blit(*sufMixed, re);
-
-			unlock_screen();
-
-			if (first_invalidate) {
-#ifdef USE_OPENGL_WH_ORTHO
-				if (opengl->Version() <= 1) {
-					src_pyl_l = (GLfloat)rePyl.left;
-					src_pyl_t = (GLfloat)rePyl.top;
-					src_pyl_r = (GLfloat)rePyl.right;
-					src_pyl_b = (GLfloat)rePyl.bottom;
-				}
-#endif
-				texGLMixed->SetPos(src_pyl_l, src_pyl_t, src_pyl_r, src_pyl_b, src_tex_l, src_tex_t, src_tex_r, src_tex_b);
-				first_invalidate = false;
-			}
-
-			// draw texture using screen pixel buffer
-			texGLMixed->Draw(sufMixed->Width(), sufMixed->Height(), sufMixed->GetBuffer());
-
-#ifdef USE_LEDBOX
-			if (FLG_SHOWLEDBOX && ledbox && texGLLedBox) {
-				ledbox->Draw(*texGLLedBox);
-			}
-#endif
-#ifdef USE_MESSAGE_BOARD
-			if (msgboard && FLG_SHOWMSGBOARD) {
-				msgboard->Draw(*texGLMsgBoard);
-			}
-#endif
-			if (!self_invalidate) {
-				// call this only once at first.
-				change_opengl_attr();
-			}
-#endif
-		}
 	} else
 #endif /* USE_OPENGL */
 	{
+		/* SDL1/2 ********************/
+		return mix_screen_sdl();
+
+	}
+}
+
 #ifdef USE_SDL2
-		/* SDL2 ********************/
-#ifndef USE_SCREEN_SDL2_MIX_ON_RENDERER /* ! USE_SCREEN_SDL2_MIX_ON_RENDERER */
+///
+/// copy src screen to mix screen and overlap a message
+///
+/// @return false: cannot mix (no allocate mix surface)
+bool EMU_OSD::mix_screen_sdl()
+{
+	/* SDL2 ********************/
+
+	if (!renderer) return false;
+
+#ifdef USE_SCREEN_MIX_SURFACE
+	if (pConfig->double_buffering) {
 		mix_screen_sub();
 
-		if (renderer) {
-			if (first_invalidate) {
-				// fill black on screen
-				SDL_RenderClear(renderer);
+		if (first_invalidate) {
+			// fill black on screen
+			SDL_RenderClear(renderer);
 
-				first_invalidate = first_invalidate_default;
-			}
-
-			SDL_UpdateTexture(texMixed->Get(), NULL, sufMixed->GetBuffer(), sufMixed->BytesPerLine());
-			// render screen
-			CSurface::Render(*renderer, *texMixed->Get(), reMix, reSuf);
+			first_invalidate = first_invalidate_default;
 		}
 
-#else /* USE_SCREEN_SDL2_MIX_ON_RENDERER */
+		SDL_Rect re;
+		RECT_IN(re, 0, 0, display_size.w, display_size.h);
+		SDL_UpdateTexture(texMixed->Get(), &re, sufMixed->GetBuffer(), sufMixed->BytesPerLine());
+		// render screen
+		SDL_RenderCopy(renderer, texMixed->Get(), &re, &re);
 
-		if (renderer) {
-			if (first_invalidate) {
-				// fill black on screen
-				SDL_RenderClear(renderer);
+	} else
+#endif /* USE_SCREEN_MIX_SURFACE */
+	{
+		if (first_invalidate) {
+			// fill black on screen
+			SDL_RenderClear(renderer);
 
-				first_invalidate = first_invalidate_default;
-			}
+			first_invalidate = first_invalidate_default;
+		}
 
-			lock_screen();
+		lock_screen();
 
-			SDL_Rect re;
-			RECT_IN(re, 0, 0, vm_screen_size.x + vm_screen_size.w, vm_screen_size.y + vm_screen_size.h);
-			SDL_UpdateTexture(texMixed->Get(), &re, sufSource->GetBuffer(), sufSource->BytesPerLine());
+		SDL_Rect re;
+		RECT_IN(re, 0, 0, vm_screen_size.x + vm_screen_size.w, vm_screen_size.y + vm_screen_size.h);
+		SDL_UpdateTexture(texSource->Get(), &re, sufSource->GetBuffer(), sufSource->BytesPerLine());
 
-			unlock_screen();
+		unlock_screen();
 
-			// render screen
-			CSurface::Render(*renderer, *texMixed->Get(), vm_screen_size, reSuf);
+		// render screen
+		CSurface::Render(*renderer, *texSource->Get(), vm_screen_size, reSuf);
 
 #ifdef USE_LEDBOX
-			if (FLG_SHOWLEDBOX && ledbox && texLedBox) {
-				ledbox->Draw(*texLedBox);
-			}
+		if (FLG_SHOWLEDBOX && ledbox && texLedBox) {
+			ledbox->Draw(*texLedBox);
+		}
 #endif
 
 #ifdef USE_MESSAGE_BOARD
-			if (FLG_SHOWMSGBOARD && msgboard && texMsgBoard) {
-				msgboard->Draw(*texMsgBoard);
-			}
-#endif
-
-		}
-#endif /* USE_SCREEN_SDL2_MIX_ON_RENDERER */
-#else
-		/* SDL1 ********************/
-		mix_screen_sub();
-
-		// fill black on screen
-		if (first_invalidate) {
-			SDL_Rect re;
-			re.x = 0; re.y = 0; re.w = screen->w; re.h = screen->h;
-			SDL_FillRect(screen, &re, SDL_MapRGB(screen->format, 0, 0, 0));
-			first_invalidate = false;
-		}
-		// render screen
-		if(stretched_size.w == mixed_size.w && stretched_size.h == mixed_size.h) {
-			sufMixed->Blit(reMix, *screen, reSuf);
-//			SDL_UTILS::blit_surface(sufMixed->Get(), &reMix, screen, &reSuf);
-		} else {
-			sufMixed->StretchBlit(reMix, *screen, reSuf);
-//			SDL_UTILS::zoomin_surface(sufMixed->Get(), &reMix, screen, &reSuf);
+		if (FLG_SHOWMSGBOARD && msgboard && texMsgBoard) {
+			msgboard->Draw(*texMsgBoard);
 		}
 #endif
 	}
@@ -1246,6 +1241,155 @@ bool EMU_OSD::mix_screen()
 
 	return true;
 }
+
+#else /* USE_SDL2 */
+
+///
+/// copy src screen to mix screen and overlap a message
+///
+/// @return false: cannot mix (no allocate mix surface)
+bool EMU_OSD::mix_screen_sdl()
+{
+	/* SDL1 ********************/
+
+	// render screen
+#ifdef USE_SCREEN_MIX_SURFACE
+	if (pConfig->double_buffering) {
+		mix_screen_sub();
+
+		// fill black on screen
+		if (first_invalidate) {
+			SDL_Rect re;
+			re.x = 0; re.y = 0; re.w = screen->w; re.h = screen->h;
+			SDL_FillRect(screen, &re, SDL_MapRGB(screen->format, 0, 0, 0));
+			first_invalidate = false;
+		}
+
+		sufMixed->Blit(*screen);
+
+	} else
+#endif
+	{
+		// fill black on screen
+		if (first_invalidate) {
+			SDL_Rect re;
+			re.x = 0; re.y = 0; re.w = screen->w; re.h = screen->h;
+			SDL_FillRect(screen, &re, SDL_MapRGB(screen->format, 0, 0, 0));
+			first_invalidate = false;
+		}
+
+		lock_screen();
+
+		sufSource->StretchBlit(vm_screen_size, *screen, stretched_size);
+
+		unlock_screen();
+
+#ifdef USE_LEDBOX
+		if (FLG_SHOWLEDBOX && ledbox) {
+			ledbox->Draw(*screen);
+		}
+#endif
+
+#ifdef USE_MESSAGE_BOARD
+		if (msgboard && FLG_SHOWMSGBOARD) {
+			msgboard->Draw(*screen);
+		}
+#endif
+	}
+
+	// invalidate window
+	self_invalidate = true;
+//	skip_frame = false;
+
+	return true;
+}
+#endif /* !USE_SDL2 */
+
+#ifdef USE_OPENGL
+///
+/// copy src screen to mix screen and overlap a message using OpenGL
+///
+/// @return false: cannot mix (no allocate mix surface)
+bool EMU_OSD::mix_screen_gl()
+{
+	/* OpenGL ********************/
+#ifndef USE_SCREEN_OPENGL_MIX_ON_RENDERER
+	if (texGLMixed) {
+		mix_screen_sub();
+
+		if (first_invalidate) {
+#ifdef USE_OPENGL_WH_ORTHO
+			if (opengl->Version() <= 1) {
+				src_pyl_l = (GLfloat)rePyl.left;
+				src_pyl_t = (GLfloat)rePyl.top;
+				src_pyl_r = (GLfloat)rePyl.right;
+				src_pyl_b = (GLfloat)rePyl.bottom;
+			}
+#endif
+			texGLMixed->SetPos(src_pyl_l, src_pyl_t, src_pyl_r, src_pyl_b, src_tex_l, src_tex_t, src_tex_r, src_tex_b);
+			first_invalidate = false;
+		}
+
+		// draw texture using screen pixel buffer
+		texGLMixed->Draw(sufMixed->Width(), sufMixed->Height(), sufMixed->GetBuffer());
+
+		if (!self_invalidate) {
+			// call this only once at first.
+			change_opengl_attr();
+		}
+	}
+
+#else /*  USE_SCREEN_OPENGL_MIX_ON_RENDERER */
+	if (texGLMixed) {
+		lock_screen();
+
+		SDL_Rect re;
+		RECT_IN(re, 0, 0, vm_screen_size.x + vm_screen_size.w, vm_screen_size.y + vm_screen_size.h);
+		sufSource->Blit(*sufMain, re);
+
+		unlock_screen();
+
+		if (first_invalidate) {
+#ifdef USE_OPENGL_WH_ORTHO
+			if (opengl->Version() <= 1) {
+				src_pyl_l = (GLfloat)rePyl.left;
+				src_pyl_t = (GLfloat)rePyl.top;
+				src_pyl_r = (GLfloat)rePyl.right;
+				src_pyl_b = (GLfloat)rePyl.bottom;
+			}
+#endif
+			texGLMixed->SetPos(src_pyl_l, src_pyl_t, src_pyl_r, src_pyl_b, src_tex_l, src_tex_t, src_tex_r, src_tex_b);
+			first_invalidate = false;
+		}
+
+		// draw texture using screen pixel buffer
+		texGLMixed->Draw(sufMain->Width(), sufMain->Height(), sufMain->GetBuffer());
+
+#ifdef USE_LEDBOX
+		if (FLG_SHOWLEDBOX && ledbox && texGLLedBox) {
+			ledbox->Draw(*texGLLedBox);
+		}
+#endif
+#ifdef USE_MESSAGE_BOARD
+		if (FLG_SHOWMSGBOARD && msgboard && texGLMsgBoard) {
+			msgboard->Draw(*texGLMsgBoard);
+		}
+#endif
+		if (!self_invalidate) {
+			// call this only once at first.
+			change_opengl_attr();
+		}
+	}
+
+#endif /* USE_SCREEN_OPENGL_MIX_ON_RENDERER */
+
+	// invalidate window
+	self_invalidate = true;
+//	skip_frame = false;
+
+	return true;
+}
+#endif /* USE_OPENGL */
 
 ///
 /// post request screen updating to draw it on main thread
@@ -1280,47 +1424,18 @@ void EMU_OSD::set_vm_screen_size(int screen_width, int screen_height, int window
 {
 	EMU::set_vm_screen_size(screen_width, screen_height, window_width, window_height, window_width_aspect, window_height_aspect);
 
-	calc_vm_screen_size_sub();
+	calc_vm_screen_size();
 
 	first_invalidate = true;
 }
 
-void EMU_OSD::calc_vm_screen_size_sub()
+void EMU_OSD::calc_vm_screen_size()
 {
-	vm_screen_size.w = vm_display_size.w * mixed_size.w / MIN_WINDOW_WIDTH;
-	vm_screen_size.h = vm_display_size.h * mixed_size.h / MIN_WINDOW_HEIGHT;
+	calc_vm_screen_size_sub(mixed_size, vm_screen_size);
 
-	int mixed_orig_w = mixed_size.w;
-	int mixed_orig_h = mixed_size.h;
-	if (mixed_ratio.w < mixed_ratio.h) {
-		mixed_orig_h = mixed_orig_h * mixed_ratio.h / mixed_ratio.w;
-	} else {
-		mixed_orig_w = mixed_orig_w * mixed_ratio.w / mixed_ratio.h;
-	}
-
-	int base_x = (screen_size.w - MIN_WINDOW_WIDTH) / 2;
-	vm_screen_size.x = (screen_size.w - mixed_orig_w) / 2;
-	vm_screen_size.x = base_x - ((base_x) - (vm_screen_size.x)) * vm_display_size.w / MIN_WINDOW_WIDTH;
-
-	int base_y = (screen_size.h - MIN_WINDOW_HEIGHT) / 2;
-	vm_screen_size.y = (screen_size.h - mixed_orig_h) / 2;
-	vm_screen_size.y = base_y - ((base_y) - (vm_screen_size.y)) * vm_display_size.h / MIN_WINDOW_HEIGHT;
-
-#ifdef _DEBUG_LOG
-	logging->out_debugf(_T("    tex source ->: x:%d y:%d w:%d h:%d"), vm_screen_size.x, vm_screen_size.y, vm_screen_size.w, vm_screen_size.h);
-#endif
-
-	base_x = vm_screen_size.w / 2;
-	base_y = vm_screen_size.h / 2;
-
-	if (mixed_ratio.w < mixed_ratio.h) {
-		vm_screen_size.y = base_y - (base_y - vm_screen_size.y) * mixed_ratio.w / mixed_ratio.h;
-	} else {
-		vm_screen_size.x = base_x - (base_x - vm_screen_size.x) * mixed_ratio.h / mixed_ratio.w;
-	}
-
-#ifdef _DEBUG_LOG
-	logging->out_debugf(_T("adj tex source ->: x:%d y:%d w:%d h:%d"), vm_screen_size.x, vm_screen_size.y, vm_screen_size.w, vm_screen_size.h);
+#ifdef _DEBUG
+	logging->out_debugf(_T("vm_display_size: w:%d h:%d"), vm_display_size.w, vm_display_size.h);
+	logging->out_debugf(_T("vm_screen_size: x:%d y:%d w:%d h:%d"), vm_screen_size.x, vm_screen_size.y, vm_screen_size.w, vm_screen_size.h);
 #endif
 
 #ifdef USE_SCREEN_OPENGL_MIX_ON_RENDERER
@@ -1328,7 +1443,25 @@ void EMU_OSD::calc_vm_screen_size_sub()
 	src_tex_r = (float)(vm_screen_size.x + vm_screen_size.w) / (float)mixed_max_size.w;
 	src_tex_t = (float)vm_screen_size.y / (float)mixed_max_size.h;
 	src_tex_b = (float)(vm_screen_size.y + vm_screen_size.h) / (float)mixed_max_size.h;
+
+#ifdef _DEBUG
+	logging->out_debugf(_T("src tex: l:%.3f t:%.3f r:%.3f b:%.3f"), src_tex_l, src_tex_t, src_tex_r, src_tex_b);
 #endif
+#endif
+}
+
+void EMU_OSD::calc_vm_screen_size_sub(const VmRectWH &src_size, VmRectWH &vm_size)
+{
+	double sw = (double)vm_display_size.w * src_size.w / MIN_WINDOW_WIDTH;
+	vm_size.w = (int)(sw + 0.5);
+	if (vm_display_size.w < SCREEN_WIDTH) {
+		vm_size.x = (int)((double)screen_size.x - ((sw - vm_display_size.w) / 2.0) + 0.5);
+	} else {
+		vm_size.x = (int)(- ((sw - vm_display_size.w) / 2.0) + 0.5);
+	}
+	double sh = (double)vm_display_size.h * src_size.h / MIN_WINDOW_HEIGHT;
+	vm_size.h = (int)(sh + 0.5);
+	vm_size.y = (int)((double)screen_size.y - ((sh - vm_display_size.h) / 2.0) + 0.5);
 }
 
 ///
@@ -1377,7 +1510,10 @@ void EMU_OSD::update_screen()
 void EMU_OSD::capture_screen()
 {
 	int size = pConfig->screen_video_size;
-	rec_video->Capture(CAPTURE_SCREEN_TYPE, rec_video_stretched_size, sufSource, rec_video_size[size]);
+
+	calc_vm_screen_size_sub(rec_video_size[size], vm_screen_size_for_rec);
+
+	rec_video->Capture(CAPTURE_SCREEN_TYPE, vm_screen_size_for_rec, sufSource, rec_video_size[size]);
 }
 
 ///
@@ -1658,6 +1794,8 @@ void EMU_OSD::release_opengl()
 	texGLMsgBoard = NULL;
 	delete texGLLedBox;
 	texGLLedBox = NULL;
+	delete sufMain;
+	sufMain = NULL;
 #endif
 
 	delete texGLMixed;

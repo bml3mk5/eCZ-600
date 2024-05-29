@@ -508,6 +508,7 @@ public:
 		SRAM_Start_Address_Hex,
 		RS_232C,
 		Set_gray_color_on_the_border_area,
+		Use_double_buffering_when_method_is_default,
 		Enable_alarm,
 		Alarm_Time_Hex,
 		Alarm_Duration,

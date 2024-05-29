@@ -15,6 +15,7 @@
 #include "../device.h"
 
 class EMU;
+class DISPLAY;
 
 /**
 	@brief CRTC - CRT Controller
@@ -72,11 +73,26 @@ public:
 		CONTROL0_H1024 = 0x0003,	// horizontal 1024dot?
 		CONTROL0_VRES = 0x000c,	// vertical
 		CONTROL0_VHRES = 0x000f,	// horizontal and vertical
+		CONTROL0_V256 = 0x0000,	// vertical 256line
 		CONTROL0_V512 = 0x0004,	// vertical 512line
 		CONTROL0_V768 = 0x0008,	// vertical 768line?
 		CONTROL0_V1024 = 0x000c,	// vertical 1024line?
 		CONTROL0_HIRESO = 0x0010,	// high resolution (Hsync: 31kHz)
 		CONTROL0_HIRESO_SFT = 4,
+	};
+	enum en_change_size_masks {
+		CZ_HRES	 = 0x0003,	// horizontal
+		CZ_H256	 = 0x0000,	// horizontal 256dot
+		CZ_H512	 = 0x0001,	// horizontal 512dot
+		CZ_H768	 = 0x0002,	// horizontal 768dot
+		CZ_H1024 = 0x0003,	// horizontal 1024dot?
+		CZ_VRES	 = 0x000c,	// vertical
+		CZ_V256	 = 0x0000,	// vertical 256line
+		CZ_V512	 = 0x0004,	// vertical 512line
+		CZ_V768	 = 0x0008,	// vertical 768line?
+		CZ_V1024 = 0x000c,	// vertical 1024line?
+		CZ_HIRESO = 0x0010,	// high resolution (Hsync: 31kHz)
+		CZ_HRL	 = 0x0020,	// hrl in system port R4
 	};
 	enum en_crtc_r21_masks {
 		CONTROL1_MEN = 0x0200,	// access mask text
@@ -109,12 +125,14 @@ private:
 
 
 private:
+	// devices
+	DISPLAY *d_display;
 	// output signals
 	outputs_t outputs_raster;
 	outputs_t outputs_vdisp;
 	outputs_t outputs_vsync;
 	outputs_t outputs_hsync;
-	outputs_t outputs_chsize;
+//	outputs_t outputs_chsize;
 
 	static const uint16_t c_regs_mask[24];
 
@@ -130,6 +148,7 @@ private:
 	uint8_t *pu_tvram;		///< text vram update flag
 	uint16_t *p_gvram;		///< graphic vram
 //	uint8_t *pu_gvram;		///< graphic vram update flag
+	int *p_gr_pripage;		///< priority page on graphics
 
 	bool m_timing_changed;
 	bool m_timing_updated;
@@ -246,6 +265,7 @@ private:
 	void clear_gvram();
 	void update_raster_intr();
 
+	inline void set_horizontal_params();
 	inline void set_vertical_params();
 
 public:
@@ -255,7 +275,7 @@ public:
 		init_output_signals(&outputs_vdisp);
 		init_output_signals(&outputs_vsync);
 		init_output_signals(&outputs_hsync);
-		init_output_signals(&outputs_chsize);
+//		init_output_signals(&outputs_chsize);
 	}
 	~CRTC() {}
 
@@ -289,9 +309,9 @@ public:
 	void set_context_hsync(DEVICE* device, int id, uint32_t mask) {
 		register_output_signal(&outputs_hsync, device, id, mask);
 	}
-	void set_context_change_size(DEVICE* device, int id, uint32_t mask) {
-		register_output_signal(&outputs_chsize, device, id, mask);
-	}
+//	void set_context_change_size(DEVICE* device, int id, uint32_t mask) {
+//		register_output_signal(&outputs_chsize, device, id, mask);
+//	}
 #ifdef CRTC_HORIZ_FREQ
 	void set_horiz_freq(int freq) {
 		next_horiz_freq = freq;
@@ -335,13 +355,19 @@ public:
 	int* get_vs_end_ptr() {
 		return &m_vs_end;
 	}
+	void set_context_display(DISPLAY *ptr) {
+		 d_display = ptr;
+	}
 	void set_vtram_ptr(uint16_t *ptr, uint8_t *ptru) {
 		p_tvram = ptr;
 		pu_tvram = ptru;
 	}
-	void set_gtram_ptr(uint16_t *ptr /*, uint8_t *ptru */) {
+	void set_gvram_ptr(uint16_t *ptr /*, uint8_t *ptru */) {
 		p_gvram = ptr;
 //		pu_gvram = ptru;
+	}
+	void set_vc_gr_pripage(int *ptr) {
+		p_gr_pripage = ptr;
 	}
 	uint32_t get_led_status();
 

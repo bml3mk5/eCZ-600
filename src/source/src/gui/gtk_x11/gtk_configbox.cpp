@@ -279,9 +279,14 @@ bool ConfigBox::Show(GtkWidget *parent_window)
 	gtk_widget_set_sensitive(comUseOpenGL, FALSE);
 	gtk_widget_set_sensitive(comGLFilter, FALSE);
 #endif
+#ifdef USE_SCREEN_MIX_SURFACE
+	// double buffering
+	hbox = create_hbox(vbox);
+	chkDoubleBuffer = create_check_box(hbox, CMsg::Use_double_buffering_when_method_is_default, pConfig->double_buffering);
+#endif
 	// border color
 	hbox = create_hbox(vbox);
-	chkBorderColor =create_check_box(hbox, CMsg::Set_gray_color_on_the_border_area, FLG_ORIG_BORDER_COLOR != 0);
+	chkBorderColor = create_check_box(hbox, CMsg::Set_gray_color_on_the_border_area, FLG_ORIG_BORDER_COLOR != 0);
 
 	create_frame(hboxall, CMsg::CRTC, &vbox, &hbox);
 #if defined(_X68000)
@@ -600,6 +605,11 @@ bool ConfigBox::SetData()
 	if (sscanf(get_text(txtVertSkew), "%d", &val) == 1  && -128 <= val && val <= 128) {
 		pConfig->vdisp_skew = val;
 	}
+#endif
+
+#ifdef USE_SCREEN_MIX_SURFACE
+	// double buffering
+	pConfig->double_buffering = get_check_state(chkDoubleBuffer);
 #endif
 
 	// border color

@@ -24,13 +24,19 @@
 #define OUT_DEBUG_IERA(...)
 //#define OUT_DEBUG_IERB logging->out_debugf
 #define OUT_DEBUG_IERB(...)
-//#define OUT_DEBUG_TIMERC logging->out_debugf
-#define OUT_DEBUG_TIMERC(...)
+//#define OUT_DEBUG_TIMER(n, ...) logging->out_debugf(__VA_ARGS__)
+#define OUT_DEBUG_TIMER(...)
+//#define OUT_DEBUG_TIMERAB(n, ...) logging->out_debugf(__VA_ARGS__)
+#define OUT_DEBUG_TIMERAB(...)
+//#define OUT_DEBUG_TIMERCD(n, ...) logging->out_debugf(__VA_ARGS__)
+#define OUT_DEBUG_TIMERCD(...)
 #else
 #define OUT_DEBUG_INTR(...)
 #define OUT_DEBUG_IERA(...)
 #define OUT_DEBUG_IERB(...)
-#define OUT_DEBUG_TIMERC(...)
+#define OUT_DEBUG_TIMER(...)
+#define OUT_DEBUG_TIMERAB(...)
+#define OUT_DEBUG_TIMERCD(...)
 #endif
 
 // B,A
@@ -66,6 +72,7 @@ void MFP::initialize()
 		m_timer_counter[i] = 0;
 		m_timer_period[i] = 1.0;
 	}
+	m_timer_onoff = 0;
 	for(int i=0; i<2; i++) {
 		m_timer_prev_input[i] = 0;
 	}
@@ -116,6 +123,7 @@ void MFP::warm_reset(bool por)
 		}
 //	}
 	m_timer_output = 0;
+	m_timer_onoff = 0;
 
 	for(int i=0; i<2; i++) {
 		m_timer_prev_input[i] = 0;
@@ -160,7 +168,7 @@ void MFP::write_io8(uint32_t addr, uint32_t data)
 
 	addr &= 0x1f;
 
-	switch(addr & 0x1f) {
+	switch(addr) {
 	case MFP_IERA:
 		m_regs[addr] = data;
 		// update IPRA and ISRA
@@ -190,11 +198,23 @@ void MFP::write_io8(uint32_t addr, uint32_t data)
 		update_irq();
 		break;
 	case MFP_IPRA:
+		// all bits can be cleared only.
+		m_regs[addr] &= data;
+		// cancel asserting interrupt
+		m_regs[MFP_ISRA] &= data;
+
+		OUT_DEBUG_IERA(_T("clk:%lld MFP IPRA W ISRA:%02X ISRB:%02X IPRA:%02X IPRB:%02X IMRA:%02X IMRB:%02X")
+			, get_current_clock()
+			, m_regs[MFP_ISRA], m_regs[MFP_ISRB]
+			, m_regs[MFP_IPRA], m_regs[MFP_IPRB]
+			, m_regs[MFP_IMRA], m_regs[MFP_IMRB]);
+		// interrupt
+		update_irq();
+		break;
 	case MFP_ISRA:
 		// all bits can be cleared only.
 		m_regs[addr] &= data;
-		OUT_DEBUG_IERA(_T("clk:%lld MFP I%cRA W ISRA:%02X ISRB:%02X IPRA:%02X IPRB:%02X IMRA:%02X IMRB:%02X")
-			, (addr & 0x1f) == MFP_IPRA ? _T('P') : _T('S')
+		OUT_DEBUG_IERA(_T("clk:%lld MFP ISRA W ISRA:%02X ISRB:%02X IPRA:%02X IPRB:%02X IMRA:%02X IMRB:%02X")
 			, get_current_clock()
 			, m_regs[MFP_ISRA], m_regs[MFP_ISRB]
 			, m_regs[MFP_IPRA], m_regs[MFP_IPRB]
@@ -231,11 +251,23 @@ void MFP::write_io8(uint32_t addr, uint32_t data)
 		update_irq();
 		break;
 	case MFP_IPRB:
+		// all bits can be cleared only.
+		m_regs[addr] &= data;
+		// cancel asserting interrupt
+		m_regs[MFP_ISRB] &= data;
+
+		OUT_DEBUG_IERB(_T("clk:%lld MFP IPRB W ISRA:%02X ISRB:%02X IPRA:%02X IPRB:%02X IMRA:%02X IMRB:%02X")
+			, get_current_clock()
+			, m_regs[MFP_ISRA], m_regs[MFP_ISRB]
+			, m_regs[MFP_IPRA], m_regs[MFP_IPRB]
+			, m_regs[MFP_IMRA], m_regs[MFP_IMRB]);
+		// interrupt
+		update_irq();
+		break;
 	case MFP_ISRB:
 		// all bits can be cleared only.
 		m_regs[addr] &= data;
-		OUT_DEBUG_IERB(_T("clk:%lld MFP I%cRB W ISRA:%02X ISRB:%02X IPRA:%02X IPRB:%02X IMRA:%02X IMRB:%02X")
-			, (addr & 0x1f) == MFP_IPRA ? _T('P') : _T('S')
+		OUT_DEBUG_IERB(_T("clk:%lld MFP ISRB W ISRA:%02X ISRB:%02X IPRA:%02X IPRB:%02X IMRA:%02X IMRB:%02X")
 			, get_current_clock()
 			, m_regs[MFP_ISRA], m_regs[MFP_ISRB]
 			, m_regs[MFP_IPRA], m_regs[MFP_IPRB]
@@ -248,7 +280,7 @@ void MFP::write_io8(uint32_t addr, uint32_t data)
 		{
 			// timer A,B controller
 			int n = addr - MFP_TACR;
-
+			uint8_t prev = m_regs[addr]; 
 			m_regs[addr] = data & 0xff;
 
 			if (data & 0x10) {
@@ -257,38 +289,60 @@ void MFP::write_io8(uint32_t addr, uint32_t data)
 				write_signals(&outputs_tmo[n], m_timer_output & (0x01 << n));
 			}
 			if (data & 0x7) {
-				// Countdown start
-				m_timer_counter[n] = m_regs[MFP_TADR + n];
-				m_timer_period[n] = (double)c_prescaler[data & 0x7] * 1000000.0 / m_timer_clock; 
-				cancel_my_event(m_timer_register_id[n]);
-				register_event(this, EVENT_MFP_TIMER_A + n, m_timer_period[n], true, &m_timer_register_id[n]);
+				if ((data ^ prev) & 0x7) {
+					// Countdown start
+//					m_timer_counter[n] = m_regs[MFP_TADR + n];
+					m_timer_period[n] = (double)c_prescaler[data & 0x7] * 1000000.0 / m_timer_clock; 
+					cancel_my_event(m_timer_register_id[n]);
+					register_event(this, EVENT_MFP_TIMER_A + n, m_timer_period[n], true, &m_timer_register_id[n]);
+					m_timer_onoff |= (1 << n);
+
+					OUT_DEBUG_TIMERAB(n, _T("clk:%lld MFP TIMER%c START: data:0x%x prescale:%d -> %fus. counter:%d")
+						, get_current_clock()
+						, n + 0x41, m_regs[addr], c_prescaler[data & 0x7], m_timer_period[n], m_timer_counter[n]);
+				}
 			} else {
 				// Stop Timer
 				cancel_my_event(m_timer_register_id[n]);
+				m_timer_onoff &= ~(1 << n);
+
+				OUT_DEBUG_TIMERAB(n, _T("clk:%lld MFP TIMER%c STOP: data:0x%x")
+					, get_current_clock()
+					, n + 0x41, m_regs[addr]);
 			}
 		}
 		break;
 	case MFP_TCDCR:
 		{
 			// timer C,D controller
+			uint8_t prev = m_regs[addr]; 
 			m_regs[addr] = data & 0xff;
 
 			for(int n=1; n>=0; n--) {
 				if (data & 0x7) {
-					// Countdown start
-					m_timer_counter[n + 2] = m_regs[MFP_TCDR + n];
-					m_timer_period[n + 2] = (double)c_prescaler[data & 0x7] * 1000000.0 / m_timer_clock; 
-					cancel_my_event(m_timer_register_id[n + 2]);
-					register_event(this, EVENT_MFP_TIMER_C + n, m_timer_period[n + 2], true, &m_timer_register_id[n + 2]);
+					if ((data ^ prev) & 0x7) {
+						// Countdown start
+//						m_timer_counter[n + 2] = m_regs[MFP_TCDR + n];
+						m_timer_period[n + 2] = (double)c_prescaler[data & 0x7] * 1000000.0 / m_timer_clock; 
+						cancel_my_event(m_timer_register_id[n + 2]);
+						register_event(this, EVENT_MFP_TIMER_C + n, m_timer_period[n + 2], true, &m_timer_register_id[n + 2]);
+						m_timer_onoff |= (4 << n);
 
-					OUT_DEBUG_TIMERC(_T("clk:%lld MFP TIMER%c START: prescale:%d -> %fus.")
-						, get_current_clock()
-						, n + 0x43, c_prescaler[data & 0x7], m_timer_period[n + 2]);
+						OUT_DEBUG_TIMERCD(n, _T("clk:%lld MFP TIMER%c START: data:0x%x prescale:%d -> %fus. counter:%d")
+							, get_current_clock()
+							, n + 0x43, m_regs[addr], c_prescaler[data & 0x7], m_timer_period[n + 2], m_timer_counter[n + 2]);
+					}
 				} else {
 					// Stop Timer
 					cancel_my_event(m_timer_register_id[n + 2]);
+					m_timer_onoff &= ~(4 << n);
+
+					OUT_DEBUG_TIMERCD(n, _T("clk:%lld MFP TIMER%c STOP: data:0x%x")
+						, get_current_clock()
+						, n + 0x43, m_regs[addr]);
 				}
 				data >>= 4;
+				prev >>= 4;
 			}
 		}
 		break;
@@ -329,6 +383,23 @@ void MFP::write_io8(uint32_t addr, uint32_t data)
 		// send enable signal to sender
 		d_serial->write_signal(SIG_RR, (data & RSR_RE) && !(m_buf_status & RX_BUF_FULL) ? 1 : 0, 1);
 		break;
+	case MFP_TADR:
+	case MFP_TBDR:
+	case MFP_TCDR:
+	case MFP_TDDR:
+		{
+			int n = addr - MFP_TADR;
+			m_regs[addr] = data & 0xff;
+			if (!(m_timer_onoff & (1 << n))) {
+				m_timer_counter[n] = m_regs[addr];
+			}
+
+			OUT_DEBUG_TIMER(n, _T("clk:%lld MFP TIMER%c Now:%s Wrote:%d Counter:%d")
+				, get_current_clock()
+				, n + 0x41, (m_timer_onoff & (1 << n)) != 0 ? _T("ON") : _T("OFF")
+				, m_regs[addr], m_timer_counter[n]);
+		}
+		break;
 	default:
 		m_regs[addr] = data & 0xff;
 		break;
@@ -347,12 +418,12 @@ uint32_t MFP::read_external_data8(uint32_t addr)
 	// interrupt vector
 	data = m_vector;
 
-	OUT_DEBUG_INTR(_T("clk:%lld MFP IACK vec:%02X ISRA:%02X ISRB:%02X IPRA:%02X IPRB:%02X IMRA:%02X IMRB:%02X")
+	OUT_DEBUG_INTR(_T("clk:%lld MFP IACK vec:%02X ISRA:%02X ISRB:%02X IPRA:%02X IPRB:%02X IMRA:%02X IMRB:%02X VR:%02X")
 		, get_current_clock()
 		, m_vector
 		, m_regs[MFP_ISRA], m_regs[MFP_ISRB]
 		, m_regs[MFP_IPRA], m_regs[MFP_IPRB]
-		, m_regs[MFP_IMRA], m_regs[MFP_IMRB]);
+		, m_regs[MFP_IMRA], m_regs[MFP_IMRB], m_regs[MFP_VR]);
 
 	// clear interrupt process
 	if (!(m_regs[MFP_VR] & VR_S)) {
@@ -361,6 +432,12 @@ uint32_t MFP::read_external_data8(uint32_t addr)
 		m_regs[MFP_ISRB] = 0;
 		// clear interrupt
 		update_irq();
+
+		OUT_DEBUG_INTR(_T("clk:%lld MFP IACK Clear ISR ISRA:%02X ISRB:%02X IPRA:%02X IPRB:%02X IMRA:%02X IMRB:%02X")
+			, get_current_clock()
+			, m_regs[MFP_ISRA], m_regs[MFP_ISRB]
+			, m_regs[MFP_IPRA], m_regs[MFP_IPRB]
+			, m_regs[MFP_IMRA], m_regs[MFP_IMRB]);
 	}
 	return data;
 }
@@ -393,7 +470,7 @@ uint32_t MFP::read_io8(uint32_t addr)
 //			update_irq();
 //		}
 //	} else {
-		switch(addr & 0x1f) {
+		switch(addr) {
 		case MFP_IERA:
 		case MFP_IPRA:
 		case MFP_ISRA:
@@ -679,8 +756,8 @@ void MFP::update_irq()
 		uint16_t ipr = ((((uint16_t)m_regs[MFP_IPRB] & m_regs[MFP_IMRB]) << 8) | (m_regs[MFP_IPRA] & m_regs[MFP_IMRA]));
 		if (ipr) {
 			m_irq_ipr = ipr;
+			write_signals(&outputs_irq, 0xffffffff);
 			assert_irq();
-//			if (m_irq_register_id == -1) register_event_by_clock(this, EVENT_MFP_IRQ, 4, false, &m_irq_register_id);
 		} else {
 			write_signals(&outputs_irq, 0);
 //			OUT_DEBUG_INTR(_T("MFP INTR Reset"));
@@ -691,7 +768,6 @@ void MFP::update_irq()
 void MFP::assert_irq()
 {
 	if (m_irq_ipr) {
-		write_signals(&outputs_irq, 0xffffffff);
 		// interrupt vector signal
 		for(int i=15; i>=0; --i) {
 			if (c_intr_pri[i] & m_irq_ipr) {
@@ -728,6 +804,10 @@ void MFP::count_down_timer_a_b(int n)
 
 			// continue count down
 			m_timer_counter[n] = m_regs[MFP_TADR + n];
+
+//			OUT_DEBUG_TIMERAB(n, _T("clk:%lld MFP TIMER%c ZERO ISRA:%02x ISRB:%02x IPRA:%02x IPRB:%02x")
+//				, get_current_clock()
+//				, n + 0x41, m_regs[MFP_ISRA], m_regs[MFP_ISRB], m_regs[MFP_IPRA], m_regs[MFP_IPRB]);
 		}
 //	}
 //	register_event(this, EVENT_MFP_TIMER_A + n, m_timer_period[n], false, &m_timer_register_id[n]);
@@ -750,9 +830,9 @@ void MFP::count_down_timer_c_d(int n)
 			// continue count down
 			m_timer_counter[n + 2] = m_regs[MFP_TCDR + n];
 
-			OUT_DEBUG_TIMERC(_T("clk:%lld TIMER%c ZERO")
+			OUT_DEBUG_TIMERCD(n, _T("clk:%lld MFP TIMER%c ZERO ISRA:%02x ISRB:%02x IPRA:%02x IPRB:%02x")
 				, get_current_clock()
-				, n + 0x43);
+				, n + 0x43, m_regs[MFP_ISRA], m_regs[MFP_ISRB], m_regs[MFP_IPRA], m_regs[MFP_IPRB]);
 		}
 //	}
 //	register_event(this, EVENT_MFP_TIMER_C + n, m_timer_period[n + 2], false, &m_timer_register_id[n + 2]);
@@ -780,14 +860,7 @@ void MFP::event_callback(int event_id, int err)
 		// count down
 		count_down_timer_c_d(event_id - EVENT_MFP_TIMER_C);
 		break;
-//	case EVENT_MFP_XMIT:
-//		// transmit finished
-//		m_xmit_register_id = -1;
-//		xmit();
-//		break;
-	case EVENT_MFP_IRQ:
-		m_irq_register_id = -1;
-		assert_irq();
+	default:
 		break;
 	}
 }
@@ -898,6 +971,13 @@ bool MFP::load_state(FILEIO *fp)
 
 	GET_Int32_LE(m_xmit_wait_count);	///< transmit wait
 	GET_Uint32_LE(m_xmit_prev_edge);	///< transmit clock edge on/off
+
+	// timer
+	m_timer_onoff = 0;
+	if (m_regs[MFP_TACR] & 7) m_timer_onoff |= 1;
+	if (m_regs[MFP_TBCR] & 7) m_timer_onoff |= 2;
+	if (m_regs[MFP_TCDCR] & 0x70) m_timer_onoff |= 4;
+	if (m_regs[MFP_TCDCR] & 7) m_timer_onoff |= 8;
 
 	return true;
 }

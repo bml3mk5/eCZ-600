@@ -496,6 +496,7 @@ CMsg::CMsg()
 	msgs[i++] = _TX("SRAM Start Address (Hex)");
 	msgs[i++] = _TX("RS-232C");
 	msgs[i++] = _TX("Set gray color on the border area.");
+	msgs[i++] = _TX("Use double buffering when method is default.");
 	msgs[i++] = _TX("Enable alarm"),
 	msgs[i++] = _TX("Alarm Time (Hex)"),
 	msgs[i++] = _TX("Alarm Duration"),

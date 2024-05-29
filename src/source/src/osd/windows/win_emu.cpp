@@ -91,6 +91,10 @@ void EMU_OSD::change_screen_use_direct3d(int num)
 
 		unlock_screen();
 
+		set_ledbox_position(!is_fullscreen());
+
+		set_msgboard_position();
+
 		out_infof_x(list[pConfig->use_direct3d]);
 //		update_config();
 	}

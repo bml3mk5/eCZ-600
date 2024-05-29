@@ -13,9 +13,7 @@
 #define SYSPORT_H
 
 #include "../vm_defs.h"
-//#include "../../emu.h"
 #include "../device.h"
-//#include "../../config.h"
 
 class EMU;
 
@@ -28,6 +26,11 @@ public:
 	/// @brief signals on SYSPORT
 	enum SIG_SYSPORT_IDS {
 		SIG_SYSPORT_POWER = 11,
+	};
+	enum en_sysport_r4_masks {
+		R4_HRL		 = 0x02,
+		R4_NMI_RESET = 0x04,
+		R4_KEY_CTRL	 = 0x08,
 	};
 
 private:

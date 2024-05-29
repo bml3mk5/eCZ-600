@@ -150,9 +150,11 @@ VM::VM(EMU* parent_emu) : emu(parent_emu)
 //	crtc->set_context_vsync(mfp, MFP::SIG_GPIP, 0x10, 0xffffffff);	// negative
 	crtc->set_context_raster(mfp, MFP::SIG_GPIP, 0x40, 0xffffffff);	// negative
 	crtc->set_context_hsync(mfp, MFP::SIG_GPIP, 0x80);
-	crtc->set_context_change_size(display, DISPLAY::SIG_DISPLAY_SIZE, 0xffff);
+//	crtc->set_context_change_size(display, DISPLAY::SIG_DISPLAY_SIZE, 0xffff);
+	crtc->set_context_display(display);
 	crtc->set_vtram_ptr(memory->get_tvram_ptr(), memory->get_tvram_flag_ptr());
-	crtc->set_gtram_ptr(memory->get_gvram_ptr() /*, memory->get_gvram_flag_ptr() */);
+	crtc->set_gvram_ptr(memory->get_gvram_ptr() /*, memory->get_gvram_flag_ptr() */);
+	crtc->set_vc_gr_pripage(display->get_gr_pripage());
 
 	// display
 	display->set_context_crtc(crtc);

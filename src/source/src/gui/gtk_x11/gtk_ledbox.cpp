@@ -27,7 +27,6 @@ LedBox::LedBox() : LedBoxBase()
 {
 	parent = NULL;
 	window = NULL;
-	cairosuf = NULL;
 
 	pStart.x = 0;
 	pStart.y = 0;
@@ -74,12 +73,6 @@ void LedBox::CreateDialogBox()
 	gtk_widget_add_events(window, mask);
 #endif
 
-	cairosuf = cairo_image_surface_create_for_data((unsigned char *)GetBuffer()
-		, CAIRO_FORMAT_RGB24
-		, Width(), Height()
-		, cairo_format_stride_for_width(CAIRO_FORMAT_RGB24, Width())
-	);
-
 	g_signal_connect(G_OBJECT(window), "button-press-event", G_CALLBACK(OnMouseDown), (gpointer)this);
 	g_signal_connect(G_OBJECT(window), "button-release-event", G_CALLBACK(OnMouseUp), (gpointer)this);
 	g_signal_connect(G_OBJECT(window), "motion-notify-event", G_CALLBACK(OnMouseMove), (gpointer)this);
@@ -96,10 +89,6 @@ void LedBox::destroy_dialog()
 #ifdef LEDBOX_DEBUG
 	fprintf(stderr, "LedBox::destroy_dialog()\n");
 #endif
-	if (cairosuf) {
-		cairo_surface_destroy(cairosuf);
-		cairosuf = NULL;
-	}
 
 	if (window) {
 //		gtk_widget_destroy(window);
@@ -257,8 +246,9 @@ gboolean LedBox::OnDraw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 //	GdkRectangle re;
 //	gdk_cairo_get_clip_rectangle(cr, &re);
 //printf("OnDraw: re:%d:%d:%d:%d\n",re.x,re.y,re.width,re.height);
-	cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 1.0);
-	cairo_set_source_surface(cr, obj->cairosuf, 1.0, 1.0);
+//	cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 1.0);
+	obj->cairosuf->BlitC(cr);
+//	cairo_set_source_surface(cr, obj->cairosuf, 1.0, 1.0);
 	cairo_paint(cr);
 	return FALSE;
 }
@@ -267,8 +257,9 @@ gboolean LedBox::OnExpose(GtkWidget *widget, GdkEvent *event, gpointer user_data
 {
 	LedBox *obj = (LedBox *)user_data;
 	cairo_t *cr = gdk_cairo_create(widget->window);
-	cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 1.0);
-	cairo_set_source_surface(cr, obj->cairosuf, 1.0, 1.0);
+//	cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 1.0);
+	obj->cairosuf->BlitC(cr);
+//	cairo_set_source_surface(cr, obj->cairosuf, 1.0, 1.0);
 	cairo_paint(cr);
 	cairo_destroy(cr);
 	return FALSE;

@@ -119,44 +119,97 @@ bool MsgBoard::SetFont()
 	return enable;
 }
 
+/// 基準位置の計算
+void MsgBoard::calc_place(msg_data_t &data, SDL_Rect &reDst)
+{
+	if (data.place & 1) {
+		reDst.x = szWin.cx + data.pt.x - data.sz.cx;
+		reDst.w = data.sz.cx;
+	} else {
+		reDst.x = data.pt.x;
+		reDst.w = data.sz.cx;
+	}
+	if (data.place & 2) {
+		reDst.y = szWin.cy + data.pt.y - data.sz.cy;
+		reDst.h = data.sz.cy;
+	} else {
+		reDst.y = data.pt.y;
+		reDst.h = data.sz.cy;
+	}
+}
+
 /// 文字列出力
-void MsgBoard::draw(CSurface *screen, msg_data_t &data)
+void MsgBoard::draw(CSurface &screen, msg_data_t &data)
 {
 	SDL_Rect reDst;
 
 	data.mux->lock();
 
 	if (!data.lists.empty()) {
-//		list_t::iterator it = data.lists.begin();
-
 		// 基準位置の計算
-		if (data.place & 1) {
-			reDst.x = szWin.cx + data.pt.x - data.sz.cx;
-			reDst.w = data.sz.cx;
-		} else {
-			reDst.x = data.pt.x;
-			reDst.w = data.sz.cx;
-		}
-		if (data.place & 2) {
-			reDst.y = szWin.cy + data.pt.y - data.sz.cy;
-			reDst.h = data.sz.cy;
-		} else {
-			reDst.y = data.pt.y;
-			reDst.h = data.sz.cy;
-		}
+		calc_place(data, reDst);
 
 		// メインコンテキストにメッセージをコピー
 #ifdef USE_BG_TRANSPARENT
 		draw_text(screen, data, reDst.x, reDst.y);
 #else
-		sMainSuf->Blit(data.re, *screen, reDst);
+		sMainSuf->Blit(data.re, screen, reDst);
 #endif
 	}
 
 	data.mux->unlock();
 }
 
+/// 文字列出力
+void MsgBoard::draw(SDL_Surface &screen, msg_data_t &data)
+{
+	SDL_Rect reDst;
+
+	data.mux->lock();
+
+	if (!data.lists.empty()) {
+		// 基準位置の計算
+		calc_place(data, reDst);
+
+		// メインコンテキストにメッセージをコピー
+#ifdef USE_BG_TRANSPARENT
+		draw_text(screen, data, reDst.x, reDst.y);
+#else
+		sMainSuf->Blit(data.re, screen, reDst);
+#endif
+	}
+
+	data.mux->unlock();
+}
+
+#ifdef USE_GTK
+/// 文字列出力
+void MsgBoard::draw(cairo_t *screen, msg_data_t &data)
+{
+	SDL_Rect reDst;
+
+	data.mux->lock();
+
+	if (!data.lists.empty()) {
+		// 基準位置の計算
+		calc_place(data, reDst);
+
+		// メインコンテキストにメッセージをコピー
+#ifdef USE_BG_TRANSPARENT
+//		draw_text(screen, data, reDst.x, reDst.y);
+#else
+		CCairoSurface cas(*sMainSuf, data.re.w, data.re.y + data.re.h);
+		cas.BlitC(data.re, screen, reDst);
+		cairo_paint(screen);
+#endif
+	}
+
+	data.mux->unlock();
+}
+#endif
+
 #if defined(USE_SDL2)
+/// 文字列出力
 void MsgBoard::draw(CTexture &texture, msg_data_t &data)
 {
 	SDL_Rect reDst;
@@ -164,23 +217,8 @@ void MsgBoard::draw(CTexture &texture, msg_data_t &data)
 	data.mux->lock();
 
 	if (!data.lists.empty()) {
-//		list_t::iterator it = data.lists.begin();
-
 		// 基準位置の計算
-		if (data.place & 1) {
-			reDst.x = szWin.cx + data.pt.x - data.sz.cx;
-			reDst.w = data.sz.cx;
-		} else {
-			reDst.x = data.pt.x;
-			reDst.w = data.sz.cx;
-		}
-		if (data.place & 2) {
-			reDst.y = szWin.cy + data.pt.y - data.sz.cy;
-			reDst.h = data.sz.cy;
-		} else {
-			reDst.y = data.pt.y;
-			reDst.h = data.sz.cy;
-		}
+		calc_place(data, reDst);
 
 		// メインコンテキストにメッセージをコピー
 #ifdef USE_BG_TRANSPARENT
@@ -207,23 +245,8 @@ void MsgBoard::draw(COpenGLTexture &texture, msg_data_t &data)
 	data.mux->lock();
 
 	if (!data.lists.empty()) {
-//		list_t::iterator it = data.lists.begin();
-
 		// 基準位置の計算
-		if (data.place & 1) {
-			reDst.x = szWin.cx + data.pt.x - data.sz.cx;
-			reDst.w = data.sz.cx;
-		} else {
-			reDst.x = data.pt.x;
-			reDst.w = data.sz.cx;
-		}
-		if (data.place & 2) {
-			reDst.y = szWin.cy + data.pt.y - data.sz.cy;
-			reDst.h = data.sz.cy;
-		} else {
-			reDst.y = data.pt.y;
-			reDst.h = data.sz.cy;
-		}
+		calc_place(data, reDst);
 
 		// メインコンテキストにメッセージをコピー
 #ifdef USE_BG_TRANSPARENT
@@ -249,13 +272,31 @@ void MsgBoard::draw(COpenGLTexture &texture, msg_data_t &data)
 }
 #endif
 
-void MsgBoard::Draw(CSurface *screen)
+void MsgBoard::Draw(CSurface &screen)
 {
 	if (!enable || !visible) return;
 
 	draw(screen, msg);
 	draw(screen, info);
 }
+
+void MsgBoard::Draw(SDL_Surface &screen)
+{
+	if (!enable || !visible) return;
+
+	draw(screen, msg);
+	draw(screen, info);
+}
+
+#ifdef USE_GTK
+void MsgBoard::Draw(cairo_t *screen)
+{
+	if (!enable || !visible) return;
+
+	draw(screen, msg);
+	draw(screen, info);
+}
+#endif
 
 #if defined(USE_SDL2)
 void MsgBoard::Draw(CTexture &texture)

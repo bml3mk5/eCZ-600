@@ -15,10 +15,18 @@
 #include "../../utility.h"
 #include "../../logging.h"
 
+#ifdef _DEBUG
 //#define OUT_DEBUG1 logging->out_debugf
 #define OUT_DEBUG1(...)
 //#define OUT_DEBUG_REGW logging->out_debugf
 #define OUT_DEBUG_REGW(...)
+//#define OUT_DEBUG_BGREGW logging->out_debugf
+#define OUT_DEBUG_BGREGW(...)
+#else
+#define OUT_DEBUG1(...)
+#define OUT_DEBUG_REGW(...)
+#define OUT_DEBUG_BGREGW(...)
+#endif
 
 #define STORE_DATA(mem, dat, msk) mem = ((mem & (msk)) | (dat))
 
@@ -61,14 +69,16 @@ void SPRITE_BG::write_io_m(uint32_t addr, uint32_t data, uint32_t mask)
 #ifdef USE_SPRITE_RENDER
 		m_sp_regs[pos | 3] |= SP_PRW_UPD_MASK;	// update flag
 #endif
-		OUT_DEBUG_REGW(_T("%06X: SP%03d-%d: data:%04X mask:%04X result:%04X"), addr, pos >> 2, pos & 3, data, mask, m_sp_regs[pos]);
+		OUT_DEBUG_REGW(_T("SPRITE_BG: %06X: SP%03d-%d: data:%04X mask:%04X result:%04X"), addr, pos >> 2, pos & 3, data, mask, m_sp_regs[pos]);
 		break;
 	case 0x400:
 		// bg and control register
 		pos = (addrh & 0xf);
 		if (pos < 9) {
 			STORE_DATA(m_bg_regs[pos], data & c_bg_reg_masks[pos], mask);
-			OUT_DEBUG_REGW(_T("%06X: BG%d: %04X"), addr, pos, m_bg_regs[pos]);
+			OUT_DEBUG_BGREGW(_T("SPRITE_BG: %lld: %06X: BG%d: %04X")
+				, get_current_clock()
+				, addr, pos, m_bg_regs[pos]);
 		}
 		break;
 	}

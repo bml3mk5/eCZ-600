@@ -29,12 +29,15 @@
 #define OUT_DEBUG_VC(...)
 #define OUT_DEBUG_CONT(...)
 #define OUT_DEBUG_BRIGHT(...)
+//#define OUT_DEBUG_SHFLGS(vmin, vmax, ...)	if (vline <= vmin || vmax <= vline) logging->out_debugf(__VA_ARGS__)
+#define OUT_DEBUG_SHFLGS(...)
 #else
 #define OUT_DEBUG2(...)
 #define OUT_DEBUG_PAL(...)
 #define OUT_DEBUG_VC(...)
 #define OUT_DEBUG_CONT(...)
 #define OUT_DEBUG_BRIGHT(...)
+#define OUT_DEBUG_SHFLGS(...)
 #endif
 
 static const int c_priority[4] = { 0, 1, 2, 1 };
@@ -53,8 +56,8 @@ void DISPLAY::initialize()
 
 	screen_left = 0;
 	screen_top = 0;
-	screen_right = SCREEN_WIDTH + screen_left;
-	screen_bottom = SCREEN_HEIGHT + screen_top;
+	screen_width = SCREEN_WIDTH; // + screen_left;
+	screen_height = SCREEN_HEIGHT; // + screen_top;
 
 //	update_chr_clocks(0);
 
@@ -363,10 +366,12 @@ void DISPLAY::write_signal(int id, uint32_t data, uint32_t mask)
 			}
 			OUT_DEBUG_CONT(_T("CONTRAST SET: c:%d t:%d n:%d"), m_curr_contrast, m_tag_contrast, m_contrast_count);
 			break;
+#if 0
 		case SIG_DISPLAY_SIZE:
 			// set current display size (in vm) $e80028 CRTC:R20
 			set_display_mode(data);
 			break;
+#endif
 	}
 }
 
@@ -381,21 +386,33 @@ uint32_t DISPLAY::read_signal(int id)
 	return data;
 }
 
-/// set current display size (in vm) $e80028 CRTC:R20
-void DISPLAY::set_display_mode(uint32_t data)
-{
-	m_raster_mode = RASTER_NORMAL_NONINTER;
-	if (data & 0x10) {
-		// hireso
+static const int freq_list[4] = { 31, 15, 24, 0 };
 
+/// set current display size (in vm)
+/// @param[in] width  : width of display area
+/// @param[in] height : height of display area
+/// @param[in] mode   : $e80028 CRTC:R20(b0-b4)
+///                   , HRL(b5)
+///                   , Horizontal Freq(b6-b7) 0:31kHz 0x40:15kHz 0x80:24kHz
+/// @param[in] raster : raster mode
+void DISPLAY::set_display_mode(int left, int top, int width, int height, uint32_t mode, en_raster_modes raster)
+{
+	m_raster_mode = raster;
+	mv_display_width = width;
+	mv_display_height = height;
+#if 0
+	if (data & CRTC::CZ_HIRESO) {
+		// hireso
 		// horizontal
-		switch(data & 0x03) {
-		case 0x00:
+		switch(data & CRTC::CZ_HRES) {
+		case CRTC::CZ_H256:
 			// 256
-			if (*p_crtc_hz_total >= 536) {
+			if (data & CRTC::CZ_HRL) {
 				// 448 mode
-				mv_display_width = 448;
-				m_crtc_left_base = 8;
+//				mv_display_width = 448;
+//				m_crtc_left_base = 8;
+				mv_display_width = 384;
+				m_crtc_left_base = 10;
 			} else if (*p_crtc_hz_total >= 456) {
 				// 384 mode (24kHz setting)
 				mv_display_width = 384;
@@ -406,10 +423,10 @@ void DISPLAY::set_display_mode(uint32_t data)
 				m_crtc_left_base = 6;
 			}
 			break;
-		case 0x01:
-		case 0x03:
+		case CRTC::CZ_H512:
+		case CRTC::CZ_H1024:	// 0x11 is same as 0x01 on X68000 
 			// 512
-			if (*p_crtc_hz_total <= 568) {
+			if (data & CRTC::CZ_HRL) {
 				// 384 dot mode
 				mv_display_width = 384;
 				m_crtc_left_base = 12;
@@ -423,33 +440,28 @@ void DISPLAY::set_display_mode(uint32_t data)
 				m_crtc_left_base = 20;
 			}
 			break;
-		case 0x02:
+		case CRTC::CZ_H768:
+//		case CRTC::CZ_H1024:	// 0x11 is same as 0x10 on X68000 Compact or lator
 			// 768
 			mv_display_width = 768;
 			m_crtc_left_base = 28;
 			break;
-//		case 0x03:
-//			// 768?
-//			// 50MHz mode (on XVI compact / X68030) is not supported
-//			mv_display_width = 768;
-//			m_crtc_left_base = 28;
-//			break;
 		}
-
 		// vertical
-		switch(data & 0x0c) {
-		case 0x00:
+		switch(data & CRTC::CZ_VRES) {
+		case CRTC::CZ_V256:
 			// 256
-			mv_display_height = 256;
+//			mv_display_height = 256;
+			mv_display_height = 512;	// double raster
 			m_crtc_top_base = 40;
 			m_raster_mode = RASTER_HIRESO_DOUBLE;
 			break;
-		case 0x04:
+		case CRTC::CZ_V512:
 			// 512
-			if (*p_crtc_vt_total <= 260 || *p_crtc_vt_disp <= 256) {
-				// 256line mode
+			if (data & CRTC::CZ_HRL) {
+				// 256line (Horizontal 15kHz)
 				mv_display_height = 256;
-				m_crtc_top_base = 16;
+				m_crtc_top_base = 8;
 			} else {
 				// 512line
 				mv_display_height = 512;
@@ -457,13 +469,13 @@ void DISPLAY::set_display_mode(uint32_t data)
 			}
 			m_raster_mode = RASTER_HIRESO_NONINTER;
 			break;
-		case 0x08:
+		case CRTC::CZ_V768:
 			// 512? (invalid)
 			mv_display_height = 512;
 			m_crtc_top_base = 120;
 			m_raster_mode = RASTER_HIRESO_INTERLACE_512;
 			break;
-		case 0x0c:
+		case CRTC::CZ_V1024:
 			// 1024 (invalid)
 			mv_display_height = 512;
 			m_crtc_top_base = 40;
@@ -474,13 +486,16 @@ void DISPLAY::set_display_mode(uint32_t data)
 		// normal
 
 		// horizontal
-		switch(data & 0x03) {
-		case 0x00:
+		switch(data & CRTC::CZ_HRES) {
+		case CRTC::CZ_H256:
+		case CRTC::CZ_H768:
+//		case CRTC::CZ_H1024:	// 0x11 is same as 0x10 on X68000 Compact or lator
 			// 256
 			mv_display_width = 256;
 			m_crtc_left_base = 0;
 			break;
-		case 0x01:
+		case CRTC::CZ_H512:
+		case CRTC::CZ_H1024:	// 0x11 is same as 0x01 on X68000
 			// 512
 			if (*p_crtc_hz_total <= 560) {
 				// 384 dot mode
@@ -492,39 +507,29 @@ void DISPLAY::set_display_mode(uint32_t data)
 				m_crtc_left_base = 5;
 			}
 			break;
-		case 0x02:
-			// 768 (invalid)
-			mv_display_width = 768;
-			m_crtc_left_base = 5;
-			break;
-		case 0x03:
-			// 1024? (invalid)
-			mv_display_width = 768;
-			m_crtc_left_base = 5;
-			break;
 		}
 
 		// vertical
-		switch(data & 0x0c) {
-		case 0x00:
+		switch(data & CRTC::CZ_VRES) {
+		case CRTC::CZ_V256:
 			// 256
 			mv_display_height = 256;
 			m_crtc_top_base = 16;
 			m_raster_mode = RASTER_NORMAL_NONINTER;
 			break;
-		case 0x04:
+		case CRTC::CZ_V512:
 			// 512
 			mv_display_height = 512;
 			m_crtc_top_base = 16;
 			m_raster_mode = RASTER_NORMAL_INTERLACE_512;
 			break;
-		case 0x08:
+		case CRTC::CZ_V768:
 			// 512? (invalid)
 			mv_display_height = 512;
 			m_crtc_top_base = 16;
 			m_raster_mode = RASTER_NORMAL_INTERLACE_512;
 			break;
-		case 0x0c:
+		case CRTC::CZ_V1024:
 			// 1024 (invalid)
 			mv_display_height = 512;
 			m_crtc_top_base = 16;
@@ -532,47 +537,70 @@ void DISPLAY::set_display_mode(uint32_t data)
 			break;
 		}
 	}
+#endif
 	//
-	m_crtc_left_base = (p_crtc_regs[CRTC::CRTC_HORI_START] - m_crtc_left_base) * 8;
-	m_crtc_top_base = (p_crtc_regs[CRTC::CRTC_VERT_START] - m_crtc_top_base);
+	m_crtc_left_base = p_crtc_regs[CRTC::CRTC_HORI_START] - p_crtc_regs[CRTC::CRTC_HSYNC_END];
+	if (m_crtc_left_base < 0) m_crtc_left_base /= 4;
+	m_crtc_left_base -= left;
+	m_crtc_left_base *= 8;
+	m_crtc_top_base = (p_crtc_regs[CRTC::CRTC_VERT_START] - p_crtc_regs[CRTC::CRTC_VSYNC_END] - top);
+
 	// screen width is base on horizontal total in crtc 
-	if ((mv_display_width >> 1) <= *p_crtc_hz_disp && *p_crtc_hz_disp < mv_display_width) {
-		mv_display_width = *p_crtc_hz_disp;
+	if (mv_display_width == *p_crtc_hz_disp) {
+		m_crtc_left_base = 0;	// fit the left side
+	} else {
+		if (*p_crtc_hz_disp < 128) {
+			mv_display_width = 128;
+		} else {
+			mv_display_width = *p_crtc_hz_disp;
+		}
 	}
+
 	// screen height is base on vertical total in crtc
 	int dh2, ch2;
 	switch(m_raster_mode) {
-	case RASTER_NORMAL_INTERLACE_512:
-	case RASTER_HIRESO_INTERLACE_1024:
-		m_crtc_top_base <<= 1;
-		dh2 = mv_display_height;
+	case RASTER_NORMAL_NONINTER:
+		dh2 = mv_display_height / 2;
 		ch2 = *p_crtc_vt_disp;
-		ch2 <<= 1;
-		if ((dh2 >> 1) <= ch2 && ch2 < dh2) {
+		if (dh2 <= ch2 && ch2 <= (dh2 * 3)) {
+			mv_display_height = ch2;
+		}
+		break;
+	case RASTER_NORMAL_INTERLACE_512:
+		m_crtc_top_base *= 2;
+		dh2 = mv_display_height / 2;
+		ch2 = *p_crtc_vt_disp;
+		ch2 *= 2;
+		if (dh2 <= ch2 && ch2 <= (dh2 * 3)) {
 			mv_display_height = ch2;
 		}
 		break;
 	case RASTER_HIRESO_DOUBLE:
-		m_crtc_top_base >>= 1;
-		dh2 = mv_display_height << 1;
+		dh2 = mv_display_height / 2;
 		ch2 = *p_crtc_vt_disp;
-		if ((dh2 >> 1) <= ch2 && ch2 < dh2) {
+		if (dh2 <= ch2 && ch2 <= (dh2 * 3)) {
 			mv_display_height = ch2;
-			mv_display_height >>= 1;
 		}
 		break;
 	case RASTER_HIRESO_INTERLACE_512:
-		dh2 = mv_display_height;
+		dh2 = mv_display_height / 2;
 		ch2 = *p_crtc_vt_disp;
-		ch2 <<= 1;
-		if ((dh2 >> 1) <= ch2 && ch2 < dh2) {
+		ch2 *= 2;
+		if (dh2 <= ch2 && ch2 <= (dh2 * 3)) {
+			mv_display_height = ch2;
+		}
+		break;
+	case RASTER_HIRESO_INTERLACE_1024:
+		dh2 = mv_display_height / 4;
+		ch2 = *p_crtc_vt_disp;
+		if (dh2 <= ch2 && ch2 <= (dh2 * 6)) {
 			mv_display_height = ch2;
 		}
 		break;
 	default:
-		dh2 = mv_display_height;
+		dh2 = mv_display_height / 2;
 		ch2 = *p_crtc_vt_disp;
-		if ((dh2 >> 1) <= ch2 && ch2 < dh2) {
+		if (dh2 <= ch2 && ch2 <= (dh2 * 3)) {
 			mv_display_height = ch2;
 		}
 		break;
@@ -583,24 +611,82 @@ void DISPLAY::set_display_mode(uint32_t data)
 	mv_display_right = mv_display_left + mv_display_width;
 	mv_display_bottom = mv_display_top + mv_display_height;
 
-	if (mv_display_right >= screen_right) mv_display_right = screen_right;
-	if (mv_display_bottom >= screen_bottom) mv_display_bottom = screen_bottom;
+	if (mv_display_right >= (1 << MX_BUF_WIDTH_SFT)) {
+		// adjust horizontal position
+		int adj = (mv_display_right - (1 << MX_BUF_WIDTH_SFT));
+		if (adj >= mv_display_left) {
+			adj = mv_display_left;
+		}
+		mv_display_left -= adj;
+		mv_display_right -= adj;
+		if (mv_display_right >= (1 << MX_BUF_WIDTH_SFT)) {
+			mv_display_right = (1 << MX_BUF_WIDTH_SFT);
+		}
+	}
+	if (mv_display_bottom >= SCREEN_HEIGHT) {
+		// adjust vertical position
+		int adj = (mv_display_bottom - SCREEN_HEIGHT);
+		if (adj >= mv_display_top) {
+			adj = mv_display_top;
+		}
+		mv_display_top -= adj;
+		mv_display_bottom -= adj;
+		if (mv_display_bottom >= SCREEN_HEIGHT) {
+			mv_display_bottom = SCREEN_HEIGHT;
+		}
+	}
+
+	logging->out_logf(LOG_DEBUG, _T("%dx%d %dKHz (%dx%d CRTC_R20:0x%02x SYSPORT_HRL:%x)")
+		, mv_display_width, mv_display_height, freq_list[(mode >> 6) & 3]
+		, width, height
+		, (mode & 0x1f), ((mode >> 4) & 2)
+	);
+#ifdef _DEBUG
+	logging->out_debugf(_T("mv_display: l:%d t:%d r:%d b:%d")
+		, mv_display_left, mv_display_top, mv_display_right, mv_display_bottom);
+#endif
 }
 
 void DISPLAY::set_display_size(int left, int top, int right, int bottom)
 {
 	screen_left = left;
-	screen_right = right;
+	screen_width = right;
 	screen_top = top;
-	screen_bottom = bottom;
+	screen_height = bottom;
 
 	mv_display_left = screen_left + m_crtc_left_base;
 	mv_display_top = screen_top + m_crtc_top_base;
 	mv_display_right = mv_display_left + mv_display_width;
 	mv_display_bottom = mv_display_top + mv_display_height;
 
-	if (mv_display_right >= screen_right) mv_display_right = screen_right;
-	if (mv_display_bottom >= screen_bottom) mv_display_bottom = screen_bottom;
+	if (mv_display_right >= (1 << MX_BUF_WIDTH_SFT)) {
+		// adjust horizontal position
+		int adj = (mv_display_right - (1 << MX_BUF_WIDTH_SFT));
+		if (adj >= mv_display_left) {
+			adj = mv_display_left;
+		}
+		mv_display_left -= adj;
+		mv_display_right -= adj;
+		if (mv_display_right >= (1 << MX_BUF_WIDTH_SFT)) {
+			mv_display_right = (1 << MX_BUF_WIDTH_SFT);
+		}
+	}
+	if (mv_display_bottom >= SCREEN_HEIGHT) {
+		// adjust vertical position
+		int adj = (mv_display_bottom - SCREEN_HEIGHT);
+		if (adj >= mv_display_top) {
+			adj = mv_display_top;
+		}
+		mv_display_top -= adj;
+		mv_display_bottom -= adj;
+		if (mv_display_bottom >= SCREEN_HEIGHT) {
+			mv_display_bottom = SCREEN_HEIGHT;
+		}
+	}
+#ifdef _DEBUG
+	logging->out_debugf(_T("mv_display: l:%d t:%d r:%d b:%d")
+		, mv_display_left, mv_display_top, mv_display_right, mv_display_bottom);
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -876,10 +962,43 @@ void DISPLAY::update_display(int vline, int clock)
 
 	switch(m_raster_mode) {
 	case RASTER_HIRESO_DOUBLE:
-		// double raster mode
-		vline_sp >>= 1;
+		// double raster mode (256 x 2)
+//		vline_sp >>= 1;
 		vline_cr >>= 1;
-		vline_cr_d = vline_cr;
+//		vline_cr_d = vline_cr;
+		if ((p_bg_regs[SPRITE_BG::BG_RESOLUTION] & (SPRITE_BG::RESO_VRES | SPRITE_BG::RESO_LHFREQ)) == SPRITE_BG::RESO_LHFREQ) {
+			// sprite is hireso 256 mode -> double raster
+			vline_sp >>= 1;
+			vline_sp_step = 1;
+		}
+		break;
+	case RASTER_HIRESO_NONINTER:
+		if ((p_bg_regs[SPRITE_BG::BG_RESOLUTION] & (SPRITE_BG::RESO_VRES | SPRITE_BG::RESO_LHFREQ)) == SPRITE_BG::RESO_LHFREQ) {
+			// sprite is hireso 256 mode -> double raster
+			vline_sp >>= 1;
+			vline_sp_step = 1;
+		}
+		break;
+	case RASTER_HIRESO_INTERLACE_512:
+		// double intarlace ??
+		if ((p_bg_regs[SPRITE_BG::BG_RESOLUTION] & SPRITE_BG::RESO_VRES) != SPRITE_BG::RESO_VRES512) {
+			// sprite is 256 mode
+			vline_sp >>= 1;
+			vline_sp_step = 1;
+		}
+		break;
+	case RASTER_HIRESO_INTERLACE_1024:
+		// interlace mode (1024 mode)
+		vline_cr <<= 1;
+		vline_cr += m_raster_even_odd;
+		draw_flags |= 0x02;
+
+		if ((p_bg_regs[SPRITE_BG::BG_RESOLUTION] & SPRITE_BG::RESO_VRES) == SPRITE_BG::RESO_VRES512) {
+			// sprite is 512 mode
+			vline_sp <<= 1;
+			vline_sp += m_raster_even_odd;
+			draw_flags |= 0x01;
+		}
 		break;
 	case RASTER_NORMAL_INTERLACE_512:
 		// interlace mode (512 mode)
@@ -898,44 +1017,22 @@ void DISPLAY::update_display(int vline, int clock)
 			vline_sp_step = 1;
 		}
 		break;
-	case RASTER_HIRESO_INTERLACE_1024:
-		// interlace mode (1024 mode)
-		vline_cr <<= 1;
-		vline_cr += m_raster_even_odd;
-		draw_flags |= 0x02;
-
-		if ((p_bg_regs[SPRITE_BG::BG_RESOLUTION] & SPRITE_BG::RESO_VRES) == SPRITE_BG::RESO_VRES512) {
-			// sprite is 512 mode
-			vline_sp <<= 1;
-			vline_sp += m_raster_even_odd;
-			draw_flags |= 0x01;
-		}
-		break;
-	case RASTER_HIRESO_INTERLACE_512:
-		// double intarlace ??
-		if ((p_bg_regs[SPRITE_BG::BG_RESOLUTION] & SPRITE_BG::RESO_VRES) != SPRITE_BG::RESO_VRES512) {
-			// sprite is 256 mode
-			vline_sp >>= 1;
-			vline_sp_step = 1;
-		}
-		break;
-	case RASTER_HIRESO_NONINTER:
+	default:
+		// normal (256 line)
 		if ((p_bg_regs[SPRITE_BG::BG_RESOLUTION] & (SPRITE_BG::RESO_VRES | SPRITE_BG::RESO_LHFREQ)) == SPRITE_BG::RESO_LHFREQ) {
 			// sprite is hireso 256 mode -> double raster
 			vline_sp >>= 1;
 			vline_sp_step = 1;
 		}
 		break;
-	default:
-		break;
-	}
-
-	if (vline_cr_d >= mv_display_height) {
-		// buffer over range
-		return;
 	}
 
 	update_show_screen_flags();
+
+	OUT_DEBUG_SHFLGS(1, 566, _T("CRTC: %lld V:%03d flags:%04X")
+		, get_current_clock()
+		, vline, m_show_screen);
+
 #ifdef DEBUG_SHOW_FLAGS
 	if (md_show_screen_cnt == 0 || (md_show_screen[md_show_screen_cnt-1].flags != (m_show_screen & 0xffff))) {
 		md_show_screen[md_show_screen_cnt].vline = vline;
@@ -943,6 +1040,12 @@ void DISPLAY::update_display(int vline, int clock)
 		md_show_screen_cnt++;
 	}
 #endif
+
+	if (vline_cr_d >= mv_display_height) {
+		// buffer over range
+		return;
+	}
+
 	switch(draw_flags & 3) {
 	case 0x01:
 		// draw sprite
@@ -1135,7 +1238,63 @@ void DISPLAY::mix_buffer_graphic_txspbg_one_line_sub_txsp_gr_sp(int width, int s
 				// special area, so prior graphic
 
 			} else {
-				if (pal_num & (MX_TXSPBG_TEXT | MX_TXSPBG_PALETTE_L4)) {
+				if (pal_num & MX_TXSPBG_TXSPBG_MASK) {
+					// text or sprite
+					pal_num &= MX_TXSPBG_SPBG_PALETTE;
+					uint32_t pal = m_palette[pal_num];
+					if (pal) {
+						*dst_buf = pal;
+						*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
+					}
+				}
+			}
+		}
+		src_x++;
+	}
+}
+/// @brief Mix Graphic, Text and Sprite per one line (priority TX, SP > GR (translucent mode))
+/// @param[in] width
+/// @param[in] src_y
+/// @param[in] dst_y
+void DISPLAY::mix_buffer_graphic_txspbg_one_line_sub_txsp_gr_ht(int width, int src_y, int dst_y)
+{
+	int src_x = 0;
+	uint32_t *dst_buf;
+	for(int dst_x = 0; dst_x < width; dst_x++) {
+		dst_buf = &mx_buf[dst_y + dst_x];
+		if ((*dst_buf & MX_BUF_GR_DATA) == 0) {
+			// graphic plane is hide now
+			uint32_t pal_num = mx_txspbg[src_y + src_x];
+			// text and sprite
+			pal_num &= MX_TXSPBG_SPBG_PALETTE;
+			uint32_t pal = m_palette[pal_num];
+			*dst_buf = pal;
+			*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
+		} else if ((*dst_buf & MX_BUF_NO_TRANS) == 0) {
+			// graphic is transparent
+			uint32_t pal_num = mx_txspbg[src_y + src_x];
+			if (pal_num & (MX_TXSPBG_TEXT | MX_TXSPBG_PALETTE_L4)) {
+				// text or sprite
+				pal_num &= MX_TXSPBG_SPBG_PALETTE;
+				uint32_t pal = m_palette[pal_num];
+				if (pal) {
+					*dst_buf = pal;
+					*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
+				}
+			}
+		} else {
+			// graphic data already exists
+			uint32_t pal_num = mx_txspbg[src_y + src_x];
+			uint32_t pal_num1 = (pal_num & MX_TXSPBG_SPBG_PALETTE) | 0x100;
+			uint32_t pal = m_palette[pal_num1];
+			if ((*dst_buf & MX_BUF_TR_AREA) != 0 && pal == 0) {
+				// translucent area
+				pal = mix_translucent_color16(*dst_buf, pal);
+				*dst_buf = pal;
+				*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
+
+			} else {
+				if (pal_num & MX_TXSPBG_TXSPBG_MASK) {
 					// text or sprite
 					pal_num &= MX_TXSPBG_SPBG_PALETTE;
 					uint32_t pal = m_palette[pal_num];
@@ -1170,7 +1329,7 @@ void DISPLAY::mix_buffer_graphic_txspbg_one_line_sub_txsp_gr_n(int width, int sr
 		} else {
 			// graphic data already exists
 			uint32_t pal_num = mx_txspbg[src_y + src_x];
-			if (pal_num & (MX_TXSPBG_TEXT | MX_TXSPBG_PALETTE_L4)) {
+			if (pal_num & MX_TXSPBG_TXSPBG_MASK) {
 				// text or sprite
 				pal_num &= MX_TXSPBG_SPBG_PALETTE;
 				uint32_t pal = m_palette[pal_num];
@@ -1209,22 +1368,31 @@ void DISPLAY::mix_buffer_graphic_txspbg_one_line_sub_tx_gr_sp_sp(int width, int 
 			if (*dst_buf & MX_BUF_SP_AREA) {
 				// sperical area, so prior graphic
 
-			} else if ((pal_num & (MX_TXSPBG_TEXT | MX_TXSPBG_PALETTE_L4)) >= MX_TXSPBG_TEXT) {
-				// text
-				pal_num &= MX_TXSPBG_SPBG_PALETTE;
-				uint32_t pal = m_palette[pal_num];
-				if (pal) {
-					*dst_buf = pal;
-					*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
-				}
 			} else if ((*dst_buf & MX_BUF_COLOR) == 0) {
-				// sprite and bg
-				pal_num &= MX_TXSPBG_SPBG_PALETTE;
-				uint32_t pal = m_palette[pal_num];
-				if (pal) {
+				// if graphic color is all zero
+				// then show text, sprite and bg
+//				uint32_t pal_num = mx_txspbg[src_y + src_x];
+				if (pal_num & MX_TXSPBG_TXSPBG_MASK) {
+					pal_num &= MX_TXSPBG_SPBG_PALETTE;
+					uint32_t pal = m_palette[pal_num];
 					*dst_buf = pal;
 					*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
 				}
+
+			} else {
+				// if graphic color is not zero
+				// then show text only
+//				uint32_t pal_num = mx_txspbg[src_y + src_x];
+				if (pal_num & MX_TXSPBG_TEXT) {
+					pal_num &= MX_TXSPBG_SPBG_PALETTE;
+					uint32_t pal = m_palette[pal_num];
+					if ((pal_num & MX_TXSPBG_PALETTE_L4) != 0 && pal != 0) {
+						// text palette and color is not zero
+						*dst_buf = pal;
+						*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
+					}
+				}
+
 			}
 		}
 		src_x++;
@@ -1253,28 +1421,34 @@ void DISPLAY::mix_buffer_graphic_txspbg_one_line_sub_tx_gr_sp_ht(int width, int 
 		} else {
 			// graphic data already exists
 			uint32_t pal_num = mx_txspbg[src_y + src_x];
-			uint32_t pal = m_palette[pal_num & MX_TXSPBG_SPBG_PALETTE];
-			if ((*dst_buf & MX_BUF_TR_AREA) != 0 && (pal_num & MX_TXSPBG_TEXT) != 0) {
+			uint32_t pal_num1 = (pal_num & MX_TXSPBG_SPBG_PALETTE) | 0x100;
+			uint32_t pal = m_palette[pal_num1];
+			if ((*dst_buf & MX_BUF_TR_AREA) != 0 && ((pal_num & MX_TXSPBG_SPRITEBG_MASK) != 0 || pal == 0)) {
 				// graphic 1st and text are mixed
 				// mix color
 				pal = mix_translucent_color16(*dst_buf, pal);
 				*dst_buf = pal;
 				*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
 
-			} else if ((pal_num & (MX_TXSPBG_TEXT | MX_TXSPBG_PALETTE_L4)) >= MX_TXSPBG_TEXT) {
-				// text
-				if (pal) {
-					*dst_buf = pal;
-					*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
-				}
 			} else if ((*dst_buf & MX_BUF_COLOR) == 0) {
-				// sprite and bg
-				pal_num &= MX_TXSPBG_SPBG_PALETTE;
-				uint32_t pal = m_palette[pal_num];
-				if (pal) {
+				// if graphic color is all zero
+				// then show text, sprite and bg
+				if (pal_num & MX_TXSPBG_TXSPBG_MASK) {
 					*dst_buf = pal;
 					*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
 				}
+
+			} else {
+				// if graphic color is not zero
+				// then show text only
+				if (pal_num & MX_TXSPBG_TEXT) {
+					if ((pal_num & MX_TXSPBG_PALETTE_L4) != 0 && pal != 0) {
+						// text palette and color is not zero
+						*dst_buf = pal;
+						*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
+					}
+				}
+
 			}
 		}
 		src_x++;
@@ -1299,22 +1473,28 @@ void DISPLAY::mix_buffer_graphic_txspbg_one_line_sub_tx_gr_sp_n(int width, int s
 			*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
 		} else {
 			// graphic data already exists
-			uint32_t pal_num = mx_txspbg[src_y + src_x];
-			if ((pal_num & (MX_TXSPBG_TEXT | MX_TXSPBG_PALETTE_L4)) >= MX_TXSPBG_TEXT) {
-				// text
-				pal_num &= MX_TXSPBG_SPBG_PALETTE;
-				uint32_t pal = m_palette[pal_num];
-				if (pal) {
+			if ((*dst_buf & MX_BUF_COLOR) == 0) {
+				// if graphic color is all zero
+				// then show text, sprite and bg
+				uint32_t pal_num = mx_txspbg[src_y + src_x];
+				if (pal_num & MX_TXSPBG_TXSPBG_MASK) {
+					pal_num &= MX_TXSPBG_SPBG_PALETTE;
+					uint32_t pal = m_palette[pal_num];
 					*dst_buf = pal;
 					*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
 				}
-			} else if ((*dst_buf & MX_BUF_COLOR) == 0) {
-				// sprite and bg
-				pal_num &= MX_TXSPBG_SPBG_PALETTE;
-				uint32_t pal = m_palette[pal_num];
-				if (pal) {
-					*dst_buf = pal;
-					*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
+			} else {
+				// if graphic color is not zero
+				// then show text only
+				uint32_t pal_num = mx_txspbg[src_y + src_x];
+				if (pal_num & MX_TXSPBG_TEXT) {
+					pal_num &= MX_TXSPBG_SPBG_PALETTE;
+					uint32_t pal = m_palette[pal_num];
+					if ((pal_num & MX_TXSPBG_PALETTE_L4) != 0 && pal != 0) {
+						// text palette and color is not zero
+						*dst_buf = pal;
+						*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
+					}
 				}
 			}
 		}
@@ -1348,15 +1528,14 @@ void DISPLAY::mix_buffer_graphic_txspbg_one_line_sub_sp_gr_tx_sp(int width, int 
 			if (*dst_buf & MX_BUF_SP_AREA) {
 				// special mode, so prior graphic
 
-//			} else if ((pal_num & MX_TXSPBG_SPBG) != 0 && ((pal_num & MX_TXSPBG_PALETTE_L4) != 0 && pal != 0)) {
-			} else if ((pal_num & MX_TXSPBG_SPBG) != 0 && pal != 0) {
+			} else if ((pal_num & MX_TXSPBG_SPRITEBG_MASK) != 0 && pal != 0) {
 				// sprite and bg
 				*dst_buf = pal;
 				*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
 
 			} else if ((*dst_buf & MX_BUF_COLOR) == 0) {
 				// text
-				if (pal) {
+				if ((pal_num & MX_TXSPBG_TEXT) != 0 && pal != 0) {
 					*dst_buf = pal;
 					*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
 				}
@@ -1389,23 +1568,23 @@ void DISPLAY::mix_buffer_graphic_txspbg_one_line_sub_sp_gr_tx_ht(int width, int 
 		} else {
 			// graphic data already exists
 			uint32_t pal_num = mx_txspbg[src_y + src_x];
-			uint32_t pal = m_palette[pal_num & MX_TXSPBG_SPBG_PALETTE];
-			if ((*dst_buf & MX_BUF_TR_AREA) != 0 && (pal_num & MX_TXSPBG_TEXT) != 0) {
+			uint32_t pal_num1 = (pal_num & MX_TXSPBG_SPBG_PALETTE) | 0x100;
+			uint32_t pal = m_palette[pal_num1];
+			if ((*dst_buf & MX_BUF_TR_AREA) != 0 && ((pal_num & MX_TXSPBG_TEXT) != 0 || pal == 0)) {
 				// graphic 1st and text are mixed
 				// mix color
 				pal = mix_translucent_color16(*dst_buf, pal);
 				*dst_buf = pal;
 				*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
 
-//			} else if ((pal_num & MX_TXSPBG_SPBG) != 0 && ((pal_num & MX_TXSPBG_PALETTE_L4) != 0 && pal != 0)) {
-			} else if ((pal_num & MX_TXSPBG_SPBG) != 0 && pal != 0) {
+			} else if ((pal_num & MX_TXSPBG_SPRITEBG_MASK) != 0 && pal != 0) {
 				// sprite and bg
 				*dst_buf = pal;
 				*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
 
 			} else if ((*dst_buf & MX_BUF_COLOR) == 0) {
 				// text
-				if (pal) {
+				if ((pal_num & MX_TXSPBG_TEXT) != 0 && pal != 0) {
 					*dst_buf = pal;
 					*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
 				}
@@ -1436,15 +1615,15 @@ void DISPLAY::mix_buffer_graphic_txspbg_one_line_sub_sp_gr_tx_n(int width, int s
 			// graphic data already exists
 			uint32_t pal_num = mx_txspbg[src_y + src_x];
 			uint32_t pal = m_palette[pal_num & MX_TXSPBG_SPBG_PALETTE];
-//			if ((pal_num & MX_TXSPBG_SPBG) != 0 && ((pal_num & MX_TXSPBG_PALETTE_L4) != 0 && pal != 0)) {
-			if ((pal_num & MX_TXSPBG_SPBG) != 0 && pal != 0) {
+
+			if ((pal_num & MX_TXSPBG_SPRITEBG_MASK) != 0 && pal != 0) {
 				// sprite and bg
 				*dst_buf = pal;
 				*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
 
 			} else if ((*dst_buf & MX_BUF_COLOR) == 0) {
 				// text
-				if (pal) {
+				if ((pal_num & MX_TXSPBG_TEXT) != 0 && pal != 0) {
 					*dst_buf = pal;
 					*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
 				}
@@ -1474,28 +1653,26 @@ void DISPLAY::mix_buffer_graphic_txspbg_one_line_sub_gr_txsp_ht(int width, int s
 			*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
 		} else {
 			// graphic data already exists
-			uint32_t pal_num = mx_txspbg[src_y + src_x];
-			if ((pal_num & MX_TXSPBG_PALETTE_L4) != 0) {
+			if (*dst_buf & MX_BUF_TR_AREA) {
+				// translucent
+				uint32_t pal_num = mx_txspbg[src_y + src_x];
 				pal_num &= MX_TXSPBG_SPBG_PALETTE;
-				if (*dst_buf & MX_BUF_TR_AREA) {
-					// translucent
-					uint32_t pal = m_palette[pal_num];
-					// mix color
-					pal = mix_translucent_color16(*dst_buf, pal);
-					if (pal) {
-						*dst_buf = pal;
-						*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
-					}
+				uint32_t pal = m_palette[pal_num];
+				// mix color
+				pal = mix_translucent_color16(*dst_buf, pal);
+				*dst_buf = pal;
+				*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
 
-				} else if ((*dst_buf & MX_BUF_COLOR) == 0) {
-					// text, sprite and bg
+			} else if ((*dst_buf & MX_BUF_COLOR) == 0) {
+				// text, sprite and bg
+				uint32_t pal_num = mx_txspbg[src_y + src_x];
+				if (pal_num & MX_TXSPBG_TXSPBG_MASK) {
+					pal_num &= MX_TXSPBG_SPBG_PALETTE;
 					uint32_t pal = m_palette[pal_num];
-					if (pal) {
-						*dst_buf = pal;
-						*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
-					}
-
+					*dst_buf = pal;
+					*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
 				}
+
 			}
 		}
 		src_x++;
@@ -1521,16 +1698,15 @@ void DISPLAY::mix_buffer_graphic_txspbg_one_line_sub_gr_txsp_n(int width, int sr
 			*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
 		} else {
 			// graphic data already exists
-			uint32_t pal_num = mx_txspbg[src_y + src_x];
-			if ((pal_num & MX_TXSPBG_PALETTE_L4) != 0) {
-				if ((*dst_buf & MX_BUF_COLOR) == 0) {
-					// text, sprite and bg
+			if ((*dst_buf & MX_BUF_COLOR) == 0) {
+				// if graphic color is all zero
+				// then show text, sprite and bg
+				uint32_t pal_num = mx_txspbg[src_y + src_x];
+				if (pal_num & MX_TXSPBG_TXSPBG_MASK) {
 					pal_num &= MX_TXSPBG_SPBG_PALETTE;
 					uint32_t pal = m_palette[pal_num];
-					if (pal) {
-						*dst_buf = pal;
-						*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
-					}
+					*dst_buf = pal;
+					*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
 				}
 			}
 		}
@@ -1550,7 +1726,7 @@ void DISPLAY::mix_buffer_graphic_txspbg_one_line_sub_ah(int width, int src_y, in
 		// graphics only (no mixed text and sprite)
 		// translucent palette #0
 		// mix color
-		uint32_t pal = mix_translucent_color16(*dst_buf, m_palette[0]);
+		uint32_t pal = mix_translucent_color16(*dst_buf, m_palette[0x100]);
 		if (pal) {
 			*dst_buf = pal;
 			*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
@@ -1581,6 +1757,9 @@ void DISPLAY::mix_buffer_graphic_txspbg_one_line(int width, int src_y, int dst_y
 		if ((m_vc_regs[VC_TRANS_ONOFF] & (VC_TO_AH_MASK | VC_TO_EO_MASK | VC_TO_HP_MASK)) == (VC_TO_EO_MASK)) {
 			// special priority mode
 			mix_buffer_graphic_txspbg_one_line_sub_txsp_gr_sp(width, src_y, dst_y);
+		} else if ((m_vc_regs[VC_TRANS_ONOFF] & (VC_TO_AH_MASK | VC_TO_EO_MASK | VC_TO_HP_MASK | VC_TO_GT_MASK)) == (VC_TO_EO_MASK | VC_TO_HP_MASK | VC_TO_GT_MASK)) {
+			// translucent mode
+			mix_buffer_graphic_txspbg_one_line_sub_txsp_gr_ht(width, src_y, dst_y);
 		} else {
 			// normal mode
 			mix_buffer_graphic_txspbg_one_line_sub_txsp_gr_n(width, src_y, dst_y);
@@ -1724,6 +1903,42 @@ void DISPLAY::mix_buffer_graphic_txspbg(int width, int height9)
 #endif
 
 // ----------------------------------------------------------------------------
+
+#ifdef USE_DEBUGGER
+/// @brief Expand mixed buffer to screen buffer
+/// @param[in] width
+/// @param[in] height
+/// @param[out] buffer : screen buffer
+void DISPLAY::debug_expand_mixed_buffer(int width, int height, scrntype *buffer)
+{
+	uint32_t src = 0;
+	scrntype *dst = buffer;
+
+	for(int y = 0; y < height; y++) {
+		for(int x = 0; x < width; x++) {
+			*dst = debug_expand_rgb16(mx_buf[src]);
+			dst++;
+			src++;
+		}
+	}
+}
+
+void DISPLAY::debug_expand_mixed_buffer_dumper(int width, int height, uint16_t *buffer)
+{
+	uint32_t src = 0;
+	uint16_t *dst = buffer;
+
+	for(int y = 0; y < height; y++) {
+		for(int x = 0; x < width; x++) {
+			*dst = mx_buf[src] & 0xffff;
+			dst++;
+			src++;
+		}
+	}
+}
+#endif
+
+// ----------------------------------------------------------------------------
 // Mix Text and Sprite (included BG)
 // ----------------------------------------------------------------------------
 
@@ -1746,6 +1961,26 @@ void DISPLAY::mix_render_text_sprite_bg_one_line_sub_tx_only(int width, int src_
 	}
 }
 
+/// @brief Mix Text and Sprite per one line (Sprite only (Text is off))
+/// @param[in] width
+/// @param[in] src_left : left position
+/// @param[in] src_y : line 0 - 1023 * 1024
+/// @param[in] dst_y : line 0 - 1023 * 512/1024
+void DISPLAY::mix_render_text_sprite_bg_one_line_sub_sp_only(int width, int src_left, int src_y, int dst_y)
+{
+//	int src = src_y + src_left;
+//	uint32_t txtpal = m_palette[0x100];	// color of text palette 0 
+//	if (txtpal != 0) {
+		for(int dst_x = 0; dst_x < width; dst_x++) {
+//			src &= 0xfffff; // TODO
+			if ((mx_txspbg[dst_y + dst_x] & MX_TXSPBG_PALETTE_L4) == 0) {
+				mx_txspbg[dst_y + dst_x] = (MX_TXSPBG_TEXT | 0x100);
+			}
+//			src++;
+		}
+//	}
+}
+
 /// @brief Mix Text and Sprite per one line (priority: Sprite > Text)
 /// @param[in] width
 /// @param[in] src_left : left position
@@ -1754,30 +1989,21 @@ void DISPLAY::mix_render_text_sprite_bg_one_line_sub_tx_only(int width, int src_
 void DISPLAY::mix_render_text_sprite_bg_one_line_sub_sp_tx(int width, int src_left, int src_y, int dst_y)
 {
 	int src = src_y + src_left;
-	bool gr_is_top = (m_vc_priority[PR_GR] == 0);
 	for(int dst_x = 0; dst_x < width; dst_x++) {
 		src &= 0xfffff; // TODO
-		uint32_t pal_num = rb_tvram[src];
-#if 1
 		if ((mx_txspbg[dst_y + dst_x] & MX_TXSPBG_PALETTE_L4) == 0) {
-			if (gr_is_top) {
-				if (pal_num != 0) {
-					mx_txspbg[dst_y + dst_x] = (MX_TXSPBG_TEXT | 0x100 | pal_num);
-				}
-			} else {
-				uint32_t pal = m_palette[0x100 | pal_num];
-				if (pal_num != 0 || pal != 0) {
-					mx_txspbg[dst_y + dst_x] = (MX_TXSPBG_TEXT | 0x100 | pal_num);
-				}
+			uint32_t pal_num = rb_tvram[src];
+			if (pal_num != 0) {
+				// if sprite/bg palette is zero and text palette is not zero
+				// then set text palette
+				mx_txspbg[dst_y + dst_x] = (MX_TXSPBG_TEXT | 0x100 | pal_num);
+			} else if ((mx_txspbg[dst_y + dst_x] & MX_TXSPBG_BG) == 0) {
+				// if sprite palette is zero and text palette is zero
+				// then set text palette
+				// * bg0 and 1 are off
+				mx_txspbg[dst_y + dst_x] = (MX_TXSPBG_TEXT | 0x100 | pal_num);
 			}
 		}
-#endif
-#if 0
-		uint32_t pal = m_palette[0x100 | pal_num];
-		if (pal != 0 && (mx_txspbg[dst_y + dst_x] & MX_TXSPBG_PALETTE_L4) == 0) {
-			mx_txspbg[dst_y + dst_x] = (MX_TXSPBG_TEXT | 0x100 | pal_num);
-		}
-#endif
 		src++;
 	}
 }
@@ -1793,16 +2019,18 @@ void DISPLAY::mix_render_text_sprite_bg_one_line_sub_tx_sp(int width, int src_le
 	for(int dst_x = 0; dst_x < width; dst_x++) {
 		src &= 0xfffff; // TODO
 		uint32_t pal_num = rb_tvram[src];
-#if 1
-		uint32_t pal = m_palette[0x100 | pal_num];
-		if (pal != 0 || pal_num != 0) {
-			mx_txspbg[dst_y + dst_x] = (MX_TXSPBG_TEXT | 0x100 | pal_num);
-		}
-#else
 		if (pal_num != 0) {
+			// if text palette is not zero
+			// then set text palette
 			mx_txspbg[dst_y + dst_x] = (MX_TXSPBG_TEXT | 0x100 | pal_num);
+		} else if ((mx_txspbg[dst_y + dst_x] & MX_TXSPBG_PALETTE_L4) == 0) {
+			if ((mx_txspbg[dst_y + dst_x] & MX_TXSPBG_BG) == 0) {
+				// if sprite palette is zero and text palette is zero
+				// then set text palette
+				// * bg0 and 1 are off
+				mx_txspbg[dst_y + dst_x] = (MX_TXSPBG_TEXT | 0x100 | pal_num);
+			}
 		}
-#endif
 		src++;
 	}
 }
@@ -1814,11 +2042,11 @@ void DISPLAY::mix_render_text_sprite_bg_one_line_sub_tx_sp(int width, int src_le
 void DISPLAY::mix_render_text_sprite_bg_one_line(int width, int src_y, int dst_y)
 {
 	int onoff = (m_show_screen & (VM::TextMask | VM::SpriteMask | VM::BG0Mask | VM::BG1Mask));
-	if (!(onoff & VM::TextMask)) {
-		// sprite and bg only
+	if (!onoff) {
+		// text, sprite and bg are off
 		return;
-
 	}
+
 //	if ((src_y & 0xf) == 0) {
 //		logging->out_debugf(_T("Mix Render Text and Sprite: y:%d"), src_y);
 //	}
@@ -1840,12 +2068,22 @@ void DISPLAY::mix_render_text_sprite_bg_one_line(int width, int src_y, int dst_y
 
 		if (m_vc_priority[PR_TX] > m_vc_priority[PR_SP]) {
 			// sprite is heigher than text
-			mix_render_text_sprite_bg_one_line_sub_sp_tx(width, src_left, src_y, dst_y);
-
+			if (!(onoff & VM::TextMask)) {
+				// sprite only
+				mix_render_text_sprite_bg_one_line_sub_sp_only(width, src_left, src_y, dst_y);
+			} else {
+				// sprite and text
+				mix_render_text_sprite_bg_one_line_sub_sp_tx(width, src_left, src_y, dst_y);
+			}
 		} else {
 			// text is heigher than sprite
-			mix_render_text_sprite_bg_one_line_sub_tx_sp(width, src_left, src_y, dst_y);
-
+			if (!(onoff & VM::TextMask)) {
+				// sprite only
+				mix_render_text_sprite_bg_one_line_sub_sp_only(width, src_left, src_y, dst_y);
+			} else {
+				// sprite and text
+				mix_render_text_sprite_bg_one_line_sub_tx_sp(width, src_left, src_y, dst_y);
+			}
 		}
 	}
 }
@@ -1856,8 +2094,8 @@ void DISPLAY::mix_render_text_sprite_bg_one_line(int width, int src_y, int dst_y
 void DISPLAY::mix_render_text_sprite_bg(int width, int height)
 {
 	int onoff = (m_show_screen & (VM::TextMask | VM::SpriteMask | VM::BG0Mask | VM::BG1Mask));
-	if (!(onoff & VM::TextMask)) {
-		// sprite and bg only
+	if (!onoff) {
+		// text, sprite and bg are off
 		return;
 	}
 
@@ -1881,17 +2119,37 @@ void DISPLAY::mix_render_text_sprite_bg(int width, int height)
 		src_y <<= 10;
 		if (m_vc_priority[PR_TX] > m_vc_priority[PR_SP]) {
 			// sprite is heigher than text
-			for(int dst_y = 0; dst_y < dst_height; dst_y+=(1 << MX_TXSPBG_WIDTH_SFT)) {
-				src_y &= (0x3ff << 10);
-				mix_render_text_sprite_bg_one_line_sub_sp_tx(width, src_left, src_y, dst_y);
-				src_y+=(1 << 10);
+			if (!(onoff & VM::TextMask)) {
+				// sprite only
+				for(int dst_y = 0; dst_y < dst_height; dst_y+=(1 << MX_TXSPBG_WIDTH_SFT)) {
+					src_y &= (0x3ff << 10);
+					mix_render_text_sprite_bg_one_line_sub_sp_only(width, src_left, src_y, dst_y);
+					src_y+=(1 << 10);
+				}
+			} else {
+				// sprite and text
+				for(int dst_y = 0; dst_y < dst_height; dst_y+=(1 << MX_TXSPBG_WIDTH_SFT)) {
+					src_y &= (0x3ff << 10);
+					mix_render_text_sprite_bg_one_line_sub_sp_tx(width, src_left, src_y, dst_y);
+					src_y+=(1 << 10);
+				}
 			}
 		} else {
 			// text is heigher than sprite
-			for(int dst_y = 0; dst_y < dst_height; dst_y+=(1 << MX_TXSPBG_WIDTH_SFT)) {
-				src_y &= (0x3ff << 10);
-				mix_render_text_sprite_bg_one_line_sub_tx_sp(width, src_left, src_y, dst_y);
-				src_y+=(1 << 10);
+			if (!(onoff & VM::TextMask)) {
+				// sprite only
+				for(int dst_y = 0; dst_y < dst_height; dst_y+=(1 << MX_TXSPBG_WIDTH_SFT)) {
+					src_y &= (0x3ff << 10);
+					mix_render_text_sprite_bg_one_line_sub_sp_only(width, src_left, src_y, dst_y);
+					src_y+=(1 << 10);
+				}
+			} else {
+				// sprite and text
+				for(int dst_y = 0; dst_y < dst_height; dst_y+=(1 << MX_TXSPBG_WIDTH_SFT)) {
+					src_y &= (0x3ff << 10);
+					mix_render_text_sprite_bg_one_line_sub_tx_sp(width, src_left, src_y, dst_y);
+					src_y+=(1 << 10);
+				}
 			}
 		}
 	}
@@ -2089,14 +2347,20 @@ void DISPLAY::mix_render_sprite_bg_one_line(int step_y, int src_y, int dst_y)
 		// draw 512 when disp area is not 256 and htotal is 0xff
 		width <<= 1;
 	}
+	int height;
+	if (m_raster_mode != RASTER_NORMAL_NONINTER) {
+		height = 640;
+	} else {
+		height = ((p_bg_regs[SPRITE_BG::BG_RESOLUTION] & (SPRITE_BG::RESO_VRES | SPRITE_BG::RESO_LHFREQ)) == 0x00 ? 320 : 640);
+	}
 
 	int disp_left = (p_bg_regs[SPRITE_BG::BG_HORI_DISP] - p_crtc_regs[CRTC::CRTC_HORI_START] - 4) * 8;
 	int disp_top = (p_bg_regs[SPRITE_BG::BG_VERT_DISP] - p_crtc_regs[CRTC::CRTC_VERT_START]);
-	// 256line?
-	if ((p_crtc_regs[CRTC::CRTC_CONTROL0] & CRTC::CONTROL0_VRES) == 0) disp_top /= 2;
+
+	disp_top >>= step_y;
 
 	// mix sprite cells
-	mix_render_sprite_one_line(size512, width, disp_left, disp_top, step_y, dst_y);
+	mix_render_sprite_one_line(width, height, disp_left, disp_top, step_y, dst_y);
 
 	if (src_y < disp_top) {
 		// out of display area
@@ -2163,24 +2427,29 @@ void DISPLAY::mix_render_bg0_one_line_sub(int width, int src_left, int src_x_lim
 
 		uint16_t priority = mx_txspbg[dst_y + dst_x] & MX_TXSPBG_SPRITE_PRIORITY;
 		switch(priority) {
-		case 0x0000:
-			// no data
-			mx_txspbg[dst_y + dst_x] = MX_TXSPBG_SPBG | rb_bgram0[src_y + src_x];
+		case (0 << MX_TXSPBG_SPRITE_PRIORITY_SFT):
+			// no data (sprite is off)
+			mx_txspbg[dst_y + dst_x] = MX_TXSPBG_BG | rb_bgram0[src_y + src_x];
 			break;
-		case 0x1000:
-		case 0x2000:
+		case (1 << MX_TXSPBG_SPRITE_PRIORITY_SFT):
+		case (2 << MX_TXSPBG_SPRITE_PRIORITY_SFT):
 			// BG0 > SP
+			// if bg0 palette is not zero
+			// or bg0 palette is zero and sprite palette is zero
+			// then show bg0
 			if ((rb_bgram0[src_y + src_x] & 0xf) != 0) {
-				mx_txspbg[dst_y + dst_x] = MX_TXSPBG_SPBG | rb_bgram0[src_y + src_x];
+				mx_txspbg[dst_y + dst_x] = MX_TXSPBG_BG | rb_bgram0[src_y + src_x];
 			}
 			else if ((mx_txspbg[dst_y + dst_x] & MX_TXSPBG_PALETTE_L4) == 0) {
-				mx_txspbg[dst_y + dst_x] = MX_TXSPBG_SPBG | rb_bgram0[src_y + src_x];
+				mx_txspbg[dst_y + dst_x] = MX_TXSPBG_BG | rb_bgram0[src_y + src_x];
 			}
 			break;
-		case 0x3000:
+		case (3 << MX_TXSPBG_SPRITE_PRIORITY_SFT):
 			// SP > BG0
+			// if sprite palette is zero
+			// then show bg0
 			if ((mx_txspbg[dst_y + dst_x] & MX_TXSPBG_PALETTE_L4) == 0) {
-				mx_txspbg[dst_y + dst_x] = MX_TXSPBG_SPBG | rb_bgram0[src_y + src_x];
+				mx_txspbg[dst_y + dst_x] = MX_TXSPBG_BG | rb_bgram0[src_y + src_x];
 			}
 			break;
 		}
@@ -2204,26 +2473,33 @@ void DISPLAY::mix_render_bg1_one_line_sub(int width, int src_left, int src_x_lim
 
 		uint16_t priority = mx_txspbg[dst_y + dst_x] & MX_TXSPBG_SPRITE_PRIORITY;
 		switch(priority) {
-		case 0x0000:
+		case (0 << MX_TXSPBG_SPRITE_PRIORITY_SFT):
 			// BG0
+			// if bg0 palette is zero
+			// then show bg1
 			if ((mx_txspbg[dst_y + dst_x] & MX_TXSPBG_PALETTE_L4) == 0) {
-				mx_txspbg[dst_y + dst_x] = MX_TXSPBG_SPBG | rb_bgram1[src_y + src_x];
+				mx_txspbg[dst_y + dst_x] = MX_TXSPBG_BG | rb_bgram1[src_y + src_x];
 			}
 			break;
-		case 0x1000:
+		case (1 << MX_TXSPBG_SPRITE_PRIORITY_SFT):
 			// SP (BG1 > SP)
+			// if bg1 palette is not zero
+			// or sprite palette is zero
+			// then show bg1
 			if ((rb_bgram1[src_y + src_x] & 0xf) != 0) {
-				mx_txspbg[dst_y + dst_x] = MX_TXSPBG_SPBG | rb_bgram1[src_y + src_x];
+				mx_txspbg[dst_y + dst_x] = MX_TXSPBG_BG | rb_bgram1[src_y + src_x];
 			}
 			else if ((mx_txspbg[dst_y + dst_x] & MX_TXSPBG_PALETTE_L4) == 0) {
-				mx_txspbg[dst_y + dst_x] = MX_TXSPBG_SPBG | rb_bgram1[src_y + src_x];
+				mx_txspbg[dst_y + dst_x] = MX_TXSPBG_BG | rb_bgram1[src_y + src_x];
 			}
 			break;
-		case 0x2000:
-		case 0x3000:
+		case (2 << MX_TXSPBG_SPRITE_PRIORITY_SFT):
+		case (3 << MX_TXSPBG_SPRITE_PRIORITY_SFT):
 			// SP (SP > BG1)
+			// if sprite palette is zero
+			// then show bg1
 			if ((mx_txspbg[dst_y + dst_x] & MX_TXSPBG_PALETTE_L4) == 0) {
-				mx_txspbg[dst_y + dst_x] = MX_TXSPBG_SPBG | rb_bgram1[src_y + src_x];
+				mx_txspbg[dst_y + dst_x] = MX_TXSPBG_BG | rb_bgram1[src_y + src_x];
 			}
 			break;
 		}
@@ -2385,7 +2661,7 @@ void DISPLAY::mix_render_sprite_cell_one_line_sub(int sp_num, uint32_t bg_priori
 /// @brief Copy PCG data to mixed buffer for one sprite 
 /// @param[in] ptn_num : pattern number of PCG data
 /// @param[in] hv : normal:0 reverse horizontal:1 reverse vertical:2 all reverse:3
-/// @param[in] bg_priority : palette number (b8-b0) and priority sprite and bg (b12-b11)
+/// @param[in] bg_priority : palette number (b8-b0) and priority sprite and bg (b11-b10)
 /// @param[in] src_left : left position of source
 /// @param[in] src_y : source line
 /// @param[in] dst_left : left position of display area
@@ -2397,7 +2673,7 @@ void DISPLAY::mix_render_sprite_cell_one_line_sub(int ptn_num, int hv, uint32_t 
 	for(int dst_x = dst_left; dst_x < dst_right; dst_x++) {
 		// mixed buffer is empty or palette 0 ?
 		if ((mx_txspbg[dst_y + dst_x] & MX_TXSPBG_PALETTE_L4) == 0) {
-			mx_txspbg[dst_y + dst_x] = MX_TXSPBG_SPBG | bg_priority | rb_pcg[ptn_num][hv][src_y + src_x];
+			mx_txspbg[dst_y + dst_x] = MX_TXSPBG_SPRITE | bg_priority | rb_pcg[ptn_num][hv][src_y + src_x];
 		}
 		src_x++;
 	}
@@ -2405,14 +2681,14 @@ void DISPLAY::mix_render_sprite_cell_one_line_sub(int ptn_num, int hv, uint32_t 
 #endif
 
 /// @brief Expand one Sprite data per one line
-/// @param[in] size512 : 256x256:0 512x512:1
 /// @param[in] width
+/// @param[in] height
 /// @param[in] sp_num : sprite number 
 /// @param[in] disp_left : left position of display area
 /// @param[in] disp_top : top position of display area
 /// @param[in] step_y : normal:0 / draw even or odd line:1 
 /// @param[in] dst_y : line 0 - 1023
-void DISPLAY::mix_render_sprite_cell_one_line(int size512, int width, int sp_num, int disp_left, int disp_top, int step_y, int dst_y)
+void DISPLAY::mix_render_sprite_cell_one_line(int width, int height, int sp_num, int disp_left, int disp_top, int step_y, int dst_y)
 {
 	int sp_num4 = (sp_num << 2);
 
@@ -2424,16 +2700,17 @@ void DISPLAY::mix_render_sprite_cell_one_line(int size512, int width, int sp_num
 
 	int dst_top = (p_sp_regs[sp_num4 | SPRITE_BG::SP_YPOS] & 0x3ff) + disp_top - 16;
 	int dst_bottom = dst_top + 16;
-	dst_top <<= step_y;
-	dst_bottom <<= step_y;
 
 	int src_top = 0;
 	if (dst_top < 0) {
 		src_top = -dst_top;
 		dst_top = 0;
 	}
-	if (dst_bottom >= width) {
-		dst_bottom = width;
+	dst_top <<= step_y;
+	dst_bottom <<= step_y;
+
+	if (dst_bottom >= height) {
+		dst_bottom = height;
 	}
 	if (dst_y < dst_top || dst_bottom <= dst_y) {
 		// out of range
@@ -2555,24 +2832,22 @@ void DISPLAY::mix_render_sprite_cell(int size512, int width, int sp_num, int dis
 #endif
 
 /// @brief Expand Sprite data per one line
-/// @param[in] size512 : width is 512 mode? 
 /// @param[in] width
+/// @param[in] height
 /// @param[in] disp_left : left position of display area
 /// @param[in] disp_top : top position of display area
 /// @param[in] step_y : normal:0 / draw even or odd line:1
 /// @param[in] dst_y : line 0 - 1023
-void DISPLAY::mix_render_sprite_one_line(int size512, int width, int disp_left, int disp_top, int step_y, int dst_y)
+void DISPLAY::mix_render_sprite_one_line(int width, int height, int disp_left, int disp_top, int step_y, int dst_y)
 {
 	if (!(m_show_screen & VM::SpriteMask)) {
 		// sprite is off
 		return;
 	}
 
-	disp_top >>= step_y;
-
 	// num 0 is the highest priority in sprite cells
 	for(int sp_num = 0; sp_num < 128; sp_num++) {
-		mix_render_sprite_cell_one_line(size512, width, sp_num, disp_left, disp_top, step_y, dst_y);
+		mix_render_sprite_cell_one_line(width, height, sp_num, disp_left, disp_top, step_y, dst_y);
 	}
 }
 
@@ -4323,6 +4598,13 @@ void DISPLAY::mix_buffer_graphic512_c65536_one_line_sub_p(int width, int src_lef
 	src_x[1] = src_left[1];
 	src_x[2] = src_left[2];
 	src_x[3] = src_left[3];
+
+	uint32_t pal0_num1;
+	uint32_t ht_area = 0;
+	uint32_t hp_mask = (m_vc_regs[VC_TRANS_ONOFF] & VC_TO_HP_MASK) ? 1 : 0;
+	uint32_t bp1_mask = (m_vc_regs[VC_TRANS_ONOFF] & VC_TO_BP_MASK) ? 1 : 0;
+	uint32_t bp0_mask = (~bp1_mask & hp_mask);
+	bp1_mask &= hp_mask;
 	uint32_t *dst_buf;
 
 	for(int dst_x = 0; dst_x < width; dst_x++) {
@@ -4350,14 +4632,26 @@ void DISPLAY::mix_buffer_graphic512_c65536_one_line_sub_p(int width, int src_lef
 
 		int pal0_num_sft = ((1 - (pal0_num & 1)) << 3);	// x8
 		int pal1_num_sft = ((1 - (pal1_num & 1)) << 3);	// x8
+		pal0_num1 = (pal0_num & 1); 
 		pal0_num &= ~1;	// even
 		pal1_num |= 1;	// odd
 
 		uint32_t pal0 = (m_palette[pal0_num] >> pal0_num_sft) & 0xff;
 		uint32_t pal1 = (m_palette[pal1_num] >> pal1_num_sft) & 0xff;
 
+		ht_area = 0;
+		if (pal0_num != 0 && pal0_num1 != 0) {
+			// special priority area
+			ht_area |= MX_BUF_SP_AREA;
+		}
+		if (pal0_num != 0 && ((pal0_num1 & bp1_mask) | (pal0 & bp0_mask)) != 0) {
+			// translucent area
+			ht_area |= MX_BUF_TR_AREA;
+		}
+//		pal0 &= ~1; // ignore intensity
+
 		if ((*dst_buf & MX_BUF_NO_TRANS) == 0) {
-			*dst_buf = (pal1 << 8) | pal0;
+			*dst_buf = (pal1 << 8) | pal0 | ht_area;
 			if (pal0_num | pal1_num) {
 				*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
 			}
@@ -4660,11 +4954,11 @@ void DISPLAY::mix_buffer_graphic512_c256_one_line_sub_s(int pri_num, int width, 
 			pal_num &= ~1;	// even palette only
 			pal = m_palette[pal_num];
 			ht_area = 0;
-			if (pal_num1) {
+			if (pal_num != 0 && pal_num1 != 0) {
 				// special priority area
 				ht_area |= MX_BUF_SP_AREA;
 			}
-			if ((pal_num1 & bp1_mask) | (pal & bp0_mask)) {
+			if (pal_num != 0 && ((pal_num1 & bp1_mask) | (pal & bp0_mask)) != 0) {
 				// translucent area
 				ht_area |= MX_BUF_TR_AREA;
 			}
@@ -4703,20 +4997,20 @@ void DISPLAY::mix_buffer_graphic512_c256_one_line_sub_s(int pri_num, int width, 
 				// translucent area, so mix color
 				pal = m_palette[pal_num | hp_mask];	// odd palette number
 				pal = mix_translucent_color16(*dst_buf, pal);
-				*dst_buf = pal | MX_BUF_TR_AREA;
+				*dst_buf = (*dst_buf & MX_BUF_NO_TRANS) | pal | MX_BUF_TR_AREA;
 				if (IS_NOT_TRANS(pal_num)) {
 					*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
 				}
 			} else if (*dst_buf & MX_BUF_SP_AREA) {
 				// special priority area, so hide first priority
 				pal = m_palette[pal_num | hp_mask];	// odd palette number
-				*dst_buf = pal | MX_BUF_SP_AREA;
+				*dst_buf = (*dst_buf & MX_BUF_NO_TRANS) | pal | MX_BUF_SP_AREA;
 				if (IS_NOT_TRANS(pal_num)) {
 					*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
 				}
 			} else if ((*dst_buf & MX_BUF_NO_TRANS) == 0) {
 				// transparent area
-				pal = m_palette[pal_num];
+				pal = m_palette[pal_num & ~hp_mask];	// even palette number
 				*dst_buf = pal;
 				if (IS_NOT_TRANS(pal_num)) {
 					*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
@@ -4745,7 +5039,7 @@ void DISPLAY::mix_buffer_graphic512_c256_one_line_sub_s(int pri_num, int width, 
 			pal_num |= ((p_gvram[src_top[0] + src_y[0] + src_x[0]] >> sft[0]) & onoff[0]);
 #endif
 			// expand palette
-			pal = m_palette[pal_num];
+			pal = m_palette[pal_num & ~1]; // even palette only
 			if ((*dst_buf & MX_BUF_NO_TRANS) == 0) {
 				*dst_buf = pal;
 				if (IS_NOT_TRANS(pal_num)) {
@@ -4806,11 +5100,11 @@ void DISPLAY::mix_buffer_graphic512_c256_one_line_sub_p(int pri_num, int width, 
 			pal_num &= ~1;	// even palette only
 			pal = m_palette[pal_num];
 			ht_area = 0;
-			if (pal_num1) {
+			if (pal_num != 0 && pal_num1 != 0) {
 				// special priority area
 				ht_area |= MX_BUF_SP_AREA;
 			}
-			if ((pal_num1 & bp1_mask) | (pal & bp0_mask)) {
+			if (pal_num != 0 && ((pal_num1 & bp1_mask) | (pal & bp0_mask)) != 0) {
 				// translucent area
 				ht_area |= MX_BUF_TR_AREA;
 			}
@@ -4845,7 +5139,7 @@ void DISPLAY::mix_buffer_graphic512_c256_one_line_sub_p(int pri_num, int width, 
 			pal_num |= ((p_gvram[src_top[0] + src_y[0] + src_x[0]] >> sft[0]) & onoff[0]);
 #endif
 			// expand palette
-			pal = m_palette[pal_num];
+			pal = m_palette[pal_num & ~1]; // even palette only
 			if ((*dst_buf & MX_BUF_NO_TRANS) == 0) {
 				*dst_buf = pal;
 				if (IS_NOT_TRANS(pal_num)) {
@@ -4950,8 +5244,8 @@ void DISPLAY::mix_buffer_graphic512_c256_one_line(int width, int src_y_base, int
 		src_y[1] <<= 9;
 		src_y[0] &= (0x1ff << 9);
 		src_y[1] &= (0x1ff << 9);
-		if ((m_vc_regs[VC_TRANS_ONOFF] & (VC_TO_AH_MASK | VC_TO_EO_MASK | VC_TO_GG_MASK)) == (VC_TO_EO_MASK | VC_TO_GG_MASK)) {
-			// translucent / special mode
+		if ((m_vc_regs[VC_TRANS_ONOFF] & (VC_TO_AH_MASK | VC_TO_EO_MASK | VC_TO_HP_MASK | VC_TO_GG_MASK)) == (VC_TO_EO_MASK | VC_TO_HP_MASK | VC_TO_GG_MASK)) {
+			// translucent mode
 			// graphic x graphic
 			mix_buffer_graphic512_c256_one_line_sub_s(pri_num, width, src_left, src_top, src_y, sft, onoff, dst_y9);
 		} else if ((m_vc_regs[VC_TRANS_ONOFF] & (VC_TO_AH_MASK | VC_TO_EO_MASK)) == VC_TO_EO_MASK) {
@@ -5084,11 +5378,11 @@ void DISPLAY::mix_buffer_graphic512_c16_one_line_sub_s(int pri_num, int width, i
 			pal_num &= ~1;	// even palette only
 			pal = m_palette[pal_num];
 			ht_area = 0;
-			if (pal_num1) {
+			if (pal_num != 0 && pal_num1 != 0) {
 				// special priority area
 				ht_area |= MX_BUF_SP_AREA;
 			}
-			if ((pal_num1 & bp1_mask) | (pal & bp0_mask)) {
+			if (pal_num != 0 && ((pal_num1 & bp1_mask) | (pal & bp0_mask)) != 0) {
 				// translucent area
 				ht_area |= MX_BUF_TR_AREA;
 			}
@@ -5120,20 +5414,20 @@ void DISPLAY::mix_buffer_graphic512_c16_one_line_sub_s(int pri_num, int width, i
 				// translucent area, so mix color
 				pal = m_palette[pal_num | hp_mask];	// odd palette number
 				pal = mix_translucent_color16(*dst_buf, pal);
-				*dst_buf = pal | MX_BUF_TR_AREA;
+				*dst_buf = (*dst_buf & MX_BUF_NO_TRANS) | pal | MX_BUF_TR_AREA;
 				if (pal_num) {
 					*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
 				}
 			} else if (*dst_buf & MX_BUF_SP_AREA) {
 				// special priority area, so hide first priority
 				pal = m_palette[pal_num | hp_mask];	// odd palette number
-				*dst_buf = pal | MX_BUF_SP_AREA;
+				*dst_buf = (*dst_buf & MX_BUF_NO_TRANS) | pal | MX_BUF_SP_AREA;
 				if (pal_num) {
 					*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
 				}
 			} else if ((*dst_buf & MX_BUF_NO_TRANS) == 0) {
 				// transparent area
-				pal = m_palette[pal_num];
+				pal = m_palette[pal_num & ~hp_mask]; // even palette number
 				*dst_buf = pal;
 				if (pal_num) {
 					*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
@@ -5154,7 +5448,7 @@ void DISPLAY::mix_buffer_graphic512_c16_one_line_sub_s(int pri_num, int width, i
 			uint32_t pal_num = (p_gvram[src_top + src_y + src_x] >> sft) & onoff;
 #endif
 			// expand palette
-			pal = m_palette[pal_num];
+			pal = m_palette[pal_num & ~1]; // even palette only
 			if ((*dst_buf & MX_BUF_NO_TRANS) == 0) {
 				*dst_buf = pal;
 				if (pal_num) {
@@ -5205,11 +5499,11 @@ void DISPLAY::mix_buffer_graphic512_c16_one_line_sub_p(int pri_num, int width, i
 			pal_num &= ~1;	// even palette only
 			pal = m_palette[pal_num];
 			ht_area = 0;
-			if (pal_num1) {
+			if (pal_num != 0 && pal_num1 != 0) {
 				// special priority area
 				ht_area |= MX_BUF_SP_AREA;
 			}
-			if ((pal_num1 & bp1_mask) | (pal & bp0_mask)) {
+			if (pal_num != 0 && ((pal_num1 & bp1_mask) | (pal & bp0_mask)) != 0) {
 				// translucent area
 				ht_area |= MX_BUF_TR_AREA;
 			}
@@ -5236,7 +5530,7 @@ void DISPLAY::mix_buffer_graphic512_c16_one_line_sub_p(int pri_num, int width, i
 			uint32_t pal_num = (p_gvram[src_top + src_y + src_x] >> sft) & onoff;
 #endif
 			// expand palette
-			pal = m_palette[pal_num];
+			pal = m_palette[pal_num & ~1]; // even palette only
 			if ((*dst_buf & MX_BUF_NO_TRANS) == 0) {
 				*dst_buf = pal;
 				if (pal_num) {
@@ -5312,8 +5606,8 @@ void DISPLAY::mix_buffer_graphic512_c16_one_line(int width, int src_y_base, int 
 		src_y += src_y_base;
 		src_y <<= 9;
 		src_y &= (0x1ff << 9);
-		if ((m_vc_regs[VC_TRANS_ONOFF] & (VC_TO_AH_MASK | VC_TO_EO_MASK | VC_TO_GG_MASK)) == (VC_TO_EO_MASK | VC_TO_GG_MASK)) {
-			// translucent / special mode
+		if ((m_vc_regs[VC_TRANS_ONOFF] & (VC_TO_AH_MASK | VC_TO_EO_MASK | VC_TO_HP_MASK | VC_TO_GG_MASK)) == (VC_TO_EO_MASK | VC_TO_HP_MASK | VC_TO_GG_MASK)) {
+			// translucent mode
 			// graphic x graphic
 			mix_buffer_graphic512_c16_one_line_sub_s(pri_num, width, src_left, src_top, src_y, sft, onoff, dst_y9);
 		} else if ((m_vc_regs[VC_TRANS_ONOFF] & (VC_TO_AH_MASK | VC_TO_EO_MASK)) == VC_TO_EO_MASK) {
@@ -6019,9 +6313,9 @@ void DISPLAY::save_state(FILEIO *fio)
 	SET_Int32_LE(m_draw_even_odd);
 
 	SET_Int32_LE(screen_left);
-	SET_Int32_LE(screen_right);
+	SET_Int32_LE(screen_width);
 	SET_Int32_LE(screen_top);
-	SET_Int32_LE(screen_bottom);
+	SET_Int32_LE(screen_height);
 
 	SET_Int32_LE(skip_frame_count);
 
@@ -6086,10 +6380,10 @@ bool DISPLAY::load_state(FILEIO *fio)
 	GET_Int32_LE(m_show_screen);
 	GET_Int32_LE(m_draw_even_odd);
 
-	GET_Int32_LE(screen_left);
-	GET_Int32_LE(screen_right);
-	GET_Int32_LE(screen_top);
-	GET_Int32_LE(screen_bottom);
+//	GET_Int32_LE(screen_left);
+//	GET_Int32_LE(screen_width);
+//	GET_Int32_LE(screen_top);
+//	GET_Int32_LE(screen_height);
 
 	GET_Int32_LE(skip_frame_count);
 
@@ -6281,6 +6575,7 @@ enum en_gnames {
 	GN_GRR2,
 	GN_GRR3,
 	GN_TXP,
+	GN_MIXD,
 };
 
 const struct st_gnames {
@@ -6308,6 +6603,7 @@ const struct st_gnames {
 	{ GN_GRR2, _T("Graphic Render (512x512, 65536 colors)"), 512, 512, 0, 0 },
 	{ GN_GRR3, _T("Graphic Render (1024x1024, 16 colors)"), 1024, 1024, 0, 0 },
 	{ GN_TXP,  _T("Text Plane 0-3"), 2048, 2048, 0, 0 },
+	{ GN_MIXD, _T("Mixed Buffer"), 1024, SCREEN_HEIGHT, 0, 0 },
 	{ -1, NULL, 0, 0, 0, 0 }
 };
 
@@ -6384,6 +6680,9 @@ bool DISPLAY::debug_draw_graphic(int type, int width, int height, scrntype *buff
 	case GN_TXP:
 		debug_expand_text_plane(width, height, buffer);
 		break;
+	case GN_MIXD:
+		debug_expand_mixed_buffer(width, height, buffer);
+		break;
 	default:
 		return false;
 	}
@@ -6435,6 +6734,9 @@ bool DISPLAY::debug_dump_graphic(int type, int width, int height, uint16_t *buff
 		break;
 	case GN_TXP:
 		debug_expand_text_plane_dumper(width, height, buffer);
+		break;
+	case GN_MIXD:
+		debug_expand_mixed_buffer_dumper(width, height, buffer);
 		break;
 	default:
 		return false;

@@ -323,6 +323,12 @@ extern GUI *gui;
 	[CocoaLabel createI:hbox title:CMsg::Filter_Type];
 	popGLFilter = [CocoaPopUpButton createI:hbox items:LABELS::opengl_filter action:nil selidx:pConfig->gl_filter_type];
 
+#ifdef USE_SCREEN_MIX_SURFACE
+	// double buffering
+	hbox = [vbox addBox:HorizontalBox :MiddlePos :0 :_T("DBuffer")];
+	chkDoubleBuffer = [CocoaCheckBox createI:hbox title:CMsg::Use_double_buffering_when_method_is_default action:nil value:pConfig->double_buffering];
+#endif
+
 	// border color
 	hbox = [vbox addBox:HorizontalBox :MiddlePos :0 :_T("Border")];
 	chkBorderColor = [CocoaCheckBox createI:hbox title:CMsg::Set_gray_color_on_the_border_area action:nil value:FLG_ORIG_BORDER_COLOR != 0];
@@ -779,6 +785,11 @@ extern GUI *gui;
 	if (1 <= valuel && valuel <= 60) {
 		pConfig->msgboard_info_fontsize = (int)valuel;
 	}
+
+#ifdef USE_SCREEN_MIX_SURFACE
+	// double buffering
+	pConfig->double_buffering = ([chkDoubleBuffer state] == NSControlStateValueOn);
+#endif
 
 	// border color
 	BIT_ONOFF(pConfig->original, MSK_ORIG_BORDER_COLOR, [chkBorderColor state] == NSControlStateValueOn);

@@ -659,179 +659,211 @@ void MEMORY::write_data_nw(uint32_t addr, uint32_t data, int *wait, int width)
 		break;
 	case 0xc0:
 		// Graphic VRAM
-		write_gvram0(addrh, data, mask);
+		if (is_supervisor) {
+			write_gvram0(addrh, data, mask);
+		} else {
+			// buserror on user mode
+			m_buserr = 1;
+		}
 		break;
 	case 0xc8:
 		// Graphic VRAM
-		write_gvram1(addrh, data, mask);
+		if (is_supervisor) {
+			write_gvram1(addrh, data, mask);
+		} else {
+			// buserror on user mode
+			m_buserr = 1;
+		}
 		break;
 	case 0xd0:
 		// Graphic VRAM
-		write_gvram2(addrh, data, mask);
+		if (is_supervisor) {
+			write_gvram2(addrh, data, mask);
+		} else {
+			// buserror on user mode
+			m_buserr = 1;
+		}
 		break;
 	case 0xd8:
 		// Graphic VRAM
-		write_gvram3(addrh, data, mask);
+		if (is_supervisor) {
+			write_gvram3(addrh, data, mask);
+		} else {
+			// buserror on user mode
+			m_buserr = 1;
+		}
 		break;
 	case 0xe0:
 		// Text VRAM
-		write_tvram(addrh, data, mask);
+		if (is_supervisor) {
+			write_tvram(addrh, data, mask);
+		} else {
+			// buserror on user mode
+			m_buserr = 1;
+		}
 		break;
 	case 0xe8:
 		// System I/O
-		addrio = ((addr >> 12) & 0x7e);
-		switch(addrio) {
-		case 0x00:
-			// CRTC
-			d_crtc->write_io_m(addr, data, mask);
-			break;
-		case 0x02:
-			// Palette and Video Control
-			d_disp->write_io_m(addr, data, mask);
-			break;
-		case 0x04:
-			// DMAC
-			d_dmac->write_io_n(addr, data, width);
-			break;
-		case 0x06:
-			// AREA SET
-			STORE_DATA(m_area_set, data, mask);
-			m_area_set &= 0xff;
-			AREA_SET_SIZE; // words
-			break;
-		case 0x08:
-			// MFP
-			d_mfp->write_io8(addrh, data);
-			break;
-		case 0x0a:
-			// RTC
-			d_rtc->write_io8(addrh, data);
-			break;
-		case 0x0c:
-			// PRINTER
-			d_printer->write_io8(addrh, data);
-			break;
-		case 0x0e:
-			// SYS.PORT
-			d_sysport->write_io8(addrh, data);
-			break;
-		case 0x10:
-			// FM Synth
-			d_opm->write_io8(addrh, data);
-			break;
-		case 0x12:
-			// ADPCM Voice
-			d_adpcm->write_io8(addrh, data);
-			break;
-		case 0x14:
-			// FD
-			d_fdd->write_io8(addrh, data);
-			break;
-		case 0x16:
-			// HD
-			if (pConfig->scsi_type == SCSI_TYPE_IN && ((addr & 0x20) != 0)) {
-				d_scsi->write_io8(addrh, data);
-			} else {
-				d_sasi->write_io8(addrh, data);
-			}
-			break;
-		case 0x18:
-			// SCC
-			d_scc->write_io8(addrh, data);
-			break;
-		case 0x1a:
-			// 8255
-			d_pio->write_io8(addrh, data);
-			break;
-		case 0x1c:
-			// INT
-			d_board->write_io8(addrh, data);
-			break;
-		case 0x1e:
-			// (Ex) FPU
-			m_buserr = 1;
-			break;
-		case 0x20:
-			// (Ex) SCSI
-			if (pConfig->scsi_type == SCSI_TYPE_EX) {
-				if ((addr & 0x1fe0) == 0) {
-					// I/O 0x00-0x1f
+		if (is_supervisor) {
+			addrio = ((addr >> 12) & 0x7e);
+			switch(addrio) {
+			case 0x00:
+				// CRTC
+				d_crtc->write_io_m(addr, data, mask);
+				break;
+			case 0x02:
+				// Palette and Video Control
+				d_disp->write_io_m(addr, data, mask);
+				break;
+			case 0x04:
+				// DMAC
+				d_dmac->write_io_n(addr, data, width);
+				break;
+			case 0x06:
+				// AREA SET
+				STORE_DATA(m_area_set, data, mask);
+				m_area_set &= 0xff;
+				AREA_SET_SIZE; // words
+				break;
+			case 0x08:
+				// MFP
+				d_mfp->write_io8(addrh, data);
+				break;
+			case 0x0a:
+				// RTC
+				d_rtc->write_io8(addrh, data);
+				break;
+			case 0x0c:
+				// PRINTER
+				d_printer->write_io8(addrh, data);
+				break;
+			case 0x0e:
+				// SYS.PORT
+				d_sysport->write_io8(addrh, data);
+				break;
+			case 0x10:
+				// FM Synth
+				d_opm->write_io8(addrh, data);
+				break;
+			case 0x12:
+				// ADPCM Voice
+				d_adpcm->write_io8(addrh, data);
+				break;
+			case 0x14:
+				// FD
+				d_fdd->write_io8(addrh, data);
+				break;
+			case 0x16:
+				// HD
+				if (pConfig->scsi_type == SCSI_TYPE_IN && ((addr & 0x20) != 0)) {
 					d_scsi->write_io8(addrh, data);
+				} else {
+					d_sasi->write_io8(addrh, data);
 				}
-			} else {
+				break;
+			case 0x18:
+				// SCC
+				d_scc->write_io8(addrh, data);
+				break;
+			case 0x1a:
+				// 8255
+				d_pio->write_io8(addrh, data);
+				break;
+			case 0x1c:
+				// INT
+				d_board->write_io8(addrh, data);
+				break;
+			case 0x1e:
+				// (Ex) FPU
 				m_buserr = 1;
+				break;
+			case 0x20:
+				// (Ex) SCSI
+				if (pConfig->scsi_type == SCSI_TYPE_EX) {
+					if ((addr & 0x1fe0) == 0) {
+						// I/O 0x00-0x1f
+						d_scsi->write_io8(addrh, data);
+					}
+				} else {
+					m_buserr = 1;
+				}
+				break;
+			case 0x22:
+			case 0x24:
+			case 0x26:
+			case 0x28:
+			case 0x2a:
+			case 0x2c:
+			case 0x2e:
+				// (Ex)
+				m_buserr = 1;
+				break;
+			case 0x30:
+			case 0x32:
+			case 0x34:
+			case 0x36:
+				// Sprite/PCG/BG
+				d_sp_bg->write_io_m(addr, data, mask);
+				break;
+			case 0x38:
+			case 0x3a:
+				// PCG VRAM
+				STORE_DATA(m_spram[ADDRH_MASK(addrh, 0x8000)], data, mask);
+				// set update flag
+				u_pcg[ADDRH_MASK(addrh, 0x8000) >> 6] |= (SPRITE_BG::SP_PRW_UPD_MASK | 3);
+				break;
+			case 0x3c:
+			case 0x3e:
+				// PCG/BG VRAM
+				STORE_DATA(m_spram[ADDRH_MASK(addrh, 0x8000)], data, mask);
+				// set update flag
+				u_pcg[ADDRH_MASK(addrh, 0x8000) >> 6] |= (SPRITE_BG::SP_PRW_UPD_MASK | 3);
+				break;
+			case 0x40:
+			case 0x42:
+			case 0x44:
+			case 0x46:
+			case 0x48:
+			case 0x4a:
+			case 0x4c:
+			case 0x4e:
+				// (Ex) User I/O
+				m_buserr = 1;
+				break;
+			case 0x50:
+			case 0x52:
+				// SRAM 16KB
+				if (m_sram_writable) {
+					write_sram(addrh, data, mask);
+				}
+				break;
+			default:
+				m_buserr = 1;
+				break;
 			}
-			break;
-		case 0x22:
-		case 0x24:
-		case 0x26:
-		case 0x28:
-		case 0x2a:
-		case 0x2c:
-		case 0x2e:
-			// (Ex)
+		} else {
+			// buserror on user mode
 			m_buserr = 1;
-			break;
-		case 0x30:
-		case 0x32:
-		case 0x34:
-		case 0x36:
-			// Sprite/PCG/BG
-			d_sp_bg->write_io_m(addr, data, mask);
-			break;
-		case 0x38:
-		case 0x3a:
-			// PCG VRAM
-			STORE_DATA(m_spram[ADDRH_MASK(addrh, 0x8000)], data, mask);
-			// set update flag
-//			u_spram[ADDRH_MASK(addrh, 0x8000)] |= (SPRITE_BG::SP_PRW_UPD_MASK | 3);
-//			u_spram[ADDRH_MASK(addrh, 0x8000) & ~0xf] |= (SPRITE_BG::SP_PRW_UPD_MASK | 3);
-//			u_pcg[ADDRH_MASK(addrh, 0x8000) >> 6] = LINES_PER_FRAME;
-			u_pcg[ADDRH_MASK(addrh, 0x8000) >> 6] |= (SPRITE_BG::SP_PRW_UPD_MASK | 3);
-			break;
-		case 0x3c:
-		case 0x3e:
-			// PCG/BG VRAM
-			STORE_DATA(m_spram[ADDRH_MASK(addrh, 0x8000)], data, mask);
-			// set update flag
-//			u_spram[ADDRH_MASK(addrh, 0x8000)] |= (SPRITE_BG::SP_PRW_UPD_MASK | 3);
-//			u_spram[ADDRH_MASK(addrh, 0x8000) & ~0xf] |= (SPRITE_BG::SP_PRW_UPD_MASK | 3);
-//			u_pcg[ADDRH_MASK(addrh, 0x8000) >> 6] = LINES_PER_FRAME;
-			u_pcg[ADDRH_MASK(addrh, 0x8000) >> 6] |= (SPRITE_BG::SP_PRW_UPD_MASK | 3);
-//			u_bg[0][ADDRH_MASK(addrh, 0x4000)] = 0xffff;
-//			u_bg[1][ADDRH_MASK(addrh, 0x4000)] = 0xffff;
-			break;
-		case 0x40:
-		case 0x42:
-		case 0x44:
-		case 0x46:
-		case 0x48:
-		case 0x4a:
-		case 0x4c:
-		case 0x4e:
-			// (Ex) User I/O
-			m_buserr = 1;
-			break;
-		case 0x50:
-		case 0x52:
-			// SRAM 16KB
-			if (m_sram_writable) {
-				write_sram(addrh, data, mask);
-			}
-			break;
-		default:
-			m_buserr = 1;
-			break;
 		}
 		break;
 	case 0xf0:
 		// CGROM
+		if (is_supervisor) {
+			// TODO
+		} else {
+			// buserror on user mode
+			m_buserr = 1;
+		}
 		break;
 	case 0xf8:
 		// CGROM + IPLROM
-		if (m_is_xvi && (addr & 0xfe0000) == 0xfc0000) {
+		if (is_supervisor) {
+			if (m_is_xvi && (addr & 0xfe0000) == 0xfc0000) {
+				m_buserr = 1;
+			}
+		} else {
+			// buserror on user mode
 			m_buserr = 1;
-			break;
 		}
 		break;
 	default:
@@ -844,8 +876,10 @@ void MEMORY::write_data_nw(uint32_t addr, uint32_t data, int *wait, int width)
 	if (!from_debugger) {
 #endif
 		if (from_dmac) {
+			// send BERR signal to DMAC
 			d_dmac->write_signal(DMAC::SIG_BUSERR, m_buserr, 1);
 		} else {
+			// send BERR signal to MPU
 			d_cpu->write_signal(SIG_M68K_BUSERR, m_buserr, 1);
 		}
 #ifdef USE_DEBUGGER
@@ -1312,223 +1346,263 @@ uint32_t MEMORY::read_data_nw(uint32_t addr, int *wait, int width)
 		break;
 	case 0xc0:
 		// Graphic VRAM
-		data = read_gvram0(addrh);
+		if (is_supervisor) {
+			data = read_gvram0(addrh);
+		} else {
+			// buserror on user mode
+			m_buserr = 1;
+		}
 		break;
 	case 0xc8:
 		// Graphic VRAM
-		data = read_gvram1(addrh);
+		if (is_supervisor) {
+			data = read_gvram1(addrh);
+		} else {
+			// buserror on user mode
+			m_buserr = 1;
+		}
 		break;
 	case 0xd0:
 		// Graphic VRAM
-		data = read_gvram2(addrh);
+		if (is_supervisor) {
+			data = read_gvram2(addrh);
+		} else {
+			// buserror on user mode
+			m_buserr = 1;
+		}
 		break;
 	case 0xd8:
 		// Graphic VRAM
-		data = read_gvram3(addrh);
+		if (is_supervisor) {
+			data = read_gvram3(addrh);
+		} else {
+			// buserror on user mode
+			m_buserr = 1;
+		}
 		break;
 	case 0xe0:
 		// Text VRAM
-		data = m_tvram[ADDRH_MASK(addrh, 0x80000)];
+		if (is_supervisor) {
+			data = m_tvram[ADDRH_MASK(addrh, 0x80000)];
+		} else {
+			// buserror on user mode
+			m_buserr = 1;
+		}
 		break;
 	case 0xe8:
 		// System I/O
-		addrio = ((addr >> 12) & 0x7e);
-		switch(addrio) {
-		case 0x00:
-			// CRTC
-			data = d_crtc->read_io16(addr);
-			break;
-		case 0x02:
-			// Palette and Video Control
-			data = d_disp->read_io16(addr);
-			break;
-		case 0x04:
-			// DMAC
-			data = d_dmac->read_io_n(addr, width);
-			break;
-		case 0x06:
-			// AREA SET (write only)
-//			data = m_area_set & 0x00ff;
-			break;
-		case 0x08:
-			// MFP
-			is_8bits = true;
-			data = d_mfp->read_io8(addrh);
-			break;
-		case 0x0a:
-			// RTC
-			is_8bits = true;
-			data = d_rtc->read_io8(addrh);
-			break;
-		case 0x0c:
-			// PRINTER
-			// cannot read
-			break;
-		case 0x0e:
-			// SYS.PORT
-			is_8bits = true;
-			data = d_sysport->read_io8(addrh);
-			break;
-		case 0x10:
-			// FM Synth
-			is_8bits = true;
-			data = d_opm->read_io8(addrh);
-			break;
-		case 0x12:
-			// ADPCM Voice
-			is_8bits = true;
-			data = d_adpcm->read_io8(addrh);
-			break;
-		case 0x14:
-			// FD
-			is_8bits = true;
-			data = d_fdd->read_io8(addrh);
-			break;
-		case 0x16:
-			// HD
-			if (pConfig->scsi_type == SCSI_TYPE_IN && ((addr & 0x20) != 0)) {
+		if (is_supervisor) {
+			addrio = ((addr >> 12) & 0x7e);
+			switch(addrio) {
+			case 0x00:
+				// CRTC
+				data = d_crtc->read_io16(addr);
+				break;
+			case 0x02:
+				// Palette and Video Control
+				data = d_disp->read_io16(addr);
+				break;
+			case 0x04:
+				// DMAC
+				data = d_dmac->read_io_n(addr, width);
+				break;
+			case 0x06:
+				// AREA SET (write only)
+//				data = m_area_set & 0x00ff;
+				break;
+			case 0x08:
+				// MFP
 				is_8bits = true;
-				data = d_scsi->read_io8(addrh);
-			} else {
+				data = d_mfp->read_io8(addrh);
+				break;
+			case 0x0a:
+				// RTC
 				is_8bits = true;
-				data = d_sasi->read_io8(addrh);
-			}
-			break;
-		case 0x18:
-			// SCC
-			is_8bits = true;
-			data = d_scc->read_io8(addrh);
-			break;
-		case 0x1a:
-			// 8255
-			is_8bits = true;
-			data = d_pio->read_io8(addrh);
-			break;
-		case 0x1c:
-			// INT
-			is_8bits = true;
-			data = d_board->read_io8(addrh);
-			break;
-		case 0x1e:
-			// FPU
-			m_buserr = 1;
-			break;
-		case 0x20:
-			// (Ex) SCSI
-			if (pConfig->scsi_type == SCSI_TYPE_EX) {
-				if ((addr & 0x1fe0) == 0) {
-					// I/O 0x00-0x1f
+				data = d_rtc->read_io8(addrh);
+				break;
+			case 0x0c:
+				// PRINTER
+				// cannot read
+				break;
+			case 0x0e:
+				// SYS.PORT
+				is_8bits = true;
+				data = d_sysport->read_io8(addrh);
+				break;
+			case 0x10:
+				// FM Synth
+				is_8bits = true;
+				data = d_opm->read_io8(addrh);
+				break;
+			case 0x12:
+				// ADPCM Voice
+				is_8bits = true;
+				data = d_adpcm->read_io8(addrh);
+				break;
+			case 0x14:
+				// FD
+				is_8bits = true;
+				data = d_fdd->read_io8(addrh);
+				break;
+			case 0x16:
+				// HD
+				if (pConfig->scsi_type == SCSI_TYPE_IN && ((addr & 0x20) != 0)) {
 					is_8bits = true;
 					data = d_scsi->read_io8(addrh);
 				} else {
-					// ROM 0x20-0x1fff
-					data = m_scsi_rom[ADDRH_MASK(addrh, 0x2000)];
+					is_8bits = true;
+					data = d_sasi->read_io8(addrh);
 				}
-			} else {
+				break;
+			case 0x18:
+				// SCC
+				is_8bits = true;
+				data = d_scc->read_io8(addrh);
+				break;
+			case 0x1a:
+				// 8255
+				is_8bits = true;
+				data = d_pio->read_io8(addrh);
+				break;
+			case 0x1c:
+				// INT
+				is_8bits = true;
+				data = d_board->read_io8(addrh);
+				break;
+			case 0x1e:
+				// FPU
 				m_buserr = 1;
+				break;
+			case 0x20:
+				// (Ex) SCSI
+				if (pConfig->scsi_type == SCSI_TYPE_EX) {
+					if ((addr & 0x1fe0) == 0) {
+						// I/O 0x00-0x1f
+						is_8bits = true;
+						data = d_scsi->read_io8(addrh);
+					} else {
+						// ROM 0x20-0x1fff
+						data = m_scsi_rom[ADDRH_MASK(addrh, 0x2000)];
+					}
+				} else {
+					m_buserr = 1;
+				}
+				break;
+			case 0x22:
+			case 0x24:
+			case 0x26:
+			case 0x28:
+			case 0x2a:
+			case 0x2c:
+			case 0x2e:
+				// (Ex)
+				m_buserr = 1;
+				break;
+			case 0x30:
+			case 0x32:
+			case 0x34:
+			case 0x36:
+				// Sprite/PCG/BG
+				data = d_sp_bg->read_io16(addr);
+				break;
+			case 0x38:
+			case 0x3a:
+			case 0x3c:
+			case 0x3e:
+				// Sprite/PCG/BG VRAM
+				data = m_spram[ADDRH_MASK(addrh, 0x8000)];
+				break;
+			case 0x40:
+			case 0x42:
+			case 0x44:
+			case 0x46:
+			case 0x48:
+			case 0x4a:
+			case 0x4c:
+			case 0x4e:
+				// (Ex) User I/O
+				m_buserr = 1;
+				break;
+			case 0x50:
+			case 0x52:
+				// SRAM 16KB
+				data = m_sram[ADDRH_MASK(addrh, 0x4000)];
+				break;
+			default:
+				m_buserr = 1;
+				break;
 			}
-			break;
-		case 0x22:
-		case 0x24:
-		case 0x26:
-		case 0x28:
-		case 0x2a:
-		case 0x2c:
-		case 0x2e:
-			// (Ex)
+		} else {
+			// buserror on user mode
 			m_buserr = 1;
-			break;
-		case 0x30:
-		case 0x32:
-		case 0x34:
-		case 0x36:
-			// Sprite/PCG/BG
-			data = d_sp_bg->read_io16(addr);
-			break;
-		case 0x38:
-		case 0x3a:
-		case 0x3c:
-		case 0x3e:
-			// Sprite/PCG/BG VRAM
-			data = m_spram[ADDRH_MASK(addrh, 0x8000)];
-			break;
-		case 0x40:
-		case 0x42:
-		case 0x44:
-		case 0x46:
-		case 0x48:
-		case 0x4a:
-		case 0x4c:
-		case 0x4e:
-			// (Ex) User I/O
-			m_buserr = 1;
-			break;
-		case 0x50:
-		case 0x52:
-			// SRAM 16KB
-			data = m_sram[ADDRH_MASK(addrh, 0x4000)];
-			break;
-		default:
-			m_buserr = 1;
-			break;
 		}
 		break;
 	case 0xf0:
 		// CGROM
-		data = m_rom[ADDRH_MASK(addrh, 0x100000)];
-//		OUT_DEBUG_CGROM(_T("CGROM1: %06X %04X"), addr, data);
+		if (is_supervisor) {
+			data = m_rom[ADDRH_MASK(addrh, 0x100000)];
+//			OUT_DEBUG_CGROM(_T("CGROM1: %06X %04X"), addr, data);
+		} else {
+			// buserror on user mode
+			m_buserr = 1;
+		}
 		break;
 	case 0xf8:
 		// CGROM + IPLROM
-		m_ipl_mapping = false;
-		if (m_is_xvi && (addr & 0xfe0000) == 0xfc0000) {
-			m_buserr = 1;
-			break;
-		}
-		data = m_rom[ADDRH_MASK(addrh, 0x100000)];
-//		if (addr < 0xfc0000) {
-//			OUT_DEBUG_CGROM(_T("CGROM2: %06X %04X"), addr, data);
-//		}
-		if (d_board->get_intr_ack() == 7 &&
-			(addr & 0xfffff0) == 0xfffff0) {
-			switch(addrh & 7) {
-			case 1:
-				// INT1 read vector number (I/O control)
-				is_8bits = true;
-				data = d_board->read_external_data8(addrh);
-				break;
-			case 2:
-				// INT2 read vector number (Ex SCSI board)
-				is_8bits = true;
-				// (Ex) SCSI
-				if (pConfig->scsi_type == SCSI_TYPE_EX) {
-					data = d_scsi->read_external_data8(addrh);
-				} else {
-					data = 0xff;
-				}
-				break;
-			case 3:
-				// INT3 read vector number (DMAC)
-				is_8bits = true;
-				data = d_dmac->read_external_data8(addrh);
-				break;
-			case 4:
-				// INT4 read vector number (no device)
-				is_8bits = true;
-				data = 0xff;
-				break;
-			case 5:
-				// INT5 read vector number (SCC)
-				is_8bits = true;
-				data = d_scc->read_external_data8(addrh);
-				break;
-			case 6:
-				// INT6 read vector number (MFP)
-				is_8bits = true;
-				data = d_mfp->read_external_data8(addrh);
+		if (is_supervisor) {
+			m_ipl_mapping = false;
+			if (m_is_xvi && (addr & 0xfe0000) == 0xfc0000) {
+				m_buserr = 1;
 				break;
 			}
-			OUT_DEBUG_IVEC(_T("clk:%d IRQ READ INT%d VEC:%02X"), (int)get_current_clock(), addrh & 7, data);
+			data = m_rom[ADDRH_MASK(addrh, 0x100000)];
+//			if (addr < 0xfc0000) {
+//				OUT_DEBUG_CGROM(_T("CGROM2: %06X %04X"), addr, data);
+//			}
+			if (d_board->get_intr_ack() == 7 &&
+				(addr & 0xfffff0) == 0xfffff0) {
+				switch(addrh & 7) {
+				case 1:
+					// INT1 read vector number (I/O control)
+					is_8bits = true;
+					data = d_board->read_external_data8(addrh);
+					break;
+				case 2:
+					// INT2 read vector number (Ex SCSI board)
+					is_8bits = true;
+					// (Ex) SCSI
+					if (pConfig->scsi_type == SCSI_TYPE_EX) {
+						data = d_scsi->read_external_data8(addrh);
+					} else {
+						data = 0xff;
+					}
+					break;
+				case 3:
+					// INT3 read vector number (DMAC)
+					is_8bits = true;
+					data = d_dmac->read_external_data8(addrh);
+					break;
+				case 4:
+					// INT4 read vector number (no device)
+					is_8bits = true;
+					data = 0xff;
+					break;
+				case 5:
+					// INT5 read vector number (SCC)
+					is_8bits = true;
+					data = d_scc->read_external_data8(addrh);
+					break;
+				case 6:
+					// INT6 read vector number (MFP)
+					is_8bits = true;
+					data = d_mfp->read_external_data8(addrh);
+					break;
+				}
+				OUT_DEBUG_IVEC(_T("clk:%d IRQ READ INT%d VEC:%02X"), (int)get_current_clock(), addrh & 7, data);
+			}
+		} else {
+			// buserror on user mode
+			m_buserr = 1;
 		}
 		break;
 	default:
@@ -1540,8 +1614,10 @@ uint32_t MEMORY::read_data_nw(uint32_t addr, int *wait, int width)
 	if (!from_debugger) {
 #endif
 		if (from_dmac) {
+			// send BERR to DMAC
 			d_dmac->write_signal(DMAC::SIG_BUSERR, m_buserr, 1);
 		} else {
+			// send BERR to MPU
 			d_cpu->write_signal(SIG_M68K_BUSERR, m_buserr, 1);
 		}
 #ifdef USE_DEBUGGER
@@ -1829,18 +1905,18 @@ uint32_t MEMORY::debug_read_data_nw(int type, uint32_t addr, int width)
 	switch((addrh >> 15) & 0xf8) {
 	case 0x00:
 	case 0x08:
-			if (m_ipl_mapping && addrh < 0x8000) {
-				// Readable IPLROM area on boot
-				data = m_rom[addrh + 0x78000];
+		if (m_ipl_mapping && addrh < 0x8000) {
+			// Readable IPLROM area on boot
+			data = m_rom[addrh + 0x78000];
+		} else {
+			// Main RAM
+			if (addrh < m_ram_size) {
+				data = m_ram[addrh];
 			} else {
-				// Main RAM
-				if (addrh < m_ram_size) {
-					data = m_ram[addrh];
-				} else {
-					// buserror
-					m_buserr = 1;
-				}
+				// buserror
+				m_buserr = 1;
 			}
+		}
 		break;
 	case 0x10:
 	case 0x18:
@@ -2258,17 +2334,6 @@ uint32_t MEMORY::debug_physical_addr_mask(int type)
 	case 0:
 		data = 0x7fff;
 		break;
-//	case 1:
-//		data = 0xffff;
-//		break;
-//	case 2:
-//		data = 0x3fff;
-//		break;
-//	case 3:
-//	case 4:
-//	case 5:
-//		data = 0x7ff;
-//		break;
 	default:
 		break;
 	}
@@ -2282,21 +2347,6 @@ bool MEMORY::debug_physical_addr_type_name(int type, _TCHAR *buffer, size_t buff
 	case 0:
 		UTILITY::tcscpy(buffer, buffer_len, _T("RAM"));
 		break;
-//	case 1:
-//		UTILITY::tcscpy(buffer, buffer_len, _T("extended RAM"));
-//		break;
-//	case 2:
-//		UTILITY::tcscpy(buffer, buffer_len, _T("color RAM"));
-//		break;
-//	case 3:
-//		UTILITY::tcscpy(buffer, buffer_len, _T("IG RAM (blue)"));
-//		break;
-//	case 4:
-//		UTILITY::tcscpy(buffer, buffer_len, _T("IG RAM (red)"));
-//		break;
-//	case 5:
-//		UTILITY::tcscpy(buffer, buffer_len, _T("IG RAM (green)"));
-//		break;
 	default:
 		exist = false;
 		break;

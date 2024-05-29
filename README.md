@@ -8,6 +8,8 @@
 
 ### このソフトは、シャープX68000のような動きをするエミュレータです。
 
+* This is currently under development and has many bugs.
+* これは現在開発途上であり、多くのバグがあります。
 
 ### [Downloads ダウンロード](https://github.com/bml3mk5/eCZ-600/releases)
 
@@ -40,7 +42,7 @@
 
   http://s-sasaji.ddo.jp/bml3mk5/
 
-  (X(Twitter): http://twitter.com/bml3mk5)
+  (X(Twitter): https://twitter.com/bml3mk5)
 
 ------------------------------------------------------------------------------
 

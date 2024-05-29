@@ -36,10 +36,17 @@ LedBoxBase::LedBoxBase() : CSurface()
 	enable = false;
 	visible = false;
 	inside = false;
+
+#ifdef USE_GTK
+	cairosuf = new CCairoSurface();
+#endif
 }
 
 LedBoxBase::~LedBoxBase()
 {
+#ifdef USE_GTK
+	delete cairosuf;
+#endif
 	for(int i=0; i<LED_TYPE_END; i++) {
 		delete led[i];
 	}
@@ -135,6 +142,9 @@ bool LedBoxBase::create_surface(CPixelFormat &format)
 #endif
 	bool rc = Create(w, h, format);
 	if (!rc) return false;
+#ifdef USE_GTK
+	cairosuf->CreateC(*this, w, h);
+#endif
 
 #if defined(USE_SDL)
 	// See SDL_ConvertSurface source code
@@ -406,6 +416,25 @@ void LedBoxBase::Draw(CSurface &screen)
 	changed_position = false;
 	Blit(screen, parent_pt);
 }
+
+void LedBoxBase::Draw(SDL_Surface &screen)
+{
+	if (!visible || !inside || !enable) return;
+
+	changed_position = false;
+	Blit(screen, parent_pt);
+}
+
+#ifdef USE_GTK
+void LedBoxBase::Draw(cairo_t *screen)
+{
+	if (!visible || !inside || !enable) return;
+
+	changed_position = false;
+	cairosuf->BlitC(screen, parent_pt);
+	cairo_paint(screen);
+}
+#endif
 
 #if defined(USE_SDL2)
 void LedBoxBase::Draw(CTexture &texture)

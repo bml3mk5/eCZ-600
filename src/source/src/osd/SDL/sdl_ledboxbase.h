@@ -19,6 +19,9 @@
 #ifdef USE_OPENGL
 #include "../opengl.h"
 #endif
+#ifdef USE_GTK
+class CCairoSurface;
+#endif
 
 class CBitmap;
 
@@ -112,6 +115,10 @@ protected:
 	bool        visible;
 	bool        inside;
 
+#ifdef USE_GTK
+	CCairoSurface *cairosuf;
+#endif
+
 	bool create_surface(CPixelFormat &);
 	bool create_bitmap(const _TCHAR *, const _TCHAR *, CPixelFormat &, CBitmap **);
 	void rect_in(SDL_Rect &re, int x, int y, int w, int h);
@@ -135,6 +142,10 @@ public:
 	void SetPos(int left, int top, int right, int bottom, int place);
 	void SetPos(int place);
 	void Draw(CSurface &);
+	void Draw(SDL_Surface &);
+#ifdef USE_GTK
+	void Draw(cairo_t *);
+#endif
 #if defined(USE_SDL2)
 	void Draw(CTexture &);
 #endif

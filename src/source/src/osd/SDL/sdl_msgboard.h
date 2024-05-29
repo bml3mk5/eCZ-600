@@ -18,6 +18,9 @@
 #include "sdl_ccolor.h"
 #include "../../cmutex.h"
 #include "../../msgs.h"
+#ifdef USE_GTK
+#include <cairo/cairo.h>
+#endif
 #ifdef USE_OPENGL
 #include "../opengl.h"
 #endif
@@ -82,8 +85,14 @@ private:
 		char buf[1024];
 	} sbuf_t;
 
+	// 基準位置の計算
+	inline void calc_place(msg_data_t &data, SDL_Rect &reDst);
 	// 文字列出力
-	void draw(CSurface *screen, msg_data_t &data);
+	void draw(CSurface &screen, msg_data_t &data);
+	void draw(SDL_Surface &screen, msg_data_t &data);
+#ifdef USE_GTK
+	void draw(cairo_t *screen, msg_data_t &data);
+#endif
 #if defined(USE_SDL2)
 	void draw(CTexture &texture, msg_data_t &data);
 #endif
@@ -147,7 +156,11 @@ public:
 	void DeleteInfo(CMsg::Id id);
 
 	// 文字列出力
-	void Draw(CSurface *screen);
+	void Draw(CSurface &screen);
+	void Draw(SDL_Surface &screen);
+#ifdef USE_GTK
+	void Draw(cairo_t *screen);
+#endif
 #if defined(USE_SDL2)
 	void Draw(CTexture &texture);
 #endif

@@ -83,6 +83,9 @@ private:
 	GtkWidget *txtInfoFontName;
 	GtkWidget *txtInfoFontSize;
 
+#ifdef USE_SCREEN_MIX_SURFACE
+	GtkWidget *chkDoubleBuffer;
+#endif
 	GtkWidget *chkBorderColor;
 
 #ifdef USE_DATAREC

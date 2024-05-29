@@ -323,9 +323,7 @@ protected:
 	CSurface *sufStretch2;
 #endif
 	CSurface *sufSource;
-#ifdef USE_SCREEN_MIX_SURFACE
 	CSurface *sufMixed;
-#endif
 
 	CMutex *mux_update_screen;
 	bool screen_changing;
@@ -365,6 +363,8 @@ protected:
 	VmRectWH vm_screen_size;
 	// display area size on vm
 	VmSize vm_display_size;
+	// screen size on vm for caputure screen
+	VmRectWH vm_screen_size_for_rec;
 
 	// update flags
 #define DISABLE_SURFACE	1

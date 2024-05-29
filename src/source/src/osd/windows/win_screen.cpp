@@ -106,9 +106,10 @@ bool EMU_OSD::create_screen(int disp_no, int x, int y, int width, int height, ui
 	}
 
 	//  | WS_THICKFRAME
-	dwStyle =  WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE;
+	dwStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_VISIBLE;
+	dwExStyle = WS_EX_COMPOSITED | WS_EX_TRANSPARENT;
 
-	hWindow = ::CreateWindow(_T(CLASS_NAME), _T(DEVICE_NAME), dwStyle,
+	hWindow = ::CreateWindowEx(dwExStyle, _T(CLASS_NAME), _T(DEVICE_NAME), dwStyle,
 	                         x, y, width, height, NULL, NULL, hInstance, NULL);
 
 	hMainWindow = hWindow;
@@ -137,15 +138,9 @@ bool EMU_OSD::create_offlinesurface()
 		}
 	}
 #endif
-#ifdef USE_SCREEN_MIX_SURFACE
-	if (sufMixed) {
-		sufMixed->Release();
-		if (!sufMixed->Create(source_size.w, source_size.h, *pixel_format)) {
-			logging->out_log(LOG_ERROR, _T("EMU_OSD::create_offlinesurface sufMixed failed."));
-			return false;
-		}
+	if (!create_mixedsurface()) {
+		return false;
 	}
-#endif
 #ifdef USE_SMOOTH_STRETCH
 	if (sufStretch1 && sufStretch2) {
 		sufStretch1->Release();
@@ -169,6 +164,22 @@ bool EMU_OSD::create_offlinesurface()
 
 	disable_screen &= ~DISABLE_SURFACE;
 
+	return true;
+}
+///
+/// create / recreate mixed surface
+///
+bool EMU_OSD::create_mixedsurface()
+{
+	if (sufMixed) {
+		sufMixed->Release();
+		if (pConfig->double_buffering) {
+			if (!sufMixed->Create(display_size.w, display_size.h, *pixel_format)) {
+				logging->out_log(LOG_ERROR, _T("EMU_OSD::create_offlinesurface sufMixed failed."));
+				return false;
+			}
+		}
+	}
 	return true;
 }
 
@@ -314,7 +325,11 @@ void EMU_OSD::set_display_size(int width, int height, int power, bool now_window
 					mixed_size.h = mh;
 					stretched_size.y = 0;
 					stretched_size.h = display_size.h;
-					stretched_dest_real.y = (display_size.h - (mixed_size.h * display_size.w / min_rsize.w)) / 2;
+					stretched_dest_real.y = (display_size.h - (mixed_rsize.h * display_size.w / min_rsize.w)) / 2;
+#ifdef USE_SCREEN_D3D_TEXTURE
+					reD3Dply.top  = stretched_dest_real.y;
+					reD3Dply.bottom = reD3Dply.top + mixed_rsize.h * display_size.w / min_rsize.w;
+#endif
 				} else {
 					int mh = mixed_rrsize.h;
 					int sh = mixed_size.h * display_size.w / min_rsize.w;
@@ -323,12 +338,14 @@ void EMU_OSD::set_display_size(int width, int height, int power, bool now_window
 					stretched_size.y = (display_size.h - sh) / 2;
 					stretched_size.h = sh;
 					stretched_dest_real.y = stretched_size.y;
+#ifdef USE_SCREEN_D3D_TEXTURE
+					reD3Dply.top  = stretched_dest_real.y;
+					reD3Dply.bottom = reD3Dply.top + stretched_size.h;
+#endif
 				}
 #ifdef USE_SCREEN_D3D_TEXTURE
-				reD3Dply.left = stretched_dest_real.x;
-				reD3Dply.top  = stretched_dest_real.y;
-				reD3Dply.right = - reD3Dply.left + stretched_size.w;
-				reD3Dply.bottom = reD3Dply.top + stretched_size.h;
+					reD3Dply.left = stretched_dest_real.x;
+					reD3Dply.right = - reD3Dply.left + stretched_size.w;
 #endif
 
 			} else {
@@ -347,6 +364,10 @@ void EMU_OSD::set_display_size(int width, int height, int power, bool now_window
 					stretched_size.x = 0;
 					stretched_size.w = display_size.w;
 					stretched_dest_real.x = (display_size.w - (mixed_rsize.w * display_size.h / min_rsize.h)) / 2;
+#ifdef USE_SCREEN_D3D_TEXTURE
+					reD3Dply.left = stretched_dest_real.x;
+					reD3Dply.right = reD3Dply.left + mixed_rsize.w * display_size.h / min_rsize.h;
+#endif
 				} else {
 					int mw = mixed_rrsize.w;
 					int sw = mixed_size.w * display_size.h / min_rsize.h;
@@ -355,11 +376,13 @@ void EMU_OSD::set_display_size(int width, int height, int power, bool now_window
 					stretched_size.x = (display_size.w - sw) / 2;
 					stretched_size.w = sw;
 					stretched_dest_real.x = stretched_size.x;
+#ifdef USE_SCREEN_D3D_TEXTURE
+					reD3Dply.left = stretched_dest_real.x;
+					reD3Dply.right = reD3Dply.left + stretched_size.w;
+#endif
 				}
 #ifdef USE_SCREEN_D3D_TEXTURE
-				reD3Dply.left = stretched_dest_real.x;
 				reD3Dply.top  = stretched_dest_real.y;
-				reD3Dply.right = reD3Dply.left + stretched_size.w;
 				reD3Dply.bottom = - reD3Dply.top + stretched_size.h;
 #endif
 
@@ -479,6 +502,8 @@ void EMU_OSD::set_display_size(int width, int height, int power, bool now_window
 	logging->out_debugf(_T("   source aspect: w:%d h:%d"), source_aspect_size.w, source_aspect_size.h);
 	logging->out_debugf(_T("           mixed: w:%d h:%d"), mixed_size.w, mixed_size.h);
 	logging->out_debugf(_T("         stretch: w:%d h:%d"), stretched_size.w, stretched_size.h);
+	logging->out_debugf(_T("     screen dest: x:%d y:%d"), screen_size.x, screen_size.y);
+	logging->out_debugf(_T("     source dest: x:%d y:%d"), source_size.x, source_size.y);
 	logging->out_debugf(_T("      mixed dest: x:%d y:%d"), mixed_size.x, mixed_size.y);
 	logging->out_debugf(_T("    stretch dest: x:%d y:%d"), stretched_size.x, stretched_size.y);
 	logging->out_debugf(_T(" stretch dest re: x:%d y:%d"), stretched_dest_real.x, stretched_dest_real.y);
@@ -602,39 +627,56 @@ void EMU_OSD::set_display_size(int width, int height, int power, bool now_window
 	if ((source_size.w != prev_source_size.w && source_size.h != prev_source_size.h) || stretch_changed) {
 		create_offlinesurface();
 	}
+#else
+	create_mixedsurface();
 #endif
 
 	// send display size to vm
 	set_vm_display_size();
 
+	set_ledbox_position(now_window);
+
+	set_msgboard_position();
+
+	unlock_screen();
+
+	calc_vm_screen_size();
+}
+
+void EMU_OSD::set_ledbox_position(bool now_window)
+{
 #ifdef USE_LEDBOX
 	if (gui) {
 #ifdef USE_SCREEN_D3D_TEXTURE
 		if (pConfig->use_direct3d) {
-			gui->SetLedBoxPosition(now_window, stretched_size.x, stretched_size.y, stretched_size.w, stretched_size.h, pConfig->led_pos | (is_fullscreen() ? 0x10 : 0));
+			gui->SetLedBoxPosition(now_window, 0, 0, display_size.w, display_size.h, pConfig->led_pos | (is_fullscreen() ? 0x10 : 0));
 		} else
 #endif
-			gui->SetLedBoxPosition(now_window, mixed_size.x, mixed_size.y, mixed_size.w, mixed_size.h, pConfig->led_pos | (is_fullscreen() ? 0x10 : 0));
+		{
+			gui->SetLedBoxPosition(now_window, 0, 0, display_size.w, display_size.h, pConfig->led_pos | (is_fullscreen() ? 0x10 : 0));
+		}
 	}
 #endif
+}
+
+void EMU_OSD::set_msgboard_position()
+{
 #ifdef USE_MESSAGE_BOARD
 	if (msgboard) {
 #ifdef USE_SCREEN_D3D_TEXTURE
 		if (pConfig->use_direct3d) {
-			msgboard->SetSize(stretched_size.w, stretched_size.h);
-			msgboard->SetMessagePos(4 + stretched_size.x,  - 4 + stretched_size.y, 2);
-			msgboard->SetInfoPos(- 4 + stretched_size.x, 4 + stretched_size.y, 1);
+			msgboard->SetSize(display_size.w, display_size.h);
+			msgboard->SetMessagePos(4, -4, 2);
+			msgboard->SetInfoPos(-4, 4, 1);
 		} else
 #endif
 		{
-			msgboard->SetSize(source_size.w, source_size.h);
-			msgboard->SetMessagePos(4 + mixed_size.x,  - 4 - source_size.h + mixed_size.y + mixed_size.h, 2);
-			msgboard->SetInfoPos(-4 - mixed_size.x, 4 + mixed_size.y, 1);
+			msgboard->SetSize(display_size.w, display_size.h);
+			msgboard->SetMessagePos(4, -4, 2);
+			msgboard->SetInfoPos(-4, 4, 1);
 		}
 	}
 #endif
-
-	unlock_screen();
 }
 
 ///
@@ -815,30 +857,20 @@ bool EMU_OSD::mix_screen()
 	{
 		// mix dib screen buffer
 #ifdef USE_SCREEN_MIX_SURFACE
-
-//		BitBlt(sufMixed->GetDC(), 0, 0, source_size.w, source_size.h, sufSource->GetDC(), 0, 0, SRCCOPY);
-#if 0
-		sufSource->Blit(*sufMixed);
-#else
-		VmRectWH dst_re;
-		dst_re.x = dst_re.y = 0;
-		dst_re.w = sufMixed->Width();
-		dst_re.h = sufMixed->Height();
-
-		sufSource->StretchBlit(vm_screen_size, *sufMixed, dst_re);
-
-#endif
+		if (pConfig->double_buffering) {
+			//copy to render buffer with stretched size
+			sufSource->StretchBlit(vm_screen_size, *sufMixed, stretched_size);
 #ifdef USE_LEDBOX
-		if (FLG_SHOWLEDBOX && gui) {
-			ledbox->Draw(sufMixed->GetDC());
-		}
+			if (FLG_SHOWLEDBOX && gui) {
+				ledbox->Draw(sufMixed->GetDC());
+			}
 #endif
 #ifdef USE_MESSAGE_BOARD
-		if (msgboard) {
-			msgboard->Draw(sufMixed->GetDC());
-		}
+			if (msgboard) {
+				msgboard->Draw(sufMixed->GetDC());
+			}
 #endif
-
+		}
 #endif /* USE_SCREEN_MIX_SURFACE */
 	}
 
@@ -942,32 +974,54 @@ void EMU_OSD::set_vm_screen_size(int screen_width, int screen_height, int window
 {
 	EMU::set_vm_screen_size(screen_width, screen_height, window_width, window_height, window_width_aspect, window_height_aspect);
 
-	calc_vm_screen_size_sub();
+	calc_vm_screen_size();
 
 	first_invalidate = true;
 }
 
-void EMU_OSD::calc_vm_screen_size_sub()
+void EMU_OSD::calc_vm_screen_size()
 {
-	vm_screen_size.w = vm_display_size.w * SCREEN_WIDTH / MIN_WINDOW_WIDTH;
-	vm_screen_size.x = (int)((double)screen_size.x - (double)screen_size.x * vm_display_size.w / MIN_WINDOW_WIDTH + 0.5);
-
-	vm_screen_size.h = vm_display_size.h * SCREEN_HEIGHT / MIN_WINDOW_HEIGHT;
-	vm_screen_size.y = (int)((double)screen_size.y - (double)screen_size.y * vm_display_size.h / MIN_WINDOW_HEIGHT + 0.5);
+	calc_vm_screen_size_sub(mixed_size, vm_screen_size);
 
 #ifdef _DEBUG
+	logging->out_debugf(_T("vm_display_size: w:%d h:%d"), vm_display_size.w, vm_display_size.h);
 	logging->out_debugf(_T("vm_screen_size: x:%d y:%d w:%d h:%d"), vm_screen_size.x, vm_screen_size.y, vm_screen_size.w, vm_screen_size.h);
 #endif
 
 #ifdef USE_SCREEN_D3D_TEXTURE
-	float uw = (float)vm_display_size.w / MIN_WINDOW_WIDTH;
-	float vh = (float)vm_display_size.h / MIN_WINDOW_HEIGHT;
+	if (pD3Dorigin) {
+		float uw = (float)vm_display_size.w / MIN_WINDOW_WIDTH;
+		float vh = (float)vm_display_size.h / MIN_WINDOW_HEIGHT;
 
-	float ux = ((float)screen_size.x - (float)screen_size.x * uw) / (float)screen_size.w;
-	float vy = ((float)screen_size.y - (float)screen_size.y * vh) / (float)screen_size.h;
+		float ux = 0.0;
+		if (vm_display_size.w < SCREEN_WIDTH) {
+			ux = ((float)screen_size.x - (float)screen_size.x * uw) / (float)screen_size.w;
+		} else {
+			ux = - (float)screen_size.x * uw / (float)screen_size.w;
+		}
+		float vy = ((float)screen_size.y - (float)screen_size.y * vh) / (float)screen_size.h;
 
-	pD3Dorigin->SetD3DTexturePositionUV(ux, vy, uw, vh);
+		pD3Dorigin->SetD3DTexturePositionUV(ux, vy, uw, vh);
+
+#ifdef _DEBUG
+		logging->out_debugf(_T("D3DTexturePositionUV: ux:%.3f vy:%.3f uw:%.3f vh:%.3f"), ux, vy, uw, vh);
 #endif
+	}
+#endif
+}
+
+void EMU_OSD::calc_vm_screen_size_sub(const VmRectWH &src_size, VmRectWH &vm_size)
+{
+	double sw = (double)vm_display_size.w * src_size.w / MIN_WINDOW_WIDTH;
+	vm_size.w = (int)(sw + 0.5);
+	if (vm_display_size.w < SCREEN_WIDTH) {
+		vm_size.x = (int)((double)screen_size.x - ((sw - vm_display_size.w) / 2.0) + 0.5);
+	} else {
+		vm_size.x = (int)(- ((sw - vm_display_size.w) / 2.0) + 0.5);
+	}
+	double sh = (double)vm_display_size.h * src_size.h / MIN_WINDOW_HEIGHT;
+	vm_size.h = (int)(sh + 0.5);
+	vm_size.y = (int)((double)screen_size.y - ((sh - vm_display_size.h) / 2.0) + 0.5);
 }
 
 #ifdef USE_DIRECT3D
@@ -1140,41 +1194,29 @@ void EMU_OSD::update_screen_dc(HDC hdc)
 		}
 		else {
 #endif
-#ifdef USE_EMU_INHERENT_SPEC
 #ifdef USE_SCREEN_MIX_SURFACE
-			if(stretched_size.w == mixed_size.w && stretched_size.h == mixed_size.h) {
-				BitBlt(hdc, stretched_size.x, stretched_size.y, stretched_size.w, stretched_size.h, sufMixed->GetDC(), reD3Dmix.left, reD3Dmix.top, SRCCOPY);
-			}
-			else {
-				StretchBlt(hdc, stretched_size.x, stretched_size.y, stretched_size.w, stretched_size.h, sufMixed->GetDC(), reD3Dmix.left, reD3Dmix.top, mixed_size.w, mixed_size.h, SRCCOPY);
-			}
-#else
-			if(stretched_size.w == vm_screen_size.w && stretched_size.h == vm_screen_size.h) {
-				BitBlt(hdc, stretched_size.x, stretched_size.y, stretched_size.w, stretched_size.h, sufSource->GetDC(), vm_screen_size.x, vm_screen_size.y, SRCCOPY);
-			}
-			else {
-				StretchBlt(hdc, stretched_size.x, stretched_size.y, stretched_size.w, stretched_size.h, sufSource->GetDC(), vm_screen_size.x, vm_screen_size.y, vm_screen_size.w, vm_screen_size.h, SRCCOPY);
-			}
+			if (pConfig->double_buffering) {
+				// copy from mixed buffer
+				BitBlt(hdc, 0, 0, display_size.w, display_size.h, sufMixed->GetDC(), 0, 0, SRCCOPY);
+			} else
+#endif
+			{
+				// draw to device context directly
+				BeginPath(hdc);
+				if(stretched_size.w == vm_screen_size.w && stretched_size.h == vm_screen_size.h) {
+					BitBlt(hdc, stretched_size.x, stretched_size.y, stretched_size.w, stretched_size.h, sufSource->GetDC(), vm_screen_size.x, vm_screen_size.y, SRCCOPY);
+				}
+				else {
+					StretchBlt(hdc, stretched_size.x, stretched_size.y, stretched_size.w, stretched_size.h, sufSource->GetDC(), vm_screen_size.x, vm_screen_size.y, vm_screen_size.w, vm_screen_size.h, SRCCOPY);
+				}
 #ifdef USE_LEDBOX
-			if (FLG_SHOWLEDBOX && gui) {
-				gui->DrawLedBox(hdc);
-			}
+				ledbox->Draw(hdc);
 #endif
 #ifdef USE_MESSAGE_BOARD
-			if (msgboard) {
 				msgboard->Draw(hdc);
-			}
 #endif
-#endif
-#else
-			if(stretched_size.w == source_size.w && stretched_size.h == source_size.h) {
-				BitBlt(hdc, screen_dest_x, screen_dest_y, stretched_size.w, stretched_size.h, hdcDibSource, 0, 0, SRCCOPY);
+				EndPath(hdc);
 			}
-			else {
-				StretchBlt(hdc, screen_dest_x, screen_dest_y, stretched_size.w, stretched_size.h, hdcDibSource, 0, 0, source_size.w, source_size.h, SRCCOPY);
-			}
-#endif
-
 #ifdef USE_SMOOTH_STRETCH
 		}
 #endif
@@ -1200,19 +1242,6 @@ void EMU_OSD::update_screen_dc(HDC hdc)
 				}
 			}
 		}
-#endif
-
-#ifndef USE_SCREEN_MIX_SURFACE
-#ifdef USE_LEDBOX
-		if (FLG_SHOWLEDBOX && gui) {
-			gui->DrawLedBox(hdc);
-		}
-#endif
-#ifdef USE_MESSAGE_BOARD
-		if (msgboard) {
-			msgboard->Draw(hdc);
-		}
-#endif
 #endif
 
 #endif
@@ -1302,8 +1331,10 @@ void EMU_OSD::capture_screen()
 	}
 #endif
 //	copy_dib_rec_video();
+	calc_vm_screen_size_sub(rec_video_size[pConfig->screen_video_size], vm_screen_size_for_rec);
 
-	rec_video->Capture(CAPTURE_SCREEN_TYPE, rec_video_stretched_size, sufOrigin, rec_video_size[pConfig->screen_video_size]);
+//	rec_video->Capture(CAPTURE_SCREEN_TYPE, rec_video_stretched_size, sufOrigin, rec_video_size[pConfig->screen_video_size]);
+	rec_video->Capture(CAPTURE_SCREEN_TYPE, vm_screen_size_for_rec, sufOrigin, rec_video_size[pConfig->screen_video_size]);
 
 	unlock_screen();
 }
@@ -1678,14 +1709,10 @@ void EMU_OSD::create_d3dofflinesurface()
 		if (hre != D3D_OK) {
 			break;
 		}
-#ifdef USE_SCREEN_D3D_MIX_SURFACE
-		pD3Dmixsuf->ReleaseD3DSurface();
-
-		hre = pD3Dmixsuf->CreateD3DSurface(pD3Device, source_size.w, source_size.h);
+		hre = create_d3dmixedsurface();
 		if (hre != D3D_OK) {
 			break;
 		}
-#endif
 #endif /* USE_SCREEN_D3D_TEXTURE */
 
 #ifdef USE_SCREEN_ROTATE
@@ -1708,6 +1735,17 @@ void EMU_OSD::create_d3dofflinesurface()
 	if (hre != D3D_OK) {
 		release_d3device();
 	}
+}
+
+HRESULT EMU_OSD::create_d3dmixedsurface()
+{
+	HRESULT hre = D3D_OK;
+#ifdef USE_SCREEN_D3D_MIX_SURFACE
+	pD3Dmixsuf->ReleaseD3DSurface();
+
+	hre = pD3Dmixsuf->CreateD3DSurface(pD3Device, source_size.w, source_size.h);
+#endif
+	return hre;
 }
 
 HRESULT EMU_OSD::reset_d3device(HWND hWnd)
