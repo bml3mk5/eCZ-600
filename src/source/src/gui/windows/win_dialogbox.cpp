@@ -864,7 +864,7 @@ HWND CDialogBox::CreateEditBox(CBox *box, int nItemId, const _TCHAR *text, int n
 /// @return : handle of edit box
 HWND CDialogBox::CreateEditBox(CBox *box, int nItemId, int digit, int nMaxSize, int align, const _TCHAR ch)
 {
-	DWORD dwStyle = WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_LEFT | ES_AUTOHSCROLL;
+	DWORD dwStyle = WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_RIGHT | ES_AUTOHSCROLL;
 	align |= WS_EX_CLIENTEDGE;
 	HWND hCtrl = CreateWindowEx(align, WC_EDIT, _T(""), dwStyle, 0, 0, 10, 10, hDlg, (HMENU)(INT_PTR)nItemId, hInstance, NULL);
 	if (hCtrl) {
@@ -970,7 +970,7 @@ HWND CDialogBox::CreateSlider(CBox *box, int nItemId, int min_w, int min_h, int 
 /// @return : handle of updown button
 HWND CDialogBox::CreateUpDown(CBox *box, int nItemId, HWND hEdit, int range_min, int range_max, int value)
 {
-	DWORD dwStyle = WS_CHILD | WS_VISIBLE | WS_TABSTOP | UDS_ALIGNRIGHT | UDS_SETBUDDYINT;
+	DWORD dwStyle = WS_CHILD | WS_VISIBLE | WS_TABSTOP | UDS_ALIGNRIGHT | UDS_SETBUDDYINT | UDS_NOTHOUSANDS;
 	HWND hCtrl = CreateWindowEx(0, UPDOWN_CLASS, _T(""), dwStyle, 0, 0, 16, 16, hDlg, (HMENU)(INT_PTR)nItemId, hInstance, NULL);
 	if (hCtrl) {
 		SendMessage(hCtrl, WM_SETFONT, (WPARAM)font->GetFont(), MAKELPARAM(TRUE, 0));

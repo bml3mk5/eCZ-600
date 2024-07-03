@@ -25,6 +25,12 @@ class FIFOBase
 protected:
 	TYPE* buf;
 	int cnt, rpt, wpt, siz;
+
+	/// @brief load position
+	void load_pos_from(int read_pos, int write_pos, int count);
+	/// @brief save position
+	void save_pos_to(int &read_pos, int &write_pos, int &count) const;
+
 public:
 	FIFOBase();
 	FIFOBase(int s);
@@ -304,6 +310,24 @@ bool FIFOBase<TYPE>::empty() const
 	return (cnt == 0);
 }
 
+/// load position
+template <class TYPE>
+void FIFOBase<TYPE>::load_pos_from(int read_pos, int write_pos, int count)
+{
+	rpt = Int32_LE(read_pos);
+	wpt = Int32_LE(write_pos);
+	cnt = Int32_LE(count);
+}
+
+/// save position
+template <class TYPE>
+void FIFOBase<TYPE>::save_pos_to(int &read_pos, int &write_pos, int &count) const
+{
+	read_pos = Int32_LE(rpt);
+	write_pos = Int32_LE(wpt);
+	count = Int32_LE(cnt);
+}
+
 /**
 	@brief fifo byte buffer
 */
@@ -312,6 +336,11 @@ class FIFOBYTE : public FIFOBase<uint8_t>
 public:
 	FIFOBYTE();
 	FIFOBYTE(int s);
+
+	/// @brief load from buffer
+	void load_from(const uint8_t *buffer, int read_pos, int write_pos, int count);
+	/// @brief save to buffer
+	void save_to(uint8_t *buffer, int &read_pos, int &write_pos, int &count) const;
 };
 
 /**
@@ -322,6 +351,26 @@ class FIFOCHAR : public FIFOBase<char>
 public:
 	FIFOCHAR();
 	FIFOCHAR(int s);
+
+	/// @brief load from buffer
+	void load_from(const char *buffer, int read_pos, int write_pos, int count);
+	/// @brief save to buffer
+	void save_to(char *buffer, int &read_pos, int &write_pos, int &count) const;
+};
+
+/**
+	@brief fifo word buffer
+*/
+class FIFOWORD : public FIFOBase<uint16_t>
+{
+public:
+	FIFOWORD();
+	FIFOWORD(int s);
+
+	/// @brief load from buffer
+	void load_from(const uint16_t *buffer, int read_pos, int write_pos, int count);
+	/// @brief save to buffer
+	void save_to(uint16_t *buffer, int &read_pos, int &write_pos, int &count) const;
 };
 
 /**
@@ -332,6 +381,11 @@ class FIFOINT : public FIFOBase<int>
 public:
 	FIFOINT();
 	FIFOINT(int s);
+
+	/// @brief load from buffer
+	void load_from(const int *buffer, int read_pos, int write_pos, int count);
+	/// @brief save to buffer
+	void save_to(int *buffer, int &read_pos, int &write_pos, int &count) const;
 };
 
 #endif /* FIFO_H */

@@ -19,6 +19,9 @@
 
 class FILEIO;
 
+/**
+	@brief hard disk image handler
+*/
 class HARDDISK
 {
 public:

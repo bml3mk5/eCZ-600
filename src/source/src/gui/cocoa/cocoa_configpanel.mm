@@ -258,11 +258,6 @@ extern GUI *gui;
 	[CocoaLabel createI:hbox title:CMsg::Contrast_on_Monitor];
 	stpSramContrast = [CocoaStepper createN:hbox min:0 max:15 value:valuei width:80];
 
-	// eject fd
-	hbox = [rbox addBox:HorizontalBox :0 :0 :_T("ejectfd")];
-	valuei = vm->get_sram_fd_eject();
-	chkSramFdEject = [CocoaCheckBox createI:hbox title:CMsg::Eject_FD_when_power_off action:nil value:valuei != 0];
-
 	// purpose of SRAM free area
 	hbox = [rbox addBox:HorizontalBox :0 :0 :_T("purpose")];
 	[CocoaLabel createI:hbox title:CMsg::Purpose_of_SRAM_free_area];
@@ -295,6 +290,23 @@ extern GUI *gui;
 	chkSramKLEDins = [CocoaCheckBox createI:hbox title:CMsg::INS action:nil value:(valuei & 16) != 0];
 	chkSramKLEDhira = [CocoaCheckBox createI:hbox title:CMsg::Hiragana action:nil value:(valuei & 32) != 0];
 	chkSramKLEDzen = [CocoaCheckBox createI:hbox title:CMsg::Zenkaku action:nil value:(valuei & 64) != 0];
+
+	// Accumulated operating time
+	hbox = [rbox addBox:HorizontalBox :0 :0 :_T("optime")];
+	valueu = vm->get_sram_accumulated_operating_time();
+	[CocoaLabel createI:hbox title:CMsg::Accumulated_operating_time];
+	txt = [CocoaTextField createN:hbox num:valueu action:nil width:80];
+	[CocoaLabel createI:hbox title:CMsg::min_];
+	[txt setEditable:FALSE];
+	[txt setEnabled:FALSE];
+
+	// Number of times turned off
+	hbox = [rbox addBox:HorizontalBox :0 :0 :_T("pwtimes")];
+	valueu = vm->get_sram_times_of_the_power_off();
+	[CocoaLabel createI:hbox title:CMsg::Times_of_turned_off];
+	txt = [CocoaTextField createN:hbox num:valueu action:nil width:80];
+	[txt setEditable:FALSE];
+	[txt setEnabled:FALSE];
 #endif
 
 
@@ -469,7 +481,8 @@ extern GUI *gui;
 
 	// FDD
 #ifdef USE_FD1
-	bbox = [box_one addBox:BoxViewBox :0 :COCOA_DEFAULT_MARGIN :_T("Fdd2B")];
+	CocoaLayout *hbox_fdd = [box_one addBox:HorizontalBox :MiddlePos :0 :_T("FDD")];
+	bbox = [hbox_fdd addBox:BoxViewBox :0 :COCOA_DEFAULT_MARGIN :_T("Fdd2LB")];
 	[CocoaBox createI:bbox :CMsg::Floppy_Disk_Drive :320 :1];
 
 	vbox = [bbox addBox:VerticalBox :0 :0 :_T("Fdd2V")];
@@ -488,6 +501,16 @@ extern GUI *gui;
 	chkFdDensity = [CocoaCheckBox createI:vbox title:CMsg::Suppress_checking_for_density action:nil value:(FLG_CHECK_FDDENSITY == 0)];
 	chkFdMedia = [CocoaCheckBox createI:vbox title:CMsg::Suppress_checking_for_media_type action:nil value:(FLG_CHECK_FDMEDIA == 0)];
 	chkFdSavePlain = [CocoaCheckBox createI:vbox title:CMsg::Save_a_plain_disk_image_as_it_is action:nil value:(FLG_SAVE_FDPLAIN != 0)];
+
+	bbox = [hbox_fdd addBox:BoxViewBox :0 :COCOA_DEFAULT_MARGIN :_T("Fdd2RB")];
+	[CocoaBox createI:bbox :CMsg::Parameters_for_floppy_disk_in_SRAM :200 :1];
+
+	vbox = [bbox addBox:VerticalBox :0 :0 :_T("Fdd2V")];
+
+	// eject fd
+	hbox = [vbox addBox:HorizontalBox :0 :0 :_T("ejectfd")];
+	valuei = vm->get_sram_fd_eject();
+	chkSramFdEject = [CocoaCheckBox createI:hbox title:CMsg::Eject_FD_when_power_off action:nil value:valuei != 0];
 #endif
 
 	// HDD
@@ -574,9 +597,72 @@ extern GUI *gui;
 #endif
 
 	// ----------------------------------------
-	// Network tab
+	// Sound tab
 	// ----------------------------------------
 	tab = [tabView tabViewItemAtIndex:4];
+	tab_view = (CocoaView *)[tab view];
+	[box_tab setContentView:tab_view];
+
+	box_one = [box_tab addBox:VerticalBox :0 :0 :_T("Sound")];
+
+	// MIDI
+	bbox = [box_one addBox:BoxViewBox :0 :COCOA_DEFAULT_MARGIN :_T("MIDI")];
+	[CocoaBox createI:bbox :CMsg::MIDI :320 :1];
+
+	vbox = [bbox addBox:VerticalBox :0 :0 :_T("MIDI1")];
+
+	hbox = [vbox addBox:HorizontalBox :MiddlePos :0 :_T("MIDIE")];
+	bool valueb = ((vm->get_parami(VM::ParamIOPort) & IOPORT_MIDI) != 0);
+	chkEnableMIDI = [CocoaCheckBox createI:hbox title:CMsg::Enable_MIDI_Board_CZ_6BM1_ASTERISK action:nil value:valueb];
+	UTILITY::strcpy(str, sizeof(str), CMSG(LB_Now_SP));
+	UTILITY::strcat(str, sizeof(str), valueb ? CMSG(Enable) : CMSG(Disable));
+	UTILITY::strcat(str, sizeof(str), _T(")"));
+	[CocoaLabel createT:hbox title:str];
+
+#ifdef USE_MIDI
+	CPtrList<CTchar> midiout_list;
+	int midiout_cnt = gui->EnumMidiOuts();
+	int midiout_conn = 0;
+	midiout_list.Add(new CTchar(CMSG(None_)));
+	for(int idx = 0; idx < midiout_cnt && idx < MIDI_MAX_PORTS; idx++) {
+		gui->GetMidiOutDescription(idx, str, sizeof(str)/sizeof(str[0]));
+		if (gui->NowConnectingMidiOut(idx)) {
+			midiout_conn = idx + 1;
+		}
+		midiout_list.Add(new CTchar(str));
+	}
+	hbox = [vbox addBox:HorizontalBox :MiddlePos :0 :_T("MIDIO")];
+	[CocoaLabel createI:hbox title:CMsg::Now_Connecting_MIDI_Output];
+	popMIDIOut = [CocoaPopUpButton createL:hbox items:&midiout_list action:nil selidx:midiout_conn];
+
+	hbox = [vbox addBox:HorizontalBox :MiddlePos :0 :_T("MIDIOD")];
+	[CocoaLabel createI:hbox title:CMsg::Output_Latency];
+	valuei = pConfig->midiout_delay;
+	stpMIDIOutDelay = [CocoaStepper createN:hbox min:0 max:2000 value:valuei width:60];
+	[CocoaLabel createI:hbox title:CMsg::msec];
+
+	hbox = [vbox addBox:HorizontalBox :MiddlePos :0 :_T("MIDIR")];
+	[CocoaLabel createI:hbox title:CMsg::MIDI_Reset_Type];
+	popMIDIResetType = [CocoaPopUpButton createI:hbox items:LABELS::midi_type action:nil selidx:pConfig->midi_send_reset_type];
+	btn = [CocoaButton createI:hbox title:CMsg::Send_message_now action:@selector(sendMIDIResetMessage:)];
+
+	hbox = [vbox addBox:HorizontalBox :MiddlePos :0 :_T("MIDIRC")];
+	[CocoaLabel createI:hbox title:CMsg::When_send_reset_message_];
+	chkMIDIResPowerOn = [CocoaCheckBox createI:hbox title:CMsg::Power_on action:nil value:((pConfig->midi_flags & MIDI_FLAG_RES_POWERON) != 0)];
+	chkMIDIResPowerOff = [CocoaCheckBox createI:hbox title:CMsg::Power_off action:nil value:((pConfig->midi_flags & MIDI_FLAG_RES_POWEROFF) != 0)];
+	chkMIDIResHardRes = [CocoaCheckBox createI:hbox title:CMsg::Reset_by_hand action:nil value:((pConfig->midi_flags & MIDI_FLAG_RES_HARDRES) != 0)];
+	chkMIDIResEndApp = [CocoaCheckBox createI:hbox title:CMsg::End_of_app_ action:nil value:((pConfig->midi_flags & MIDI_FLAG_RES_END_APP) != 0)];
+
+	hbox = [vbox addBox:HorizontalBox :MiddlePos :0 :_T("MIDIRT")];
+	chkMIDINoRTMsg = [CocoaCheckBox createI:hbox title:CMsg::Does_not_send_system_real_time_messages_ action:nil value:((pConfig->midi_flags & MIDI_FLAG_NO_REALTIME_MSG) != 0)];
+#endif
+
+	[CocoaLabel createI:box_one title:CMsg::Need_restart_program_or_PowerOn];
+
+	// ----------------------------------------
+	// Network tab
+	// ----------------------------------------
+	tab = [tabView tabViewItemAtIndex:5];
 	tab_view = (CocoaView *)[tab view];
 	[box_tab setContentView:tab_view];
 
@@ -946,6 +1032,25 @@ extern GUI *gui;
 #endif
 #endif
 
+	int io_port = vm->get_parami(VM::ParamIOPort);
+	BIT_ONOFF(io_port, IOPORT_MIDI, [chkEnableMIDI state] == NSControlStateValueOn);
+	vm->set_parami(VM::ParamIOPort, io_port);
+#ifdef USE_MIDI
+	int midiout_conn = (int)[popMIDIOut indexOfSelectedItem];
+	gui->ConnectMidiOut(midiout_conn - 1);
+	valuel = [stpMIDIOutDelay intValue];
+	if (0 <= valuel && valuel <= 2000) {
+		pConfig->midiout_delay = valuel;
+		emu->set_midiout_delay_time(valuel);
+	}
+	pConfig->midi_send_reset_type = (int)[popMIDIResetType indexOfSelectedItem];
+	BIT_ONOFF(pConfig->midi_flags, MIDI_FLAG_RES_POWERON, [chkMIDIResPowerOn state] == NSControlStateValueOn);
+	BIT_ONOFF(pConfig->midi_flags, MIDI_FLAG_RES_POWEROFF, [chkMIDIResPowerOff state] == NSControlStateValueOn);
+	BIT_ONOFF(pConfig->midi_flags, MIDI_FLAG_RES_HARDRES, [chkMIDIResHardRes state] == NSControlStateValueOn);
+	BIT_ONOFF(pConfig->midi_flags, MIDI_FLAG_RES_END_APP, [chkMIDIResEndApp state] == NSControlStateValueOn);
+	BIT_ONOFF(pConfig->midi_flags, MIDI_FLAG_NO_REALTIME_MSG, [chkMIDINoRTMsg state] == NSControlStateValueOn);
+#endif
+
 	// set message font
 	MsgBoard *msgboard = emu->get_msgboard();
 	if (msgboard) {
@@ -1119,6 +1224,15 @@ extern GUI *gui;
 	for(int i=0; i<SCSI_TYPE_END; i++) {
 		[radSCSIType[i] setState:(i == idx ? NSControlStateValueOn : NSControlStateValueOff)];
 	}
+}
+#endif
+
+#ifdef USE_MIDI
+- (void)sendMIDIResetMessage:(id)sender
+{
+	int midiout_conn = (int)[popMIDIOut indexOfSelectedItem];
+	gui->ConnectMidiOut(midiout_conn - 1);
+	gui->SendMidiResetMessage((int)[popMIDIResetType indexOfSelectedItem]);
 }
 #endif
 @end

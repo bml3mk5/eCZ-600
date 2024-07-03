@@ -150,6 +150,13 @@ FONT 9, "Ms Shell Dlg"
 {
 }
 
+IDD_MIDLATEBOX DIALOG 0, 0, 240, 121
+STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP
+CAPTION "MIDI Output Latency"
+FONT 9, "Ms Shell Dlg"
+{
+}
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Menu
@@ -618,21 +625,50 @@ BEGIN
             MENUITEM "Stop",                    ID_SOUND_STOP
         END
         MENUITEM SEPARATOR
-//        MENUITEM "2000Hz",                      ID_SOUND_FREQ0
-//        MENUITEM "4000Hz",                      ID_SOUND_FREQ1
-        MENUITEM "8000Hz",                      ID_SOUND_FREQ2
-        MENUITEM "11025Hz",                     ID_SOUND_FREQ3
-        MENUITEM "22050Hz",                     ID_SOUND_FREQ4
-        MENUITEM "44100Hz",                     ID_SOUND_FREQ5
-        MENUITEM "48000Hz",                     ID_SOUND_FREQ6
-        MENUITEM "96000Hz",                     ID_SOUND_FREQ7
-        MENUITEM SEPARATOR
-        MENUITEM "50msec.",                     ID_SOUND_LATE0
-        MENUITEM "75msec.",                     ID_SOUND_LATE1
-        MENUITEM "100msec.",                    ID_SOUND_LATE2
-        MENUITEM "200msec.",                    ID_SOUND_LATE3
-        MENUITEM "300msec.",                    ID_SOUND_LATE4
-        MENUITEM "400msec.",                    ID_SOUND_LATE5
+		POPUP "Sampling Frequency"
+		BEGIN
+//          MENUITEM "2000Hz",                  ID_SOUND_FREQ0
+//          MENUITEM "4000Hz",                  ID_SOUND_FREQ1
+            MENUITEM "8000Hz",                  ID_SOUND_FREQ2
+            MENUITEM "11025Hz",                 ID_SOUND_FREQ3
+            MENUITEM "22050Hz",                 ID_SOUND_FREQ4
+            MENUITEM "44100Hz",                 ID_SOUND_FREQ5
+            MENUITEM "48000Hz",                 ID_SOUND_FREQ6
+            MENUITEM "96000Hz",                 ID_SOUND_FREQ7
+		END
+		POPUP "Output Latency"
+		BEGIN
+            MENUITEM "50msec.",                 ID_SOUND_LATE0
+            MENUITEM "75msec.",                 ID_SOUND_LATE1
+            MENUITEM "100msec.",                ID_SOUND_LATE2
+            MENUITEM "200msec.",                ID_SOUND_LATE3
+            MENUITEM "300msec.",                ID_SOUND_LATE4
+            MENUITEM "400msec.",                ID_SOUND_LATE5
+		END
+#ifdef USE_MIDI
+		MENUITEM SEPARATOR
+        POPUP "MIDI Out"
+        BEGIN
+            MENUITEM "None",                    ID_MIDIOUT_PORT1
+        END
+        POPUP "MIDI Output Latency"
+        BEGIN
+            MENUITEM "25msec.",                 ID_MIDIOUT_LATE1
+            MENUITEM "50msec.",                 ID_MIDIOUT_LATE2
+            MENUITEM "100msec.",                ID_MIDIOUT_LATE3
+            MENUITEM "200msec.",                ID_MIDIOUT_LATE4
+            MENUITEM "400msec.",                ID_MIDIOUT_LATE5
+            MENUITEM "800msec.",                ID_MIDIOUT_LATE6
+            MENUITEM "Other",                   ID_MIDIOUT_LATE_OTHER
+        END
+        POPUP "Send MIDI Reset"
+        BEGIN
+            MENUITEM "GM Sound Module",         ID_MIDI_RESET_GM
+            MENUITEM "GS Sound Module",         ID_MIDI_RESET_GS
+            MENUITEM "LA Sound Module",         ID_MIDI_RESET_LA
+            MENUITEM "XG Sound Module",         ID_MIDI_RESET_XG
+        END
+#endif
 #ifdef USE_DEBUG_SOUND_FILTER
         MENUITEM SEPARATOR
         MENUITEM "Filter...",                   ID_SOUND_FILTER

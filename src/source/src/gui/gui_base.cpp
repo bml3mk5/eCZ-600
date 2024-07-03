@@ -1293,6 +1293,14 @@ int GUI_BASE::ProcessCommand(int id, void *data1, void *data2)
 			//}
 			break;
 #endif
+#ifdef USE_MIDI
+		case ID_MIDI_RESET_GM:
+		case ID_MIDI_RESET_GS:
+		case ID_MIDI_RESET_LA:
+		case ID_MIDI_RESET_XG:
+			SendMidiResetMessage(id - ID_MIDI_RESET_GM);
+			return 0;
+#endif
 #ifdef USE_BUTTON
 		case ID_BUTTON +  0:
 		case ID_BUTTON +  1:
@@ -1560,6 +1568,24 @@ int GUI_BASE::ProcessCommand(int id, void *data1, void *data2)
 			COMM_MENU_UART(0, ID_COMM0_PORT1, ID_COMM0_PORT_BOTTOM)
 			COMM_MENU_UART(1, ID_COMM1_PORT1, ID_COMM1_PORT_BOTTOM)
 #endif
+#ifdef USE_MIDI
+			else if (id >= ID_MIDIIN_PORT1 && id < ID_MIDIIN_PORT_BOTTOM) {
+				ToggleConnectMidiIn(id - ID_MIDIIN_PORT1);
+				return 0;
+			}
+			else if (id >= ID_MIDIOUT_PORT1 && id < ID_MIDIOUT_PORT_BOTTOM) {
+				ToggleConnectMidiOut(id - ID_MIDIOUT_PORT1);
+				return 0;
+			}
+			else if (id >= ID_MIDIOUT_LATE1 && id <= ID_MIDIOUT_LATE6) {
+				ChangeMidiOutLatencyByNum(id - ID_MIDIOUT_LATE1);
+				return 0;
+			}
+			else if (id == ID_MIDIOUT_LATE_OTHER) {
+				ShowMIDIOutLatencyDialog();
+				return 0;
+			}
+#endif
 			MENU_RECENT(ID_RECENT_STATE, PostEtLoadRecentStatusMessage)
 			break;
 	}
@@ -1779,6 +1805,13 @@ bool GUI_BASE::ShowVolumeDialog(void)
 
 #ifdef USE_DEBUG_SOUND_FILTER
 bool GUI_BASE::ShowSndFilterDialog(void)
+{
+	return false;
+}
+#endif
+
+#ifdef USE_MIDI
+bool GUI_BASE::ShowMIDIOutLatencyDialog(void)
 {
 	return false;
 }
@@ -2821,6 +2854,141 @@ void GUI_BASE::GetUartDescription(int ch, _TCHAR *buf, size_t size)
 {
 #ifdef USE_UART
 	emu->get_uart_description(ch, buf, size);
+#endif
+}
+
+// MIDI
+
+void GUI_BASE::ConnectMidiIn(int idx)
+{
+#ifdef USE_MIDI
+	if (idx < 0) {
+		emu->close_midiin();
+	} else {
+		if (!emu->now_midiin_connecting(idx)) {
+			emu->close_midiin();
+			emu->open_midiin(idx);
+		}
+	}
+#endif
+}
+void GUI_BASE::ToggleConnectMidiIn(int idx)
+{
+#ifdef USE_MIDI
+	if (emu->now_midiin_connecting(idx)) {
+		// close if alreay connected
+		emu->close_midiin();
+	} else {
+		// connect
+		emu->close_midiin();
+		emu->open_midiin(idx);
+	}
+#endif
+}
+bool GUI_BASE::NowConnectingMidiIn(int idx)
+{
+#ifdef USE_MIDI
+	return emu->now_midiin_connecting(idx);
+#else
+	return false;
+#endif
+}
+
+void GUI_BASE::ConnectMidiOut(int idx)
+{
+#ifdef USE_MIDI
+	if (idx < 0) {
+		emu->close_midiout();
+	} else {
+		if (!emu->now_midiout_connecting(idx)) {
+			emu->close_midiout();
+			emu->open_midiout(idx);
+		}
+	}
+#endif
+}
+void GUI_BASE::ToggleConnectMidiOut(int idx)
+{
+#ifdef USE_MIDI
+	if (emu->now_midiout_connecting(idx)) {
+		// close if alreay connected
+		emu->close_midiout();
+	} else {
+		// connect
+		emu->close_midiout();
+		emu->open_midiout(idx);
+	}
+#endif
+}
+bool GUI_BASE::NowConnectingMidiOut(int idx)
+{
+#ifdef USE_MIDI
+	return emu->now_midiout_connecting(idx);
+#else
+	return false;
+#endif
+}
+
+int GUI_BASE::EnumMidiIns()
+{
+#ifdef USE_MIDI
+	return emu->enum_midiins();
+#else
+	return 0;
+#endif
+}
+void GUI_BASE::GetMidiInDescription(int idx, _TCHAR *buf, size_t size)
+{
+#ifdef USE_MIDI
+	emu->get_midiin_description(idx, buf, size);
+#endif
+}
+
+int GUI_BASE::EnumMidiOuts()
+{
+#ifdef USE_MIDI
+	return emu->enum_midiouts();
+#else
+	return 0;
+#endif
+}
+void GUI_BASE::GetMidiOutDescription(int idx, _TCHAR *buf, size_t size)
+{
+#ifdef USE_MIDI
+	emu->get_midiout_description(idx, buf, size);
+#endif
+}
+
+void GUI_BASE::ChangeMidiOutLatencyByNum(int num)
+{
+#ifdef USE_MIDI
+	if (0 <= num && num <= 5) {
+		pConfig->midiout_delay = (25 << num);
+		emu->set_midiout_delay_time(pConfig->midiout_delay);
+	}
+#endif
+}
+int GUI_BASE::GetMidiOutLatencyNum() const
+{
+#ifdef USE_MIDI
+	int match = -1;
+	for(int i=0; i<6; i++) {
+		if (pConfig->midiout_delay == (25 << i)) {
+			match = i;
+			break;
+		}
+	}
+	return match;
+#endif
+}
+
+void GUI_BASE::SendMidiResetMessage(int num)
+{
+#ifdef USE_MIDI
+	if (MIDI_TYPE_GM <= num && num <= MIDI_TYPE_XG) {
+		pConfig->midi_send_reset_type = num;
+	}
+	emu->send_midi_reset_message();
 #endif
 }
 

@@ -20,8 +20,9 @@
 #include "scc.h"
 #include "../ym2151.h"
 #include "adpcm.h"
+#include "midi.h"
 #include "sprite_bg.h"
-//#include "cmt.h"
+#include "board.h"
 #include "../i8255.h"
 #include "rtc.h"
 #include "sasi.h"
@@ -75,6 +76,7 @@ MEMORY::MEMORY(VM* parent_vm, EMU* parent_emu, const char* identifier)
 	d_sysport = NULL;
 	d_disp = NULL;
 	d_opm = NULL;
+	d_midi = NULL;
 	d_fdd = NULL;
 	d_fdc = NULL;
 	d_sasi = NULL;
@@ -794,9 +796,16 @@ void MEMORY::write_data_nw(uint32_t addr, uint32_t data, int *wait, int width)
 			case 0x28:
 			case 0x2a:
 			case 0x2c:
-			case 0x2e:
 				// (Ex)
 				m_buserr = 1;
+				break;
+			case 0x2e:
+				if ((addr & 0x1ff0) == 0x1a00 && FLG_IOPORT_MIDI != 0) {
+					// (Ex) MIDI board
+					d_midi->write_io8(addrh, data);
+				} else {
+					m_buserr = 1;
+				}
 				break;
 			case 0x30:
 			case 0x32:
@@ -1494,9 +1503,16 @@ uint32_t MEMORY::read_data_nw(uint32_t addr, int *wait, int width)
 			case 0x28:
 			case 0x2a:
 			case 0x2c:
-			case 0x2e:
 				// (Ex)
 				m_buserr = 1;
+				break;
+			case 0x2e:
+				if ((addr & 0x1ff0) == 0x1a00 && FLG_IOPORT_MIDI != 0) {
+					// (Ex) MIDI board
+					data = d_midi->read_io8(addrh);
+				} else {
+					m_buserr = 1;
+				}
 				break;
 			case 0x30:
 			case 0x32:
@@ -1571,7 +1587,7 @@ uint32_t MEMORY::read_data_nw(uint32_t addr, int *wait, int width)
 					// INT2 read vector number (Ex SCSI board)
 					is_8bits = true;
 					// (Ex) SCSI
-					if (pConfig->scsi_type == SCSI_TYPE_EX) {
+					if (pConfig->scsi_type == SCSI_TYPE_EX && (d_board->asserted_int2_devices() & INTDEV_HDD) != 0) {
 						data = d_scsi->read_external_data8(addrh);
 					} else {
 						data = 0xff;
@@ -1583,9 +1599,14 @@ uint32_t MEMORY::read_data_nw(uint32_t addr, int *wait, int width)
 					data = d_dmac->read_external_data8(addrh);
 					break;
 				case 4:
-					// INT4 read vector number (no device)
+					// INT4 read vector number (Ex MIDI board)
 					is_8bits = true;
-					data = 0xff;
+					// (Ex) MIDI
+					if (FLG_IOPORT_MIDI != 0 && (d_board->asserted_int4_devices() & INTDEV_MIDI) != 0) {
+						data = d_midi->read_external_data8(addrh);
+					} else {
+						data = 0xff;
+					}
 					break;
 				case 5:
 					// INT5 read vector number (SCC)
@@ -2073,9 +2094,16 @@ uint32_t MEMORY::debug_read_data_nw(int type, uint32_t addr, int width)
 		case 0x28:
 		case 0x2a:
 		case 0x2c:
-		case 0x2e:
 			// (Ex)
 			m_buserr = 1;
+			break;
+		case 0x2e:
+			if ((addr & 0x1ff0) == 0x1a00 && FLG_IOPORT_MIDI != 0) {
+				// (Ex) MIDI board
+				data = d_midi->debug_read_io8(addrh);
+			} else {
+				m_buserr = 1;
+			}
 			break;
 		case 0x30:
 		case 0x32:
@@ -2385,6 +2413,7 @@ enum en_bank_kind {
 	BANK_IO_INT,
 	BANK_IO_FPU,
 	BANK_IO_SPRITE,
+	BANK_IO_MIDI,
 	BANK_IO_UNKNOWN
 };
 
@@ -2419,6 +2448,7 @@ static const _TCHAR *c_bank_desc[] = {
 	_T("Interrupt I/O"),
 	_T("FPU I/O"),
 	_T("Sprite I/O"),
+	_T("MIDI I/O"),
 	_T("(unknown)"),
 	NULL
 };
@@ -2563,6 +2593,14 @@ uint32_t MEMORY::debug_read_bank(uint32_t addr)
 					// ROM 0x20-0x1fff
 					data = SET_BANK_KIND(BANK_SCSI_EX_ROM, BANK_NONE);
 				}
+			} else {
+				data = SET_BANK_KIND(BANK_NONE, BANK_NONE);
+			}
+			break;
+		case 0x2e:
+			if ((addr & 0x1ff0) == 0x1a00 && FLG_IOPORT_MIDI != 0) {
+				// (Ex) MIDI board
+				data = SET_BANK_KIND(BANK_IO_MIDI, BANK_IO_MIDI);
 			} else {
 				data = SET_BANK_KIND(BANK_NONE, BANK_NONE);
 			}

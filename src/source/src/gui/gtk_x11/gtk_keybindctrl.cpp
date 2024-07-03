@@ -8,8 +8,8 @@
 	@brief [ keybind control ]
 */
 
-#include <gdk/gdkx.h>
 #include "gtk_keybindctrl.h"
+#include <gdk/gdkx.h>
 #include "gtk_x11_key_trans.h"
 #include "../../emu.h"
 #include "../../config.h"

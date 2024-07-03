@@ -103,6 +103,7 @@ public:
 #ifdef USE_CALC_CRC16
 	static uint16_t calc_crc16(uint8_t data, uint16_t crc);
 #endif
+	bool compare_crc16_on_current_sector(int size);
 
 	bool is_same_file(const _TCHAR *path, int offset);
 

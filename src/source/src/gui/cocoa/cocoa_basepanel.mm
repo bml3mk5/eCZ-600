@@ -1000,8 +1000,11 @@ extern EMU *emu;
 	[stepper setTarget:stepper];
 	[stepper setAction:@selector(changeStepperValue:)];
 
-	CocoaTextField *text = [CocoaTextField createN:value action:@selector(changeTextFieldValue:)];
-	[text setTarget:stepper];
+//	CocoaTextField *text = [CocoaTextField createN:value action:@selector(changeTextFieldValue:)];
+//	[text setTarget:stepper];
+	CocoaTextField *text = [CocoaTextField createN:value action:nil];
+	CocoaStepperTextDelegate *textd = [CocoaStepperTextDelegate allocWithParent:stepper];
+	[text setDelegate:textd];
 	[stepper setText:text];
 	
 	return stepper;
@@ -1026,6 +1029,28 @@ extern EMU *emu;
 	[layout addControl:step.text width:width height:height];
 	[layout addControl:step height:height];
 	return step;
+}
+@end
+
+
+/**
+	@brief Text Field Delegate in Stepper control
+*/
+@implementation CocoaStepperTextDelegate
+@synthesize stepper;
++ (id)allocWithParent:(CocoaStepper *)parent
+{
+	CocoaStepperTextDelegate *me = [[CocoaStepperTextDelegate alloc] init];
+	[me setStepper:parent];
+	return me;
+}
+- (void)textDidChange:(NSNotification *)notification
+{
+	[stepper setIntValue:[[stepper text] intValue]];
+}
+- (void)controlTextDidChange:(NSNotification *)notification
+{
+	[stepper setIntValue:[[stepper text] intValue]];
 }
 @end
 

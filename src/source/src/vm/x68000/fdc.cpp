@@ -29,6 +29,8 @@
 #define OUT_DEBUG_WRITE(...)
 //#define OUT_DEBUG_STAT logging->out_debugf
 #define OUT_DEBUG_STAT(...)
+//#define OUT_DEBUG_STAT3 logging->out_debugf
+#define OUT_DEBUG_STAT3(...)
 //#define OUT_DEBUG_RESULT logging->out_debugf
 #define OUT_DEBUG_RESULT(...)
 //#define OUT_DEBUG_IRQ logging->out_debugf
@@ -42,6 +44,7 @@
 #define OUT_DEBUG_READ(...)
 #define OUT_DEBUG_WRITE(...)
 #define OUT_DEBUG_STAT(...)
+#define OUT_DEBUG_STAT3(...)
 #define OUT_DEBUG_RESULT(...)
 #define OUT_DEBUG_IRQ(...)
 #define OUT_DEBUG_DRQ(...)
@@ -398,9 +401,8 @@ uint32_t FDC::read_io8(uint32_t addr)
 			execute_cmd();
 		}
 		// fdc status
-#ifdef _FDC_DEBUG_LOG
-//		this->out_debug_log(_T("FDC: STATUS=%2x\n"), seekstat | status);
-#endif
+		OUT_DEBUG_STAT(_T("FDC: STAT: %02X"), m_seekstat | m_main_status);
+
 //		set_irq(false);
 
 		return m_seekstat | m_main_status;
@@ -817,7 +819,7 @@ uint8_t FDC::get_devstat(int drv)
 		// bit7 is fault signal (not implemented)
 	}
 
-	OUT_DEBUG_STAT(_T("FDC %d DEV STAT: %02X"), drv, status);
+	OUT_DEBUG_STAT3(_T("FDC %d DEV STAT: %02X"), drv, status);
 
 	return status;
 }
@@ -2036,7 +2038,7 @@ void FDC::start_transfer_diagnostic()
 	int delay_clock = 100;
 
 	// specified sector exists or not
-	m_result = search_sector_by_index((m_command.hdu & 4) >> 2, 0, m_command.rw.r, false);
+	m_result = search_sector_by_index(0, &m_command.rw.h, &m_command.rw.r, &m_command.rw.n);
 	if (!FLG_DELAY_FDSEARCH) {
 		// calcrate time to reach to the index hole
 		delay_clock = d_fdd->calc_index_hole_search_clock(m_channel);
@@ -2137,6 +2139,7 @@ double FDC::get_usec_to_exec_phase()
 // media handler
 // ----------------------------------------------------------------------------
 
+/// @return ST1_ND : No Data
 uint32_t FDC::verify_track()
 {
 	if(!d_fdd->search_track(m_channel)) {
@@ -2182,12 +2185,12 @@ uint32_t FDC::search_sector(int side, int sector, bool compare_side)
 	return ST1_ND;
 }
 
-/// @param[in] side   : side number
-/// @param[in] index  : index number of sector 
-/// @param[in] sector  : sector number
-/// @param[in] compare_side : for compare side number
+/// @param[in] index        : index number of sector in the track
+/// @param[in] compare_side : set side number (ID H) if need compareing
+/// @param[in] compare_sect : set sector number (ID R) if need compareing
+/// @param[in] compare_size : set sector size (ID N) if need compareing
 /// @return ST1_ND : No Data
-uint32_t FDC::search_sector_by_index(int side, int index, int sector, bool compare_side)
+uint32_t FDC::search_sector_by_index(int index, uint8_t *compare_side, uint8_t *compare_sect, uint8_t *compare_size)
 {
 	int drv = m_command.hdu & 3;
 
@@ -2198,7 +2201,8 @@ uint32_t FDC::search_sector_by_index(int side, int index, int sector, bool compa
 	}
 
 	// scan sectors
-	int stat = d_fdd->search_sector_by_index(m_channel, m_fdc[drv].cur_track, index, true, sector, compare_side, side);
+	int stat = d_fdd->search_sector_by_index(m_channel, m_fdc[drv].cur_track, index, compare_side, compare_sect, compare_size, m_id.b);
+	m_data_count = 0;
 
 	uint32_t rc = 0;
 	if (stat & 4) rc |= ST2_CM;

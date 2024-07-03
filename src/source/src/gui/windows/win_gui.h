@@ -117,6 +117,9 @@ public:
 #ifdef USE_DEBUG_SOUND_FILTER
 	virtual bool ShowSndFilterDialog();
 #endif
+#ifdef USE_MIDI
+	virtual bool ShowMIDIOutLatencyDialog();
+#endif
 #endif
 #ifdef USE_DATAREC
 	virtual bool ShowLoadDataRecDialog();

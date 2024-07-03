@@ -54,6 +54,9 @@ void BOARD::reset()
 	m_int1_status = 0x20;
 	m_int1_vec_num = 0;
 
+	m_int2_irq = 0;
+	m_int4_irq = 0;
+
 	m_vector = 0;
 	if (pConfig->now_power_off) m_front_power = 0;
 
@@ -78,6 +81,9 @@ void BOARD::warm_reset(bool por)
 	m_int1_mask_s = 0;
 	m_int1_status = 0x20;
 	m_int1_vec_num = 0;
+
+	m_int2_irq = 0;
+	m_int4_irq = 0;
 
 	m_vector = 0;
 	if (pConfig->now_power_off) m_front_power = 0;
@@ -162,7 +168,9 @@ void BOARD::write_signal(int id, uint32_t data, uint32_t mask)
 			break;
 		case SIG_CPU_IRQ:
 			prev = now_irq;
-			if ((mask & 0xffff) == 0x0002) {
+			switch (mask & 0xffff) {
+			case 0x0002:
+				{
 				// int1 interrupt
 #ifdef OUT_DEBUG_INT1
 				uint32_t int1_prev = m_int1_status;
@@ -178,9 +186,29 @@ void BOARD::write_signal(int id, uint32_t data, uint32_t mask)
 					, (int)get_current_clock()
 					, int1_prev, m_int1_status, m_int1_mask_s, now_irq);
 #endif
-
-			} else {
+				}
+				break;
+			case 0x0004:
+				{
+				// int2 (wired or)
+				uint32_t int2_mask = (mask >> 16);
+				m_int2_irq = ((data & mask) ? (m_int2_irq | int2_mask) : (m_int2_irq & ~int2_mask));
+				mask &= 0xffff;
+				now_irq = ((m_int2_irq != 0) ? (now_irq | mask) : (now_irq & ~mask));
+				}
+				break;
+			case 0x0010:
+				{
+				// int4 (wired or)
+				uint32_t int4_mask = (mask >> 16);
+				m_int4_irq = ((data & mask) ? (m_int4_irq | int4_mask) : (m_int4_irq & ~int4_mask));
+				mask &= 0xffff;
+				now_irq = ((m_int4_irq != 0) ? (now_irq | mask) : (now_irq & ~mask));
+				}
+				break;
+			default:
 				now_irq = ((data & mask) ? (now_irq | mask) : (now_irq & ~mask));
+				break;
 			}
 			if (prev == 0 && now_irq != 0) {
 				// off -> on
@@ -332,6 +360,18 @@ uint32_t BOARD::get_led_status()
 
 // ----------------------------------------------------------------------------
 
+uint32_t BOARD::asserted_int2_devices() const
+{
+	return (uint32_t)m_int2_irq << 16;
+}
+
+uint32_t BOARD::asserted_int4_devices() const
+{
+	return (uint32_t)m_int4_irq << 16;
+}
+
+// ----------------------------------------------------------------------------
+
 #define SET_Bool(v) vm_state.v = (v ? 1 : 0)
 #define SET_Byte(v) vm_state.v = v
 #define SET_Uint16_LE(v) vm_state.v = Uint16_LE(v)
@@ -370,6 +410,9 @@ void BOARD::save_state(FILEIO *fio)
 
 	SET_Int32_LE(wreset_register_id);	// normal reset
 	SET_Int32_LE(preset_register_id);	// power on reset
+
+	SET_Uint16_LE(m_int2_irq);
+	SET_Uint16_LE(m_int4_irq);
 
 	fio->Fwrite(&vm_state_ident, sizeof(vm_state_ident), 1);
 	fio->Fwrite(&vm_state, sizeof(vm_state), 1);
@@ -411,6 +454,9 @@ bool BOARD::load_state(FILEIO *fio)
 
 	GET_Int32_LE(wreset_register_id);	// normal reset
 	GET_Int32_LE(preset_register_id);	// power on reset
+
+	GET_Uint16_LE(m_int2_irq);
+	GET_Uint16_LE(m_int4_irq);
 
 	if (vm_state_i.version ==  Uint16_LE(1)) {
 		if (m_now_fc == 7) {

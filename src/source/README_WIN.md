@@ -1,6 +1,6 @@
 # SHARP X68000 Emulator Windows(VC++) Edition
 
-#### Copyright(C) Common Source Code Project, Sasaji 2011-2023 All Rights Reserved.
+#### Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 
 ## ファイル構成
 
@@ -24,9 +24,15 @@
           windows/ ......... windows関連ソース
         vm/ ................ VMメインプログラムソース
       VC++2010/
-        x68000.vcxproj ..... VC++2010用プロジェクトファイル
+        x68000.vcxproj ..... Visual Studio プロジェクトファイル
+      VC++2013/
+        x68000.vcxproj ..... Visual Studio プロジェクトファイル
+      VC++2015/
+        x68000.vcxproj ..... Visual Studio プロジェクトファイル
+      VC++2017/
+        x68000.vcxproj ..... Visual Studio プロジェクトファイル
       VC++2019/
-        x68000.vcxproj ..... VC++2019用プロジェクトファイル
+        x68000.vcxproj ..... Visual Studio プロジェクトファイル
       README_WIN.md ........ このファイル
 
 ## コンパイル方法
@@ -47,10 +53,10 @@
 
 ==============================================================================
 
-連絡先：
-  Sasaji (sasaji@s-sasaji.ddo.jp)
-  http://s-sasaji.ddo.jp/bml3mk5/
-  (Twitter: http://twitter.com/bml3mk5)
+連絡先：Sasaji (sasaji@s-sasaji.ddo.jp)
+ * My WebPage: http://s-sasaji.ddo.jp/bml3mk5/
+ * GitHub:     https://github.com/bml3mk5/eCZ-600
+ * X(Twitter): https://x.com/bml3mk5
 
 ==============================================================================
 

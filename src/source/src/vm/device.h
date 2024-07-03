@@ -255,7 +255,7 @@ public:
 	virtual uint32_t search_sector(int side, bool compare);
 	virtual int  search_sector(int channel);
 	virtual int  search_sector(int channel, int track, int sect, bool compare_side, int side);
-	virtual int  search_sector_by_index(int channel, int track, int index, bool compare_sect, int sect, bool compare_side, int side);
+	virtual int  search_sector_by_index(int channel, uint8_t track, int index, uint8_t *compare_side, uint8_t *compare_sect, uint8_t *compare_size, uint8_t *disk_id);
 	virtual bool make_track();
 	virtual bool make_track(int channel);
 	virtual bool parse_track();
@@ -294,6 +294,7 @@ public:
 	virtual double get_passed_usec(uint64_t prev);
 	virtual void set_cpu_clock(uint32_t freq);
 	virtual uint32_t get_cpu_clock() const;
+	virtual int  get_current_power();
 
 	virtual void set_number_of_cpu(int nums);
 	virtual uint32_t get_cpu_pc(int index);

@@ -1,6 +1,6 @@
 # SHARP X68000 Emulator SDL edition
 
-#### Copyright(C) Common Source Code Project, Sasaji 2012-2023 All Rights Reserved.
+#### Copyright(C) Common Source Code Project, Sasaji 2012-2024 All Rights Reserved.
 
 ## ファイル構成
 
@@ -39,7 +39,15 @@
         sdl_linux/ ......... SDL linux用
         sdl_win/ ........... SDL Pleiades(Eclipse日本語版)用
       VC++2010/
-        x68000_sdl.vcxproj .. SDL版 VC++2010用プロジェクトファイル
+        x68000_sdl.vcxproj .. SDL版 Visual Studio プロジェクトファイル
+      VC++2013/
+        x68000_sdl.vcxproj .. SDL版 Visual Studio プロジェクトファイル
+      VC++2015/
+        x68000_sdl.vcxproj .. SDL版 Visual Studio プロジェクトファイル
+      VC++2017/
+        x68000_sdl.vcxproj .. SDL版 Visual Studio プロジェクトファイル
+      VC++2019/
+        x68000_sdl.vcxproj .. SDL版 Visual Studio プロジェクトファイル
       Xcode/ ............... Xcode用プロジェクトファイル
       Makefile.xxx ......... 各OSごとのmakeファイル
       README_SDL.md ........ このファイル
@@ -64,11 +72,11 @@
  * コンパイルに必要なライブラリをインストールします。
    ターミナル上で行います。(Xcodeは使用しません。)
 
-  + SDL2-2.0.8
+  + SDL2-2.28.5
 
     1. パッチを適用します。
 
-           patch -p 1 < SDL2-2.0.8-mac-keyboard.patch
+           patch -p 1 < SDL2-2.28.5-mac-keyboard.patch
 
     2. ビルド＆インストール
 
@@ -76,7 +84,7 @@
            make
            make install
 
-  + SDL2_ttf-2.0.12
+  + SDL2_ttf-2.20.2
 
         ./configure
         make
@@ -128,30 +136,23 @@
 
  * ディストリビューションに付属する開発用ライブラリをインストール。
 
-  + DebianやUbuntu: Synapticパッケージマネージャもしくはapt-getでインストール
+  + DebianやUbuntu: Synapticパッケージマネージャもしくはaptでインストール
   + RedhatやFedora: Yumなどでインストール
 
   + 必要なライブラリ
    - コンパイラ: gcc, g++, make
    - 画面系: gtk-3.0-dev, libsdl2-dev, libsdl2-ttf-dev
+   - サウンド系: libalsa-dev
 
- * コンパイルに必要なライブラリをインストールします。
+ * 上記ライブラリがない場合はソースコードからインストールします。
 
-  + SDL2-2.0.x
-
-   - 付属のパッケージからインストール。
-
-   - ソースからインストールする場合
+  + SDL2-2.28.5
 
           ./configure
           make
           make install
 
-  + SDL2_ttf-2.0.x
-
-   - 付属のパッケージからインストール。
-
-   - ソースからインストールする場合
+  + SDL2_ttf-2.20.2
 
           ./configure
           make
@@ -202,7 +203,7 @@
 
  * MinGW Shellを起動してコンパイルに必要なライブラリをインストールします。
 
-  + SDL2-2.0.x
+  + SDL2-2.28.5
 
    - Development Librariesかソースからインストール
 
@@ -212,15 +213,7 @@
           make
           make install
 
-  + freetype-2.5.x
-
-   - ソースからインストール
-
-          ./configure
-          make
-          make install
-
-  + SDL2_ttf-2.0.x
+  + SDL2_ttf-2.20.2
 
    - ソースからインストール
 
@@ -267,19 +260,13 @@
 
 * 必要なライブラリをVC++でビルドします。
 
- + SDL2-2.0.x
+ + SDL2-2.28.5
 
     ソースからインストール
       VisualCフォルダにあるSDL.slnを使用してビルド。
       出来たdll,libはlib/Release/x86にコピーしておく。
 
- + freetype-2.5.x
-
-    ソースからインストール
-      builds/win32フォルダにある中から適当に選んでビルド。
-      objs/win32にdll,libが出来る。
-
- + SDL2_ttf-2.0.x
+ + SDL2_ttf-2.20.2
 
     ソースからインストール
       VisualCフォルダにあるSDL_ttf.slnを使用してビルド。
@@ -305,10 +292,10 @@
 
 ==============================================================================
 
-連絡先：
-  Sasaji (sasaji@s-sasaji.ddo.jp)
-  http://s-sasaji.ddo.jp/bml3mk5/
-  (Twitter: http://twitter.com/bml3mk5)
+連絡先：Sasaji (sasaji@s-sasaji.ddo.jp)
+ * My WebPage: http://s-sasaji.ddo.jp/bml3mk5/
+ * GitHub:     https://github.com/bml3mk5/eCZ-600
+ * X(Twitter): https://x.com/bml3mk5
 
 ==============================================================================
 

@@ -11,6 +11,7 @@
 #ifndef GUI_GTK_ABOUTBOX_H
 #define GUI_GTK_ABOUTBOX_H
 
+#include "../../common.h"
 #include <gtk/gtk.h>
 
 namespace GUI_GTK_X11

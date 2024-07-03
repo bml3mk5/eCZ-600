@@ -77,6 +77,7 @@ add_executable(${PROJECT_NAME}
 	${SRCOSD}/emu_sound.cpp
 	${SRCOSD}/keybind.cpp
 	${SRCOSD}/logging.cpp
+	${SRCOSD}/osd_midi.cpp
 	${SRCOSD}/parseopt.cpp
 	${SRCOSD}/screenmode.cpp
 	${SRCOSD}/simple_clocale.cpp
@@ -132,6 +133,7 @@ add_executable(${PROJECT_NAME}
 	${SRCDEP}/keyrecord.cpp
 	${SRCDEP}/memory.cpp
 	${SRCDEP}/mfp.cpp
+	${SRCDEP}/midi.cpp
 	${SRCDEP}/mouse.cpp
 	${SRCDEP}/printer.cpp
 	${SRCDEP}/rtc.cpp
@@ -189,6 +191,7 @@ if(APPLE)
 	${SRCOSDSDL}/sdl_screen.cpp
 
 	${SRCOSDMAC}/mac_uart.cpp
+	${SRCOSDMAC}/mac_midi.cpp
 
 	${SRCGUICOCOA}/cocoa_gui.mm
 	${SRCGUICOCOA}/cocoa_basepanel.mm
@@ -207,6 +210,7 @@ if(APPLE)
 	${SRCGUICOCOA}/cocoa_hdtypepanel.mm
 	${SRCGUICOCOA}/cocoa_configpanel.mm
 	${SRCGUICOCOA}/cocoa_loggingpanel.mm
+	${SRCGUICOCOA}/cocoa_midlatepanel.mm
 
 	${SRCVIDWAV}/wav_rec_audio.cpp
 #	${SRCVIDFFM}/ffm_loadlib.cpp
@@ -235,6 +239,7 @@ if(APPLE)
     -Wl,-framework,AudioToolbox
     -Wl,-framework,Metal
     -Wl,-framework,OpenGL
+    -Wl,-framework,CoreMidi
     -lm
     -lz
     -lbz2
@@ -274,6 +279,7 @@ elseif(LINUX)
 	${SRCOSDGTK}/gtk_screen.cpp
 
 	${SRCOSDLINUX}/linux_uart.cpp
+	${SRCOSDLINUX}/alsa_midi.cpp
 
 	${SRCGUIGTKX11}/gtk_x11_gui.cpp
 	${SRCGUIGTKX11}/gtk_dialogbox.cpp
@@ -291,6 +297,7 @@ elseif(LINUX)
 	${SRCGUIGTKX11}/gtk_joysetbox.cpp
 	${SRCGUIGTKX11}/gtk_hdtypebox.cpp
 	${SRCGUIGTKX11}/gtk_loggingbox.cpp
+	${SRCGUIGTKX11}/gtk_midlatebox.cpp
 	${SRCGUIGTKX11}/gtk_ledbox.cpp
 
 	${SRCVIDWAV}/wav_rec_audio.cpp
@@ -305,7 +312,7 @@ elseif(LINUX)
   target_compile_definitions(${PROJECT_NAME} PUBLIC USE_GTK GUI_TYPE_GTK_X11)
   target_compile_options(${PROJECT_NAME} PUBLIC -Wall -O2)
   target_include_directories(${PROJECT_NAME} PUBLIC ${GTK_INCLUDE_DIRS} ${SRCDIR}/include)
-  target_link_libraries(${PROJECT_NAME} PUBLIC ${GTK_LIBRARIES} SDL2_ttf m z GL pthread freetype rt dl X11 png)
+  target_link_libraries(${PROJECT_NAME} PUBLIC ${GTK_LIBRARIES} SDL2_ttf m z GL pthread freetype rt dl X11 png asound)
 # target_link_options(${PROJECT_NAME} PUBLIC )
 
   install(PROGRAMS ${CMAKE_BINARY_DIR}/${PROJECT_NAME} DESTINATION Release)
@@ -340,6 +347,7 @@ elseif(MSVC)
 	${SRCOSDSDL}/sdl_screen.cpp
 
 	${SRCOSDWIN}/win_uart.cpp
+	${SRCOSDWIN}/win_midi.cpp
 
 	${SRCGUIWIN}/win_dialogbox.cpp
 	${SRCGUIWIN}/win_aboutbox.cpp
@@ -360,6 +368,7 @@ elseif(MSVC)
 	${SRCGUIWIN}/win_joysetbox.cpp
 	${SRCGUIWIN}/win_hdtypebox.cpp
 	${SRCGUIWIN}/win_loggingbox.cpp
+	${SRCGUIWIN}/win_midlatebox.cpp
 	${SRCGUIWIN}/win_gui.cpp
 
 	${SRCVIDWAV}/wav_rec_audio.cpp
@@ -413,6 +422,7 @@ else()
 	${SRCOSDSDL}/sdl_screen.cpp
 
 	${SRCOSDWIN}/win_uart.cpp
+	${SRCOSDWIN}/win_midi.cpp
 
 	${SRCGUIWIN}/win_dialogbox.cpp
 	${SRCGUIWIN}/win_aboutbox.cpp
@@ -433,6 +443,7 @@ else()
 	${SRCGUIWIN}/win_joysetbox.cpp
 	${SRCGUIWIN}/win_hdtypebox.cpp
 	${SRCGUIWIN}/win_loggingbox.cpp
+	${SRCGUIWIN}/win_midlatebox.cpp
 	${SRCGUIWIN}/win_gui.cpp
 
 	${SRCVIDWAV}/wav_rec_audio.cpp

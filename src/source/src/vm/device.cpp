@@ -847,6 +847,14 @@ uint32_t DEVICE::get_cpu_clock() const
 	return 1;
 }
 
+int DEVICE::get_current_power()
+{
+	if(event_manager == NULL) {
+		event_manager = vm->first_device->next_device;
+	}
+	return event_manager->get_current_power();
+}
+
 void DEVICE::set_number_of_cpu(int nums)
 {
 	if(event_manager == NULL) {
@@ -916,7 +924,7 @@ int  DEVICE::search_sector(int channel, int track, int sect, bool compare_side, 
 	return 0;
 }
 
-int  DEVICE::search_sector_by_index(int channel, int track, int index, bool compare_sect, int sect, bool compare_side, int side)
+int  DEVICE::search_sector_by_index(int channel, uint8_t track, int index, uint8_t *compare_side, uint8_t *compare_sect, uint8_t *compare_size, uint8_t *disk_id)
 {
 	return 0;
 }

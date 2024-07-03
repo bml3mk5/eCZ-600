@@ -286,6 +286,19 @@
 @end
 
 /**
+	@brief Text Field Delegate in Stepper control
+*/
+@interface CocoaStepperTextDelegate : NSObject <NSTextFieldDelegate>
+{
+	CocoaStepper *stepper;
+}
+@property (retain) CocoaStepper *stepper;
++ (id)allocWithParent:(CocoaStepper *)parent;
+- (void)textDidChange:(NSNotification *)notification;
+- (void)controlTextDidChange:(NSNotification *)notification;
+@end
+
+/**
 	@brief Tab view
 */
 @interface CocoaTabView : NSTabView

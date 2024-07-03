@@ -271,6 +271,9 @@ public:
 #ifdef USE_DEBUG_SOUND_FILTER
 	virtual bool ShowSndFilterDialog(void);
 #endif
+#ifdef USE_MIDI
+	virtual bool ShowMIDIOutLatencyDialog(void);
+#endif
 
 	virtual bool ShowJoySettingDialog(void);
 
@@ -523,6 +526,24 @@ public:
 
 	virtual int  EnumUarts();
 	virtual void GetUartDescription(int ch, _TCHAR *buf, size_t size);
+
+	// MIDI
+
+	virtual void ConnectMidiIn(int idx);
+	virtual void ToggleConnectMidiIn(int idx);
+	virtual bool NowConnectingMidiIn(int idx);
+
+	virtual void ConnectMidiOut(int idx);
+	virtual void ToggleConnectMidiOut(int idx);
+	virtual bool NowConnectingMidiOut(int idx);
+
+	virtual int  EnumMidiIns();
+	virtual void GetMidiInDescription(int idx, _TCHAR *buf, size_t size);
+	virtual int  EnumMidiOuts();
+	virtual void GetMidiOutDescription(int idx, _TCHAR *buf, size_t size);
+	virtual void ChangeMidiOutLatencyByNum(int num);
+	virtual int  GetMidiOutLatencyNum() const;
+	virtual void SendMidiResetMessage(int num);
 
 	// Status
 

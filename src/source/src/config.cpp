@@ -53,6 +53,16 @@ Config *pConfig = NULL;
 #define SECTION_Z80BCARD _T("z80bcard")
 #endif
 
+#ifdef USE_MIDI
+static const _TCHAR *c_MIDI_Type[MIDI_TYPE_END] = {
+	_T("GM"),
+	_T("GS"),
+	_T("LA"),
+	_T("XG"),
+	_T("User"),
+};
+#endif
+
 //
 //
 //
@@ -393,6 +403,12 @@ void Config::initialize()
 	comm_uart_parity = 0;
 	comm_uart_stopbit = 1; // 1:1bit 2:2bit
 	comm_uart_flowctrl = 0;
+#endif
+
+#ifdef USE_MIDI
+	midiout_delay = 100;
+	midi_send_reset_type = MIDI_TYPE_GM;
+	midi_flags = 0;
 #endif
 
 #ifdef USE_LEDBOX
@@ -933,6 +949,20 @@ bool Config::load_ini_file(const _TCHAR *ini_file)
 	}
 #endif
 
+#ifdef USE_MIDI
+	get_str_value(SECTION_SOUND, _T("MIDIOutDevice"), midiout_device);
+	valuel = ini->GetLongValue(SECTION_SOUND, _T("MIDIOutDelayTime"), midiout_delay);
+	if (valuel >= 0 && valuel <= 2000) midiout_delay = (int)valuel;
+	valuel = ini->GetLongValue(SECTION_SOUND, _T("MIDISendResetType"), midi_send_reset_type);
+	if (valuel >= 0 && valuel < MIDI_TYPE_END) midi_send_reset_type = (int)valuel;
+	valuel = ini->GetLongValue(SECTION_SOUND, _T("MIDIFlags"), midi_flags);
+	midi_flags = (uint32_t)valuel & MIDI_FLAGS_ALL;
+	for(int i=0; i<MIDI_TYPE_END; i++) {
+		UTILITY::stprintf(key, 100, _T("MIDIExclusive%s"), c_MIDI_Type[i]);
+		get_str_value(SECTION_SOUND, key, midi_exclusive[i]);
+	}
+#endif
+
 	get_dirpath_value(SECTION_SNAPSHOT, _T("Path"), snapshot_path);
 
 	{
@@ -1238,6 +1268,17 @@ void Config::save_ini_file(const _TCHAR *ini_file)
 		ini->SetValue(section, _T("ServerHost"), comm_server_host[i].Get());
 		ini->SetLongValue(section, _T("ServerPort"), comm_server_port[i]);
 		ini->SetBoolValue(section, _T("ThroughMode"), comm_through[i]);
+	}
+#endif
+
+#ifdef USE_MIDI
+	ini->SetValue(SECTION_SOUND, _T("MIDIOutDevice"), midiout_device.Get());
+	ini->SetLongValue(SECTION_SOUND, _T("MIDIOutDelayTime"), midiout_delay);
+	ini->SetLongValue(SECTION_SOUND, _T("MIDISendResetType"), midi_send_reset_type);
+	ini->SetLongValue(SECTION_SOUND, _T("MIDIFlags"), midi_flags, NULL, true);
+	for(int i=0; i<MIDI_TYPE_END; i++) {
+		UTILITY::stprintf(key, 100, _T("MIDIExclusive%s"), c_MIDI_Type[i]);
+		ini->SetValue(SECTION_SOUND, key, midi_exclusive[i].Get());
 	}
 #endif
 

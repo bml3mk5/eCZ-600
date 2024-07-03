@@ -42,6 +42,12 @@
 
 #define USE_DMA_MEMORY_MAPPED_IO
 
+#define INTDEV_PRINTER		0x00200000
+#define INTDEV_HDD			0x00100000
+#define INTDEV_FDD			0x00400000
+#define INTDEV_FDC			0x00800000
+#define INTDEV_MIDI			0x01000000
+
 #define MAX_SOUND	5
 
 //#define SCREEN_WIDTH		768
@@ -73,6 +79,7 @@
 #define HAS_YM2151
 #define USE_FMGEN_STEREO
 //#define USE_AUDIO_U8
+#define USE_MIDI
 
 #define USE_PRINTER
 #define MAX_PRINTER		1

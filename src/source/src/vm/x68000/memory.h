@@ -16,6 +16,7 @@
 #include "../device.h"
 
 class EMU;
+class BOARD;
 #ifdef USE_DEBUGGER
 //class L3Basic;
 #endif
@@ -49,13 +50,14 @@ private:
 	DEVICE *d_sp_bg;
 	DEVICE *d_opm;
 	DEVICE *d_adpcm;
+	DEVICE *d_midi;
 	DEVICE *d_fdc, *d_fdd;
 	DEVICE *d_sasi;
 	DEVICE *d_pio;
 	DEVICE *d_rtc;
 	DEVICE *d_printer;
 	DEVICE *d_comm;
-	DEVICE *d_board;
+	BOARD  *d_board;
 	DEVICE *d_scsi;
 
 	uint32_t *p_fc;							///< function code on MPU
@@ -263,6 +265,9 @@ public:
 	void set_context_adpcm(DEVICE* device) {
 		d_adpcm = device;
 	}
+	void set_context_midi(DEVICE* device) {
+		d_midi = device;
+	}
 	void set_context_fdc(DEVICE* device) {
 		d_fdc = device;
 	}
@@ -287,7 +292,7 @@ public:
 	void set_context_comm(DEVICE* device) {
 		d_comm = device;
 	}
-	void set_context_board(DEVICE* device) {
+	void set_context_board(BOARD* device) {
 		d_board = device;
 	}
 	void set_context_scsi(DEVICE* device) {

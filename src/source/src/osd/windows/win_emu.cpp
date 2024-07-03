@@ -38,6 +38,9 @@ EMU_OSD::EMU_OSD(const _TCHAR *new_app_path, const _TCHAR *new_ini_path, const _
 #ifdef USE_UART
 	EMU_UART();
 #endif
+#ifdef USE_MIDI
+	EMU_MIDI();
+#endif
 }
 
 EMU_OSD::~EMU_OSD()

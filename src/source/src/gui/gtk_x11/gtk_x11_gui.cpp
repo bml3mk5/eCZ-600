@@ -24,6 +24,9 @@
 #include "gtk_recaudbox.h"
 #include "gtk_aboutbox.h"
 #include "gtk_loggingbox.h"
+#ifdef USE_MIDI
+#include "gtk_midlatebox.h"
+#endif
 #include "../../depend.h"
 #include "../../utility.h"
 #include "../../labels.h"
@@ -694,21 +697,40 @@ int GUI::CreateMenu()
 			create_menu_item(submenu, CMsg::Stop, OnSelectSoundStopRecord, OnUpdateSoundStopRecord);
 		}
 		create_separator_menu(menu);
-//		create_radio_menu_item(menu, CMsg::F2000Hz, OnSelectSoundRate, OnUpdateSoundRate, 0, 0);
-//		create_radio_menu_item(menu, CMsg::F4000Hz, OnSelectSoundRate, OnUpdateSoundRate, 0, 1);
-		create_radio_menu_item(menu, CMsg::F8000Hz, OnSelectSoundRate, OnUpdateSoundRate, 0, 2);
-		create_radio_menu_item(menu, CMsg::F11025Hz, OnSelectSoundRate, OnUpdateSoundRate, 0, 3);
-		create_radio_menu_item(menu, CMsg::F22050Hz, OnSelectSoundRate, OnUpdateSoundRate, 0, 4);
-		create_radio_menu_item(menu, CMsg::F44100Hz, OnSelectSoundRate, OnUpdateSoundRate, 0, 5);
-		create_radio_menu_item(menu, CMsg::F48000Hz, OnSelectSoundRate, OnUpdateSoundRate, 0, 6);
-		create_radio_menu_item(menu, CMsg::F96000Hz, OnSelectSoundRate, OnUpdateSoundRate, 0, 7);
+		submenu = create_sub_menu(menu, CMsg::Sampling_Frequency);
+//			create_radio_menu_item(submenu, CMsg::F2000Hz, OnSelectSoundRate, OnUpdateSoundRate, 0, 0);
+//			create_radio_menu_item(submenu, CMsg::F4000Hz, OnSelectSoundRate, OnUpdateSoundRate, 0, 1);
+			create_radio_menu_item(submenu, CMsg::F8000Hz, OnSelectSoundRate, OnUpdateSoundRate, 0, 2);
+			create_radio_menu_item(submenu, CMsg::F11025Hz, OnSelectSoundRate, OnUpdateSoundRate, 0, 3);
+			create_radio_menu_item(submenu, CMsg::F22050Hz, OnSelectSoundRate, OnUpdateSoundRate, 0, 4);
+			create_radio_menu_item(submenu, CMsg::F44100Hz, OnSelectSoundRate, OnUpdateSoundRate, 0, 5);
+			create_radio_menu_item(submenu, CMsg::F48000Hz, OnSelectSoundRate, OnUpdateSoundRate, 0, 6);
+			create_radio_menu_item(submenu, CMsg::F96000Hz, OnSelectSoundRate, OnUpdateSoundRate, 0, 7);
+
+		submenu = create_sub_menu(menu, CMsg::Output_Latency);
+			create_radio_menu_item(submenu, CMsg::S50msec, OnSelectSoundLatency, OnUpdateSoundLatency, 0, 0);
+			create_radio_menu_item(submenu, CMsg::S75msec, OnSelectSoundLatency, OnUpdateSoundLatency, 0, 1);
+			create_radio_menu_item(submenu, CMsg::S100msec, OnSelectSoundLatency, OnUpdateSoundLatency, 0, 2);
+			create_radio_menu_item(submenu, CMsg::S200msec, OnSelectSoundLatency, OnUpdateSoundLatency, 0, 3);
+			create_radio_menu_item(submenu, CMsg::S300msec, OnSelectSoundLatency, OnUpdateSoundLatency, 0, 4);
+			create_radio_menu_item(submenu, CMsg::S400msec, OnSelectSoundLatency, OnUpdateSoundLatency, 0, 5);
+#ifdef USE_MIDI
 		create_separator_menu(menu);
-		create_radio_menu_item(menu, CMsg::S50msec, OnSelectSoundLatency, OnUpdateSoundLatency, 0, 0);
-		create_radio_menu_item(menu, CMsg::S75msec, OnSelectSoundLatency, OnUpdateSoundLatency, 0, 1);
-		create_radio_menu_item(menu, CMsg::S100msec, OnSelectSoundLatency, OnUpdateSoundLatency, 0, 2);
-		create_radio_menu_item(menu, CMsg::S200msec, OnSelectSoundLatency, OnUpdateSoundLatency, 0, 3);
-		create_radio_menu_item(menu, CMsg::S300msec, OnSelectSoundLatency, OnUpdateSoundLatency, 0, 4);
-		create_radio_menu_item(menu, CMsg::S400msec, OnSelectSoundLatency, OnUpdateSoundLatency, 0, 5);
+		create_sub_menu(menu, CMsg::MIDI_Out, OnUpdateMIDIOutMenu, 0);
+		submenu = create_sub_menu(menu, CMsg::MIDI_Output_Latency);
+			create_radio_menu_item(submenu, CMsg::S25msec, OnSelectMIDIOutLatency, OnUpdateMIDIOutLatency, 0, 0);
+			create_radio_menu_item(submenu, CMsg::S50msec, OnSelectMIDIOutLatency, OnUpdateMIDIOutLatency, 0, 1);
+			create_radio_menu_item(submenu, CMsg::S100msec, OnSelectMIDIOutLatency, OnUpdateMIDIOutLatency, 0, 2);
+			create_radio_menu_item(submenu, CMsg::S200msec, OnSelectMIDIOutLatency, OnUpdateMIDIOutLatency, 0, 3);
+			create_radio_menu_item(submenu, CMsg::S400msec, OnSelectMIDIOutLatency, OnUpdateMIDIOutLatency, 0, 4);
+			create_radio_menu_item(submenu, CMsg::S800msec, OnSelectMIDIOutLatency, OnUpdateMIDIOutLatency, 0, 5);
+			create_radio_menu_item(submenu, CMsg::Other, OnSelectMIDIOutLatencyOther, OnUpdateMIDIOutLatencyOther, 0, 6);
+		submenu = create_sub_menu(menu, CMsg::Send_MIDI_Reset);
+			create_menu_item(submenu, CMsg::GM_Sound_Module, OnSelectSendMIDIReset, NULL, 0, 0);
+			create_menu_item(submenu, CMsg::GS_Sound_Module, OnSelectSendMIDIReset, NULL, 0, 1);
+			create_menu_item(submenu, CMsg::LA_Sound_Module, OnSelectSendMIDIReset, NULL, 0, 2);
+			create_menu_item(submenu, CMsg::XG_Sound_Module, OnSelectSendMIDIReset, NULL, 0, 3);
+#endif
 	}
 	menu = create_sub_menu(menubar, CMsg::Devices);
 	{
@@ -971,6 +993,20 @@ bool GUI::IsShownLoggingDialog()
 	return loggingbox ? loggingbox->IsVisible() : false;
 }
 
+#ifdef USE_MIDI
+bool GUI::ShowMIDIOutLatencyDialog()
+{
+	MidLateBox dlg(this);
+
+	SystemPause(true);
+	bool rc = dlg.ShowModal(widget_window);
+	if (rc) {
+		dlg.SetData();
+	}
+	SystemPause(false);
+	return rc;
+}
+#endif
 #endif
 bool GUI::ShowRecordVideoDialog(int fps_num)
 {
@@ -1778,6 +1814,37 @@ GtkWidget *GUI::create_comm_connect_menu_item(GtkWidget *menu, const char *label
 	gtk_widget_show(item);
 	return item;
 }
+#ifdef USE_MIDI
+GtkWidget *GUI::create_midiout_menu(GtkWidget *menu, int drv)
+{
+	char buf[128];
+	int midiout_conn = EnumMidiOuts();
+
+	RemoveAllItems(menu);
+	if (midiout_conn == 0) {
+		create_midiout_menu_item(menu, CMSG(None_), 0, -1);
+	} else {
+		for(int i=0; i<midiout_conn && i<MIDI_MAX_PORTS; i++) {
+			GetMidiOutDescription(i, buf, sizeof(buf));
+			create_midiout_menu_item(menu, buf, 0, i);
+		}
+	}
+	modify_menu_open_flag(menu, false);
+	return menu;
+}
+GtkWidget *GUI::create_midiout_menu_item(GtkWidget *menu, const char *label, int drv, int num)
+{
+	GtkWidget *item = gtk_check_menu_item_new_with_label(label);
+	gtk_container_add(GTK_CONTAINER(menu), item);
+	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(OnSelectMIDIOut), (gpointer)this);
+	g_signal_connect(G_OBJECT(item), "show", G_CALLBACK(OnUpdateMIDIOut), (gpointer)this);
+	g_object_set_data(G_OBJECT(item), "drv", (gpointer)(intptr_t)drv);
+	g_object_set_data(G_OBJECT(item), "num", (gpointer)(intptr_t)num);
+	g_object_set_data(G_OBJECT(item), "menu-open", (gpointer)1);
+	gtk_widget_show(item);
+	return item;
+}
+#endif
 void GUI::add_accelerator(GtkWidget *menu_item, guint key)
 {
 	if (key != 0) {
@@ -2802,6 +2869,71 @@ void GUI::OnUpdateSoundLatency(GtkWidget *widget, gpointer user_data)
 
 	gtk_check_menu_item_set_active(item, gui->GetSoundLatencyNum() == num);
 }
+#ifdef USE_MIDI
+void GUI::OnUpdateMIDIOutMenu(GtkWidget *widget, gpointer user_data)
+{
+	GUI *gui = (GUI *)user_data;
+	int drv = (int)(intptr_t)g_object_get_data(G_OBJECT(widget),"drv");
+
+	gui->create_midiout_menu(widget, drv);
+}
+void GUI::OnSelectMIDIOut(GtkWidget *widget, gpointer user_data)
+{
+	GUI *gui = (GUI *)user_data;
+	int num = (int)(intptr_t)g_object_get_data(G_OBJECT(widget),"num");
+
+	SKIP_WHEN_MENU_OPENING(widget);
+	if (num >= 0) {
+		gui->ToggleConnectMidiOut(num);
+	}
+}
+void GUI::OnUpdateMIDIOut(GtkWidget *widget, gpointer user_data)
+{
+	GUI *gui = (GUI *)user_data;
+	int num = (int)(intptr_t)g_object_get_data(G_OBJECT(widget),"num");
+	GtkCheckMenuItem *item = (GtkCheckMenuItem *)widget;
+
+	gtk_check_menu_item_set_active(item, gui->NowConnectingMidiOut(num));
+}
+void GUI::OnSelectMIDIOutLatency(GtkWidget *widget, gpointer user_data)
+{
+	GUI *gui = (GUI *)user_data;
+	int num = (int)(intptr_t)g_object_get_data(G_OBJECT(widget),"num");
+
+	SKIP_WHEN_MENU_OPENING(widget);
+	gui->ChangeMidiOutLatencyByNum(num);
+}
+void GUI::OnUpdateMIDIOutLatency(GtkWidget *widget, gpointer user_data)
+{
+	GUI *gui = (GUI *)user_data;
+	int num = (int)(intptr_t)g_object_get_data(G_OBJECT(widget),"num");
+	GtkCheckMenuItem *item = (GtkCheckMenuItem *)widget;
+
+	gtk_check_menu_item_set_active(item, gui->GetMidiOutLatencyNum() == num);
+}
+void GUI::OnSelectMIDIOutLatencyOther(GtkWidget *widget, gpointer user_data)
+{
+	GUI *gui = (GUI *)user_data;
+
+	SKIP_WHEN_MENU_OPENING(widget);
+	gui->ShowMIDIOutLatencyDialog();
+}
+void GUI::OnUpdateMIDIOutLatencyOther(GtkWidget *widget, gpointer user_data)
+{
+	GUI *gui = (GUI *)user_data;
+	GtkCheckMenuItem *item = (GtkCheckMenuItem *)widget;
+
+	gtk_check_menu_item_set_active(item, gui->GetMidiOutLatencyNum() < 0);
+}
+void GUI::OnSelectSendMIDIReset(GtkWidget *widget, gpointer user_data)
+{
+	GUI *gui = (GUI *)user_data;
+	int num = (int)(intptr_t)g_object_get_data(G_OBJECT(widget),"num");
+
+	SKIP_WHEN_MENU_OPENING(widget);
+	gui->SendMidiResetMessage(num);
+}
+#endif
 
 //
 void GUI::OnSelectSavePrinter(GtkWidget *widget, gpointer user_data)

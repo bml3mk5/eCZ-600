@@ -57,6 +57,10 @@
 #define MAX_JOYSTICKS	2
 #endif
 
+#ifdef USE_MIDI
+#define MIDI_MAX_PORTS	19
+#endif
+
 #ifdef USE_DEBUGGER
 #include "debugger_defs.h"
 #endif
@@ -510,6 +514,22 @@ protected:
 #endif
 
 	// ----------------------------------------
+	// MIDI
+	// ----------------------------------------
+#ifdef USE_MIDI
+	/// @name midi private methods
+	//@{
+	void EMU_MIDI() {}
+	virtual void initialize_midi() {}
+	virtual void release_midi() {}
+	virtual void reset_midi(bool power_on) {}
+	virtual void update_midi() {}
+	virtual void pause_midi() {}
+	virtual void set_midi_cpu_power() {}
+	//@}
+#endif
+
+	// ----------------------------------------
 	// debugger
 	// ----------------------------------------
 #ifdef USE_DEBUGGER
@@ -747,7 +767,7 @@ public:
 	void restart_rec_video();
 	virtual void record_rec_video();
 	void resize_rec_video(int num);
-	void change_rec_video_size(int num);
+	virtual void change_rec_video_size(int num);
 	int  get_rec_video_fps_num();
 	bool now_rec_video();
 	bool rec_video_enabled(int type);
@@ -806,6 +826,16 @@ public:
 	void enable_comm_connect(int dev, int num);
 	bool now_comm_connecting(int dev, int num);
 	void send_comm_telnet_command(int dev, int num);
+	//@}
+#endif
+#ifdef USE_MIDI
+	/// @name midi menu for ui
+	//@{
+//	virtual void enable_midiin_connect(int idx) {}
+//	virtual void enable_midiout_connect(int idx) {}
+	virtual bool now_midiin_connecting(int idx) { return false; }
+	virtual bool now_midiout_connecting(int idx) { return false; }
+	virtual void set_midiout_delay_time(int val) {}
 	//@}
 #endif
 #ifdef USE_MESSAGE_BOARD
@@ -991,6 +1021,15 @@ public:
 	virtual void get_uart_description(int idx, _TCHAR *buf, size_t size) {}
 	//@}
 #endif
+#ifdef USE_MIDI
+	/// @name MIDI device procedures for host machine
+	//@{
+	virtual int  enum_midiins() { return 0; }
+	virtual int  enum_midiouts() { return 0; }
+	virtual void get_midiin_description(int idx, _TCHAR *buf, size_t size) {}
+	virtual void get_midiout_description(int idx, _TCHAR *buf, size_t size) {}
+	//@}
+#endif
 #ifdef USE_DEBUGGER
 	/// @name debugger procedures for host machine
 	//@{
@@ -1109,6 +1148,20 @@ public:
 	virtual void recv_uart_data(int ch) {}
 	//@}
 #endif
+#ifdef USE_MIDI
+	/// @name midi for vm
+	//@{
+	virtual bool open_midiin(int idx) { return false; }
+	virtual bool is_opened_midiin() { return false; }
+	virtual void close_midiin() {}
+	virtual bool open_midiout(int idx) { return false; }
+	virtual bool is_opened_midiout() { return false; }
+	virtual void close_midiout() {}
+	virtual uint8_t recv_data_from_midiin() { return 0; }
+	virtual void send_data_to_midiout(uint8_t data) {}
+	virtual void send_midi_reset_message() {}
+	//@}
+#endif
 	/// @name load rom image
 	//@{
 	static int load_data_from_file(const _TCHAR *file_path, const _TCHAR *file_name
@@ -1132,6 +1185,7 @@ public:
 	/// @name for debug
 	//@{
 	uint64_t get_current_clock();
+	int      get_current_power();
 	virtual void sleep(uint32_t ms);
 	//@}
 

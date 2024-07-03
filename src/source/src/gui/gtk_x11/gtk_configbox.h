@@ -12,9 +12,10 @@
 #ifndef GUI_GTK_CONFIGBOX_H
 #define GUI_GTK_CONFIGBOX_H
 
+#include "../../common.h"
 #include <gtk/gtk.h>
 #include "gtk_dialogbox.h"
-#include "../../vm/vm.h"
+#include "../../vm/vm_defs.h"
 #include "../../config.h"
 #include "../../cchar.h"
 #include "../../cptrlist.h"
@@ -120,6 +121,18 @@ private:
 	GtkWidget *txtSramSasiOnScsi;
 #endif
 
+	GtkWidget *chkEnableMIDI;
+#ifdef USE_MIDI
+	GtkWidget *comMIDIOut;
+	GtkWidget *spnMIDIOutDelay;
+	GtkWidget *comMIDIResetType;
+	GtkWidget *chkMIDIResPowerOn;
+	GtkWidget *chkMIDIResPowerOff;
+	GtkWidget *chkMIDIResHardRes;
+	GtkWidget *chkMIDIResEndApp;
+	GtkWidget *chkMIDINoRTMsg;
+#endif
+
 #ifdef MAX_PRINTER
 	GtkWidget *txtLPTHost[MAX_PRINTER];
 	GtkWidget *txtLPTPort[MAX_PRINTER];
@@ -151,6 +164,9 @@ private:
 	void ChangeIOPort(int index);
 	void ChangeFmOpn();
 	void ChangeExPsg();
+#ifdef USE_MIDI
+	void SendMIDIResetMessage();
+#endif
 
 	static void OnChangedFDD(GtkWidget *widget, gpointer user_data);
 	static void OnChangedIO(GtkWidget *widget, gpointer user_data);
@@ -162,6 +178,10 @@ private:
 	static void OnSelectROMPath(GtkWidget *widget, gpointer user_data);
 	static void OnSelectMessageFont(GtkWidget *widget, gpointer user_data);
 	static void OnSelectInfoFont(GtkWidget *widget, gpointer user_data);
+	
+#ifdef USE_MIDI
+	static void OnSelectSendMIDIResetMessage(GtkWidget *widget, gpointer user_data);
+#endif
 
 	static void OnResponse(GtkWidget *widget, gint response_id, gpointer user_data);
 

@@ -35,11 +35,22 @@
         sdl_linux/ ......... SDL linux用
         sdl_win/ ........... SDL Pleiades(Eclipse日本語版)用
       VC++2010/
-        x68000.vcxproj ..... Windows版 VC++2010用プロジェクトファイル
-        x68000_sdl.vcxproj .. SDL版 VC++2010用プロジェクトファイル
+        x68000.vcxproj ..... Windows版 プロジェクトファイル
+        x68000_sdl.vcxproj .. SDL版 プロジェクトファイル
+      VC++2013/
+        x68000.vcxproj ..... Windows版 プロジェクトファイル
+        x68000_sdl.vcxproj .. SDL版 プロジェクトファイル
+      VC++2015/
+        x68000.vcxproj ..... Windows版 プロジェクトファイル
+        x68000_sdl.vcxproj .. SDL版 プロジェクトファイル
+      VC++2017/
+        x68000.vcxproj ..... Windows版 プロジェクトファイル
+        x68000_sdl.vcxproj .. SDL版 プロジェクトファイル
       VC++2019/
-        x68000.vcxproj ..... Windows版 VC++2019用プロジェクトファイル
+        x68000.vcxproj ..... Windows版 プロジェクトファイル
+        x68000_sdl.vcxproj .. SDL版 プロジェクトファイル
       Xcode/ ............... Xcode用プロジェクトファイル
+      CMakeLists.txt ....... cmake用ビルドファイル
       Makefile.xxx ......... 各OSごとのmakeファイル
       README.md ............ このファイル
 
@@ -64,10 +75,10 @@
 
 ==============================================================================
 
-連絡先：
-  Sasaji (sasaji@s-sasaji.ddo.jp)
-  http://s-sasaji.ddo.jp/bml3mk5/
-  (Twitter: http://twitter.com/bml3mk5)
+連絡先：Sasaji (sasaji@s-sasaji.ddo.jp)
+ * My WebPage: http://s-sasaji.ddo.jp/bml3mk5/
+ * GitHub:     https://github.com/bml3mk5/eCZ-600
+ * X(Twitter): https://x.com/bml3mk5
 
 ==============================================================================
 

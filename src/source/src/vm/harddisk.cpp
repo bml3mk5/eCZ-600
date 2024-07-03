@@ -1,4 +1,4 @@
-/** @file harddisk.h
+/** @file harddisk.cpp
 
 	Skelton for retropc emulator
 
@@ -37,6 +37,7 @@ HARDDISK::~HARDDISK()
 	delete fio;
 }
 
+/// @brief Clear parameters for initialize
 void HARDDISK::clear_param()
 {
 	m_device_type = DEVICE_TYPE_SASI_HDD;
@@ -52,6 +53,11 @@ void HARDDISK::clear_param()
 	m_access = false;
 }
 
+/// @brief Open a hard disk image
+///
+/// @param[in] file_path   : path of image file
+/// @param[in] flags       : bit0: read only
+/// @param[in] sector_size : sector size
 /// @return true = success
 bool HARDDISK::open(const _TCHAR* file_path, uint32_t flags, int sector_size)
 {
@@ -225,6 +231,7 @@ bool HARDDISK::open(const _TCHAR* file_path, uint32_t flags, int sector_size)
 	return true;
 }
 
+/// @brief Close the hard disk image
 void HARDDISK::close()
 {
 	// write disk image
@@ -235,18 +242,26 @@ void HARDDISK::close()
 	clear_param();
 }
 
-/// file is open?
+/// @brief Is file already opened?
+///
+/// @return true if open
 bool HARDDISK::mounted() const
 {
 	return fio->IsOpened();
 }
 
-/// file is open and same device?
+/// @brief Is file already opened and the same device?
+///
+/// @param[in] device_type : device type
+/// @return true if the same
 bool HARDDISK::is_valid_disk(int device_type) const
 {
 	return mounted() && (m_device_type == device_type);
 }
 
+/// @brief Is file accessed for reading or writing?
+///
+/// @return true if access
 bool HARDDISK::accessed()
 {
 	bool value = m_access;
@@ -254,25 +269,43 @@ bool HARDDISK::accessed()
 	return value;
 }
 
+/// @brief Is file the same?
+///
+/// @param[in] file_path : path of image file
+/// @return true if the same
 bool HARDDISK::is_same_file(const _TCHAR *file_path)
 {
 	return (m_file_path.Compare(file_path, (int)_tcslen(file_path)) == 0);
 }
 
+/// @brief Set or clear the write protection flag
+///
+/// When set write protect, flush disk image to file.
+/// @param[in] val : true if set
 void HARDDISK::set_write_protect(bool val)
 {
 	if (val == true && m_write_protected == 0) {
-		// when set write protect, flash disk image to file.
+		// when set write protect, flush disk image to file.
 		fio->Flush();
 	}
 	BIT_ONOFF(m_write_protected, WP_USER, val);
 }
 
+/// @brief Is file write protected?
+///
+/// @return true if yes
 bool HARDDISK::is_write_protected() const
 {
 	return (m_write_protected != 0);
 }
 
+/// @brief Read data in the image file
+///
+/// @param[in] block          : block number
+/// @param[in] length         : data size
+/// @param[out] buffer        : read data
+/// @param[out] cylinder_diff : moved distance on cylinder (optional)
+/// @return true if success
 bool HARDDISK::read_buffer(int block, int length, uint8_t *buffer, int *cylinder_diff)
 {
 	if(!mounted()) return false;
@@ -288,6 +321,13 @@ bool HARDDISK::read_buffer(int block, int length, uint8_t *buffer, int *cylinder
 	return false;
 }
 
+/// @brief Write data to the image file
+///
+/// @param[in] block          : block number
+/// @param[in] length         : data size
+/// @param[in] buffer         : data to write
+/// @param[out] cylinder_diff : moved distance on cylinder (optional)
+/// @return true if success
 bool HARDDISK::write_buffer(int block, int length, const uint8_t *buffer, int *cylinder_diff)
 {
 	if (!mounted()) return false;
@@ -303,6 +343,13 @@ bool HARDDISK::write_buffer(int block, int length, const uint8_t *buffer, int *c
 	return false;
 }
 
+/// @brief Verify data in the image file
+///
+/// @param[in] block          : block number
+/// @param[in] length         : data size
+/// @param[in] buffer         : data to verify
+/// @param[out] cylinder_diff : moved distance on cylinder (optional)
+/// @return true if success
 bool HARDDISK::verify_buffer(int block, int length, const uint8_t *buffer, int *cylinder_diff)
 {
 	if (!mounted()) return false;
@@ -323,6 +370,9 @@ bool HARDDISK::verify_buffer(int block, int length, const uint8_t *buffer, int *
 	return false;
 }
 
+/// @brief Format the image file (zero padding)
+///
+/// @return true if success
 bool HARDDISK::format_disk()
 {
 	if (!mounted()) return false;
@@ -334,6 +384,11 @@ bool HARDDISK::format_disk()
 	return false;
 }
 
+/// @brief Format a track (zero padding)
+///
+/// @param[in] block          : block number
+/// @param[out] cylinder_diff : moved distance on cylinder (optional)
+/// @return true if success
 bool HARDDISK::format_track(int block, int *cylinder_diff)
 {
 	if (!mounted()) return false;
@@ -350,6 +405,11 @@ bool HARDDISK::format_track(int block, int *cylinder_diff)
 	return false;
 }
 
+/// @brief Seek
+///
+/// @param[in] block          : block number
+/// @param[out] cylinder_diff : moved distance on cylinder (optional)
+/// @return true if success
 bool HARDDISK::seek(int block, int *cylinder_diff)
 {
 	if (!mounted()) return false;
@@ -361,18 +421,29 @@ bool HARDDISK::seek(int block, int *cylinder_diff)
 	return true;
 }
 
+/// @brief Does the block exists?
+///
+/// @param[in] block          : block number
+/// @return true if yes
 bool HARDDISK::is_valid_block(int block) const
 {
 	return (block < m_sector_total);
 }
 
+/// @brief Get cylinder number from block number
+///
+/// @param[in] block          : block number
+/// @return number
 int HARDDISK::get_cylinder(int block)
 {
 	int track = (block / m_sectors / m_surfaces);
 	return track % m_cylinders;
 }
 
-/// @brief difference from current cylinder position
+/// @brief Calculate distance from current cylinder position
+///
+/// @param[in] block          : block number
+/// @return distance
 /// @note difference is 10 max
 int HARDDISK::get_cylinder_diff(int block)
 {
@@ -383,6 +454,10 @@ int HARDDISK::get_cylinder_diff(int block)
 	return diff;
 }
 
+/// @brief Calculate access time
+///
+/// @param[in] diff : difference
+/// @return time
 int HARDDISK::calc_access_time(int diff)
 {
 	if (diff <= 0) {
@@ -393,12 +468,19 @@ int HARDDISK::calc_access_time(int diff)
 	return diff;
 }
 
+/// @brief Get the access time to reach specified block
+///
+/// @param[in] block          : block number
+/// @return time
 int HARDDISK::get_access_time(int block)
 {
 	int diff = get_cylinder_diff(block);
 	return calc_access_time(diff);
 }
 
+/// @brief The time to move to the next cylinder
+///
+/// @return time
 int HARDDISK::get_cylinder_to_cylinder_delay()
 {
 	return TIME_TRACK_TO_TRACK;

@@ -9,7 +9,6 @@
 */
 
 #include "gtk_folderbox.h"
-#include "../../common.h"
 #include "../../msgs.h"
 #include "../../utility.h"
 

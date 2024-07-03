@@ -38,11 +38,10 @@
 
 ------------------------------------------------------------------------------
 
-  Sasaji (sasaji@s-sasaji.ddo.jp)
-
-  http://s-sasaji.ddo.jp/bml3mk5/
-
-  (X(Twitter): https://twitter.com/bml3mk5)
+ MailTo: Sasaji (sasaji@s-sasaji.ddo.jp)
+ * My WebPage: http://s-sasaji.ddo.jp/bml3mk5/
+ * GitHub:     https://github.com/bml3mk5/eCZ-600
+ * X(Twitter): https://x.com/bml3mk5
 
 ------------------------------------------------------------------------------
 

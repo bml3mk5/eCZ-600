@@ -236,11 +236,6 @@ INT_PTR ConfigBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 	hCtrl = CreateEditBox(hbox, IDC_EDIT_SRAM_CONTRAST, 0, 6);
 	CreateUpDown(hbox, IDC_SPIN_SRAM_CONTRAST, hCtrl, 0, 15, vali);
 
-	// eject fd
-	hbox = box_1r->AddBox(CBox::HorizontalBox, 0, 0, _T("eject"));
-	vali = vm->get_sram_fd_eject();
-	CreateCheckBox(hbox, IDC_CHK_SRAM_EJECT_FD, CMsg::Eject_FD_when_power_off, vali != 0);
-
 	// purpose of SRAM free area
 	hbox = box_1r->AddBox(CBox::HorizontalBox, 0, 0, _T("purp1h"));
 	vali = vm->get_sram_purpose();
@@ -269,6 +264,19 @@ INT_PTR ConfigBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 	CreateCheckBox(hbox, IDC_CHK_SRAM_KLED_INS, CMsg::INS, (vali & 16) != 0);
 	CreateCheckBox(hbox, IDC_CHK_SRAM_KLED_HIRA, CMsg::Hiragana, (vali & 32) != 0);
 	CreateCheckBox(hbox, IDC_CHK_SRAM_KLED_ZENKAKU, CMsg::Zenkaku, (vali & 64) != 0);
+
+	// Accumulated operating time
+	hbox = box_1r->AddBox(CBox::HorizontalBox, 0, 0, _T("optime"));
+	valu = vm->get_sram_accumulated_operating_time();
+	CreateEditBoxWithLabel(hbox, IDC_EDIT_OPERATING_TIME, CMsg::Accumulated_operating_time, valu, 8);
+	CreateStatic(hbox, IDC_STATIC, CMsg::min_);
+	EnableDlgItem(IDC_EDIT_OPERATING_TIME, false);
+
+	// Number of times turned off
+	hbox = box_1r->AddBox(CBox::HorizontalBox, 0, 0, _T("pwtimes"));
+	valu = vm->get_sram_times_of_the_power_off();
+	CreateEditBoxWithLabel(hbox, IDC_EDIT_TIMES_OF_POWER_OFF, CMsg::Times_of_turned_off, valu, 8);
+	EnableDlgItem(IDC_EDIT_TIMES_OF_POWER_OFF, false);
 
 	// ----------------------------------------
 	// 2:Screen
@@ -398,7 +406,7 @@ INT_PTR ConfigBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 	CreateStatic(box_2all, IDC_STATIC, CMsg::Need_restart_program);
 
 	// ----------------------------------------
-	// 3:Tape, FDD
+	// 3:Tape, FDD and HDD
 	// ----------------------------------------
 	CBox *box_3all = box_tab->AddBox(CBox::VerticalBox, 0, 0, _T("3all"));
 	tab_items.SetCurrentPosition(3);
@@ -444,21 +452,29 @@ INT_PTR ConfigBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 
 	// FDD
 #ifdef USE_FD1
-	CBox *box_fdd = CreateGroup(box_3all, IDC_STATIC, CMsg::Floppy_Disk_Drive, CBox::VerticalBox);
+	CBox *boxall_fdd_h = box_3all->AddBox(CBox::HorizontalBox, 0, 0, _T("fdd"));
+	CBox *box_fdd_l = CreateGroup(boxall_fdd_h, IDC_STATIC, CMsg::Floppy_Disk_Drive, CBox::VerticalBox);
 
 	// mount fdd
-	hbox = box_fdd->AddBox(CBox::HorizontalBox, 0, 0, _T("fdd_mount"));
+	hbox = box_fdd_l->AddBox(CBox::HorizontalBox, 0, 0, _T("fdd_mount"));
 	CreateStatic(hbox, IDC_STATIC, CMsg::When_start_up_mount_disk_at_);
 	for(int i=0; i<USE_FLOPPY_DISKS; i++) {
 		UTILITY::stprintf(str, sizeof(str), _T("%d"), i);
 		CreateCheckBox(hbox, IDC_CHK_FDD_MOUNT0 + i, str, (pConfig->mount_fdd & (1 << i)) != 0);
 	}
 
-	CreateCheckBox(box_fdd, IDC_CHK_DELAYFD1, CMsg::Ignore_delays_to_find_sector, FLG_DELAY_FDSEARCH != 0);
-	CreateCheckBox(box_fdd, IDC_CHK_DELAYFD2, CMsg::Ignore_delays_to_seek_track, FLG_DELAY_FDSEEK != 0);
-	CreateCheckBox(box_fdd, IDC_CHK_FDDENSITY, CMsg::Suppress_checking_for_density, FLG_CHECK_FDDENSITY == 0);
-	CreateCheckBox(box_fdd, IDC_CHK_FDMEDIA, CMsg::Suppress_checking_for_media_type, FLG_CHECK_FDMEDIA == 0);
-	CreateCheckBox(box_fdd, IDC_CHK_SAVE_FDPLAIN, CMsg::Save_a_plain_disk_image_as_it_is, FLG_SAVE_FDPLAIN != 0);
+	CreateCheckBox(box_fdd_l, IDC_CHK_DELAYFD1, CMsg::Ignore_delays_to_find_sector, FLG_DELAY_FDSEARCH != 0);
+	CreateCheckBox(box_fdd_l, IDC_CHK_DELAYFD2, CMsg::Ignore_delays_to_seek_track, FLG_DELAY_FDSEEK != 0);
+	CreateCheckBox(box_fdd_l, IDC_CHK_FDDENSITY, CMsg::Suppress_checking_for_density, FLG_CHECK_FDDENSITY == 0);
+	CreateCheckBox(box_fdd_l, IDC_CHK_FDMEDIA, CMsg::Suppress_checking_for_media_type, FLG_CHECK_FDMEDIA == 0);
+	CreateCheckBox(box_fdd_l, IDC_CHK_SAVE_FDPLAIN, CMsg::Save_a_plain_disk_image_as_it_is, FLG_SAVE_FDPLAIN != 0);
+
+	CBox *box_fdd_r = CreateGroup(boxall_fdd_h, IDC_STATIC, CMsg::Parameters_for_floppy_disk_in_SRAM, CBox::VerticalBox);
+
+	// eject fd
+	hbox = box_fdd_r->AddBox(CBox::HorizontalBox, 0, 0, _T("ejectfd"));
+	vali = vm->get_sram_fd_eject();
+	CreateCheckBox(hbox, IDC_CHK_SRAM_EJECT_FD, CMsg::Eject_FD_when_power_off, vali != 0);
 #endif
 
 	// HDD
@@ -543,18 +559,79 @@ INT_PTR ConfigBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 	UTILITY::tcscat(str, sizeof(str), CMSGVM(LABELS::scsi_type[pConfig->scsi_type]));
 	UTILITY::tcscat(str, sizeof(str), _T(")"));
 	CreateStatic(hbox, IDC_STATIC, str);
+
+	// text
+	CreateStatic(box_3all, IDC_STATIC, CMsg::Need_restart_program_or_PowerOn);
 #endif
 
+
 	// ----------------------------------------
-	// 4:Network
+	// 4:Sound
 	// ----------------------------------------
 	CBox *box_4all = box_tab->AddBox(CBox::VerticalBox, 0, 0, _T("4all"));
 	tab_items.SetCurrentPosition(4);
 
+	// MIDI
+	CBox *box_midi = CreateGroup(box_4all, IDC_STATIC, CMsg::MIDI, CBox::VerticalBox);
+
+	hbox = box_midi->AddBox(CBox::HorizontalBox, 0, 0, _T("midie"));
+	bool valb = ((emu->get_parami(VM::ParamIOPort) & IOPORT_MIDI) != 0);
+	CreateCheckBox(hbox, IDC_CHK_MIDIBOARD, CMsg::Enable_MIDI_Board_CZ_6BM1_ASTERISK, valb);
+	UTILITY::tcscpy(str, sizeof(str), CMSGM(LB_Now_SP));
+	UTILITY::tcscat(str, sizeof(str), valb ? CMSGM(Enable) : CMSGM(Disable));
+	UTILITY::tcscat(str, sizeof(str), _T(")"));
+	CreateStatic(hbox, IDC_STATIC, str);
+	// MIDI out device
+#ifdef USE_MIDI
+	CPtrList<CTchar> midiout_list;
+	int midiout_cnt = gui->EnumMidiOuts();
+	int midiout_conn = 0;
+	midiout_list.Add(new CTchar(CMSGM(None_)));
+	for(int idx = 0; idx < midiout_cnt && idx < MIDI_MAX_PORTS; idx++) {
+		gui->GetMidiOutDescription(idx, str, sizeof(str)/sizeof(str[0]));
+		if (gui->NowConnectingMidiOut(idx)) {
+			midiout_conn = idx + 1;
+		}
+		midiout_list.Add(new CTchar(str));
+	}
+	hbox = box_midi->AddBox(CBox::HorizontalBox, 0, 0, _T("midio"));
+	CreateComboBoxWithLabel(hbox, IDC_COMBO_MIDIOUT, CMsg::Now_Connecting_MIDI_Output, midiout_list, midiout_conn, 18);
+
+	hbox = box_midi->AddBox(CBox::HorizontalBox, 0, 0, _T("midiod"));
+	CreateStatic(hbox, IDC_STATIC, CMsg::Output_Latency);
+	hCtrl = CreateEditBox(hbox, IDC_EDIT_MIDIOUT_DELAY, (int)pConfig->midiout_delay, 6);
+	CreateUpDown(hbox, IDC_SPIN_MIDIOUT_DELAY, hCtrl, 0, 2000, pConfig->midiout_delay);
+	CreateStatic(hbox, IDC_STATIC, CMsg::msec);
+
+	hbox = box_midi->AddBox(CBox::HorizontalBox, 0, 0, _T("midir"));
+	CreateComboBoxWithLabel(hbox, IDC_COMBO_MIDI_TYPE, CMsg::MIDI_Reset_Type, LABELS::midi_type, pConfig->midi_send_reset_type, 8);
+	CreateButton(hbox, IDC_BTN_MIDI_RES, CMsg::Send_message_now, 8);
+
+	hbox = box_midi->AddBox(CBox::HorizontalBox, 0, 0, _T("midirc"));
+	CreateStatic(hbox, IDC_STATIC, CMsg::When_send_reset_message_);
+	CreateCheckBox(hbox, IDC_CHK_MIDI_RES_POWERON, CMsg::Power_on, (pConfig->midi_flags & MIDI_FLAG_RES_POWERON) != 0);
+	CreateCheckBox(hbox, IDC_CHK_MIDI_RES_POWEROFF, CMsg::Power_off, (pConfig->midi_flags & MIDI_FLAG_RES_POWEROFF) != 0);
+	CreateCheckBox(hbox, IDC_CHK_MIDI_RES_HARDRES, CMsg::Reset_by_hand, (pConfig->midi_flags & MIDI_FLAG_RES_HARDRES) != 0);
+	CreateCheckBox(hbox, IDC_CHK_MIDI_RES_END_APP, CMsg::End_of_app_, (pConfig->midi_flags & MIDI_FLAG_RES_END_APP) != 0);
+
+	hbox = box_midi->AddBox(CBox::HorizontalBox, 0, 0, _T("midirt"));
+	CreateCheckBox(hbox, IDC_CHK_MIDI_NO_REALTIME_MSG, CMsg::Does_not_send_system_real_time_messages_, (pConfig->midi_flags & MIDI_FLAG_NO_REALTIME_MSG) != 0);
+#endif
+
+	// text
+	CreateStatic(box_4all, IDC_STATIC, CMsg::Need_restart_program_or_PowerOn);
+
+
+	// ----------------------------------------
+	// 5:Network
+	// ----------------------------------------
+	CBox *box_5all = box_tab->AddBox(CBox::VerticalBox, 0, 0, _T("5all"));
+	tab_items.SetCurrentPosition(5);
+
 #ifdef MAX_PRINTER
 	// LPT
 	for(int i=0; i<MAX_PRINTER; i++) {
-		hbox = box_4all->AddBox(CBox::HorizontalBox, 0, 0, _T("hh"));
+		hbox = box_5all->AddBox(CBox::HorizontalBox, 0, 0, _T("hh"));
 		UTILITY::stprintf(str, sizeof(str), CMSGM(Printer_Hostname), i); 
 		CreateStatic(hbox, IDC_STATIC, str, 100);
 		CreateEditBox(hbox, IDC_HOSTNAME_LPT0 + i, pConfig->printer_server_host[i].Get(), 12, WS_EX_LEFT);
@@ -567,7 +644,7 @@ INT_PTR ConfigBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 #ifdef MAX_COMM
 	// COM
 	for(int i=0; i<MAX_COMM; i++) {
-		hbox = box_4all->AddBox(CBox::HorizontalBox, 0, 0, _T("hh"));
+		hbox = box_5all->AddBox(CBox::HorizontalBox, 0, 0, _T("hh"));
 		UTILITY::stprintf(str, sizeof(str), CMSGM(Communication_Hostname), i); 
 		CreateStatic(hbox, IDC_STATIC, str, 100);
 		CreateEditBox(hbox, IDC_HOSTNAME_COM0 + i, pConfig->comm_server_host[i].Get(), 12, WS_EX_LEFT);
@@ -577,14 +654,14 @@ INT_PTR ConfigBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 #endif
 #ifdef USE_DEBUGGER
 	// Debugger
-	hbox = box_4all->AddBox(CBox::HorizontalBox, 0, 0, _T("dbg"));
+	hbox = box_5all->AddBox(CBox::HorizontalBox, 0, 0, _T("dbg"));
 	CreateEditBoxWithLabel(hbox, IDC_HOSTNAME_DBGR, CMsg::Connectable_host_to_Debugger, pConfig->debugger_server_host.Get(), 12, WS_EX_LEFT);
 	CreateEditBoxWithLabel(hbox, IDC_PORT_DBGR, CMsg::_Port, pConfig->debugger_server_port, 6, WS_EX_RIGHT);
 #endif
 	// uart
 //	int uart_w = font->GetTextWidth(hDlg, _T("mmmmmmmmmmmm"));
 	int uart_w = 100;
-	CBox *box_uart = CreateGroup(box_4all, IDC_STATIC, CMsg::Settings_of_serial_ports_on_host, CBox::VerticalBox);
+	CBox *box_uart = CreateGroup(box_5all, IDC_STATIC, CMsg::Settings_of_serial_ports_on_host, CBox::VerticalBox);
 	CBox *box_uah0 = box_uart->AddBox(CBox::HorizontalBox, 0, 0, _T("uart0"));
 	vbox = box_uah0->AddBox(CBox::VerticalBox, 0, 0, _T("uart1"));
 	CreateStatic(vbox, IDC_STATIC, CMsg::Baud_Rate, uart_w);
@@ -880,6 +957,15 @@ INT_PTR ConfigBox::onCommand(UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		return (INT_PTR)FALSE;
 	}
+#ifdef USE_MIDI
+	else if (wId == IDC_BTN_MIDI_RES)
+	{
+		int midiout_conn = (int)SendDlgItemMessage(hDlg, IDC_COMBO_MIDIOUT, CB_GETCURSEL, 0, 0);
+		gui->ConnectMidiOut(midiout_conn - 1);
+		gui->SendMidiResetMessage((int)SendDlgItemMessage(hDlg, IDC_COMBO_MIDI_TYPE, CB_GETCURSEL, 0, 0));
+		return (INT_PTR)FALSE;
+	}
+#endif
 
 	if (wId == IDOK || wId == IDCANCEL) {
 		::EndDialog(hDlg, wId);
@@ -961,6 +1047,25 @@ INT_PTR ConfigBox::onOK(UINT message, WPARAM wParam, LPARAM lParam)
 
 	pConfig->wav_sample_rate = (uint8_t)SendDlgItemMessage(hDlg, IDC_COMBO_SRATE, CB_GETCURSEL, 0, 0);
 	pConfig->wav_sample_bits = (uint8_t)SendDlgItemMessage(hDlg, IDC_COMBO_SBITS, CB_GETCURSEL, 0, 0);
+#endif
+
+	// MIDI
+	BIT_ONOFF(io_port, IOPORT_MIDI, IsDlgButtonChecked(hDlg, IDC_CHK_MIDIBOARD) != BST_UNCHECKED);
+	// MIDI out device
+#ifdef USE_MIDI
+	int midiout_conn = (int)SendDlgItemMessage(hDlg, IDC_COMBO_MIDIOUT, CB_GETCURSEL, 0, 0);
+	gui->ConnectMidiOut(midiout_conn - 1);
+	valuel = GetDlgItemInt(hDlg, IDC_EDIT_MIDIOUT_DELAY, &rc, true);
+	if (rc == TRUE && 0 <= valuel && valuel <= 2000) {
+		pConfig->midiout_delay = valuel;
+		emu->set_midiout_delay_time(valuel);
+	}
+	pConfig->midi_send_reset_type = (int)SendDlgItemMessage(hDlg, IDC_COMBO_MIDI_TYPE, CB_GETCURSEL, 0, 0);
+	BIT_ONOFF(pConfig->midi_flags, MIDI_FLAG_RES_POWERON, IsDlgButtonChecked(hDlg, IDC_CHK_MIDI_RES_POWERON) != BST_UNCHECKED);
+	BIT_ONOFF(pConfig->midi_flags, MIDI_FLAG_RES_POWEROFF, IsDlgButtonChecked(hDlg, IDC_CHK_MIDI_RES_POWEROFF) != BST_UNCHECKED);
+	BIT_ONOFF(pConfig->midi_flags, MIDI_FLAG_RES_HARDRES, IsDlgButtonChecked(hDlg, IDC_CHK_MIDI_RES_HARDRES) != BST_UNCHECKED);
+	BIT_ONOFF(pConfig->midi_flags, MIDI_FLAG_RES_END_APP, IsDlgButtonChecked(hDlg, IDC_CHK_MIDI_RES_END_APP) != BST_UNCHECKED);
+	BIT_ONOFF(pConfig->midi_flags, MIDI_FLAG_NO_REALTIME_MSG, IsDlgButtonChecked(hDlg, IDC_CHK_MIDI_NO_REALTIME_MSG) != BST_UNCHECKED);
 #endif
 
 #if 0

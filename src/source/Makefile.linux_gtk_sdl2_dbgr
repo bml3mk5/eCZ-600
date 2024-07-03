@@ -49,9 +49,9 @@ LOCALLIBDIR:=/usr/local/lib
 # SDLLIBS:=$(LOCALLIBDIR)/libSDL2_net.a
 SDLLIBS:=
 
-SH_LDFLAGS:=-s $(shell sdl2-config --libs) $(shell pkg-config --libs $(GTK_PKG)) -lSDL2_ttf -lm -lz -lGL -lpthread -lfreetype -lrt -ldl -lX11 -lpng
-ST_LDFLAGS:=-s $(shell sdl2-config --libs) $(shell pkg-config --libs $(GTK_PKG)) -lSDL2_ttf -lm -lz -lGL -lpthread -lfreetype -lrt -ldl -lX11 -lpng
-DBG_LDFLAGS:=$(shell sdl2-config --libs) $(shell pkg-config --libs $(GTK_PKG)) -lSDL2_ttf -lm -lz -lGL -lpthread -lfreetype -lrt -ldl -lX11 -lpng
+SH_LDFLAGS:=-s $(shell sdl2-config --libs) $(shell pkg-config --libs $(GTK_PKG)) -lSDL2_ttf -lm -lz -lGL -lpthread -lfreetype -lrt -ldl -lX11 -lpng -lasound
+ST_LDFLAGS:=-s $(shell sdl2-config --libs) $(shell pkg-config --libs $(GTK_PKG)) -lSDL2_ttf -lm -lz -lGL -lpthread -lfreetype -lrt -ldl -lX11 -lpng -lasound
+DBG_LDFLAGS:=$(shell sdl2-config --libs) $(shell pkg-config --libs $(GTK_PKG)) -lSDL2_ttf -lm -lz -lGL -lpthread -lfreetype -lrt -ldl -lX11 -lpng -lasound
 
 LIBS_BASE:=$(SDLLIBS)
 

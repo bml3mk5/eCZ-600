@@ -23,6 +23,9 @@
 #import "cocoa_hdtypepanel.h"
 //#import "cocoa_savedatarec.h"
 #import "cocoa_ledbox.h"
+#ifdef USE_MIDI
+#import "cocoa_midlatepanel.h"
+#endif
 #ifdef USE_VKEYBOARD
 #import "cocoa_vkeyboard.h"
 #endif
@@ -613,6 +616,32 @@ static NSWindow *get_main_window()
 	int num = [sender num];
 	gui->ChangeSoundLatency(num);
 }
+#ifdef USE_MIDI
+- (void)ToggleConnectMidiOut:(id)sender
+{
+	int num = [sender num];
+	if (num >= 0) {
+		gui->ToggleConnectMidiOut(num);
+	}
+}
+- (void)UpdateMidiOutList:(id)sender
+{
+}
+- (void)ChangeMidiOutLatency:(id)sender
+{
+	int num = [sender num];
+	gui->ChangeMidiOutLatencyByNum(num);
+}
+- (void)ShowMIDIOutLatencyDialog:(id)sender
+{
+	gui->ShowMIDIOutLatencyDialog();
+}
+- (void)SendMidiResetMessage:(id)sender
+{
+	int num = [sender num];
+	gui->SendMidiResetMessage(num);
+}
+#endif
 
 // Devices
 
@@ -1048,6 +1077,37 @@ static NSWindow *get_main_window()
 		if (gui->GetSoundLatencyNum() == num) {
 			state = NSControlStateValueOn;
 		}
+#ifdef USE_MIDI
+	} else if (act == @selector(ToggleConnectMidiOut:)) {
+		int num = [menuItem num];
+		if (num >= 0 && gui->NowConnectingMidiOut(num)) {
+			state = NSControlStateValueOn;
+		}
+	} else if (act == @selector(UpdateMidiOutList:)) {
+		CocoaMenu *menu = (CocoaMenu *)[menuItem submenu];
+		if (menu != nil) {
+			int midiout_conn = gui->EnumMidiOuts();
+			[menu removeAllItems];
+			char buf[128];
+			if (midiout_conn == 0) {
+				[menu add_menu_item_by_id:CMsg::None_:self:@selector(ToggleConnectMidiOut:):0:-1:0];
+			} else {
+				for(int i=0; i<midiout_conn && i<MIDI_MAX_PORTS; i++) {
+					gui->GetMidiOutDescription(i, buf, sizeof(buf));
+					[menu add_menu_item:buf:self:@selector(ToggleConnectMidiOut:):0:i:0];
+				}
+			}
+		}
+	} else if (act == @selector(ChangeMidiOutLatency:)) {
+		int num = [menuItem num];
+		if (gui->GetMidiOutLatencyNum() == num) {
+			state = NSControlStateValueOn;
+		}
+	} else if (act == @selector(ShowMIDIOutLatencyDialog:)) {
+		if (gui->GetMidiOutLatencyNum() < 0) {
+			state = NSControlStateValueOn;
+		}
+#endif
 	} else if (act == @selector(ShowSavePrinterDialog:) || act == @selector(PrintPrinter:)) {
 		int drv = [menuItem drv];
 		if (gui->GetPrinterBufferSize(drv) <= 0) {
@@ -1739,19 +1799,49 @@ void GUI::setup_menu(void)
 	[soundMenu add_sub_menu_by_id:recSoundMenu:CMsg::Record_Sound];
 #endif
 	[soundMenu addItem:[NSMenuItem separatorItem]];
-	[soundMenu add_menu_item_by_id:CMsg::F8000Hz:recv:@selector(ChangeSoundFrequency:):0:2:0];
-	[soundMenu add_menu_item_by_id:CMsg::F11025Hz:recv:@selector(ChangeSoundFrequency:):0:3:0];
-	[soundMenu add_menu_item_by_id:CMsg::F22050Hz:recv:@selector(ChangeSoundFrequency:):0:4:0];
-	[soundMenu add_menu_item_by_id:CMsg::F44100Hz:recv:@selector(ChangeSoundFrequency:):0:5:0];
-	[soundMenu add_menu_item_by_id:CMsg::F48000Hz:recv:@selector(ChangeSoundFrequency:):0:6:0];
-	[soundMenu add_menu_item_by_id:CMsg::F96000Hz:recv:@selector(ChangeSoundFrequency:):0:7:0];
+	CocoaMenu *soundFreqMenu = [CocoaMenu create_menu_by_id:CMsg::Sampling_Frequency];
+	[soundFreqMenu add_menu_item_by_id:CMsg::F8000Hz:recv:@selector(ChangeSoundFrequency:):0:2:0];
+	[soundFreqMenu add_menu_item_by_id:CMsg::F11025Hz:recv:@selector(ChangeSoundFrequency:):0:3:0];
+	[soundFreqMenu add_menu_item_by_id:CMsg::F22050Hz:recv:@selector(ChangeSoundFrequency:):0:4:0];
+	[soundFreqMenu add_menu_item_by_id:CMsg::F44100Hz:recv:@selector(ChangeSoundFrequency:):0:5:0];
+	[soundFreqMenu add_menu_item_by_id:CMsg::F48000Hz:recv:@selector(ChangeSoundFrequency:):0:6:0];
+	[soundFreqMenu add_menu_item_by_id:CMsg::F96000Hz:recv:@selector(ChangeSoundFrequency:):0:7:0];
+	[soundMenu add_sub_menu_by_id:soundFreqMenu:CMsg::Sampling_Frequency];
+
+	CocoaMenu *soundLateMenu = [CocoaMenu create_menu_by_id:CMsg::Output_Latency];
+	[soundLateMenu add_menu_item_by_id:CMsg::S50msec:recv:@selector(ChangeSoundLatency:):0:0:0];
+	[soundLateMenu add_menu_item_by_id:CMsg::S75msec:recv:@selector(ChangeSoundLatency:):0:1:0];
+	[soundLateMenu add_menu_item_by_id:CMsg::S100msec:recv:@selector(ChangeSoundLatency:):0:2:0];
+	[soundLateMenu add_menu_item_by_id:CMsg::S200msec:recv:@selector(ChangeSoundLatency:):0:3:0];
+	[soundLateMenu add_menu_item_by_id:CMsg::S300msec:recv:@selector(ChangeSoundLatency:):0:4:0];
+	[soundLateMenu add_menu_item_by_id:CMsg::S400msec:recv:@selector(ChangeSoundLatency:):0:5:0];
+	[soundMenu add_sub_menu_by_id:soundLateMenu:CMsg::Output_Latency];
+#ifdef USE_MIDI
 	[soundMenu addItem:[NSMenuItem separatorItem]];
-	[soundMenu add_menu_item_by_id:CMsg::S50msec:recv:@selector(ChangeSoundLatency:):0:0:0];
-	[soundMenu add_menu_item_by_id:CMsg::S75msec:recv:@selector(ChangeSoundLatency:):0:1:0];
-	[soundMenu add_menu_item_by_id:CMsg::S100msec:recv:@selector(ChangeSoundLatency:):0:2:0];
-	[soundMenu add_menu_item_by_id:CMsg::S200msec:recv:@selector(ChangeSoundLatency:):0:3:0];
-	[soundMenu add_menu_item_by_id:CMsg::S300msec:recv:@selector(ChangeSoundLatency:):0:4:0];
-	[soundMenu add_menu_item_by_id:CMsg::S400msec:recv:@selector(ChangeSoundLatency:):0:5:0];
+#ifdef USE_DELEGATE
+	CocoaMenu *soundMIDIOMenu = [CocoaMenu create_menu_by_id:CMsg::MIDI_Out:[[CocoaMIDIOutList alloc] initWithTarget:recv:drv]];
+	[hddSubMenu add_sub_menu_by_id:fddRecentMenu:CMsg::Recent_Files];
+#else
+	CocoaMenu *soundMIDIOMenu = [CocoaMenu create_menu_by_id:CMsg::MIDI_Out];
+	[soundMenu add_sub_menu_by_id:soundMIDIOMenu:CMsg::MIDI_Out:recv:@selector(UpdateMidiOutList:):0:0];
+#endif
+	CocoaMenu *soundMIDIOLMenu = [CocoaMenu create_menu_by_id:CMsg::MIDI_Output_Latency];
+	[soundMIDIOLMenu add_menu_item_by_id:CMsg::S25msec:recv:@selector(ChangeMidiOutLatency:):0:0:0];
+	[soundMIDIOLMenu add_menu_item_by_id:CMsg::S50msec:recv:@selector(ChangeMidiOutLatency:):0:1:0];
+	[soundMIDIOLMenu add_menu_item_by_id:CMsg::S100msec:recv:@selector(ChangeMidiOutLatency:):0:2:0];
+	[soundMIDIOLMenu add_menu_item_by_id:CMsg::S200msec:recv:@selector(ChangeMidiOutLatency:):0:3:0];
+	[soundMIDIOLMenu add_menu_item_by_id:CMsg::S400msec:recv:@selector(ChangeMidiOutLatency:):0:4:0];
+	[soundMIDIOLMenu add_menu_item_by_id:CMsg::S800msec:recv:@selector(ChangeMidiOutLatency:):0:5:0];
+	[soundMIDIOLMenu add_menu_item_by_id:CMsg::Other:recv:@selector(ShowMIDIOutLatencyDialog:):0:6:0];
+	[soundMenu add_sub_menu_by_id:soundMIDIOLMenu:CMsg::MIDI_Output_Latency];
+
+	CocoaMenu *soundMIDISRMenu = [CocoaMenu create_menu_by_id:CMsg::Send_MIDI_Reset];
+	[soundMIDISRMenu add_menu_item_by_id:CMsg::GM_Sound_Module:recv:@selector(SendMidiResetMessage:):0:0:0];
+	[soundMIDISRMenu add_menu_item_by_id:CMsg::GS_Sound_Module:recv:@selector(SendMidiResetMessage:):0:1:0];
+	[soundMIDISRMenu add_menu_item_by_id:CMsg::LA_Sound_Module:recv:@selector(SendMidiResetMessage:):0:2:0];
+	[soundMIDISRMenu add_menu_item_by_id:CMsg::XG_Sound_Module:recv:@selector(SendMidiResetMessage:):0:3:0];
+	[soundMenu add_sub_menu_by_id:soundMIDISRMenu:CMsg::Send_MIDI_Reset];
+#endif
 
 	/* Put menu into the menubar */
 	add_main_menu_by_id(soundMenu,CMsg::Sound);
@@ -2446,6 +2536,29 @@ bool GUI::ShowVolumeDialog(void)
 
 	return true;
 }
+
+#ifdef USE_MIDI
+bool GUI::ShowMIDIOutLatencyDialog(void)
+{
+	NSInteger result;
+
+	CocoaMidLatePanel *panel;
+	
+	PostEtSystemPause(true);
+	GoWindowMode();
+
+	panel = [[CocoaMidLatePanel alloc] init];
+
+	// Display modal dialog
+	result = [panel runModal];
+
+	[panel release];
+
+	PostEtSystemPause(false);
+	SetFocusToMainWindow();
+	return (result == NSModalResponseOK);
+}
+#endif
 
 bool GUI::ShowJoySettingDialog(void)
 {

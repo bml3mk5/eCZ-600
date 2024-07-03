@@ -243,12 +243,13 @@ gboolean LedBox::OnMouseMove(GtkWidget *widget, GdkEvent *event, gpointer user_d
 gboolean LedBox::OnDraw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 {
 	LedBox *obj = (LedBox *)user_data;
-//	GdkRectangle re;
-//	gdk_cairo_get_clip_rectangle(cr, &re);
-//printf("OnDraw: re:%d:%d:%d:%d\n",re.x,re.y,re.width,re.height);
-//	cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 1.0);
-	obj->cairosuf->BlitC(cr);
-//	cairo_set_source_surface(cr, obj->cairosuf, 1.0, 1.0);
+	cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 1.0);
+	cairo_fill(cr);
+	cairo_paint(cr);
+
+	VmRectWH re;
+	re.x = 1.0; re.y = 1.0;
+	obj->cairosuf->BlitC(cr, re);
 	cairo_paint(cr);
 	return FALSE;
 }
@@ -257,9 +258,13 @@ gboolean LedBox::OnExpose(GtkWidget *widget, GdkEvent *event, gpointer user_data
 {
 	LedBox *obj = (LedBox *)user_data;
 	cairo_t *cr = gdk_cairo_create(widget->window);
-//	cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 1.0);
-	obj->cairosuf->BlitC(cr);
-//	cairo_set_source_surface(cr, obj->cairosuf, 1.0, 1.0);
+	cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 1.0);
+	cairo_fill(cr);
+	cairo_paint(cr);
+
+	VmRectWH re;
+	re.x = 1.0; re.y = 1.0;
+	obj->cairosuf->BlitC(cr, re);
 	cairo_paint(cr);
 	cairo_destroy(cr);
 	return FALSE;

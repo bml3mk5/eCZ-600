@@ -11,6 +11,7 @@
 #ifndef GUI_GTK_DIALOGBOX_H
 #define GUI_GTK_DIALOGBOX_H
 
+#include "../../common.h"
 #include <gtk/gtk.h>
 #include "../../cchar.h"
 #include "../../cptrlist.h"

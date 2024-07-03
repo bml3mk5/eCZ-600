@@ -75,12 +75,17 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
   Format Track / Read / Write / Seek / $C2(応答のみ)
 
 ●SCSI HDD / SCSI MO
-  SCSIボード(CZ06BS1)相当。割り込みレベル2。
+  SCSIボード(CZ-6BS1)相当。割り込みレベル2。
   IOCS標準で使用しているコマンドのみ実装。
 ・実装しているコマンド:
   Test Unit Ready / Rezero Unit / Request Sense / Format Unit / Read / Write
   Seek / Inquiry / Mode Sense / Read Capacity / Read(10) / Write(10)
   Verify(10) / Start/Stop Unit(応答のみ) / Prevent/Allow Media Removal(応答のみ)
+
+●MIDIボード(CZ-6BM1)
+  MIDI出力まわりのみ
+  MIDIクロックタイマ、汎用タイマは未テスト。割り込みレベル4
+  通信速度、ビット長さの設定は通信時間の計算で使用する。
 
   -----
 ●エミュの機能
@@ -113,7 +118,7 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 ・録音機能
 
 ●FDC
-・Read a track
+・Scan Equal
 
 ●HDC
 ・SCSI CD-ROM
@@ -123,6 +128,9 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 ・16Hzを超えるクロック出力(CLKOUT)
 
 ●数値演算プロセッサ
+
+●MIDIボード
+  MIDI入力、FSK、SYNCコントロール、汎用IOポート
 
 ●その他拡張ボード全て
 

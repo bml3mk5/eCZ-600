@@ -92,6 +92,7 @@ EMUOSDOBJS:=$(SRCOSDSDL)/sdl_emu.o \
 	$(SRCOSDSDL)/sdl_cbitmap.o \
 	$(SRCOSDSDL)/sdl_ccolor.o \
 	$(SRCOSDWIN)/win_uart.o \
+	$(SRCOSDWIN)/win_midi.o \
 	$(SRCOSD)/d88_files.o \
 	$(SRCOSD)/debugger_console.o \
 	$(SRCOSD)/emu.o \
@@ -101,6 +102,7 @@ EMUOSDOBJS:=$(SRCOSDSDL)/sdl_emu.o \
 	$(SRCOSD)/emu_sound.o \
 	$(SRCOSD)/keybind.o \
 	$(SRCOSD)/logging.o \
+	$(SRCOSD)/osd_midi.o \
 	$(SRCOSD)/parseopt.o \
 	$(SRCOSD)/screenmode.o \
 	$(SRCOSD)/simple_clocale.o \
@@ -157,6 +159,7 @@ DEPOBJS:=$(SRCDEP)/adpcm.o \
 	$(SRCDEP)/keyrecord.o \
 	$(SRCDEP)/memory.o \
 	$(SRCDEP)/mfp.o \
+	$(SRCDEP)/midi.o \
 	$(SRCDEP)/mouse.o \
 	$(SRCDEP)/printer.o \
 	$(SRCDEP)/rtc.o \
@@ -203,6 +206,7 @@ GUIOBJSWIN:=$(SRCGUIWIN)/win_dialogbox.o \
 	$(SRCGUIWIN)/win_joysetbox.o \
 	$(SRCGUIWIN)/win_hdtypebox.o \
 	$(SRCGUIWIN)/win_loggingbox.o \
+	$(SRCGUIWIN)/win_midlatebox.o \
 	$(SRCGUIWIN)/win_gui.o
 
 VIDOBJSWAV:=$(SRCVIDWAV)/wav_rec_audio.o

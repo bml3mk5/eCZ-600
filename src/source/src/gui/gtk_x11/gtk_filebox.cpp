@@ -9,7 +9,6 @@
 */
 
 #include "gtk_filebox.h"
-#include "../../common.h"
 #include <ctype.h>
 #include "../../utility.h"
 

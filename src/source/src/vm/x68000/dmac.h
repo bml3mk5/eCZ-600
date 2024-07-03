@@ -5,7 +5,7 @@
 	@author Sasaji
 	@date   2022.02.22-
 
-	[ HD63450 modoki (DMAC) ]
+	@brief [ HD63450 modoki (DMAC) ]
 */
 
 #ifndef DMAC_H

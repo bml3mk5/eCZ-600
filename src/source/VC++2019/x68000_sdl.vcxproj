@@ -296,8 +296,7 @@
     <Link>
       <AdditionalDependencies>$(SDLDebugLibs);winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SDLDebugLibDir);$(FreeTypeDebugLibDir);$(SDLTtfDebugLibDir);$(GLEWDebugLibDir);$(LibIntlLibDir);..\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
+      <DataExecutionPrevention></DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>MSVCRT</IgnoreSpecificDefaultLibraries>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -332,8 +331,7 @@
     <Link>
       <AdditionalDependencies>$(SDLDebugLibs);winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SDLDebugLibDir);$(FreeTypeDebugLibDir);$(SDLTtfDebugLibDir);$(GLEWDebugLibDir);$(LibIntlLibDir);..\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
+      <DataExecutionPrevention></DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>MSVCRT</IgnoreSpecificDefaultLibraries>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -368,8 +366,7 @@
     <Link>
       <AdditionalDependencies>$(SDL2DebugLibs);winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;version.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SDL2DebugLibDir);$(FreeType25DebugLibDir);$(SDL2TtfDebugLibDir);$(GLEWDebugLibDir);$(LibIntlLibDir);..\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
+      <DataExecutionPrevention></DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -404,8 +401,7 @@
     <Link>
       <AdditionalDependencies>$(SDL2DebugLibs);winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;version.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SDL2DebugLibDir);$(FreeType25DebugLibDir);$(SDL2TtfDebugLibDir);$(GLEWDebugLibDir);$(LibIntlLibDir);..\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
+      <DataExecutionPrevention></DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -443,8 +439,7 @@
     <Link>
       <AdditionalDependencies>$(SDLDebugLibs);winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SDLDebugLibDir);$(FreeTypeDebugLibDir);$(SDLTtfDebugLibDir);$(GLEWDebugLibDir);$(LibIntlLib64Dir);..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
+      <DataExecutionPrevention></DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <SubSystem>Windows</SubSystem>
@@ -481,8 +476,7 @@
     <Link>
       <AdditionalDependencies>$(SDLDebugLibs);winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SDLDebugLibDir);$(FreeTypeDebugLibDir);$(SDLTtfDebugLibDir);$(GLEWDebugLibDir);$(LibIntlLib64Dir);..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
+      <DataExecutionPrevention></DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <SubSystem>Windows</SubSystem>
@@ -519,8 +513,7 @@
     <Link>
       <AdditionalDependencies>$(SDL2DebugLibs);winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;version.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SDL2DebugLibDir);$(FreeType25DebugLibDir);$(SDL2TtfDebugLibDir);$(GLEWDebugLibDir);$(LibIntlLib64Dir);..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
+      <DataExecutionPrevention></DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -558,8 +551,7 @@
     <Link>
       <AdditionalDependencies>$(SDL2DebugLibs);winmm.lib;opengl32.lib;dxguid.lib;ws2_32.lib;Iphlpapi.lib;Shlwapi.lib;version.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SDL2DebugLibDir);$(FreeType25DebugLibDir);$(SDL2TtfDebugLibDir);$(GLEWDebugLibDir);$(LibIntlLib64Dir);..\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
+      <DataExecutionPrevention></DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -876,6 +868,7 @@
     <ClCompile Include="..\src\gui\windows\win_keybindctrl.cpp" />
     <ClCompile Include="..\src\gui\windows\win_ledbox.cpp" />
     <ClCompile Include="..\src\gui\windows\win_loggingbox.cpp" />
+    <ClCompile Include="..\src\gui\windows\win_midlatebox.cpp" />
     <ClCompile Include="..\src\gui\windows\win_recaudbox.cpp" />
     <ClCompile Include="..\src\gui\windows\win_seldrvbox.cpp" />
     <ClCompile Include="..\src\gui\windows\win_vkeyboard.cpp" />
@@ -910,11 +903,13 @@
     <ClCompile Include="..\src\osd\keybind.cpp" />
     <ClCompile Include="..\src\osd\logging.cpp" />
     <ClCompile Include="..\src\osd\opengl.cpp" />
+    <ClCompile Include="..\src\osd\osd_midi.cpp" />
     <ClCompile Include="..\src\osd\parseopt.cpp" />
     <ClCompile Include="..\src\osd\screenmode.cpp" />
     <ClCompile Include="..\src\osd\simple_clocale.cpp" />
     <ClCompile Include="..\src\osd\vkeyboardbase.cpp" />
     <ClCompile Include="..\src\osd\windowmode.cpp" />
+    <ClCompile Include="..\src\osd\windows\win_midi.cpp" />
     <ClCompile Include="..\src\osd\windows\win_uart.cpp" />
     <ClCompile Include="..\src\simple_ini.cpp" />
     <ClCompile Include="..\src\utility.cpp" />
@@ -972,6 +967,7 @@
     <ClCompile Include="..\src\vm\x68000\keyrecord.cpp" />
     <ClCompile Include="..\src\vm\x68000\memory.cpp" />
     <ClCompile Include="..\src\vm\x68000\mfp.cpp" />
+    <ClCompile Include="..\src\vm\x68000\midi.cpp" />
     <ClCompile Include="..\src\vm\x68000\mouse.cpp" />
     <ClCompile Include="..\src\vm\x68000\printer.cpp" />
     <ClCompile Include="..\src\vm\x68000\rtc.cpp" />
@@ -1029,6 +1025,7 @@
     <ClInclude Include="..\src\gui\windows\win_keybindctrl.h" />
     <ClInclude Include="..\src\gui\windows\win_ledbox.h" />
     <ClInclude Include="..\src\gui\windows\win_loggingbox.h" />
+    <ClInclude Include="..\src\gui\windows\win_midlatebox.h" />
     <ClInclude Include="..\src\gui\windows\win_recaudbox.h" />
     <ClInclude Include="..\src\gui\windows\win_seldrvbox.h" />
     <ClInclude Include="..\src\gui\windows\win_vkeyboard.h" />
@@ -1060,11 +1057,13 @@
     <ClInclude Include="..\src\osd\emu_input.h" />
     <ClInclude Include="..\src\osd\keybind.h" />
     <ClInclude Include="..\src\osd\opengl.h" />
+    <ClInclude Include="..\src\osd\osd_midi.h" />
     <ClInclude Include="..\src\osd\parseopt.h" />
     <ClInclude Include="..\src\osd\screenmode.h" />
     <ClInclude Include="..\src\osd\simple_clocale.h" />
     <ClInclude Include="..\src\osd\vkeyboardbase.h" />
     <ClInclude Include="..\src\osd\windowmode.h" />
+    <ClInclude Include="..\src\osd\windows\win_midi.h" />
     <ClInclude Include="..\src\osd\windows\win_uart.h" />
     <ClInclude Include="..\src\rec_video_defs.h" />
     <ClInclude Include="..\src\res\resource.h" />
@@ -1135,6 +1134,7 @@
     <ClInclude Include="..\src\vm\x68000\keyrecord.h" />
     <ClInclude Include="..\src\vm\x68000\memory.h" />
     <ClInclude Include="..\src\vm\x68000\mfp.h" />
+    <ClInclude Include="..\src\vm\x68000\midi.h" />
     <ClInclude Include="..\src\vm\x68000\mouse.h" />
     <ClInclude Include="..\src\vm\x68000\printer.h" />
     <ClInclude Include="..\src\vm\x68000\rtc.h" />

@@ -17,6 +17,7 @@
 #include "../../vm/device.h"
 #include "../../utility.h"
 
+#include <WinIoCtl.h>
 #include <SetupAPI.h>
 
 #ifdef _MSC_VER

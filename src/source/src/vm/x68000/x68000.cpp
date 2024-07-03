@@ -19,6 +19,7 @@
 #include "crtc.h"
 #include "../ym2151.h"
 #include "adpcm.h"
+#include "midi.h"
 #include "../mc68000.h"
 
 #include "board.h"
@@ -80,6 +81,7 @@ VM::VM(EMU* parent_emu) : emu(parent_emu)
 	crtc = new CRTC(this, emu, NULL);
 	opm = new YM2151(this, emu, NULL);
 	adpcm = new ADPCM(this, emu, NULL);
+	midi = new MIDI(this, emu, NULL);
 
 	board = new BOARD(this, emu, NULL);
 	mfp = new MFP(this, emu, NULL);
@@ -202,6 +204,7 @@ VM::VM(EMU* parent_emu) : emu(parent_emu)
 	memory->set_context_display(display);
 	memory->set_context_opm(opm);
 	memory->set_context_adpcm(adpcm);
+	memory->set_context_midi(midi);
 	memory->set_context_comm(comm[0]);
 #ifdef USE_FD1
 	memory->set_context_fdc(fdc);
@@ -284,15 +287,19 @@ VM::VM(EMU* parent_emu) : emu(parent_emu)
 	// adpcm
 	adpcm->set_context_mck(dmac, DMAC::SIG_REQ_3, 1);
 
+	// midi
+	midi->set_context_irq(board, SIG_CPU_IRQ, INTDEV_MIDI | 0x10);	// IRQ to IPL4
+//	midi->set_context_serial();
+
 #ifdef USE_FD1
 	// fdc for 5inch mini floppy
-	fdc->set_context_irq(board, SIG_CPU_IRQ, 0x800002);	// IRQ to IPL1
+	fdc->set_context_irq(board, SIG_CPU_IRQ, INTDEV_FDC | 0x02);	// IRQ to IPL1
 	fdc->set_context_drq(dmac, DMAC::SIG_REQ_0, 1);
 	fdc->set_context_hdu(fdd, SIG_FLOPPY_HEAD_SELECT, 0x04);
 	fdc->set_context_fdd(fdd);
 
 	// fdd
-	fdd->set_context_irq(board, SIG_CPU_IRQ, 0x400002);	// IRQ to IPL1
+	fdd->set_context_irq(board, SIG_CPU_IRQ, INTDEV_FDD | 0x02);	// IRQ to IPL1
 //	fdd->set_context_drq(board, SIG_CPU_HALT, SIG_HALT_FD_MASK);
 	fdd->set_context_fdc(fdc);
 	fdd->set_context_board(board);
@@ -300,12 +307,12 @@ VM::VM(EMU* parent_emu) : emu(parent_emu)
 
 //#ifdef USE_HD1
 //	// sasi hdd
-//	sasi->set_context_irq(board, SIG_CPU_IRQ, 0x100002);	// IRQ to IPL1
+//	sasi->set_context_irq(board, SIG_CPU_IRQ, INTDEV_HDD | 0x02);	// IRQ to IPL1
 //	sasi->set_context_drq(dmac, DMAC::SIG_REQ_1, 1);
 //#endif
 
 #ifdef USE_PRINTER
-	printer[0]->set_context_busy(board, SIG_CPU_IRQ, 0x200002, 0xffffffff);	// IRQ to IPL1 (negative)
+	printer[0]->set_context_busy(board, SIG_CPU_IRQ, INTDEV_PRINTER | 0x02, 0xffffffff);	// IRQ to IPL1 (negative)
 #endif
 
 	rtc->set_context_alarm(mfp, MFP::SIG_GPIP, 0x01);	// GPIP0
@@ -319,6 +326,7 @@ VM::VM(EMU* parent_emu) : emu(parent_emu)
 	cpu->set_context_reset(scc, SIG_CPU_RESET, 1);
 	cpu->set_context_reset(opm, SIG_CPU_RESET, 1);
 	cpu->set_context_reset(adpcm, SIG_CPU_RESET, 1);
+	cpu->set_context_reset(midi, SIG_CPU_RESET, 1);
 #ifdef USE_FD1
 	cpu->set_context_reset(fdd, SIG_CPU_RESET, 1);
 #endif
@@ -338,6 +346,7 @@ VM::VM(EMU* parent_emu) : emu(parent_emu)
 	board->set_context_reset(scc, SIG_CPU_RESET, 1);
 	board->set_context_reset(opm, SIG_CPU_RESET, 1);
 	board->set_context_reset(adpcm, SIG_CPU_RESET, 1);
+	board->set_context_reset(midi, SIG_CPU_RESET, 1);
 #ifdef USE_FD1
 	board->set_context_reset(fdd, SIG_CPU_RESET, 1);
 #endif
@@ -377,6 +386,12 @@ VM::VM(EMU* parent_emu) : emu(parent_emu)
 
 VM::~VM()
 {
+#ifdef USE_MIDI
+	// send reset message
+	if (pConfig->midi_flags & MIDI_FLAG_RES_END_APP) {
+		emu->send_midi_reset_message();
+	}
+#endif
 	// delete all devices
 	for(DEVICE* device = first_device; device; device = device->get_next_device()) {
 		device->release();
@@ -430,6 +445,20 @@ void VM::reset()
 	board->write_signal(BOARD::SIG_BOARD_POWER, board->get_front_power_on() ? 1 : 0, 1);
 	// update alarm on/off signal on MFP
 	rtc->write_signal(RTC::SIG_UPDATE_ALARM, 1, 1);
+#ifdef USE_MIDI
+	// send reset message
+	if (pConfig->now_power_off) {
+		// power off
+		if (pConfig->midi_flags & MIDI_FLAG_RES_POWEROFF) {
+			emu->send_midi_reset_message();
+		}
+	} else {
+		// power on
+		if (pConfig->midi_flags & MIDI_FLAG_RES_POWERON) {
+			emu->send_midi_reset_message();
+		}
+	}
+#endif
 }
 
 void VM::force_reset()
@@ -469,12 +498,22 @@ void VM::warm_reset(int onoff)
 	if (onoff < 0) {
 		board->write_signal(SIG_CPU_HALT, 1, 1);
 		board->write_signal(SIG_CPU_RESET, 1, 1);
+#ifdef USE_MIDI
+		if (pConfig->midi_flags & MIDI_FLAG_RES_HARDRES) {
+			emu->send_midi_reset_message();
+		}
+#endif
 		board->write_signal(SIG_CPU_RESET, 0, 1);
 		board->write_signal(SIG_CPU_HALT, 0, 1);
 	} else {
 		if (onoff) {
 			board->write_signal(SIG_CPU_HALT, onoff, 1);
 			board->write_signal(SIG_CPU_RESET, onoff, 1);
+#ifdef USE_MIDI
+			if (pConfig->midi_flags & MIDI_FLAG_RES_HARDRES) {
+				emu->send_midi_reset_message();
+			}
+#endif
 		} else {
 			board->write_signal(SIG_CPU_RESET, onoff, 1);
 			board->write_signal(SIG_CPU_HALT, onoff, 1);
@@ -514,6 +553,7 @@ bool VM::now_skip()
 void VM::update_params()
 {
 //	change_fdd_type(emu->get_parami(ParamFddType), true);
+	pConfig->io_port = emu->get_parami(ParamIOPort);
 	pConfig->main_ram_size_num = emu->get_parami(ParamMainRamSizeNum);
 #ifdef USE_HD1
 	pConfig->scsi_type = emu->get_parami(ParamSCSIType);
@@ -580,6 +620,7 @@ const struct VM::st_device_name_map VM::c_device_names_map[] = {
 	{ _T("SCSI"), DNM_SCSI },
 	{ _T("OPM"), DNM_OPM },
 	{ _T("ADPCM"), DNM_ADPCM },
+	{ _T("MIDI"), DNM_MIDI },
 	{ _T("RTC"), DNM_RTC },
 	{ _T("INTCTRL"), DNM_BOARD },
 	{ _T("SYSPORT"), DNM_SYSPORT },
@@ -679,6 +720,10 @@ bool VM::debug_write_reg(uint32_t num, uint32_t reg_num, uint32_t data)
 		// ADPCM
 		if (adpcm) valid = adpcm->debug_write_reg(reg_num, data);
 		break;
+	case DNM_MIDI:
+		// MIDI
+		if (midi) valid = midi->debug_write_reg(reg_num, data);
+		break;
 	case DNM_RTC:
 		// RTC
 		if (rtc) valid = rtc->debug_write_reg(reg_num, data);
@@ -759,6 +804,10 @@ bool VM::debug_write_reg(uint32_t num, const _TCHAR *reg, uint32_t data)
 		// ADPCM
 		if (adpcm) valid = adpcm->debug_write_reg(reg, data);
 		break;
+	case DNM_MIDI:
+		// MIDI
+		if (midi) valid = midi->debug_write_reg(reg, data);
+		break;
 	case DNM_RTC:
 		// RTC
 		if (rtc) valid = rtc->debug_write_reg(reg, data);
@@ -834,6 +883,10 @@ void VM::debug_regs_info(uint32_t num, _TCHAR *buffer, size_t buffer_len)
 		// ADPCM
 		if (adpcm) adpcm->debug_regs_info(buffer, buffer_len);
 		break;
+	case DNM_MIDI:
+		// MIDI
+		if (midi) midi->debug_regs_info(buffer, buffer_len);
+		break;
 	case DNM_RTC:
 		// RTC
 		if (rtc) rtc->debug_regs_info(buffer, buffer_len);
@@ -899,6 +952,11 @@ uint64_t VM::get_current_clock()
 uint64_t VM::get_passed_clock(uint64_t prev)
 {
 	return main_event->get_passed_clock(prev);
+}
+
+int VM::get_current_power()
+{
+	return main_event->get_current_power();
 }
 
 //uint32_t VM::get_pc()
@@ -1566,6 +1624,16 @@ uint32_t VM::conv_sram_rs232c_flowctrl(int pos) const
 	return ((pos & 0x3) << 8);
 }
 
+uint32_t VM::get_sram_accumulated_operating_time() const
+{
+	return (int)memory->get_sram32(SRAM_OPERATING_TIME);
+}
+
+uint32_t VM::get_sram_times_of_the_power_off() const
+{
+	return (int)memory->get_sram32(SRAM_TIMES_OF_POWER_OFF);
+}
+
 bool VM::get_sram_alarm_onoff() const
 {
 	return memory->get_sram8(SRAM_ALARM_ON_OFF) == 0;
@@ -1706,14 +1774,14 @@ void VM::change_hdd_type()
 	scsi->init_context_drq();
 	switch(pConfig->scsi_type) {
 	case SCSI_TYPE_IN:
-		scsi->set_context_irq(board, SIG_CPU_IRQ, 0x100002);	// INT1 // same as SASI
+		scsi->set_context_irq(board, SIG_CPU_IRQ, INTDEV_HDD | 0x02);	// INT1 // same as SASI
 		scsi->set_context_drq(dmac, DMAC::SIG_REQ_1, 1);
 		break;
 	case SCSI_TYPE_EX:
-		scsi->set_context_irq(board, SIG_CPU_IRQ, 0x100004);	// INT2
+		scsi->set_context_irq(board, SIG_CPU_IRQ, INTDEV_HDD | 0x04);	// INT2
 		// [: through :]
 	default:
-		sasi->set_context_irq(board, SIG_CPU_IRQ, 0x100002);	// IRQ to IPL1
+		sasi->set_context_irq(board, SIG_CPU_IRQ, INTDEV_HDD | 0x02);	// IRQ to IPL1
 		sasi->set_context_drq(dmac, DMAC::SIG_REQ_1, 1);
 		break;
 	}

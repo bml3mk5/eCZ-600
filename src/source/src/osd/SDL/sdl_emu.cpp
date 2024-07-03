@@ -39,6 +39,9 @@ EMU_OSD::EMU_OSD(const _TCHAR *new_app_path, const _TCHAR *new_ini_path, const _
 #ifdef USE_UART
 	EMU_UART();
 #endif
+#ifdef USE_MIDI
+	EMU_MIDI();
+#endif
 }
 
 EMU_OSD::~EMU_OSD()
@@ -70,10 +73,6 @@ void EMU_OSD::change_screen_use_opengl(int num)
 	if (pConfig->use_opengl != next_use_opengl) {
 		need_restart = CMsg::LB_Need_restart_program_RB;
 	}
-
-
-
-
 
 	out_infoc_x(list[pConfig->use_opengl], need_restart, 0);
 

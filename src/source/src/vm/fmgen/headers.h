@@ -15,12 +15,12 @@
 #include <assert.h>
 #include "../../depend.h"
 
-#ifdef _MSC_VER
-	#undef max
-	#define max _MAX
-	#undef min
-	#define min _MIN
-#endif
+//#ifdef _MSC_VER
+//	#undef max
+//	#define max _MAX
+//	#undef min
+//	#define min _MIN
+//#endif
 
 // disable warning C4996 for microsoft visual c++ 2005
 #if defined(_MSC_VER) && (_MSC_VER >= 1400)

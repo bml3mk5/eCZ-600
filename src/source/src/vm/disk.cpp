@@ -73,6 +73,11 @@ DISK::~DISK()
 	close();
 }
 
+/// @brief Calcrate CRC32
+///
+/// @param[in] data
+/// @param[in] size : data size
+/// @return CRC32
 uint32_t DISK::getcrc32(uint8_t data[], int size)
 {
 	uint32_t c, table[256];
@@ -95,7 +100,8 @@ uint32_t DISK::getcrc32(uint8_t data[], int size)
 	return ~c;
 }
 
-/// open floppy disk image
+/// @brief Open a floppy disk image
+///
 /// @param[in] path : file path
 /// @param[in] offset : start position of file
 /// @param[in] flags : bit0: 1 = read only  bit3: 1= last volume  bit4: 1 = multi volumed file
@@ -156,6 +162,7 @@ file_loaded:
 	return inserted;
 }
 
+/// @brief Close the floppy disk image
 void DISK::close()
 {
 	// write disk image
@@ -177,6 +184,7 @@ void DISK::close()
 	m_media_type = MEDIA_TYPE_UNK;
 }
 
+/// @brief Flush data and write to image file 
 void DISK::flash()
 {
 	// write disk image
@@ -187,8 +195,9 @@ void DISK::flash()
 	}
 }
 
-/// @brief flash data and write to image file 
-/// @param[in] protect : whether write protect or not
+/// @brief Flush data and write to image file
+///
+/// @param[in] protect : whether write protection or not
 bool DISK::flash(bool protect)
 {
 	// set write protect flag
@@ -223,8 +232,9 @@ bool DISK::flash(bool protect)
 	return write;
 }
 
-/// @brief set write protect
-/// flash disk image to file before set write protect.
+/// @brief Flush disk image to file before set write protect
+///
+/// @param[in] val : true: set the protection
 void DISK::set_write_protect(bool val)
 {
 	if (val == false) {
@@ -244,8 +254,9 @@ void DISK::set_write_protect(bool val)
 	write_protected = val;
 }
 
-/// @brief rename a file name to new name
-/// new name is "PREFIX_YYYY-MM-DD_HH-MI-SS.d88"
+/// @brief Rename a file name to new name
+///
+/// New name is "PREFIX_YYYY-MM-DD_HH-MI-SS.d88"
 void DISK::rename_file()
 {
 //	int tim[8];
@@ -271,9 +282,11 @@ void DISK::rename_file()
 	logging->out_logf_x(LOG_DEBUG, CMsg::Save_to_VSTR, m_file_path);
 }
 
-/// @brief write a disk image
+/// @brief Write a disk image
+///
 /// @param[in] new_file : save as new file
 /// @param[in] is_plain : save as plain image
+/// @return true if success
 bool DISK::write_file(bool new_file, bool is_plain)
 {
 	FILEIO fio;
@@ -315,7 +328,10 @@ bool DISK::write_file(bool new_file, bool is_plain)
 	return true;
 }
 
-/// get specified track offset
+/// @brief Get specified track offset
+///
+/// @param[in] trk  : track number
+/// @param[in] side : side number
 /// @return -1: track number is out of range.
 int DISK::get_track_offset(int trk, int side)
 {
@@ -328,7 +344,8 @@ int DISK::get_track_offset(int trk, int side)
 	return offset;
 }
 
-/// get specified track buffer
+/// @brief Get specified track buffer
+///
 /// @param[in] trk  : track number
 /// @param[in] side : side number
 /// @return : buffer position of specified track in a disk
@@ -357,7 +374,8 @@ uint8_t* DISK::get_track_buffer(int trk, int side)
 	return t;
 }
 
-/// get specified track
+/// @brief Get specified track
+///
 /// @param[in] trk  : track number
 /// @param[in] side : side number
 /// @return : false : not found or invalid 
@@ -395,8 +413,10 @@ bool DISK::get_track(int trk, int side)
 	return true;
 }
 
-/// verify a track number in each sector on a track 
+/// @brief Verify a track number in each sector on a track
+///
 /// @param[in] trk  : track number
+/// @return true if match
 bool DISK::verify_track(int trk)
 {
 	for(int i = 0; i < sector_nums; i++) {
@@ -407,10 +427,12 @@ bool DISK::verify_track(int trk)
 	return true;
 }
 
-/// make a track image
+/// @brief Make a raw track image
+///
 /// @param[in] trk  : track number
 /// @param[in] side : side number
 /// @param[in] dden : 0:single density(FM) default:double density(MFM)
+/// @return true if success
 bool DISK::make_track(int trk, int side, int dden)
 {
 	sector_size = sector_nums = 0;
@@ -560,33 +582,34 @@ bool DISK::make_track(int trk, int side, int dden)
 	return true;
 }
 
-// 0:single density  1:double density
+/// 0:single density  1:double density
 static int mark_length[2]={
 	7,16
 };
 
-// index mark 0:single density  1:double density
+/// index mark 0:single density  1:double density
 static uint8_t index_mark[2][17]={
 	{ 0,0,0,0,0,0,0xfc,0,0,0,0,0,0   ,0   ,0   ,0   ,0 },
 	{ 0,0,0,0,0,0,0   ,0,0,0,0,0,0xc2,0xc2,0xc2,0xfc,0 }
 };
-// address mark
+/// address mark
 static uint8_t address_mark[2][17]={
 	{ 0,0,0,0,0,0,0xfe,0,0,0,0,0,0   ,0   ,0   ,0   ,0 },
 	{ 0,0,0,0,0,0,0   ,0,0,0,0,0,0xa1,0xa1,0xa1,0xfe,0 }
 };
-// data mark
+/// data mark
 static uint8_t data_mark[2][17]={
 	{ 0,0,0,0,0,0,0xfb,0,0,0,0,0,0   ,0   ,0   ,0   ,0 },
 	{ 0,0,0,0,0,0,0   ,0,0,0,0,0,0xa1,0xa1,0xa1,0xfb,0 }
 };
-// deleted data mark
+/// deleted data mark
 static uint8_t deleted_mark[2][17]={
 	{ 0,0,0,0,0,0,0xf8,0,0,0,0,0,0   ,0   ,0   ,0   ,0 },
 	{ 0,0,0,0,0,0,0   ,0,0,0,0,0,0xa1,0xa1,0xa1,0xf8,0 }
 };
 
-/// parse raw track data and write to d88 track
+/// @brief Parse raw track data and write to d88 track
+///
 /// @param[in] trk  : track number
 /// @param[in] side : side number
 /// @param[in] dden : 0:single density(FM) default:double density(MFM)
@@ -669,7 +692,8 @@ bool DISK::parse_track(int trk, int side, int dden)
 	return true;
 }
 
-/// parse raw track data and replace to d88 track
+/// @brief Parse raw track data and replace to d88 track
+///
 /// @param[in] trk  : track number
 /// @param[in] side : side number
 /// @param[in] dden : 0:single density(FM) default:double density(MFM)
@@ -687,6 +711,7 @@ bool DISK::parse_track2(int trk, int side, int dden)
 	int p = 0;
 	int phase = 0;
 	int sec_size = 128;
+//	int sector_number = 0;
 	int num_of_sector = 0;
 
 	int tp = 0;	// position of tmp_track
@@ -703,7 +728,8 @@ bool DISK::parse_track2(int trk, int side, int dden)
 			p += mark_length[dden];
 
 			memcpy(&m_tmp_track[tp], &track[p], 4); // C H R N
-			num_of_sector = MAX(num_of_sector, track[p+2]); // sector number
+//			sector_number = track[p+2]; // sector number
+			num_of_sector++;
 
 			// calc sector size from ID N (N is 0 to 7)
 			sec_size = (128 << (track[p+3] & 7));
@@ -762,6 +788,10 @@ bool DISK::parse_track2(int trk, int side, int dden)
 	return valid;
 }
 
+/// @brief Replace the track
+///
+/// @param [in] trk  : track number
+/// @param [in] side : side number
 void DISK::replace_track(int trk, int side)
 {
 	if (m_tmp_track_size == 0) return;
@@ -820,7 +850,10 @@ void DISK::replace_track(int trk, int side)
 	*p = Uint32_LE(offset);
 }
 
-/// shrink one track space
+/// @brief Shrink one track space
+///
+/// @param [in] start : track position
+/// @param [in] size  : size to subtract
 void DISK::shrink_track_space(int start, int size)
 {
 	int offset = (start - size < 0 ? start : size);
@@ -828,8 +861,9 @@ void DISK::shrink_track_space(int start, int size)
 	uint8_t *sp = &m_buffer[start];
 	uint8_t *dp = sp - offset;
 	uint8_t *ep = &m_buffer[m_file_size];
+	uint8_t *fp = &m_buffer[DISK_BUFFER_SIZE];
 
-	for(;sp != ep; sp++, dp++) {
+	for(;sp != ep && sp != fp; sp++, dp++) {
 		*dp = *sp;
 	}
 
@@ -838,7 +872,10 @@ void DISK::shrink_track_space(int start, int size)
 	recalc_track_data_table(start, -offset);
 }
 
-/// expand one track space
+/// @brief Expand one track space
+///
+/// @param [in] start : track position
+/// @param [in] size  : size to add
 void DISK::expand_track_space(int start, int size)
 {
 	int offset = (m_file_size + size > DISK_BUFFER_SIZE ? DISK_BUFFER_SIZE - m_file_size : size);
@@ -846,8 +883,9 @@ void DISK::expand_track_space(int start, int size)
 	uint8_t *sp = &m_buffer[m_file_size-1];
 	uint8_t *dp = sp + offset;
 	uint8_t *ep = &m_buffer[start-1];
+	uint8_t *fp = &m_buffer[0];
 
-	for(;sp != ep; sp--, dp--) {
+	for(;sp != ep && sp != fp; sp--, dp--) {
 		*dp = *sp;
 	}
 
@@ -856,7 +894,11 @@ void DISK::expand_track_space(int start, int size)
 	recalc_track_data_table(start, offset);
 }
 
-/// find track position
+/// @brief Find track position
+///
+/// @param [in] trkside : track position
+/// @param [out] offset : offset size
+/// @return -1: not found  0>: position
 int DISK::find_track_side(int trkside, int *offset) 
 {
 	uint8_t *sp;
@@ -877,7 +919,10 @@ int DISK::find_track_side(int trkside, int *offset)
 	return findtrkside;
 }
 
-/// update track data table
+/// @brief Update track data table
+///
+/// @param [in] start : track position
+/// @param [in] offset : size to add
 void DISK::recalc_track_data_table(int start, int offset)
 {
 	uint8_t *sp;
@@ -893,7 +938,7 @@ void DISK::recalc_track_data_table(int start, int offset)
 	}
 }
 
-/// set zero on unused track in track data table
+/// @brief Set zero on unused track in track data table
 void DISK::trim_track_data_table()
 {
 	uint8_t *sp;
@@ -907,7 +952,10 @@ void DISK::trim_track_data_table()
 	}
 }
 
-/// calculate one track size
+/// @brief Calculate one track size
+///
+/// @param [in] t : track buffer
+/// @return size
 int DISK::calc_track_size(uint8_t *t)
 {
 	int size = 0;
@@ -920,14 +968,17 @@ int DISK::calc_track_size(uint8_t *t)
 	return size;
 }
 
-/// add file size to buffer
+/// @brief Add file size to buffer
+///
+/// @param [in] offset : size to add
 void DISK::add_file_size(int offset)
 {
 	m_file_size += offset;
 	conv_from_uint32_le(m_buffer + 0x1c, (uint32_t)m_file_size);
 }
 
-/// get sector
+/// @brief Get sector data
+///
 /// @param [in] trk : track number
 /// @param [in] side : side number
 /// @param [in] sect : sector number
@@ -937,7 +988,8 @@ int DISK::get_sector(int trk, int side, int sect)
 	return get_sector_by_index(trk, side, sector_pos[sect]);
 }
 
-/// get sector
+/// @brief Get sector using index number
+///
 /// @param [in] trk : track number
 /// @param [in] side : side number
 /// @param [in] index : sector position from top
@@ -1017,6 +1069,9 @@ bool DISK::get_sector(int trk, int side, int sect, bool cmp_side)
 }
 #endif
 
+/// @brief Set sector info of the ID mark
+///
+/// @param[in] t : sector data in d88 track
 void DISK::set_sector_info(uint8_t *t)
 {
 	// header info
@@ -1049,6 +1104,42 @@ void DISK::set_sector_info(uint8_t *t)
 	sector_size = (128 << id[3]);
 }
 
+/// @brief Calculate the CRC on the part of current sector data
+/// and compare this result with the end of the data
+///
+/// @param[in] size : size of the part of current sector data
+/// @return true if match
+bool DISK::compare_crc16_on_current_sector(int size)
+{
+	if (size == sector_size) {
+		// d88 disk image has no crc
+		return true;
+	} else if ((size + 2) > sector_size) {
+		// always false
+		return false;
+	}
+
+	uint16_t crc = CRC16_INIT_DATA;
+
+	if (!(*density & 0x40)) {
+		// double density
+		crc = set_crc16(0xa1, crc);
+		crc = set_crc16(0xa1, crc);
+		crc = set_crc16(0xa1, crc);
+	}
+
+	crc = set_crc16(deleted ? 0xf8 : 0xfe, crc);
+	for(int i=0; i<size; i++) {
+		crc = set_crc16(sector_data[i], crc);
+	}
+	uint16_t data_crc = ((uint16_t)sector_data[size] << 8) | sector_data[size+1];
+
+	return (crc == data_crc);
+}
+
+/// @brief Check media type on the disk
+///
+/// @return true if match
 bool DISK::check_media_type()
 {
 	if (FLG_CHECK_FDMEDIA) {
@@ -1066,6 +1157,9 @@ bool DISK::check_media_type()
 	return true;
 }
 
+/// @brief Check and set the number of side
+///
+/// @return true if inserted a disk
 bool DISK::check_d88_tracks()
 {
 	// disk not inserted or invalid media type
@@ -1110,7 +1204,11 @@ bool DISK::check_d88_tracks()
 	return true;
 }
 
+/// @brief Calcrate CRC16
 ///
+/// @param[in] data : new data
+/// @param[in] crc  : calcrated CRC previously
+/// @return calcrated CRC with new data  
 uint16_t DISK::set_crc16(uint8_t data, uint16_t crc)
 {
 #ifndef USE_CALC_CRC16
@@ -1122,7 +1220,11 @@ uint16_t DISK::set_crc16(uint8_t data, uint16_t crc)
 }
 
 #ifdef USE_CALC_CRC16
+/// @brief Calcrate CRC16
 ///
+/// @param[in] data : new data
+/// @param[in] crc  : calcrated CRC previously
+/// @return calcrated CRC with new data  
 uint16_t DISK::calc_crc16(uint8_t data, uint16_t crc)
 {
 	for (int count = 7; count >= 0; count--) {
@@ -1138,6 +1240,11 @@ uint16_t DISK::calc_crc16(uint8_t data, uint16_t crc)
 }
 #endif
 
+/// @brief Is the same file as already opened one?
+///
+/// @param[in] path : file path
+/// @param[in] offset : position of the file data in bytes
+/// @return true if the same file
 bool DISK::is_same_file(const _TCHAR *path, int offset)
 {
 	if (!inserted) return false;

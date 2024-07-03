@@ -329,7 +329,7 @@ public:
 	int  get_current_track_number(int channel);
 	int  search_sector(int channel);
 	int  search_sector(int channel, int track, int sect, bool compare_side, int side);
-	int  search_sector_by_index(int channel, int track, int index, bool compare_sect, int sect, bool compare_side, int side);
+	int  search_sector_by_index(int channel, uint8_t track, int index, uint8_t *compare_side, uint8_t *compare_sect, uint8_t *compare_size, uint8_t *disk_id);
 	bool make_track(int channel);
 	bool parse_track(int channel);
 

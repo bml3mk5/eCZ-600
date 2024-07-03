@@ -445,6 +445,22 @@
 #define ID_SCREEN_SHOW_09               21409
 #define ID_SCREEN_SHOW_ALL              21410
 
+#define ID_MIDIIN_PORT1                 21501
+#define ID_MIDIIN_PORT_BOTTOM           21520
+#define ID_MIDIOUT_PORT1                21521
+#define ID_MIDIOUT_PORT_BOTTOM          21540
+#define ID_MIDIOUT_LATE1                21541
+#define ID_MIDIOUT_LATE2                21542
+#define ID_MIDIOUT_LATE3                21543
+#define ID_MIDIOUT_LATE4                21544
+#define ID_MIDIOUT_LATE5                21545
+#define ID_MIDIOUT_LATE6                21546
+#define ID_MIDIOUT_LATE_OTHER           21547
+#define ID_MIDI_RESET_GM                21551
+#define ID_MIDI_RESET_GS                21552
+#define ID_MIDI_RESET_LA                21553
+#define ID_MIDI_RESET_XG                21554
+
 #define IDC_STATIC_0                    21960
 #define IDC_STATIC_1                    21961
 #define IDC_STATIC_2                    21962
@@ -1140,8 +1156,8 @@
 #define IDC_STATIC_IOPORT11                     22074
 #define IDC_STATIC_IOPORT12                     22075
 #define IDC_STATIC_IOPORT13                     22076
-#define IDC_STATIC_IOPORT14                     22077
-#define IDC_STATIC_IOPORT15                     22078
+#define IDC_EDIT_OPERATING_TIME                 22077
+#define IDC_EDIT_TIMES_OF_POWER_OFF             22078
 #define IDC_RADIO_SCSI0                         22079
 #define IDC_RADIO_SCSI1                         22080
 #define IDC_RADIO_SCSI2                         22081
@@ -1253,6 +1269,17 @@
 #define IDC_STATIC_Z80BCARD_IRQ                 22187
 #define IDC_COMBO_Z80BCARD_IRQ                  22188
 #define IDC_CHK_DOUBLE_BUFFERING                22189
+#define IDC_CHK_MIDIBOARD                       22190
+#define IDC_COMBO_MIDIOUT                       22191
+#define IDC_EDIT_MIDIOUT_DELAY                  22192
+#define IDC_SPIN_MIDIOUT_DELAY                  22193
+#define IDC_COMBO_MIDI_TYPE                     22194
+#define IDC_CHK_MIDI_RES_POWERON                22195
+#define IDC_CHK_MIDI_RES_POWEROFF               22196
+#define IDC_CHK_MIDI_RES_HARDRES                22197
+#define IDC_CHK_MIDI_RES_END_APP                22198
+#define IDC_CHK_MIDI_NO_REALTIME_MSG            22199
+#define IDC_BTN_MIDI_RES                        22200
 #define IDD_KEYBIND                             114
 #define IDC_TAB1                                22001
 #define IDC_CUSTOM0                             22032
@@ -1340,3 +1367,4 @@
 #define IDC_TEXT_LOG                            22198
 #define IDC_BTN_UPDATE                          22199
 #define IDD_HDTYPEBOX                           123
+#define IDD_MIDLATEBOX                          124

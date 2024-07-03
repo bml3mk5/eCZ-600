@@ -5,7 +5,7 @@
 	@author : Takeda.Toshiya
 	@date   : 2006.09.14 -
 
-	[ i8255 ]
+	@brief [ i8255 ]
 */
 
 #ifndef I8255_H

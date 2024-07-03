@@ -165,6 +165,9 @@
     <ClCompile Include="..\src\gui\windows\win_loggingbox.cpp">
       <Filter>Source Files\GUI Source Files\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\gui\windows\win_midlatebox.cpp">
+      <Filter>Source Files\GUI Source Files\Windows</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\gui\windows\win_recaudbox.cpp">
       <Filter>Source Files\GUI Source Files\Windows</Filter>
     </ClCompile>
@@ -213,6 +216,9 @@
     <ClCompile Include="..\src\osd\logging.cpp">
       <Filter>Source Files\OSD Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\osd\osd_midi.cpp">
+      <Filter>Source Files\OSD Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\osd\parseopt.cpp">
       <Filter>Source Files\OSD Source Files</Filter>
     </ClCompile>
@@ -256,6 +262,9 @@
       <Filter>Source Files\OSD Source Files\Windows</Filter>
     </ClCompile>
     <ClCompile Include="..\src\osd\windows\win_main.cpp">
+      <Filter>Source Files\OSD Source Files\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\osd\windows\win_midi.cpp">
       <Filter>Source Files\OSD Source Files\Windows</Filter>
     </ClCompile>
     <ClCompile Include="..\src\osd\windows\win_msgboard.cpp">
@@ -450,6 +459,9 @@
     <ClCompile Include="..\src\vm\x68000\mfp.cpp">
       <Filter>Source Files\VM Driver Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\vm\x68000\midi.cpp">
+      <Filter>Source Files\VM Driver Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\vm\x68000\mouse.cpp">
       <Filter>Source Files\VM Driver Source Files</Filter>
     </ClCompile>
@@ -608,6 +620,9 @@
     <ClInclude Include="..\src\gui\windows\win_loggingbox.h">
       <Filter>Header Files\GUI Header Files\Windows</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\gui\windows\win_midlatebox.h">
+      <Filter>Header Files\GUI Header Files\Windows</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\gui\windows\win_recaudbox.h">
       <Filter>Header Files\GUI Header Files\Windows</Filter>
     </ClInclude>
@@ -656,6 +671,9 @@
     <ClInclude Include="..\src\osd\keybind.h">
       <Filter>Header Files\OSD Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\osd\osd_midi.h">
+      <Filter>Header Files\OSD Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\osd\parseopt.h">
       <Filter>Header Files\OSD Header Files</Filter>
     </ClInclude>
@@ -699,6 +717,9 @@
       <Filter>Header Files\OSD Header Files\Windows</Filter>
     </ClInclude>
     <ClInclude Include="..\src\osd\windows\win_main.h">
+      <Filter>Header Files\OSD Header Files\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\osd\windows\win_midi.h">
       <Filter>Header Files\OSD Header Files\Windows</Filter>
     </ClInclude>
     <ClInclude Include="..\src\osd\windows\win_msgboard.h">
@@ -918,6 +939,9 @@
       <Filter>Header Files\VM Driver Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\vm\x68000\mfp.h">
+      <Filter>Header Files\VM Driver Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\vm\x68000\midi.h">
       <Filter>Header Files\VM Driver Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\vm\x68000\mouse.h">

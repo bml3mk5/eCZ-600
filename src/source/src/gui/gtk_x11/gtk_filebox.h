@@ -11,6 +11,7 @@
 #ifndef GUI_GTK_FILEBOX_H
 #define GUI_GTK_FILEBOX_H
 
+#include "../../common.h"
 #include <gtk/gtk.h>
 #include "../../msgs.h"
 

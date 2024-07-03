@@ -5,7 +5,7 @@
 	@author : Takeda.Toshiya
 	@date   : 2006.06.01-
 
-	[ i8255 ]
+	@brief [ i8255 ]
 */
 
 #include "i8255.h"

@@ -88,6 +88,7 @@ EMUOSDOBJS:=$(SRCOSDSDL)/sdl_emu.o \
 	$(SRCOSDSDL)/sdl_cbitmap.o \
 	$(SRCOSDSDL)/sdl_ccolor.o \
 	$(SRCOSDLINUX)/linux_uart.o \
+	$(SRCOSDLINUX)/alsa_midi.o \
 	$(SRCOSD)/d88_files.o \
 	$(SRCOSD)/debugger_console.o \
 	$(SRCOSD)/emu.o \
@@ -102,6 +103,7 @@ EMUOSDOBJS:=$(SRCOSDSDL)/sdl_emu.o \
 	$(SRCOSD)/simple_clocale.o \
 	$(SRCOSD)/vkeyboardbase.o \
 	$(SRCOSD)/windowmode.o \
+	$(SRCOSD)/osd_midi.o \
 	$(SRCOSD)/opengl.o
 
 ifeq ($(CORE_TYPE),CORE_TYPE_GTK_SDL)
@@ -167,6 +169,7 @@ DEPOBJS:=$(SRCDEP)/adpcm.o \
 	$(SRCDEP)/keyrecord.o \
 	$(SRCDEP)/memory.o \
 	$(SRCDEP)/mfp.o \
+	$(SRCDEP)/midi.o \
 	$(SRCDEP)/mouse.o \
 	$(SRCDEP)/printer.o \
 	$(SRCDEP)/rtc.o \
@@ -210,6 +213,7 @@ GUIOBJSGTKX11=$(SRCGUIGTKX11)/gtk_x11_gui.o \
 	$(SRCGUIGTKX11)/gtk_joysetbox.o \
 	$(SRCGUIGTKX11)/gtk_hdtypebox.o \
 	$(SRCGUIGTKX11)/gtk_loggingbox.o \
+	$(SRCGUIGTKX11)/gtk_midlatebox.o \
 	$(SRCGUIGTKX11)/gtk_ledbox.o
 
 VIDOBJSWAV:=$(SRCVIDWAV)/wav_rec_audio.o

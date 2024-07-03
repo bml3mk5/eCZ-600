@@ -1,8 +1,8 @@
 ==============================================================================
     SHARP X68000 Emulator 'eCZ-600'
         SDL edition
-                                                           build 0.0.2.398
-                                                                2024/05/30
+                                                           build 0.0.3.440
+                                                                2024/07/04
 
 Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 ==============================================================================
@@ -58,6 +58,7 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
   HDD: SASI 最大4台
        SCSIボード(CZ-6BS1)相当 最大4台
        ※SCSI内蔵タイプには対応していません。
+  MIDI: MIDIボード(CZ-6BM1)相当のMIDI OUTのみ実装
 
 ------------------------------------------------------------------------------
 ● 動作確認環境
@@ -82,7 +83,7 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 
   (3) SCSIEXROM.DAT（SCSIハードディスクイメージを使用する場合必須）
 
-  (3) リレー音、FDDシーク音、FDDモータ音ファイル（任意）
+  (4) リレー音、FDDシーク音、FDDモータ音ファイル（任意）
       fddseek.wav     : FDDのヘッドシーク音ファイル。
                         長さが約0.25秒までのもの。
       fddmotor.wav    : FDDのモータ音ファイル。
@@ -399,16 +400,30 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
         フォルダ、またはソフトと同じフォルダに<日付日時>.<拡張子>の形式で
         作成されます。
 
-  「8000Hz」 .................... 再生/録音のサンプリングレートを設定します。
-      :
-  「96000Hz」
+  「サンプリング周波数」 ........ 再生/録音のサンプリングレートを設定します。
 
-  「50ミリ秒(50msec.)」 ....... 音が出力されるまでのディレイ時間を設定します。
-      :
-  「400ミリ秒(400msec.)」
+  「出力遅延時間」 .............. 音が出力されるまでのディレイ時間を設定します。
 
-  【注意】サンプリングレート、ディレイ時間を反映するにはこのソフトを再起動
+  【注意】サンプリング周波数、出力遅延時間を反映するにはこのソフトを再起動
           する必要があります。
+
+  「MIDI出力」 .................. MIDI出力先デバイスを一覧にして表示します。
+        選択するとそのデバイスと接続します。
+        接続中のデバイスにチェックが付きます。
+        接続を解除するには接続中のデバイスを再度選択します。
+
+  【注意】MIDIを使用する場合、設定ダイアログのサウンドタブにある
+        「MIDIボードを有効にする」にチェックを入れてください。
+  【注意】演奏中にデバイスを変更しないでください。
+
+  「MIDI出力遅延時間」 ......... MIDI OUTポートに出力するまでのディレイ時間。
+      エミュレータから出力されたMIDIメッセージを実際にMIDI OUTポートに出力する
+    までの遅延時間を指定します。
+      細かく設定したい場合は設定ダイアログにて行ってください。
+
+  「MIDIリセット送信」 ......... 音の停止及びリセットメッセージを送信。
+      全チャンネルをノートOFFした後、選択したMIDI音源に応じたエクスクルーシブ
+    メッセージを送信します。
 
 
 「デバイス(Devices)」メニュー
@@ -810,6 +825,9 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
    ●ベタディスクイメージをそのまま保存する。(Save a plain disk image as it is.)
     チェックをはずすとベタのディスクイメージはd88(d68)形式に変換して保存します。
 
+  【SRAM内のフロッピーディスクパラメータ】
+    一部のパラメータを変更できます。
+
   【ハードディスク】
 
    ●起動時にマウントするディスク(When Start Up, mount drive at) ...
@@ -824,6 +842,40 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 
   【SCSIタイプ】
     SCSIボードを使用するかどうかを指定します。
+
+
+  ■サウンド(Sound)タブ
+
+  【MIDI】
+
+   ●MIDIボードを有効にする。(Enable MIDI board.) ...
+    MIDIを使用する場合チェックを入れてください。
+
+   ●現在接続中のMIDI出力 (Now Connecting MIDI Output) ...
+    MIDIを使用する場合、出力先を選択してください。
+
+   ●出力遅延時間 (Output Latency) ...
+      エミュレータから出力されたMIDIメッセージを実際にMIDI OUTポートに出力する
+    までの遅延時間を指定します。
+
+   ●MIDIリセット種類 (MIDI Reset Type) ...
+    リセットメッセージを送るMIDI音源の種類を選択します。
+    全チャンネルをノートOFFし、選択した音源に応じたエクスクルーシブメッセージを
+    送信します。
+    「今すぐ送信」ボタンを押すと即時に送信します。
+
+   ●いつリセットメッセージを送るか (When send reset message) ...
+    上記のリセットメッセージをどのタイミングで送信するか選択します。
+    ◯パワーオン(Power on) ... パワーオン時
+    ◯パワーオフ(Power off) ... パワーオフ時
+    ◯手動でリセット(Reset by hand) ... リセットボタンを押した時
+    ◯アプリ終了(End of app.) ... アプリケーション終了時
+
+   ●システム・リアルタイム・メッセージを送らない
+    (Does not send system real-time message) ...
+    YM3802が発行するシステム・リアルタイム・メッセージ($F8～$FE)の送信を抑制
+    します。
+    ※X68000ソフトウェアから直接出力したリアルタイム・メッセージは送信します。
 
 
   ■ネットワーク(Network)タブ
@@ -1042,10 +1094,10 @@ Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
 
 ==============================================================================
 
-連絡先：
-  Sasaji (sasaji@s-sasaji.ddo.jp)
-  http://s-sasaji.ddo.jp/bml3mk5/
-  (X(Twitter): https://twitter.com/bml3mk5)
+連絡先：Sasaji (sasaji@s-sasaji.ddo.jp)
+ * My WebPage: http://s-sasaji.ddo.jp/bml3mk5/
+ * GitHub:     https://github.com/bml3mk5/eCZ-600
+ * X(Twitter): https://x.com/bml3mk5
 
 ==============================================================================
 

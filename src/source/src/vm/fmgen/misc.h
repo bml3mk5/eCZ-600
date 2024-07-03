@@ -11,9 +11,9 @@ inline int Max(int x, int y) { return (x > y) ? x : y; }
 inline int Min(int x, int y) { return (x < y) ? x : y; }
 inline int Abs(int x) { return x >= 0 ? x : -x; }
 
-inline int Limit(int v, int max, int min)
+inline int Limit(int v, int max_val, int min_val)
 {
-	return v > max ? max : (v < min ? min : v);
+	return v > max_val ? max_val : (v < min_val ? min_val : v);
 }
 
 inline unsigned int BSwap(unsigned int a)

@@ -5,7 +5,7 @@
 	@author : Sasaji
 	@date   : 2022.02.22-
 
-	[ noise player ]
+	@brief [ noise player ]
 */
 
 #ifndef NOISE_H

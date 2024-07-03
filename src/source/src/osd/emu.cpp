@@ -25,6 +25,8 @@
 #endif
 //#include "../csurface.h"
 
+#define D88_BLANK_TITLE "BLANK"
+
 #ifdef USE_PERFORMANCE_METER
 int gdPMvalue = 0;
 #endif
@@ -65,6 +67,9 @@ EMU::EMU(const _TCHAR *new_app_path, const _TCHAR *new_ini_path, const _TCHAR *n
 #endif
 #ifdef USE_UART
 	EMU_UART();
+#endif
+#ifdef USE_MIDI
+	EMU_MIDI();
 #endif
 
 	// open logfile
@@ -108,6 +113,9 @@ void EMU::initialize()
 #ifdef USE_UART
 	initialize_uart();
 #endif
+#ifdef USE_MIDI
+	initialize_midi();
+#endif
 //	vm->reset();
 	start_sound();
 
@@ -150,6 +158,9 @@ void EMU::release()
 #ifdef USE_UART
 	release_uart();
 #endif
+#ifdef USE_MIDI
+	release_midi();
+#endif
 }
 
 /// @note processed by emu thread
@@ -190,6 +201,9 @@ int EMU::run(int split_num)
 #endif
 #ifdef USE_UART
 	update_uart();
+#endif
+#ifdef USE_MIDI
+	update_midi();
 #endif
 
 	int extra_frames = 0;
@@ -274,6 +288,9 @@ void EMU::reset()
 
 #ifdef USE_MEDIA
 	stop_media();
+#endif
+#ifdef USE_MIDI
+	reset_midi(!(pConfig->use_power_off && pConfig->now_power_off));
 #endif
 	// restart recording
 //	restart_rec_video();
@@ -361,6 +378,9 @@ void EMU::set_pause(int idx, bool val)
 #ifdef USE_MOUSE
 	// control mouse cursor on main thread, so post message
 	gui->PostMtEnableMouseTemp(!vm_pause);
+#endif
+#ifdef USE_MIDI
+	pause_midi();
 #endif
 }
 
@@ -685,6 +705,10 @@ void EMU::change_cpu_power(int num)
 		out_infof_x(CMsg::CPU_xVDIGIT, (1 << (num - 1)));
 	}
 	update_config();
+
+#ifdef USE_MIDI
+	set_midi_cpu_power();
+#endif
 }
 #ifdef USE_EMU_INHERENT_SPEC
 void EMU::change_sync_irq()
@@ -888,7 +912,7 @@ bool EMU::create_blank_floppy_disk(const _TCHAR* file_path, uint8_t type)
 	} d88_hdr;
 
 	memset(&d88_hdr, 0, sizeof(d88_hdr));
-	UTILITY::strcpy(d88_hdr.title, sizeof(d88_hdr.title) / sizeof(d88_hdr.title[0]), "BLANK");
+	memcpy(d88_hdr.title, D88_BLANK_TITLE, strlen(D88_BLANK_TITLE));
 	d88_hdr.type = type;
 	d88_hdr.size = sizeof(d88_hdr);
 
@@ -1767,6 +1791,12 @@ uint64_t EMU::get_current_clock()
 {
 	if (vm) return vm->get_current_clock();
 	else return 0;
+}
+
+int EMU::get_current_power()
+{
+	if (vm) return vm->get_current_power();
+	else return 1;
 }
 
 void EMU::sleep(uint32_t ms)

@@ -1314,10 +1314,7 @@ void EMU_OSD::copy_d3dsuf_dib(PDIRECT3DSURFACE9 suf, scrntype *buf, bool to_dib)
 #endif
 #endif
 
-///
-/// capture current screen and save to a file
-///
-void EMU_OSD::capture_screen()
+void EMU_OSD::copy_surface_for_rec()
 {
 	lock_screen();
 
@@ -1330,27 +1327,36 @@ void EMU_OSD::capture_screen()
 #endif
 	}
 #endif
-//	copy_dib_rec_video();
-	calc_vm_screen_size_sub(rec_video_size[pConfig->screen_video_size], vm_screen_size_for_rec);
-
-//	rec_video->Capture(CAPTURE_SCREEN_TYPE, rec_video_stretched_size, sufOrigin, rec_video_size[pConfig->screen_video_size]);
-	rec_video->Capture(CAPTURE_SCREEN_TYPE, vm_screen_size_for_rec, sufOrigin, rec_video_size[pConfig->screen_video_size]);
 
 	unlock_screen();
 }
 
 ///
+/// capture current screen and save to a file
+///
+void EMU_OSD::capture_screen()
+{
+	int size = pConfig->screen_video_size;
+
+	copy_surface_for_rec();
+
+	calc_vm_screen_size_sub(rec_video_size[size], vm_screen_size_for_rec);
+
+	rec_video->Capture(CAPTURE_SCREEN_TYPE, vm_screen_size_for_rec, sufOrigin, rec_video_size[size]);
+}
+
+///
 /// start recording video
 ///
-//bool EMU::start_rec_video(int type, int fps_no, bool show_dialog)
-//{
-//#ifdef USE_REC_VIDEO
-//	int size = pConfig->screen_video_size;
-//	return rec_video->Start(type, fps_no, rec_video_size[size], sufOrigin, show_dialog);
-//#else
-//	return false;
-//#endif
-//}
+bool EMU_OSD::start_rec_video(int type, int fps_no, bool show_dialog)
+{
+#ifdef USE_REC_VIDEO
+	int size = pConfig->screen_video_size;
+	return rec_video->Start(type, fps_no, rec_video_size[size], sufOrigin, show_dialog);
+#else
+	return false;
+#endif
+}
 
 ///
 /// record video
@@ -1359,16 +1365,11 @@ void EMU_OSD::record_rec_video()
 {
 #ifdef USE_REC_VIDEO
 	if (rec_video->IsRecordFrame()) {
-#ifdef USE_DIRECT3D
-		if (pD3Device != NULL && pConfig->use_direct3d) {
-#ifdef USE_SCREEN_D3D_TEXTURE
-			copy_d3dtex_dib(pD3Dorigin->GetD3DTexture(), sufOrigin->GetBuffer(), true);
-#else
-			copy_d3dsuf_dib(pD3Dorigin->GetD3DSurface(), sufOrigin->GetBuffer(), true);
-#endif
-		}
-#endif
-		rec_video->Record(rec_video_stretched_size, sufOrigin, rec_video_size[pConfig->screen_video_size]);
+		int size = pConfig->screen_video_size;
+
+		copy_surface_for_rec();
+
+		rec_video->Record(rec_video_stretched_size, sufOrigin, rec_video_size[size]);
 	}
 #endif
 }

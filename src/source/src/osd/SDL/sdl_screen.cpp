@@ -118,14 +118,10 @@ void EMU_OSD::release_screen()
 
 #if defined(USE_SDL2)
 #ifdef USE_SCREEN_SDL2_MIX_ON_RENDERER
-#ifdef USE_LEDBOX
 	delete texLedBox;
 	texLedBox = NULL;
-#endif
-#ifdef USE_MESSAGE_BOARD
 	delete texMsgBoard;
 	texMsgBoard = NULL;
-#endif
 #endif
 	delete texMixed;
 	texMixed = NULL;
@@ -311,18 +307,14 @@ bool EMU_OSD::create_screen(int disp_no, int x, int y, int width, int height, ui
 		}
 
 #ifdef USE_SCREEN_SDL2_MIX_ON_RENDERER
-#ifdef USE_LEDBOX
 		if (texLedBox) {
 			delete texLedBox;
 			texLedBox = NULL;
 		}
-#endif
-#ifdef USE_MESSAGE_BOARD
 		if (texMsgBoard) {
 			delete texMsgBoard;
 			texMsgBoard = NULL;
 		}
-#endif
 #endif
 		if (texMixed) {
 			delete texMixed;
@@ -1013,12 +1005,7 @@ void EMU_OSD::set_ledbox_position(bool now_window)
 		} else
 #endif
 		{
-#ifdef USE_SCREEN_SDL2_MIX_ON_RENDERER
 			gui->SetLedBoxPosition(now_window, 0, 0, display_size.w, display_size.h, pConfig->led_pos | (is_fullscreen() ? 0x10 : 0));
-#else
-//			gui->SetLedBoxPosition(now_window, mixed_size.x, mixed_size.y, mixed_size.w, mixed_size.h, pConfig->led_pos | (is_fullscreen() ? 0x10 : 0));
-			gui->SetLedBoxPosition(now_window, 0, 0, display_size.w, display_size.h, pConfig->led_pos | (is_fullscreen() ? 0x10 : 0));
-#endif
 		}
 	}
 #endif
@@ -1042,18 +1029,9 @@ void EMU_OSD::set_msgboard_position()
 		} else
 #endif
 		{
-#ifdef USE_SCREEN_SDL2_MIX_ON_RENDERER
 			msgboard->SetSize(display_size.w, display_size.h);
 			msgboard->SetMessagePos(4, -4, 2);
 			msgboard->SetInfoPos(-4, 4, 1);
-#else
-//			msgboard->SetSize(source_size.w, source_size.h);
-//			msgboard->SetMessagePos(4 + mixed_size.x,  - 4 - source_size.h + mixed_size.y + mixed_size.h, 2);
-//			msgboard->SetInfoPos(-4 - mixed_size.x, 4 + mixed_size.y, 1);
-			msgboard->SetSize(display_size.w, display_size.h);
-			msgboard->SetMessagePos(4, -4, 2);
-			msgboard->SetInfoPos(-4, 4, 1);
-#endif
 		}
 	}
 #endif
@@ -1222,16 +1200,17 @@ bool EMU_OSD::mix_screen_sdl()
 		// render screen
 		CSurface::Render(*renderer, *texSource->Get(), vm_screen_size, reSuf);
 
+#ifdef USE_SCREEN_SDL2_MIX_ON_RENDERER
 #ifdef USE_LEDBOX
 		if (FLG_SHOWLEDBOX && ledbox && texLedBox) {
 			ledbox->Draw(*texLedBox);
 		}
 #endif
-
 #ifdef USE_MESSAGE_BOARD
 		if (FLG_SHOWMSGBOARD && msgboard && texMsgBoard) {
 			msgboard->Draw(*texMsgBoard);
 		}
+#endif
 #endif
 	}
 

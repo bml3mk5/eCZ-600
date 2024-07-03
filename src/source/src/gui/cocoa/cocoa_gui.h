@@ -362,6 +362,9 @@ public:
 	virtual bool ShowRecordVideoAndAudioDialog(int fps_num);
 
 	virtual bool ShowVolumeDialog(void);
+#ifdef USE_MIDI
+	virtual bool ShowMIDIOutLatencyDialog(void);
+#endif
 
 	virtual bool ShowJoySettingDialog(void);
 	virtual bool ShowKeybindDialog(void);

@@ -1017,38 +1017,51 @@ int FLOPPY::search_sector(int channel, int track, int sect, bool compare_side, i
 /// @param[in] channel: FDC number(upper 16bit) 
 /// @param[in] track  : track number
 /// @param[in] index  : sector index
-/// @param[in] compare_sect : whether compare sector number or not
-/// @param[in] sect   : sector number if compare number
-/// @param[in] compare_side : whether compare side number or not
-/// @param[in] side   : side number if compare number
+/// @param[in] compare_side : set value if compare ID H
+/// @param[in] compare_sect : set value if compare ID R
+/// @param[in] compare_size : set value if compare ID N
+/// @param[out] disk_id     : return disk id[4] 4bytes
 /// @return bit0:Record Not Found / bit1:CRC Error / bit2:Deleted Mark Detected
-int FLOPPY::search_sector_by_index(int channel, int track, int index, bool compare_sect, int sect, bool compare_side, int side)
+int FLOPPY::search_sector_by_index(int channel, uint8_t track, int index, uint8_t *compare_side, uint8_t *compare_sect, uint8_t *compare_size, uint8_t *disk_id)
 {
 	int drvnum = m_drv_num;
 	if (drvnum >= USE_FLOPPY_DISKS) return 1;
 
 	int status = search_sector_main(0, drvnum, index);
 	do {
-		if (status) {
-			break;
-		}
-
 		// check track in id field
 		if(p_disk[drvnum]->id[0] != track) {
-			status = 1;
-			break;
-		}
-		// check sector in id field
-		if(compare_sect && p_disk[drvnum]->id[2] != sect) {
-			status = 1;
+			status |= 1;
 			break;
 		}
 		// check side in id field
-		if(compare_side && p_disk[drvnum]->id[1] != side) {
-			status = 1;
+		if(compare_side && p_disk[drvnum]->id[1] != *compare_side) {
+			status |= 1;
+			break;
+		}
+		// check sector in id field
+		if(compare_sect && p_disk[drvnum]->id[2] != *compare_sect) {
+			status |= 1;
+			break;
+		}
+		// check sector size in id field
+		if(compare_size && p_disk[drvnum]->id[3] != *compare_size) {
+			status |= 1;
 			break;
 		}
 	} while(0);
+
+	if (compare_size) {
+		if (!p_disk[drvnum]->compare_crc16_on_current_sector(128 << (*compare_size))) {
+			status |= 2;	// CRC error
+		}
+	}
+
+	if (disk_id) {
+		for(int i=0; i<4; i++) {
+			disk_id[i] = p_disk[drvnum]->id[i];
+		}
+	}
 
 	OUT_DEBUG_DISK(_T("FDD %d SEARCH SECTOR trk:%d idx:%d status:%d"), drvnum, track, index, status);
 

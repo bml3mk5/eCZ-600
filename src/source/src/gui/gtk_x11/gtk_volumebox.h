@@ -12,6 +12,7 @@
 #ifndef GUI_GTK_VOLUMEBOX_H
 #define GUI_GTK_VOLUMEBOX_H
 
+#include "../../common.h"
 #include <gtk/gtk.h>
 #include "gtk_dialogbox.h"
 #include "../../config.h"

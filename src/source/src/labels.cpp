@@ -21,10 +21,8 @@ const CMsg::Id tabs[] = {
 	CMsg::SRAM,
 	CMsg::Screen,
 	CMsg::FDD_HDD,
-	CMsg::Network,
-#if defined(_MBS1)
 	CMsg::Sound,
-#endif
+	CMsg::Network,
 	CMsg::End
 };
 
@@ -41,7 +39,6 @@ const CMsg::Id io_port[] = {
 	CMsg::Floating_Point_Prosessor_Board_CZ_6BP1,
 	CMsg::SCSI_Board_CZ_6BS1,
 	CMsg::SCSI_Inner_Type,
-	CMsg::MIDI_Board_CZ_6BM1,
 	CMsg::End
 };
 
@@ -365,6 +362,16 @@ const _TCHAR *hd_device_type[] = {
 	_T("SCSI HDD"),
 	_T("SCSI MO"),
 	NULL
+};
+
+// MIDI type
+const CMsg::Id midi_type[] = {
+	CMsg::GM_Sound_Module,
+	CMsg::GS_Sound_Module,
+	CMsg::LA_Sound_Module,
+	CMsg::XG_Sound_Module,
+//	CMsg::User_Setting,
+	CMsg::End
 };
 
 }; /* namespace LABELS */

@@ -76,6 +76,9 @@ private:
 
 	static const uint8_t c_int1_priority[4];	///< int1 priority 0:FDC 1:FDD 2:HDD 3:Printer 
 
+	uint16_t m_int2_irq;		///< int2 flags
+	uint16_t m_int4_irq;		///< int4 flags
+
 	uint8_t m_vector;			///< int1 vector number occuring interrupt
 
 	uint8_t m_front_power;		///< front power button and power led (b0: power sw on = 1)
@@ -105,7 +108,8 @@ private:
 		uint8_t m_front_power;		///< front power button and power led (b0: power sw on = 1)
 		int wreset_register_id;	// normal reset
 		int preset_register_id;	// power on reset
-		int reserved2;
+		uint16_t m_int2_irq;		///< int2 flags
+		uint16_t m_int4_irq;		///< int4 flags
 	};
 #pragma pack()
 
@@ -160,6 +164,9 @@ public:
 	}
 	uint32_t get_front_power_on() const;
 	uint32_t get_led_status();
+
+	uint32_t asserted_int2_devices() const;
+	uint32_t asserted_int4_devices() const;
 
 	void save_state(FILEIO *fio);
 	bool load_state(FILEIO *fio);

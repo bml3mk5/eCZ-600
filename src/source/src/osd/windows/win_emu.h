@@ -67,6 +67,9 @@ class Connection;
 #ifdef USE_UART
 class CommPorts;
 #endif
+#ifdef USE_MIDI
+class CMidi;
+#endif
 
 class FIFO;
 class FILEIO;
@@ -170,6 +173,7 @@ private:
 	inline void set_ledbox_position(bool now_window);
 	inline void set_msgboard_position();
 	bool create_mixedsurface();
+	void copy_surface_for_rec();
 
 #ifdef USE_DIRECT3D
 	void initialize_d3device(HWND hWnd);
@@ -343,6 +347,26 @@ private:
 	//@}
 #endif
 
+	// ----------------------------------------
+	// MIDI
+	// ----------------------------------------
+#ifdef USE_MIDI
+	/// @name midi private methods
+	//@{
+	void EMU_MIDI();
+	void initialize_midi();
+	void release_midi();
+	void reset_midi(bool power_on);
+	void update_midi();
+	void pause_midi();
+	void set_midi_cpu_power();
+	//@}
+	/// @name midi private members
+	//@{
+	CMidi *cmidi;
+	//@}
+#endif
+
 //
 //
 //
@@ -365,6 +389,7 @@ public:
 	/// @name screen menu for ui
 	//@{
 	void capture_screen();
+	bool start_rec_video(int type, int fps_no, bool show_dialog);
 	void record_rec_video();
 #ifdef USE_DIRECT3D
 	void change_screen_use_direct3d(int num);
@@ -373,6 +398,16 @@ public:
 	bool enabled_direct3d() const { return enable_direct3d; }
 #endif
 	//@}
+#ifdef USE_MIDI
+	/// @name midi menu for ui
+	//@{
+//	void enable_midiin_connect(int idx);
+//	void enable_midiout_connect(int idx);
+	bool now_midiin_connecting(int idx);
+	bool now_midiout_connecting(int idx);
+	void set_midiout_delay_time(int val);
+	//@}
+#endif
 
 	/// @name input device procedures for host machine
 	//@{
@@ -443,6 +478,15 @@ public:
 	void get_uart_description(int ch, _TCHAR *buf, size_t size);
 	//@}
 #endif
+#ifdef USE_MIDI
+	/// @name MIDI device procedures for host machine
+	//@{
+	int  enum_midiins();
+	int  enum_midiouts();
+	void get_midiin_description(int idx, _TCHAR *buf, size_t size);
+	void get_midiout_description(int idx, _TCHAR *buf, size_t size);
+	//@}
+#endif
 
 	// ----------------------------------------
 	// for virtual machine
@@ -489,6 +533,20 @@ public:
 	int  send_uart_data(int ch, const uint8_t *data, int size);
 	void send_uart_data(int ch);
 	void recv_uart_data(int ch);
+	//@}
+#endif
+#ifdef USE_MIDI
+	/// @name midi for vm
+	//@{
+	bool open_midiin(int idx);
+	bool is_opened_midiin();
+	void close_midiin();
+	bool open_midiout(int idx);
+	bool is_opened_midiout();
+	void close_midiout();
+	uint8_t recv_data_from_midiin();
+	void send_data_to_midiout(uint8_t data);
+	void send_midi_reset_message();
 	//@}
 #endif
 	/// @name for debug

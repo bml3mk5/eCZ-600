@@ -19,6 +19,9 @@
 #include "win_seldrvbox.h"
 #include "win_joysetbox.h"
 #include "win_hdtypebox.h"
+#ifdef USE_MIDI
+#include "win_midlatebox.h"
+#endif
 #include "../../depend.h"
 #include "../../labels.h"
 #include "../../utility.h"
@@ -528,6 +531,19 @@ bool GUI::ShowSndFilterDialog()
 	SndFilterBox dlg(hInstance, font, emu, this);
 	dlg.Show(hWindow);
 	return true;
+}
+#endif
+
+#ifdef USE_MIDI
+bool GUI::ShowMIDIOutLatencyDialog()
+{
+	bool rc = false;
+	PostEtSystemPause(true);
+	MidLateBox dlg(hInstance, font, emu, this);
+	rc = (dlg.Show(hWindow) == IDOK);
+	PostEtSystemPause(false);
+	SetFocusToMainWindow();
+	return rc;
 }
 #endif
 #endif
@@ -1538,6 +1554,34 @@ void GUI::update_sound_menu(HMENU hMenu)
 		CheckMenuRadioItem(hMenu, ID_SOUND_DEVICE_TYPE0, ID_SOUND_DEVICE_TYPE0 + USE_SOUND_DEVICE_TYPE - 1, ID_SOUND_DEVICE_TYPE0 + pConfig->sound_device_type, MF_BYCOMMAND);
 	}
 #endif
+#ifdef USE_MIDI
+	int midiouts = EnumMidiOuts();
+	if (GetMenuState(hMenu, ID_MIDIOUT_PORT1, MF_BYCOMMAND) != (UINT)-1) {
+		HMENU hSubMenu = get_sub_menu_new(hMenu, ID_MIDIOUT_PORT1);
+		// delete menu
+		while (GetMenuItemCount(hSubMenu) > 0) {
+			DeleteMenu(hSubMenu, 0, MF_BYPOSITION);
+		}
+		if (midiouts <= 0) {
+			AppendMenu(hSubMenu, MF_STRING, ID_MIDIOUT_PORT1, CMSGM(None_));
+		} else {
+			// insert menu
+			for(int idx = 0; idx < midiouts && idx < (ID_MIDIOUT_PORT_BOTTOM - ID_MIDIOUT_PORT1); idx++) {
+				_TCHAR buf[64];
+				GetMidiOutDescription(idx, buf, sizeof(buf)/sizeof(buf[0]));
+				DWORD id = ID_MIDIOUT_PORT1 + idx;
+				DWORD flags = MF_STRING;
+				if (NowConnectingMidiOut(idx)) {
+					flags |= MF_CHECKED;
+				}
+				AppendMenu(hSubMenu, flags, id, buf);
+			}
+		}
+	}
+	int midioutlate = GetMidiOutLatencyNum();
+	if (midioutlate < 0) midioutlate = ID_MIDIOUT_LATE_OTHER - ID_MIDIOUT_LATE1;
+	CheckMenuRadioItem(hMenu, ID_MIDIOUT_LATE1, ID_MIDIOUT_LATE_OTHER, ID_MIDIOUT_LATE1 + midioutlate, MF_BYCOMMAND);
+#endif
 }
 
 //
@@ -1559,6 +1603,7 @@ void GUI::update_device_menu(HMENU hMenu)
 		CheckMenuItem(hMenu, ID_PRINTER0_DIRECT + j, IsEnablePrinterDirect(i) ? MF_CHECKED : MF_UNCHECKED);
 	}
 #endif
+#ifdef USE_UART
 	int uarts = EnumUarts();
 	for(int drv=0; drv<MAX_COMM; drv++) {
 		int j = drv * (ID_COMM1_SERVER - ID_COMM0_SERVER);
@@ -1583,29 +1628,17 @@ void GUI::update_device_menu(HMENU hMenu)
 			// insert menu
 			for(int idx = 0; idx < uarts && idx < (ID_COMM0_PORT_BOTTOM - ID_COMM0_PORT1); idx++) {
 				_TCHAR buf[64];
-				GetUartDescription(idx, buf, sizeof(buf));
+				GetUartDescription(idx, buf, sizeof(buf)/sizeof(buf[0]));
 				DWORD id = ID_COMM0_PORT1 + drv * (ID_COMM1_PORT1 - ID_COMM0_PORT1) + idx;
 				DWORD flags = MF_STRING;
 				if (NowConnectingComm(drv, idx + 1)) {
 					flags |= MF_CHECKED;
 				}
 				AppendMenu(hSubMenu, flags, id, buf);
-
-//				MENUITEMINFO info;
-//				ZeroMemory(&info, sizeof(info));
-//				info.cbSize = sizeof(info);
-//				info.fMask = MIIM_TYPE | MIIM_ID;
-//				info.fType = MFT_STRING;
-//				info.wID = id;
-//				info.dwTypeData = buf;
-//				InsertMenuItem(hSubMenu, pos, TRUE, &info);
-//				pos++;
-//				if (NowConnectingComm(drv, idx + 1)) {
-//					CheckMenuItem(hSubMenu, id, MF_CHECKED);
-//				}
 			}
 		}
 	}
+#endif
 }
 
 //

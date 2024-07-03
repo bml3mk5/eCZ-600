@@ -23,6 +23,7 @@ class EVENT;
 class CRTC;
 class YM2151;
 class ADPCM;
+class MIDI;
 #if defined(USE_MC68030)
 class MC68030;
 #elif defined(USE_MC68EC030)
@@ -106,6 +107,7 @@ protected:
 	CRTC*		crtc;
 	YM2151*		opm;
 	ADPCM*		adpcm;
+	MIDI*		midi;
 #if defined(USE_MC68030)
 	 MC68030 *cpu;
 #elif defined(USE_MC68EC030)
@@ -324,6 +326,8 @@ public:
 		SRAM_PURPOSE = 0x2d,
 		SRAM_KEY_REPEAT_DELAY = 0x3a,
 		SRAM_KEY_REPEAT_RATE = 0x3b,
+		SRAM_OPERATING_TIME = 0x40,
+		SRAM_TIMES_OF_POWER_OFF = 0x44,
 		SRAM_SASI_HDD_NUMS = 0x5a,
 		SRAM_SCSI_ENABLE_FLAG = 0x6f,
 		SRAM_SCSI_HOST_ID = 0x70,
@@ -401,6 +405,8 @@ public:
 	};
 	int get_sram_rs232c_flowctrl(uint32_t value) const;
 	uint32_t conv_sram_rs232c_flowctrl(int pos) const;
+	uint32_t get_sram_accumulated_operating_time() const;
+	uint32_t get_sram_times_of_the_power_off() const;
 	bool get_sram_alarm_onoff() const;
 	void set_sram_alarm_onoff(bool val);
 	uint32_t get_sram_alarm_time() const;
@@ -443,6 +449,7 @@ public:
 	//@{
 	uint64_t get_current_clock();
 	uint64_t get_passed_clock(uint64_t prev);
+	int  get_current_power();
 //	uint32_t get_pc();
 	//@}
 	/// @name get devices
@@ -535,6 +542,7 @@ protected:
 		DNM_SCSI,
 		DNM_OPM,
 		DNM_ADPCM,
+		DNM_MIDI,
 		DNM_RTC,
 		DNM_BOARD,	// interrupt control
 		DNM_SYSPORT,	// system port

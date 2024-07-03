@@ -8,7 +8,7 @@
 	@note
 	Modified by Sasaji at 2022.02.22
 
-	[ YM2151 ]
+	@brief [ YM2151 ]
 */
 
 #include "ym2151.h"

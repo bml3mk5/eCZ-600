@@ -299,12 +299,7 @@ void EMU::set_vm_screen_size(int screen_width, int screen_height, int window_wid
 ///
 bool EMU::start_rec_video(int type, int fps_no, bool show_dialog)
 {
-#ifdef USE_REC_VIDEO
-	int size = pConfig->screen_video_size;
-	return rec_video->Start(type, fps_no, rec_video_size[size], sufOrigin, show_dialog);
-#else
 	return false;
-#endif
 }
 
 ///
@@ -549,7 +544,12 @@ void EMU::change_pixel_aspect(int mode)
 	}
 	pConfig->pixel_aspect = get_pixel_aspect(mode, &mixed_ratio.w, &mixed_ratio.h);
 
-	set_display_size(pConfig->screen_width, pConfig->screen_height, now_screenmode != NOW_WINDOW ? 10 : window_mode_power, now_screenmode == NOW_WINDOW);
+	set_display_size(
+		pConfig->screen_width ? pConfig->screen_width : MIN_WINDOW_WIDTH,
+		pConfig->screen_height ? pConfig->screen_height : MIN_WINDOW_HEIGHT,
+		now_screenmode != NOW_WINDOW ? 10 : window_mode_power,
+		now_screenmode == NOW_WINDOW
+	);
 }
 
 /// kind of aspect ratio

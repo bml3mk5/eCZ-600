@@ -11,6 +11,7 @@
 #ifndef GTK_X11_GUI_H
 #define GTK_X11_GUI_H
 
+#include "../../common.h"
 #include <vector>
 #include <glib.h>
 #include <gtk/gtk.h>
@@ -19,7 +20,6 @@
 #include "gtk_keysym_compat.h"
 #include "../gui_base.h"
 #include "gtk_dialogbox.h"
-#include "../../common.h"
 #include "../../rec_video_defs.h"
 #ifdef USE_GTK
 #include <cairo/cairo.h>
@@ -254,6 +254,16 @@ private:
 	static void OnUpdateSoundRate(GtkWidget *widget, gpointer user_data);
 	static void OnSelectSoundLatency(GtkWidget *widget, gpointer user_data);
 	static void OnUpdateSoundLatency(GtkWidget *widget, gpointer user_data);
+#ifdef USE_MIDI
+	static void OnUpdateMIDIOutMenu(GtkWidget *widget, gpointer user_data);
+	static void OnSelectMIDIOut(GtkWidget *widget, gpointer user_data);
+	static void OnUpdateMIDIOut(GtkWidget *widget, gpointer user_data);
+	static void OnSelectMIDIOutLatency(GtkWidget *widget, gpointer user_data);
+	static void OnUpdateMIDIOutLatency(GtkWidget *widget, gpointer user_data);
+	static void OnSelectMIDIOutLatencyOther(GtkWidget *widget, gpointer user_data);
+	static void OnUpdateMIDIOutLatencyOther(GtkWidget *widget, gpointer user_data);
+	static void OnSelectSendMIDIReset(GtkWidget *widget, gpointer user_data);
+#endif
 
 	//
 	static void OnSelectSavePrinter(GtkWidget *widget, gpointer user_data);
@@ -345,6 +355,10 @@ private:
 	GtkWidget *create_multi_volume_menu_item(GtkWidget *menu, const char *label, int drv, int num);
 	GtkWidget *create_comm_connect_menu(GtkWidget *menu, int drv);
 	GtkWidget *create_comm_connect_menu_item(GtkWidget *menu, const char *label, int drv, int num);
+#ifdef USE_MIDI
+	GtkWidget *create_midiout_menu(GtkWidget *menu, int drv);
+	GtkWidget *create_midiout_menu_item(GtkWidget *menu, const char *label, int drv, int num);
+#endif
 	inline void add_accelerator(GtkWidget *menu_item, guint key);
 
 	void modify_menu_open_flag(GtkWidget *menu, bool val);
@@ -397,6 +411,9 @@ public:
 	virtual bool ShowVolumeDialog();
 	virtual bool ShowLoggingDialog();
 	virtual bool IsShownLoggingDialog();
+#ifdef USE_MIDI
+	virtual bool ShowMIDIOutLatencyDialog();
+#endif
 #endif
 #ifdef USE_DATAREC
 	virtual bool ShowLoadDataRecDialog();

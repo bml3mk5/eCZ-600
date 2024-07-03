@@ -66,6 +66,9 @@ class Connection;
 #ifdef USE_UART
 class CommPorts;
 #endif
+#ifdef USE_MIDI
+class CMidi;
+#endif
 
 class FIFO;
 class FILEIO;
@@ -219,8 +222,10 @@ private:
 	SDL_Renderer *renderer;
 	CTexture *texSource;
 	CTexture *texMixed;
+# ifdef USE_SCREEN_SDL2_MIX_ON_RENDERER
 	CTexture *texLedBox;
 	CTexture *texMsgBoard;
+# endif
 # ifdef USE_OPENGL
 	SDL_GLContext glcontext;
 # endif
@@ -339,6 +344,26 @@ private:
 	//@}
 #endif
 
+	// ----------------------------------------
+	// MIDI
+	// ----------------------------------------
+#ifdef USE_MIDI
+	/// @name midi private methods
+	//@{
+	void EMU_MIDI();
+	void initialize_midi();
+	void release_midi();
+	void reset_midi(bool power_on);
+	void update_midi();
+	void pause_midi();
+	void set_midi_cpu_power();
+	//@}
+	/// @name midi private members
+	//@{
+	CMidi *cmidi;
+	//@}
+#endif
+
 //
 //
 //
@@ -369,6 +394,17 @@ public:
 	}
 #endif
 	//@}
+#ifdef USE_MIDI
+	/// @name midi menu for ui
+	//@{
+	void enable_midiin_connect(int idx);
+	void enable_midiout_connect(int idx);
+	bool now_midiin_connecting(int idx);
+	bool now_midiout_connecting(int idx);
+	void set_midiout_delay_time(int val);
+	//@}
+#endif
+
 	/// @name input device procedures for host machine
 	//@{
 	int  key_down_up(uint8_t type, int code, long status);
@@ -480,6 +516,15 @@ public:
 	void get_uart_description(int ch, _TCHAR *buf, size_t size);
 	//@}
 #endif
+#ifdef USE_MIDI
+	/// @name MIDI device procedures for host machine
+	//@{
+	int  enum_midiins();
+	int  enum_midiouts();
+	void get_midiin_description(int idx, _TCHAR *buf, size_t size);
+	void get_midiout_description(int idx, _TCHAR *buf, size_t size);
+	//@}
+#endif
 
 	// ----------------------------------------
 	// for virtual machine
@@ -528,6 +573,20 @@ public:
 	int  send_uart_data(int ch, const uint8_t *data, int size);
 	void send_uart_data(int ch);
 	void recv_uart_data(int ch);
+	//@}
+#endif
+#ifdef USE_MIDI
+	/// @name midi for vm
+	//@{
+	bool open_midiin(int idx);
+	bool is_opened_midiin();
+	void close_midiin();
+	bool open_midiout(int idx);
+	bool is_opened_midiout();
+	void close_midiout();
+	uint8_t recv_data_from_midiin();
+	void send_data_to_midiout(uint8_t data);
+	void send_midi_reset_message();
 	//@}
 #endif
 #ifdef USE_EMU_INHERENT_SPEC

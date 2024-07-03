@@ -372,7 +372,7 @@ private:
 	// image handler
 	uint32_t verify_track();
 	uint32_t search_sector(int side, int sector, bool compare_side);
-	uint32_t search_sector_by_index(int side, int index, int sector, bool compare_side);
+	uint32_t search_sector_by_index(int index, uint8_t *compare_side, uint8_t *compare_sect, uint8_t *compare_size);
 	uint32_t search_addr();
 	bool make_track();
 	bool parse_track();

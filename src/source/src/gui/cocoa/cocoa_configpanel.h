@@ -116,6 +116,18 @@
 	CocoaTextField *txtSramSasiOnScsi;
 #endif
 
+	CocoaCheckBox *chkEnableMIDI;
+#ifdef USE_MIDI
+	CocoaPopUpButton *popMIDIOut;
+	CocoaStepper *stpMIDIOutDelay;
+	CocoaPopUpButton *popMIDIResetType;
+	CocoaCheckBox *chkMIDIResPowerOn;
+	CocoaCheckBox *chkMIDIResPowerOff;
+	CocoaCheckBox *chkMIDIResHardRes;
+	CocoaCheckBox *chkMIDIResEndApp;
+	CocoaCheckBox *chkMIDINoRTMsg;
+#endif
+
 #ifdef MAX_PRINTER
 	CocoaTextField *txtLPTHost[MAX_PRINTER];
 	CocoaTextField *txtLPTPort[MAX_PRINTER];
@@ -159,6 +171,9 @@
 - (void)selectCorrect:(CocoaCheckBox *)sender;
 #ifdef USE_HD1
 - (void)selectSCSIType:(CocoaRadioButton *)sender;
+#endif
+#ifdef USE_MIDI
+- (void)sendMIDIResetMessage:(id)sender;
 #endif
 @end
 

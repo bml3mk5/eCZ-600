@@ -11,6 +11,7 @@
 #ifndef GUI_GTK_RECAUDBOX_H
 #define GUI_GTK_RECAUDBOX_H
 
+#include "../../common.h"
 #include <gtk/gtk.h>
 #include "gtk_dialogbox.h"
 #include "../../vm/vm.h"

@@ -608,6 +608,11 @@ double EVENT::get_passed_usec(uint64_t prev)
 	return 1000000.0 * get_passed_clock(prev) / d_cpu[0].cpu_clocks;
 }
 
+int EVENT::get_current_power() 
+{
+	return event_power;
+}
+
 /// set number of CPUs for use
 ///
 /// @note should only set in initialize or reset sequence

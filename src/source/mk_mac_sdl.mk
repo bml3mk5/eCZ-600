@@ -22,7 +22,7 @@ MACMINVER:=-mmacosx-version-min=10.9
 # COMMONCFLAGS:=-I/usr/local/include -I/usr/X11/include -I$(FFMPEGDIR) -I./include
 COMMONCFLAGS:=-I/usr/local/include -I/usr/X11/include -I./include
 
-COMMONLDFLAGS:=-lm -lz -lbz2 -liconv -Wl,-framework,OpenGL -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,CoreAudio -Wl,-framework,IOKit -Wl,-framework,AudioUnit -Wl,-framework,ForceFeedback -Wl,-framework,QTKit -Wl,-framework,AVFoundation -Wl,-framework,CoreMedia -Wl,-framework,CoreVideo -Wl,-framework,AudioToolbox -Wl,-framework,Metal
+COMMONLDFLAGS:=-lm -lz -lbz2 -liconv -Wl,-framework,OpenGL -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,CoreAudio -Wl,-framework,IOKit -Wl,-framework,AudioUnit -Wl,-framework,ForceFeedback -Wl,-framework,QTKit -Wl,-framework,AVFoundation -Wl,-framework,CoreMedia -Wl,-framework,CoreVideo -Wl,-framework,AudioToolbox -Wl,-framework,Metal -Wl,-framework,CoreMidi
 
 CFLAGS:=$(CFLAGS) $(COMMONCFLAGS) $(MACMINVER)
 CXXFLAGS:=$(CXXFLAGS) $(COMMONCFLAGS) $(MACMINVER)
@@ -100,6 +100,7 @@ EMUOSDOBJS:=$(SRCOSDSDL)/sdl_emu.o \
 	$(SRCOSDSDL)/sdl_cbitmap.o \
 	$(SRCOSDSDL)/sdl_ccolor.o \
 	$(SRCOSDMAC)/mac_uart.o \
+	$(SRCOSDMAC)/mac_midi.o \
 	$(SRCOSD)/d88_files.o \
 	$(SRCOSD)/debugger_console.o \
 	$(SRCOSD)/emu.o \
@@ -114,6 +115,7 @@ EMUOSDOBJS:=$(SRCOSDSDL)/sdl_emu.o \
 	$(SRCOSD)/simple_clocale.o \
 	$(SRCOSD)/vkeyboardbase.o \
 	$(SRCOSD)/windowmode.o \
+	$(SRCOSD)/osd_midi.o \
 	$(SRCOSD)/opengl.o
 
 VMOBJS:=$(SRCVM)/device.o \
@@ -165,6 +167,7 @@ DEPOBJS:=$(SRCDEP)/adpcm.o \
 	$(SRCDEP)/keyrecord.o \
 	$(SRCDEP)/memory.o \
 	$(SRCDEP)/mfp.o \
+	$(SRCDEP)/midi.o \
 	$(SRCDEP)/mouse.o \
 	$(SRCDEP)/printer.o \
 	$(SRCDEP)/rtc.o \
@@ -207,6 +210,7 @@ GUIOBJSCOCOA:=$(SRCGUICOCOA)/cocoa_gui.o \
 	$(SRCGUICOCOA)/cocoa_joysetpanel.o \
 	$(SRCGUICOCOA)/cocoa_hdtypepanel.o \
 	$(SRCGUICOCOA)/cocoa_loggingpanel.o \
+	$(SRCGUICOCOA)/cocoa_midlatepanel.o \
 	$(SRCGUICOCOA)/cocoa_configpanel.o
 
 #	$(SRCGUICOCOA)/cocoa_savedatarec.o \

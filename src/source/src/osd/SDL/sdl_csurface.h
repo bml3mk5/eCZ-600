@@ -28,35 +28,33 @@
 
 // ----------------------------------------------------------------------------
 
-class CSurface;
-
 /**
-	@brief manage CSDLSurface
+	@brief manage CSurface
 */
-class CSDLSurface
+class CSurface
 {
 protected:
 	SDL_Surface *suf;
 
 public:
-	CSDLSurface();
-	CSDLSurface(long width, long height);
-	CSDLSurface(long width, long height, const CPixelFormat &pixel_format);
-	CSDLSurface(long width, long height, SDL_PixelFormat *pixel_format);
-	CSDLSurface(long width, long height, CPixelFormat::FormatId force_format);
-	virtual ~CSDLSurface();
+	CSurface();
+	CSurface(long width, long height);
+	CSurface(long width, long height, const CPixelFormat &pixel_format);
+	CSurface(long width, long height, SDL_PixelFormat *pixel_format);
+	CSurface(long width, long height, CPixelFormat::FormatId force_format);
+	virtual ~CSurface();
 
-	virtual bool Create(long width, long height);
-	virtual bool Create(long width, long height, const CPixelFormat &pixel_format);
-	virtual bool Create(long width, long height, SDL_PixelFormat *pixel_format);
-	virtual bool Create(long width, long height, CPixelFormat::FormatId force_format);
-	virtual bool Create(const VmRectWH &srcrect);
-	virtual bool Create(const VmRectWH &srcrect, const CPixelFormat &pixel_format);
-	virtual bool Create(const VmRectWH &srcrect, CPixelFormat::FormatId force_format);
-	virtual bool Create(const VmRectWH &srcrect, CSDLSurface &srcsurface, CPixelFormat::FormatId force_format = CPixelFormat::NONE);
-	virtual bool Create(CSDLSurface &srcsurface, const CPixelFormat &pixel_format);
+	bool Create(long width, long height);
+	bool Create(long width, long height, const CPixelFormat &pixel_format);
+	bool Create(long width, long height, SDL_PixelFormat *pixel_format);
+	bool Create(long width, long height, CPixelFormat::FormatId force_format);
+	bool Create(const VmRectWH &srcrect);
+	bool Create(const VmRectWH &srcrect, const CPixelFormat &pixel_format);
+	bool Create(const VmRectWH &srcrect, CPixelFormat::FormatId force_format);
+	bool Create(const VmRectWH &srcrect, CSurface &srcsurface, CPixelFormat::FormatId force_format = CPixelFormat::NONE);
+	bool Create(CSurface &srcsurface, const CPixelFormat &pixel_format);
 
-	virtual void Release();
+	void Release();
 
 	scrntype *GetBuffer();
 	scrntype *GetBuffer(int y);
@@ -79,26 +77,26 @@ public:
 	bool Lock();
 	void Unlock();
 
-	bool Blit(CSDLSurface &dst);
-	bool Blit(CSDLSurface &dst, const VmRectWH &dst_re);
-	bool Blit(const VmRectWH &src_re, CSDLSurface &dst, const VmRectWH &dst_re);
-	bool Blit(CSDLSurface &dst, SDL_Rect &dst_re);
-	bool Blit(SDL_Rect &src_re, CSDLSurface &dst, SDL_Rect &dst_re);
+	bool Blit(CSurface &dst);
+	bool Blit(CSurface &dst, const VmRectWH &dst_re);
+	bool Blit(const VmRectWH &src_re, CSurface &dst, const VmRectWH &dst_re);
+	bool Blit(CSurface &dst, SDL_Rect &dst_re);
+	bool Blit(SDL_Rect &src_re, CSurface &dst, SDL_Rect &dst_re);
 	bool Blit(SDL_Surface &dst);
 	bool Blit(SDL_Surface &dst, const VmRectWH &dst_re);
 	bool Blit(const VmRectWH &src_re, SDL_Surface &dst, const VmRectWH &dst_re);
 	bool Blit(SDL_Surface &dst, SDL_Rect &dst_re);
 	bool Blit(SDL_Rect &src_re, SDL_Surface &dst, SDL_Rect &dst_re);
 
-	bool StretchBlit(const VmRectWH &src_re, CSDLSurface &dst, const VmRectWH &dst_re);
+	bool StretchBlit(const VmRectWH &src_re, CSurface &dst, const VmRectWH &dst_re);
 	bool StretchBlit(const VmRectWH &src_re, SDL_Surface &dst, const VmRectWH &dst_re);
-	bool StretchBlit(SDL_Rect &src_re, CSDLSurface &dst, SDL_Rect &dst_re);
+	bool StretchBlit(SDL_Rect &src_re, CSurface &dst, SDL_Rect &dst_re);
 	bool StretchBlit(SDL_Rect &src_re, SDL_Surface &dst, SDL_Rect &dst_re);
 
-	bool BlitFlipped(const VmRectWH &src_re, CSDLSurface &dst, const VmRectWH &dst_re);
+	bool BlitFlipped(const VmRectWH &src_re, CSurface &dst, const VmRectWH &dst_re);
 	bool BlitFlipped(SDL_Rect &src_re, SDL_Surface &dst, SDL_Rect &dst_re);
 
-	bool StretchBlitFlipped(const VmRectWH &src_re, CSDLSurface &dst, const VmRectWH &dst_re);
+	bool StretchBlitFlipped(const VmRectWH &src_re, CSurface &dst, const VmRectWH &dst_re);
 	bool StretchBlitFlipped(SDL_Rect &src_re, SDL_Surface &dst, SDL_Rect &dst_re);
 
 	void Fill(scrntype data, scrntype mask);
@@ -110,19 +108,6 @@ public:
 
 // ----------------------------------------------------------------------------
 
-/**
-	@brief manage CSurface
-*/
-class CSurface : public CSDLSurface
-{
-public:
-	CSurface();
-	CSurface(long width, long height);
-	CSurface(long width, long height, const CPixelFormat &pixel_format);
-	CSurface(long width, long height, SDL_PixelFormat *pixel_format);
-	CSurface(long width, long height, CPixelFormat::FormatId force_format);
-};
-
 #ifdef USE_GTK
 /**
 	@brief manage CCairoSurface
@@ -131,6 +116,7 @@ class CCairoSurface
 {
 protected:
 	cairo_surface_t *p_cas;
+	static const cairo_filter_t c_filter[];
 
 public:
 	CCairoSurface();
@@ -150,7 +136,7 @@ public:
 	bool BlitC(cairo_t *dst, const SDL_Rect &dst_re);
 	bool BlitC(SDL_Rect &src_re, cairo_t *dst, SDL_Rect &dst_re);
 
-	bool StretchBlitC(const VmRectWH &src_re, cairo_t *dst, const VmRectWH &dst_re);
+	bool StretchBlitC(const VmRectWH &src_re, cairo_t *dst, const VmRectWH &dst_re, int filter = 0);
 };
 #endif /* USE_GTK */
 

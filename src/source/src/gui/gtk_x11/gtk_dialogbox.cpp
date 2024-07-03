@@ -9,7 +9,6 @@
 */
 
 #include "gtk_dialogbox.h"
-#include "../../common.h"
 #include "gtk_x11_gui.h"
 #include "../../utility.h"
 

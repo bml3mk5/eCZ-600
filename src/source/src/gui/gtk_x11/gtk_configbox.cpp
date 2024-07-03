@@ -131,8 +131,6 @@ bool ConfigBox::Show(GtkWidget *parent_window)
 	chkSRAMChanged = create_check_box(hbox, CMsg::Show_message_when_parameters_related_on_start_up_was_changed, FLG_ORIG_SRAM_CHG_BOOT_DEV != 0);
 
 	// SRAM
-	create_label(vboxall, CMsg::Parameters_in_SRAM_);
-
 	hboxall = create_hbox(vboxall);
 	lbox = create_vbox(hboxall);
 	mbox = create_vbox(hboxall);
@@ -145,6 +143,7 @@ bool ConfigBox::Show(GtkWidget *parent_window)
 	uint32_t valueu = 0;
 
 	// R
+	create_label(lbox, CMsg::Parameters_in_SRAM_);
 
 	// main ram size
 	hbox = create_hbox(lbox);
@@ -221,11 +220,6 @@ bool ConfigBox::Show(GtkWidget *parent_window)
 	create_label(hbox, CMsg::Contrast_on_Monitor);
 	spnSramContrast = create_spin(hbox, 0, 15, valuei);
 
-	// eject fd
-	hbox = create_hbox(rbox);
-	valuei = vm->get_sram_fd_eject();
-	chkSramFdEject = create_check_box(hbox, CMsg::Eject_FD_when_power_off, valuei != 0);
-
 	// purpose of SRAM free area
 	hbox = create_hbox(rbox);
 	valuei = vm->get_sram_purpose();
@@ -254,6 +248,21 @@ bool ConfigBox::Show(GtkWidget *parent_window)
 	chkSramKLEDins = create_check_box(hbox, CMsg::INS, (valuei & 16) != 0);
 	chkSramKLEDhira = create_check_box(hbox, CMsg::Hiragana, (valuei & 32) != 0);
 	chkSramKLEDzen = create_check_box(hbox, CMsg::Zenkaku, (valuei & 64) != 0);
+
+	// Accumulated operating time
+	hbox = create_hbox(rbox);
+	valueu = vm->get_sram_accumulated_operating_time();
+	UTILITY::sprintf(buf, sizeof(buf), "%u", valueu);
+	ctrl = create_text_with_label(hbox, CMsg::Accumulated_operating_time, buf, 8);
+	create_label(hbox, CMsg::min_);
+	set_enable(ctrl, false);
+
+	// Number of times turned off
+	hbox = create_hbox(rbox);
+	valueu = vm->get_sram_times_of_the_power_off();
+	UTILITY::sprintf(buf, sizeof(buf), "%u", valueu);
+	ctrl = create_text_with_label(hbox, CMsg::Times_of_turned_off, buf, 8);
+	set_enable(ctrl, false);
 #endif
 
 	// ----------------------------------------
@@ -389,6 +398,13 @@ bool ConfigBox::Show(GtkWidget *parent_window)
 	chkFdMedia = create_check_box(hbox, CMsg::Suppress_checking_for_media_type, (FLG_CHECK_FDMEDIA == 0));
 	hbox = create_hbox(vbox);
 	chkFdSavePlain = create_check_box(hbox, CMsg::Save_a_plain_disk_image_as_it_is, (FLG_SAVE_FDPLAIN != 0));
+
+	// SRAM for fd
+	create_frame(hboxall, CMsg::Parameters_for_floppy_disk_in_SRAM, &vbox, &hbox);
+
+	// eject fd
+	valuei = vm->get_sram_fd_eject();
+	chkSramFdEject = create_check_box(hbox, CMsg::Eject_FD_when_power_off, valuei != 0);
 #endif
 
 	// HDD
@@ -457,11 +473,66 @@ bool ConfigBox::Show(GtkWidget *parent_window)
 #endif
 
 	// ----------------------------------------
-	// 4 network
+	// 4 sound
 	// ----------------------------------------
 
 	vboxall = create_vbox(NULL);
 	add_note(nb, vboxall, LABELS::tabs[4]);
+
+	// MIDI
+	hboxall = create_hbox(vboxall);
+	create_frame(hboxall, CMsg::MIDI, &vbox, &hbox);
+
+	bool valueb = ((vm->get_parami(VM::ParamIOPort) & IOPORT_MIDI) != 0);
+	chkEnableMIDI = create_check_box(hbox, CMsg::Enable_MIDI_Board_CZ_6BM1_ASTERISK, valueb);
+	UTILITY::tcscpy(buf, sizeof(buf), CMSG(LB_Now_SP));
+	UTILITY::tcscat(buf, sizeof(buf), valueb ? CMSG(Enable) : CMSG(Disable));
+	UTILITY::tcscat(buf, sizeof(buf), _T(")"));
+	create_label(hbox, buf);
+#ifdef USE_MIDI
+	CPtrList<CTchar> midiout_list;
+	int midiout_cnt = gui->EnumMidiOuts();
+	int midiout_conn = 0;
+	midiout_list.Add(new CTchar(CMSG(None_)));
+	for(int idx = 0; idx < midiout_cnt && idx < MIDI_MAX_PORTS; idx++) {
+		gui->GetMidiOutDescription(idx, buf, sizeof(buf)/sizeof(buf[0]));
+		if (gui->NowConnectingMidiOut(idx)) {
+			midiout_conn = idx + 1;
+		}
+		midiout_list.Add(new CTchar(buf));
+	}
+	hbox = create_hbox(vbox);
+	comMIDIOut = create_combo_box(hbox, CMsg::Now_Connecting_MIDI_Output, midiout_list, midiout_conn);
+
+	hbox = create_hbox(vbox);
+	create_label(hbox, CMsg::Output_Latency);
+	valuei = pConfig->midiout_delay;
+	spnMIDIOutDelay = create_spin(hbox, 0, 2000, valuei);
+	create_label(hbox, CMsg::msec);
+
+	hbox = create_hbox(vbox);
+	comMIDIResetType = create_combo_box(hbox, CMsg::MIDI_Reset_Type, LABELS::midi_type, pConfig->midi_send_reset_type);
+	create_button(hbox, CMsg::Send_message_now, G_CALLBACK(OnSelectSendMIDIResetMessage));
+
+	hbox = create_hbox(vbox);
+	create_label(hbox, CMsg::When_send_reset_message_);
+	chkMIDIResPowerOn = create_check_box(hbox, CMsg::Power_on, (pConfig->midi_flags & MIDI_FLAG_RES_POWERON) != 0);
+	chkMIDIResPowerOff = create_check_box(hbox, CMsg::Power_off, (pConfig->midi_flags & MIDI_FLAG_RES_POWEROFF) != 0);
+	chkMIDIResHardRes = create_check_box(hbox, CMsg::Reset_by_hand, (pConfig->midi_flags & MIDI_FLAG_RES_HARDRES) != 0);
+	chkMIDIResEndApp = create_check_box(hbox, CMsg::End_of_app_, (pConfig->midi_flags & MIDI_FLAG_RES_END_APP) != 0);
+
+	hbox = create_hbox(vbox);
+	chkMIDINoRTMsg = create_check_box(hbox, CMsg::Does_not_send_system_real_time_messages_, (pConfig->midi_flags & MIDI_FLAG_NO_REALTIME_MSG) != 0);
+#endif
+	hboxall = create_hbox(vboxall);
+	create_label(hboxall, CMsg::Need_restart_program_or_PowerOn);
+
+	// ----------------------------------------
+	// 5 network
+	// ----------------------------------------
+
+	vboxall = create_vbox(NULL);
+	add_note(nb, vboxall, LABELS::tabs[5]);
 
 	// LPT
 #ifdef MAX_PRINTER
@@ -759,6 +830,25 @@ bool ConfigBox::SetData()
 #endif
 #endif
 
+	int io_port = vm->get_parami(VM::ParamIOPort);
+	BIT_ONOFF(io_port, IOPORT_MIDI, get_check_state(chkEnableMIDI));
+	vm->set_parami(VM::ParamIOPort, io_port);
+#ifdef USE_MIDI
+	int midiout_conn = get_combo_sel_num(comMIDIOut);
+	gui->ConnectMidiOut(midiout_conn - 1);
+	val = (int)get_spin_value(spnMIDIOutDelay);
+	if (0 <= val && val <= 2000) {
+		pConfig->midiout_delay = val;
+		emu->set_midiout_delay_time(val);
+	}
+	pConfig->midi_send_reset_type = get_combo_sel_num(comMIDIResetType);
+	BIT_ONOFF(pConfig->midi_flags, MIDI_FLAG_RES_POWERON, get_check_state(chkMIDIResPowerOn));
+	BIT_ONOFF(pConfig->midi_flags, MIDI_FLAG_RES_POWEROFF, get_check_state(chkMIDIResPowerOff));
+	BIT_ONOFF(pConfig->midi_flags, MIDI_FLAG_RES_HARDRES, get_check_state(chkMIDIResHardRes));
+	BIT_ONOFF(pConfig->midi_flags, MIDI_FLAG_RES_END_APP, get_check_state(chkMIDIResEndApp));
+	BIT_ONOFF(pConfig->midi_flags, MIDI_FLAG_NO_REALTIME_MSG, get_check_state(chkMIDINoRTMsg));
+#endif
+
 	// set message font
 	MsgBoard *msgboard = emu->get_msgboard();
 	if (msgboard) {
@@ -820,6 +910,15 @@ void ConfigBox::ChangeExPsg()
 {
 }
 
+#ifdef USE_MIDI
+void ConfigBox::SendMIDIResetMessage()
+{
+	int midiout_conn = get_combo_sel_num(comMIDIOut);
+	gui->ConnectMidiOut(midiout_conn - 1);
+	gui->SendMidiResetMessage(get_combo_sel_num(comMIDIResetType));
+}
+#endif
+
 void ConfigBox::OnChangedFDD(GtkWidget *widget, gpointer user_data)
 {
 	ConfigBox *obj = (ConfigBox *)user_data;
@@ -875,6 +974,14 @@ void ConfigBox::OnSelectROMPath(GtkWidget *widget, gpointer user_data)
 	ConfigBox *obj = (ConfigBox *)user_data;
 	obj->ShowFolderBox(CMSG(ROM_Path), obj->txtROMPath);
 }
+
+#ifdef USE_MIDI
+void ConfigBox::OnSelectSendMIDIResetMessage(GtkWidget *widget, gpointer user_data)
+{
+	ConfigBox *obj = (ConfigBox *)user_data;
+	obj->SendMIDIResetMessage();
+}
+#endif
 
 void ConfigBox::OnResponse(GtkWidget *widget, gint response_id, gpointer user_data)
 {

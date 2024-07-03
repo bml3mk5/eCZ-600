@@ -629,7 +629,9 @@ bool MsgBoard::set_sys_font(CMsg::Id title, const _TCHAR *name, int pt, TTF_Font
 	fname.Add(new CNchar("ttf-japanese-gothic.ttf"));
 	fname.Add(new CNchar("fonts-japanese-gothic.ttf"));
 	fname.Add(new CNchar("NotoSansCJK-Regular.ttc"));
+	fname.Add(new CNchar("NotoSansCJK-VF.ttc"));
 	fname.Add(new CNchar("ipag.ttf"));
+	fname.Add(new CNchar("OpenSans-Regular.ttf"));
 	fname.Add(new CNchar("FreeSans.ttf"));
 
 #elif defined(__APPLE__) && defined(__MACH__)

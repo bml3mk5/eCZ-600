@@ -746,11 +746,7 @@ void EMU_OSD::set_ledbox_position(bool now_window)
 		} else
 #endif
 		{
-#if 0
-			gui->SetLedBoxPosition(now_window, mixed_size.x, mixed_size.y, mixed_size.w, mixed_size.h, pConfig->led_pos | (is_fullscreen() ? 0x10 : 0));
-#else
 			gui->SetLedBoxPosition(now_window, 0, 0, display_size.w, display_size.h, pConfig->led_pos | (is_fullscreen() ? 0x10 : 0));
-#endif
 		}
 	}
 #endif
@@ -774,15 +770,9 @@ void EMU_OSD::set_msgboard_position()
 		} else
 #endif
 		{
-#if 0
-			msgboard->SetSize(source_size.w, source_size.h);
-			msgboard->SetMessagePos(4 + mixed_size.x,  - 4 - source_size.h + mixed_size.y + mixed_size.h, 2);
-			msgboard->SetInfoPos(-4 - mixed_size.x, 4 + mixed_size.y, 1);
-#else
 			msgboard->SetSize(display_size.w, display_size.h);
 			msgboard->SetMessagePos(4, -4, 2);
 			msgboard->SetInfoPos(-4, 4, 1);
-#endif
 		}
 	}
 #endif
@@ -973,7 +963,6 @@ bool EMU_OSD::mix_screen_pa(cairo_t *cr)
 		mix_screen_sub();
 
 		// render screen
-		cairo_matrix_t m2;
 
 //		// fill black on screen
 //		if (first_invalidate) {
@@ -991,6 +980,7 @@ bool EMU_OSD::mix_screen_pa(cairo_t *cr)
 		if (first_invalidate) {
 			first_invalidate = false;
 #ifdef _DEBUG
+			cairo_matrix_t m2;
 			cairo_get_matrix(cr, &m2);
 			logging->out_debugf(_T("matrix:[%.2f, %.2f, %.2f, %.2f] %.2f, %.2f"),
 				m2.xx, m2.xy, m2.yx, m2.yy, m2.x0, m2.y0);
@@ -1002,7 +992,6 @@ bool EMU_OSD::mix_screen_pa(cairo_t *cr)
 	{
 		// render screen
 		gint w, h;
-		cairo_matrix_t m2;
 
 		gtk_window_get_size(GTK_WINDOW(window), &w, &h);
 
@@ -1047,7 +1036,7 @@ bool EMU_OSD::mix_screen_pa(cairo_t *cr)
 
 			// paint surface
 			lock_screen();
-			casSource->StretchBlitC(vm_screen_size, cr, stretched_size);
+			casSource->StretchBlitC(vm_screen_size, cr, stretched_size, pConfig->gl_filter_type);
 			unlock_screen();
 
 			cairo_paint(cr);
@@ -1074,6 +1063,7 @@ bool EMU_OSD::mix_screen_pa(cairo_t *cr)
 			if (first_invalidate) {
 				first_invalidate = false;
 #ifdef _DEBUG
+				cairo_matrix_t m2;
 				cairo_get_matrix(cr, &m2);
 				logging->out_debugf(_T("matrix:[%.2f, %.2f, %.2f, %.2f] %.2f, %.2f"),
 					m2.xx, m2.xy, m2.yx, m2.yy, m2.x0, m2.y0);

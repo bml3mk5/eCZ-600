@@ -102,6 +102,8 @@ extern const CMsg::Id scsi_type[];
 
 extern const _TCHAR *hd_device_type[];
 
+extern const CMsg::Id midi_type[];
+
 }; /* namespace LABELS */
 
 #endif /* LABELS_H */

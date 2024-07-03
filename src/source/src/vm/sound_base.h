@@ -5,7 +5,7 @@
 	@author : Sasaji
 	@date   : 2022.02.22-
 
-	[ sound base ]
+	@brief [ sound base ]
 */
 
 #ifndef SOUND_BASE_H

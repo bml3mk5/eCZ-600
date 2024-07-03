@@ -39,11 +39,13 @@ class CSimpleIni;
 enum IOPORT_MASKS {
 	IOPORT_FPCOPRO		= 0x00000001,
 	IOPORT_MIDI			= 0x00000002,
-	IOPORT_MSK_ALL		= 0x00000000,
+	IOPORT_MSK_ALL		= 0x00000002,
 };
 
 /// @ingroup Macros
 ///@{
+#define FLG_IOPORT_FPCOPRO		(pConfig->io_port & IOPORT_FPCOPRO)
+#define FLG_IOPORT_MIDI			(pConfig->io_port & IOPORT_MIDI)
 ///@}
 
 /// @ingroup Enums
@@ -163,6 +165,28 @@ enum VOLUME_POS {
 	VOLUME_FDD,
 	VOLUME_HDD,
 	VOLUME_NUMS
+};
+
+/// @ingroup Enums
+/// @brief MIDI type
+enum MIDI_TYPES {
+	MIDI_TYPE_GM = 0,
+	MIDI_TYPE_GS,
+	MIDI_TYPE_LA,
+	MIDI_TYPE_XG,
+	MIDI_TYPE_USER,
+	MIDI_TYPE_END
+};
+
+/// @ingroup Enums
+/// @brief MIDI flags
+enum MIDI_FLAGS {
+	MIDI_FLAG_RES_POWERON		= 0x0001,
+	MIDI_FLAG_RES_POWEROFF		= 0x0002,
+	MIDI_FLAG_RES_HARDRES		= 0x0004,
+	MIDI_FLAG_RES_END_APP		= 0x0008,
+	MIDI_FLAG_NO_REALTIME_MSG	= 0x0100,
+	MIDI_FLAGS_ALL				= 0x010f,
 };
 
 /// directory path
@@ -352,6 +376,7 @@ public:
 	int vdisp_skew;
 #endif
 
+	// bit1: MIDI board
 	int io_port;
 	// bit0: show led  bit1: show msg  bit2: use joystick  bit3: inside led
 	// bit4: enable lightpen bit5: enable mouse bit6: use pia joystick
@@ -445,6 +470,14 @@ public:
 	int    comm_uart_parity;
 	int    comm_uart_stopbit;
 	int    comm_uart_flowctrl;
+#endif
+
+#ifdef USE_MIDI
+	CTchar midiout_device;
+	int    midiout_delay;
+	CTchar midi_exclusive[MIDI_TYPE_END];
+	int	   midi_send_reset_type;
+	uint32_t midi_flags;
 #endif
 
 	CDirPath snapshot_path;
