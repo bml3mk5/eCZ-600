@@ -524,6 +524,34 @@ bool BOARD::debug_write_reg(uint32_t reg_num, uint32_t data)
 	return false;
 }
 
+static const struct st_int_flags {
+	uint32_t val;
+	const _TCHAR *name;
+} c_int_flags[] = {
+	{ INTDEV_HDD,		_T("HDD")	},
+	{ INTDEV_PRINTER,	_T("PRN")	},
+	{ INTDEV_FDD,		_T("FDD")	},
+	{ INTDEV_FDC,		_T("FDC")	},
+	{ INTDEV_MIDI,		_T("MIDI")	},
+	{ 0, NULL }
+};
+
+static void print_int_flags(uint32_t flags, _TCHAR *buffer, size_t buffer_len)
+{
+	int cnt = 0;
+	UTILITY::tcscat(buffer, buffer_len, _T("("));
+	for(int i=0; c_int_flags[i].val != 0; i++) {
+		if (flags & c_int_flags[i].val) {
+			if (cnt) {
+				UTILITY::tcscat(buffer, buffer_len, _T("|"));
+			}
+			UTILITY::sntprintf(buffer, buffer_len, c_int_flags[i].name);
+			cnt++;
+		}
+	}
+	UTILITY::tcscat(buffer, buffer_len, _T(")"));
+}
+
 void BOARD::debug_regs_info(_TCHAR *buffer, size_t buffer_len)
 {
 	buffer[0] = _T('\0');
@@ -533,7 +561,16 @@ void BOARD::debug_regs_info(_TCHAR *buffer, size_t buffer_len)
 	UTILITY::sntprintf(buffer, buffer_len, _T(" %X(%s):%04X\n"), WREG_HALT, _T("HALT "), now_halt);
 
 	UTILITY::sntprintf(buffer, buffer_len, _T(" %X($E9C001 W:INT1MASK):%02X\n"), WREG_INT1MASK, m_int1_mask);
-	UTILITY::sntprintf(buffer, buffer_len, _T(" %X($E9C001 R:INT1STAT):%02X\n"), WREG_INT1STAT, m_int1_status);
+	UTILITY::sntprintf(buffer, buffer_len, _T(" %X($E9C001 R:INT1STAT):%02X "), WREG_INT1STAT, m_int1_status);
+	print_int_flags((uint32_t)m_int1_status << 16, buffer, buffer_len);
+	UTILITY::tcscat(buffer, buffer_len, _T("\n"));
 	UTILITY::sntprintf(buffer, buffer_len, _T(" %X($E9C003 W:INT1VECNUM):%02X\n"), WREG_INT1VECNUM, m_int1_vec_num);
+
+	UTILITY::sntprintf(buffer, buffer_len, _T(" INT2IRQ:%04X "), m_int2_irq);
+	print_int_flags(m_int2_irq << 16, buffer, buffer_len);
+	UTILITY::tcscat(buffer, buffer_len, _T("\n"));
+	UTILITY::sntprintf(buffer, buffer_len, _T(" INT4IRQ:%04X "), m_int4_irq);
+	print_int_flags(m_int4_irq << 16, buffer, buffer_len);
+	UTILITY::tcscat(buffer, buffer_len, _T("\n"));
 }
 #endif

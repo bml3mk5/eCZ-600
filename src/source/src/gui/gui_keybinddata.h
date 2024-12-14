@@ -134,16 +134,28 @@ public:
 
 	enum en_tabs {
 		TAB_KEY2KEY = 0,
-#ifdef USE_JOYSTICK
 		TAB_JOY2KEY,
-#if defined(USE_PIAJOYSTICK) || defined(USE_PIAJOYSTICKBIT)
 		TAB_JOY2JOY,
-#endif
-#endif
-#ifdef USE_KEY2JOYSTICK
 		TAB_KEY2JOY,
-#endif
 		TABS_MAX,
+	};
+	enum en_keybind_tabs {
+		KB_TABS_MIN = TAB_KEY2KEY,
+#if defined(USE_JOYSTICK)
+		KB_TAB_JOY2KEY,
+#endif
+		KB_TABS_MAX,
+	};
+	enum en_joysetting_tabs {
+#if defined(USE_PIAJOYSTICK)
+		JS_TABS_MIN = TAB_JOY2JOY,
+#if defined(USE_KEY2JOYSTICK)
+		JS_TAB_KEY2JOY,
+#endif
+#else
+		JS_TABS_MIN = TAB_KEY2JOY,
+#endif
+		JS_TABS_MAX,
 	};
 
 	struct st_type {

@@ -28,9 +28,11 @@ namespace GUI_GTK_X11
 class JoySettingBox : public KeybindControlBox
 {
 private:
+#if defined(USE_PIAJOYSTICK) || defined(USE_KEY2JOYSTICK)
 	GtkWidget *com[MAX_JOYSTICKS];
 	GtkWidget *scale[MAX_JOYSTICKS][KEYBIND_JOY_BUTTONS];
 	GtkWidget *axis[MAX_JOYSTICKS][6];
+#endif
 
 	bool SetData();
 

@@ -34,7 +34,7 @@ INT_PTR JoySettingBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 	HWND hCtrl;
 	TCITEM tcitm;
 	_TCHAR label[KBLABEL_MAXLEN];
-	int tab_offset = KeybindData::TAB_JOY2JOY;
+	int tab_offset = KeybindData::JS_TABS_MIN;
 
 	CDialogBox::onInitDialog(message, wParam, lParam);
 
@@ -45,8 +45,9 @@ INT_PTR JoySettingBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 	font->GetTextSize(hDlg, NULL, &siz);
 
 	// calcrate number of tabs
-	for(int tab_num=tab_offset; tab_num < KeybindData::TABS_MAX; tab_num++) {
-		hCtrl =	CreateControl(NULL, _T("KeyBindCtrl"), IDC_CUSTOM0 + tab_num - tab_offset, 100, 380, WS_BORDER | WS_VSCROLL, 0, SM_CXVSCROLL);
+	int max_rows = 6;
+	for(int tab_num=tab_offset; tab_num < KeybindData::JS_TABS_MAX; tab_num++) {
+		hCtrl =	CreateControl(NULL, _T("KeyBindCtrl"), IDC_CUSTOM0 + tab_num - tab_offset, 100, 180, WS_BORDER | WS_VSCROLL, 0, SM_CXVSCROLL);
 		KeybindControl *kc = KeybindControl::GetPtr(hCtrl);
 
 		kc->Init(emu, tab_num, font->GetFont());
@@ -56,6 +57,10 @@ INT_PTR JoySettingBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 		kc->Update();
 
 		kc->SetTitleLabel(LABELS::keybind_col[tab_num][0], LABELS::keybind_col[tab_num][1]);
+
+		if (max_rows < kc->GetNumberOfRows()) {
+			max_rows = kc->GetNumberOfRows();
+		}
 
 		kbctl.push_back(kc);
 	}
@@ -69,9 +74,10 @@ INT_PTR JoySettingBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 	// controller type and button mashing 
 	//
 	SIZE sz;
-	sz.cx = 120; sz.cy = 24;
+	sz.cx = 80; sz.cy = 24;
+	int tx = 70;
 
-#if defined(USE_JOYSTICK) || defined(USE_KEY2JOYSTICK)
+#if defined(USE_PIAJOYSTICK) || defined(USE_KEY2JOYSTICK)
 //	CBox *hbox_joy = box_hall->AddBox(CBox::HorizontalBox, 0, margin);
 
 	int val = 0;
@@ -84,9 +90,9 @@ INT_PTR JoySettingBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 		val = pConfig->joy_type[i];
 		CreateComboBox(vbox, IDC_COMBO_JOY1 + i, LABELS::joypad_type, val, 8);
 #endif
+		CreateStatic(vbox, IDC_STATIC, CMsg::Button_Mashing_Speed);
 		CBox *hbox = vbox->AddBox(CBox::HorizontalBox);
-		CreateStatic(hbox, IDC_STATIC, CMsg::Button_Mashing_Speed);
-		hbox->AddSpace(32, 0);
+		hbox->AddSpace(tx, 0);
 		CreateStatic(hbox, IDC_STATIC, _T("0 <-> 3"));
 
 		for(int k=0; k < KEYBIND_JOY_BUTTONS; k++) {
@@ -96,22 +102,22 @@ INT_PTR JoySettingBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 			CBox *box = vbox->AddBox(CBox::HorizontalBox);
 
 			CMsg::Id id = (CMsg::Id)cVmJoyLabels[kk].id;
-			CreateStatic(box, IDC_STATIC, CMSGVM(id), 80, 0, SS_CENTER);
+			CreateStatic(box, IDC_STATIC, CMSGVM(id), tx, 0, SS_CENTER);
 			val = pConfig->joy_mashing[i][k];
 			CreateSlider(box, IDC_SLIDER_JOY1 + i * KEYBIND_JOY_BUTTONS + k,
 				sz.cx, sz.cy, 0, 3, 1, val, false);
 		}
 
+		CreateStatic(vbox, IDC_STATIC, CMsg::Analog_to_Digital_Sensitivity);
 		hbox = vbox->AddBox(CBox::HorizontalBox);
-		CreateStatic(hbox, IDC_STATIC, CMsg::Analog_to_Digital_Sensitivity);
-		hbox->AddSpace(32, 0);
+		hbox->AddSpace(tx, 0);
 		CreateStatic(hbox, IDC_STATIC, _T("0 <-> 10"));
 
 		for(int k=0; k < 6; k++) {
 			CBox *box = vbox->AddBox(CBox::HorizontalBox);
 
 			CMsg::Id id = LABELS::joypad_axis[k];
-			CreateStatic(box, IDC_STATIC, CMSGVM(id), 80, 0, SS_CENTER);
+			CreateStatic(box, IDC_STATIC, CMSGVM(id), tx, 0, SS_CENTER);
 			val = 10 - pConfig->joy_axis_threshold[i][k];
 			CreateSlider(box, IDC_SLIDER_AXIS1 + i * 6 + k,
 				sz.cx, sz.cy, 0, 10, 1, val, false);
@@ -130,7 +136,7 @@ INT_PTR JoySettingBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 	tcitm.mask = TCIF_TEXT;
 
 	for(int tab_num=0; tab_num<(int)kbctl.size(); tab_num++) {
-		UTILITY::tcscpy(label, KBLABEL_MAXLEN, CMSGVM(LABELS::keybind_tab[tab_num+tab_offset]));
+		UTILITY::tcscpy(label, KBLABEL_MAXLEN, CMSGVM(LABELS::joysetting_tab[tab_num]));
 		tcitm.pszText = label;
 		TabCtrl_InsertItem(hTabCtrl , tab_num , &tcitm);
 	}
@@ -140,22 +146,19 @@ INT_PTR JoySettingBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 	// adjust control size
 	//
 
+	if (max_rows >= 20) {
+		max_rows = 20;
+	}
+
 	// kb control
 	CBox *box_vall0 = NULL;
 	for(int tab_num=0; tab_num<(int)kbctl.size(); tab_num++) {
 		CBox *box_v = box_tab->AddBox(CBox::VerticalBox);
 		CBox *box_kb = box_v->AddBox(CBox::VerticalBox);
-		AdjustControl(box_kb, IDC_CUSTOM0 + tab_num, kbctl[tab_num]->GetWidth(), 380, SM_CXVSCROLL);
+		AdjustControl(box_kb, IDC_CUSTOM0 + tab_num, kbctl[tab_num]->GetWidth(), (max_rows + 1) * (siz.cy + padding * 2 + 4), SM_CXVSCROLL);
 
-#if 0
-		if (LABELS::joyset_combi[tab_num] != CMsg::Null) {
-			int id = get_combi_id(kbctl[tab_num]);
-			if (id) {
-				CreateCheckBox(box_kb, id, LABELS::keybind_combi[tab_num], false);
-				CheckDlgButton(hDlg, id, kbctl[tab_num]->GetCombi() != 0);
-			}
-		}
-#endif
+		kbctl[tab_num]->AddCombiCheckButton(this, box_kb);
+
 		if (tab_num == 0) {
 			box_vall0 = box_v;
 		}
@@ -189,10 +192,10 @@ INT_PTR JoySettingBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 	CreateButton(box_btn, IDOK, CMsg::OK, 8, true);
 	CreateButton(box_btn, IDCANCEL, CMsg::Cancel, 8, false);
 
-	RECT prc;
-	GetClientRect(hTabCtrl, &prc);
-	TabCtrl_AdjustRect(hTabCtrl, FALSE, &prc);
-	box_tab->SetTopMargin(prc.top + 8);
+//	RECT prc;
+//	GetClientRect(hTabCtrl, &prc);
+//	TabCtrl_AdjustRect(hTabCtrl, FALSE, &prc);
+//	box_tab->SetTopMargin(prc.top + 8);
 
 
 	box_all->Realize(*this);
@@ -290,12 +293,6 @@ INT_PTR JoySettingBox::onClickOk()
 {
 	for(int tab_num=0; tab_num<(int)kbctl.size(); tab_num++) {
 		kbctl[tab_num]->SetData();
-#if 0
-		int id = get_combi_id(kbctl[tab_num]);
-		if (id) {
-			kbctl[tab_num]->SetCombi(IsDlgButtonChecked(hDlg, id) ? 1 : 0);
-		}
-#endif
 	}
 
 	SetValue();
@@ -308,13 +305,6 @@ INT_PTR JoySettingBox::onClickLoadDefault()
 	int tab_num = selected_tabctrl;
 
 	kbctl[tab_num]->LoadDefaultPreset();
-
-#if 0
-	int id = get_combi_id(kbctl[tab_num]);
-	if (id) {
-		CheckDlgButton(hDlg, id, kbctl[tab_num]->GetCombi() != 0);
-	}
-#endif
 	return (INT_PTR)TRUE;
 }
 
@@ -323,13 +313,6 @@ INT_PTR JoySettingBox::onClickLoadPreset(int idx)
 	int tab_num = selected_tabctrl;
 
 	kbctl[tab_num]->LoadPreset(idx);
-
-#if 0
-	int id = get_combi_id(kbctl[tab_num]);
-	if (id) {
-		CheckDlgButton(hDlg, id, kbctl[tab_num]->GetCombi() != 0);
-	}
-#endif
 	return (INT_PTR)TRUE;
 }
 
@@ -338,13 +321,6 @@ INT_PTR JoySettingBox::onClickSavePreset(int idx)
 	int tab_num = selected_tabctrl;
 
 	kbctl[tab_num]->SavePreset(idx);
-
-#if 0
-	int id = get_combi_id(kbctl[tab_num]);
-	if (id) {
-		kbctl[tab_num]->SetCombi(IsDlgButtonChecked(hDlg, id) ? 1 : 0);
-	}
-#endif
 	return (INT_PTR)TRUE;
 }
 
@@ -384,18 +360,16 @@ void JoySettingBox::select_tabctrl(int tab_num)
 		ShowWindow(hCtrl, i == selected_tabctrl ? SW_SHOW : SW_HIDE);
 	}
 
-	hCtrl = GetDlgItem(hDlg, IDC_CHK_COMBI1);
-	ShowWindow(hCtrl, SW_HIDE);
-	hCtrl = GetDlgItem(hDlg, IDC_CHK_COMBI2);
-	ShowWindow(hCtrl, SW_HIDE);
-
-#if 0
-	int id = get_combi_id(kbctl[tab_num]);
-	if (id) {
+	for(int id=IDC_CHK_COMBI1; id<=IDC_CHK_COMBI3; id++) {
 		hCtrl = GetDlgItem(hDlg, id);
+		if (hCtrl) {
+			ShowWindow(hCtrl, SW_HIDE);
+		}
+	}
+	hCtrl = kbctl[tab_num]->GetCombiCheckButton();
+	if (hCtrl) {
 		ShowWindow(hCtrl, SW_SHOW);
 	}
-#endif
 }
 
 void JoySettingBox::SetValue()

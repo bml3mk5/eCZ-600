@@ -640,18 +640,19 @@ size_t chomp_crlf(wchar_t *str)
 }
 
 /**
- * @brief make date and time based file path
+ * @brief make file path
  *
  * @param [in] dir : directory (need a path separator in the end of dir) (nullable)
  *             If dir is NULL, append a file name to the end of file_path
  * @param [out] file_path : dir + file name + extension
  * @param [in] maxlen : buffer size of file path
+ * @param [in] body : file name body
  * @param [in] extensions : extension of file name (such as "txt;doc") (nullable)
  *             Append the first extension of specified parameter to the end of file_path
  * @param [in] prefix : prefix of file name (nullable)
  * @param [in] postfix : postfix of file name (front of extension) (nullable)
  */
-void create_date_file_path(const _TCHAR *dir, _TCHAR *file_path, size_t maxlen, const char *extensions, const _TCHAR *prefix, const _TCHAR *postfix)
+void create_file_path(const _TCHAR *dir, _TCHAR *file_path, size_t maxlen, const _TCHAR *body, const char *extensions, const _TCHAR *prefix, const _TCHAR *postfix)
 {
 	_TCHAR file_name[64];
 
@@ -661,17 +662,9 @@ void create_date_file_path(const _TCHAR *dir, _TCHAR *file_path, size_t maxlen, 
 		int len = (int)strlen(extensions);
 		get_token(extensions, 0, len, ext, 8, ';', &ext_len);
 	}
-	CurTime cur_time;
-	cur_time.GetHostTime();
-	cur_time.GetCurrTime();
-	UTILITY::stprintf(file_name, 64, _T("%04d-%02d-%02d_%02d-%02d-%02d"),
-		cur_time.GetYear(),
-		cur_time.GetMonth(),
-		cur_time.GetDay(),
-		cur_time.GetHour(),
-		cur_time.GetMin(),
-		cur_time.GetSec()
-	);
+
+	UTILITY::tcscpy(file_name, 64, body);
+
 	if (postfix != NULL) {
 		UTILITY::tcscat(file_name, 64, postfix);
 	}
@@ -695,6 +688,46 @@ void create_date_file_path(const _TCHAR *dir, _TCHAR *file_path, size_t maxlen, 
 		UTILITY::tcscat(file_path, maxlen, prefix);
 	}
 	UTILITY::tcscat(file_path, maxlen, file_name);
+}
+
+/**
+ * @brief make date and time based file name
+ *
+ * @param [out] file_name : file name
+ * @param [in] maxlen : buffer size of file_name
+ */
+void create_date_file_name(_TCHAR *file_name, size_t maxlen)
+{
+	CurTime cur_time;
+	cur_time.GetHostTime();
+	cur_time.GetCurrTime();
+	UTILITY::stprintf(file_name, maxlen, _T("%04d-%02d-%02d_%02d-%02d-%02d"),
+		cur_time.GetYear(),
+		cur_time.GetMonth(),
+		cur_time.GetDay(),
+		cur_time.GetHour(),
+		cur_time.GetMin(),
+		cur_time.GetSec()
+	);
+}
+
+/**
+ * @brief make date and time based file path
+ *
+ * @param [in] dir : directory (need a path separator in the end of dir) (nullable)
+ *             If dir is NULL, append a file name to the end of file_path
+ * @param [out] file_path : dir + file name + extension
+ * @param [in] maxlen : buffer size of file path
+ * @param [in] extensions : extension of file name (such as "txt;doc") (nullable)
+ *             Append the first extension of specified parameter to the end of file_path
+ * @param [in] prefix : prefix of file name (nullable)
+ * @param [in] postfix : postfix of file name (front of extension) (nullable)
+ */
+void create_date_file_path(const _TCHAR *dir, _TCHAR *file_path, size_t maxlen, const char *extensions, const _TCHAR *prefix, const _TCHAR *postfix)
+{
+	_TCHAR file_name[64];
+	create_date_file_name(file_name, 64);
+	create_file_path(dir, file_path, maxlen, file_name, extensions, prefix, postfix);
 }
 
 // ----------------------------------------------------------------------

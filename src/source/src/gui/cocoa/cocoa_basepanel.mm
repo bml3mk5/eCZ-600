@@ -1178,6 +1178,19 @@ extern EMU *emu;
 	return re;
 }
 #endif
+
+- (int)selectedTabViewItemIndex
+{
+	NSTabViewItem *item = [self selectedTabViewItem];
+	int match = -1;
+	for(int i=0; i<[[self tabViewItems] count]; i++) {
+		if (item == [self tabViewItemAtIndex:i]) {
+			match = i;
+			break;
+		}
+	}
+	return match;
+}
 @end
 
 

@@ -47,6 +47,10 @@ extern EMU *emu;
 {
 	return kbdata.m_devtype;
 }
+- (int)flags
+{
+	return kbdata.m_flags;
+}
 - (int)selectedCol
 {
 	return selected.col;
@@ -143,7 +147,13 @@ extern EMU *emu;
 
 - (bool)ClearCellByCode:(Uint32)code :(char *)label :(int *)row :(int *)col
 {
-	return kbdata.ClearCellByVkKeyCode(code, label, row, col);
+	if (kbdata.m_flags == KeybindData::FLAG_DENY_DUPLICATE) {
+		return kbdata.ClearCellByVkKeyCode(code, label, row, col);
+	} else {
+		*row = -1;
+		*col = -1;
+		return true;
+	}
 }
 
 - (bool)SetVkJoyCode:(Uint32)code0 :(Uint32)code1 :(char *)label
@@ -396,6 +406,7 @@ extern EMU *emu;
 	char label[128];
 	int devtype = [dataSource devType];
 	if (devtype == KeybindData::DEVTYPE_KEYBOARD) {
+		[dataSource ClearVkKeyCode:label];
 		int code = SDL_QZ_HandleKeyEvents(event);
 		int row;
 		int col;
@@ -412,6 +423,7 @@ extern EMU *emu;
 	char label[128];
 	int devtype = [dataSource devType];
 	if (devtype == KeybindData::DEVTYPE_KEYBOARD) {
+		[dataSource ClearVkKeyCode:label];
 		int code = SDL_QZ_HandleKeyEvents(event);
 		int row;
 		int col;
@@ -647,6 +659,46 @@ extern EMU *emu;
 - (void)setJoyMask:(Uint32 *)mask
 {
 	[[self data] setJoyMask:mask];
+}
+- (void)SetData
+{
+	[self setCombiCheckData];
+	[[self data] SetData];
+}
+- (void)LoadDefaultPresetData
+{
+	[[self data] loadDefaultPreset];
+	[self updateCombiCheckButton];
+}
+- (void)LoadPresetData:(int)idx
+{
+	[[self data] loadPreset:idx];
+	[self updateCombiCheckButton];
+}
+- (void)SavePresetData:(int)idx
+{
+	[self setCombiCheckData];
+	[[self data] savePreset:idx];
+}
+- (CocoaCheckBox *)addCombiCheckButton:(CocoaLayout *)layout tabnum:(int)tab_num
+{
+	if (LABELS::keybind_combi[tab_num] != CMsg::Null) {
+		bool val = [[self data] combi];
+		chkCombi = [CocoaCheckBox createI:layout title:LABELS::keybind_combi[tab_num] action:nil value:val];
+	}
+	return chkCombi;
+}
+- (void)setCombiCheckData
+{
+	if (chkCombi) {
+		[[self data] setCombi:[chkCombi state] == NSControlStateValueOn ? 1 : 0];
+	}
+}
+- (void)updateCombiCheckButton
+{
+	if (chkCombi) {
+		[chkCombi setState:[[self data] combi] != 0 ? NSControlStateValueOn : NSControlStateValueOff];
+	}
 }
 @end
 

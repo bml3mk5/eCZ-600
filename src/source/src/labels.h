@@ -81,6 +81,7 @@ extern const CMsg::Id volume[];
 
 extern const CMsg::Id keybind_col[][2];
 extern const CMsg::Id keybind_tab[];
+extern const CMsg::Id joysetting_tab[];
 extern const CMsg::Id keybind_btn[];
 extern const CMsg::Id keybind_combi[];
 

@@ -914,6 +914,7 @@
     <ClCompile Include="..\src\simple_ini.cpp" />
     <ClCompile Include="..\src\utility.cpp" />
     <ClCompile Include="..\src\video\rec_audio.cpp" />
+    <ClCompile Include="..\src\video\rec_common.cpp" />
     <ClCompile Include="..\src\video\rec_video.cpp" />
     <ClCompile Include="..\src\video\wave\wav_rec_audio.cpp" />
     <ClCompile Include="..\src\video\windows\win_bitmap.cpp" />
@@ -1072,6 +1073,7 @@
     <ClInclude Include="..\src\utils.h" />
     <ClInclude Include="..\src\version.h" />
     <ClInclude Include="..\src\video\rec_audio.h" />
+    <ClInclude Include="..\src\video\rec_common.h" />
     <ClInclude Include="..\src\video\rec_video.h" />
     <ClInclude Include="..\src\video\wave\wav_rec_audio.h" />
     <ClInclude Include="..\src\video\windows\win_bitmap.h" />

@@ -16,22 +16,16 @@
 
 const struct KeybindData::st_type KeybindData::cTypes[] = {
 	{ DEVTYPE_KEYBOARD,	VM_TYPE_KEYASSIGN,	FLAG_DENY_DUPLICATE },
-#if defined(USE_JOYSTICK)
 	{ DEVTYPE_JOYPAD,	VM_TYPE_KEYASSIGN,	0 },
-#if defined(USE_PIAJOYSTICK)
-# if !defined(USE_PIAJOYSTICKBIT)
+#if !defined(USE_PIAJOYSTICKBIT)
 	{ DEVTYPE_JOYPAD,	VM_TYPE_PIOJOYASSIGN,	0 },
 #else
 	{ DEVTYPE_JOYPAD,	VM_TYPE_PIOBITASSIGN,	0 },
-# endif
 #endif
-#endif
-#ifdef USE_KEY2JOYSTICK
-# if !defined(USE_PIAJOYSTICKBIT)
+#if !defined(USE_PIAJOYSTICKBIT)
 	{ DEVTYPE_KEYBOARD,	VM_TYPE_PIOJOYASSIGN,	0 },
 #else
 	{ DEVTYPE_KEYBOARD,	VM_TYPE_PIOBITASSIGN,	0 },
-# endif
 #endif
 	{ -1, -1, 0 },
 }; 

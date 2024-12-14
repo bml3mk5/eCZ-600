@@ -192,10 +192,10 @@ void EMU_OSD::set_volume(int volume)
 	}
 }
 
-void EMU_OSD::start_rec_sound(int type)
+void EMU_OSD::start_rec_sound(int type, bool with_video)
 {
 #ifdef USE_REC_AUDIO
-	rec_audio->Start(type, sound_rate, false);
+	rec_audio->Start(type, sound_rate, with_video);
 #endif
 }
 

@@ -96,6 +96,14 @@ void KeybindDataControl::Update()
 	}
 }
 
+GtkWidget *KeybindDataControl::AddCheckBox(GtkWidget *box, int tab_num)
+{
+	if (LABELS::keybind_combi[tab_num] != CMsg::Null) {
+		chkCombi = create_check_box(box, LABELS::keybind_combi[tab_num], GetCombi() != 0);
+	}
+	return chkCombi;
+}
+
 /// override
 void KeybindDataControl::SetData()
 {
@@ -117,14 +125,18 @@ int KeybindDataControl::TranslateCode(int code, int scancode)
 
 bool KeybindDataControl::ClearKeyCellByCode(int code, int scancode)
 {
-	code = TranslateCode(code, scancode);
-	char label[128];
-	int row, col;
-	bool rc = ClearCellByVkKeyCode(code, label, &row, &col);
-	if (rc) {
-		gtk_entry_set_text(GTK_ENTRY(cells[row][col]), label);
+	if (m_flags == FLAG_DENY_DUPLICATE) {
+		code = TranslateCode(code, scancode);
+		char label[128];
+		int row, col;
+		bool rc = ClearCellByVkKeyCode(code, label, &row, &col);
+		if (rc && row >= 0 && col >= 0) {
+			gtk_entry_set_text(GTK_ENTRY(cells[row][col]), label);
+		}
+		return rc;
+	} else {
+		return true;
 	}
-	return rc;
 }
 
 bool KeybindDataControl::SetKeyCell(int row, int col, int code, int scancode, GtkWidget *widget)
@@ -185,6 +197,7 @@ KeybindControlBox::KeybindControlBox(GUI *new_gui)
 	: DialogBox(new_gui)
 {
 	m_timeout_id = 0;
+	notebook = NULL;
 	selected_cell = NULL;
 	enable_axes = ~0;
 }
@@ -231,10 +244,8 @@ void KeybindControlBox::ShowAfter(GtkWidget *boxall)
 void KeybindControlBox::Hide()
 {
 	DialogBox::Hide();
-	for(int tab=0; tab < ctrls.Count(); tab++) {
-		KeybindDataControl *kc = ctrls[tab];
-		kc->ClearAllControl();
-	}
+	ctrls.Clear();
+
 	// remove joypad status updater
 	if (m_timeout_id) {
 		g_source_remove(m_timeout_id);
@@ -339,22 +350,31 @@ void KeybindControlBox::UpdateJoy()
 	}
 }
 
-#if 0
-void KeybindControlBox::LoadPreset(int tab, int idx)
+void KeybindControlBox::LoadDefault()
 {
+	int tab = gtk_notebook_get_current_page(GTK_NOTEBOOK(notebook));
+	if (tab < 0 || tab >= ctrls.Count()) return;
+	KeybindDataControl *kc = ctrls[tab];
+	kc->LoadPreset(-1);
+	kc->Update();
+}
+
+void KeybindControlBox::LoadPreset(int idx)
+{
+	int tab = gtk_notebook_get_current_page(GTK_NOTEBOOK(notebook));
 	if (tab < 0 || tab >= ctrls.Count()) return;
 	KeybindDataControl *kc = ctrls[tab];
 	kc->LoadPreset(idx);
-	Update();
+	kc->Update();
 }
 
-void KeybindControlBox::SavePreset(int tab, int idx)
+void KeybindControlBox::SavePreset(int idx)
 {
+	int tab = gtk_notebook_get_current_page(GTK_NOTEBOOK(notebook));
 	if (tab < 0 || tab >= ctrls.Count()) return;
 	KeybindDataControl *kc = ctrls[tab];
 	kc->SavePreset(idx);
 }
-#endif
 
 void KeybindControlBox::ToggleAxis(GtkWidget *widget)
 {
@@ -386,13 +406,13 @@ gboolean KeybindControlBox::OnKeyDown(GtkWidget *widget, GdkEvent *event, gpoint
 //	KeybindControlBox *obj = (KeybindControlBox *)user_data;
 	KeybindDataControl *kc = (KeybindDataControl *)g_object_get_data(G_OBJECT(widget),"ctrl");
 	if (!kc) return FALSE;
-
+	int row = (int)(intptr_t)g_object_get_data(G_OBJECT(widget),"row");
+	int col = (int)(intptr_t)g_object_get_data(G_OBJECT(widget),"col");
+	kc->ClearCell(row, col, widget);
 	GdkEventKey *key_event = (GdkEventKey *)event;
 	int code = (int)key_event->keyval;
 	int scancode =  key_event->hardware_keycode;
 	kc->ClearKeyCellByCode(code, scancode);
-	int row = (int)(intptr_t)g_object_get_data(G_OBJECT(widget),"row");
-	int col = (int)(intptr_t)g_object_get_data(G_OBJECT(widget),"col");
 	kc->SetKeyCell(row, col, code, scancode, widget);
 	return TRUE;
 }
@@ -434,6 +454,29 @@ void KeybindControlBox::OnClickSavePreset(GtkButton *button, gpointer user_data)
 	KeybindDataControl *kc = (KeybindDataControl *)g_object_get_data(G_OBJECT(button),"ctrl");
 	int num = (int)(intptr_t)g_object_get_data(G_OBJECT(button),"num");
 	if (kc) kc->SavePreset(num);
+}
+
+void KeybindControlBox::OnClickLoadDefaultJ(GtkButton *button, gpointer user_data)
+{
+	KeybindControlBox *obj = (KeybindControlBox *)user_data;
+	if (!obj) return;
+	obj->LoadDefault();
+}
+
+void KeybindControlBox::OnClickLoadPresetJ(GtkButton *button, gpointer user_data)
+{
+	KeybindControlBox *obj = (KeybindControlBox *)user_data;
+	if (!obj) return;
+	int num = (int)(intptr_t)g_object_get_data(G_OBJECT(button),"num");
+	obj->LoadPreset(num);
+}
+
+void KeybindControlBox::OnClickSavePresetJ(GtkButton *button, gpointer user_data)
+{
+	KeybindControlBox *obj = (KeybindControlBox *)user_data;
+	if (!obj) return;
+	int num = (int)(intptr_t)g_object_get_data(G_OBJECT(button),"num");
+	obj->SavePreset(num);
 }
 
 void KeybindControlBox::OnClickAxis(GtkToggleButton *button, gpointer user_data)

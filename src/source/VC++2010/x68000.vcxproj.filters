@@ -303,6 +303,9 @@
     <ClCompile Include="..\src\video\rec_audio.cpp">
       <Filter>Source Files\VIDEO Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\video\rec_common.cpp">
+      <Filter>Source Files\VIDEO Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\video\rec_video.cpp">
       <Filter>Source Files\VIDEO Source Files</Filter>
     </ClCompile>
@@ -756,6 +759,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\video\rec_audio.h">
+      <Filter>Header Files\VIDEO Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video\rec_common.h">
       <Filter>Header Files\VIDEO Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\video\rec_video.h">

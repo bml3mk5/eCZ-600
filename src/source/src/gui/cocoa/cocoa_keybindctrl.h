@@ -43,6 +43,7 @@ typedef struct selected_st {
 - (void)setCombi:(Uint32)value;
 - (int)tab_num;
 - (int)devType;
+- (int)flags;
 - (int)selectedCol;
 - (void)setSelectCol:(int)col row:(int)row;
 - (void)reloadCell:(int)col row:(int)row;
@@ -156,6 +157,13 @@ typedef struct selected_st {
 - (void)reloadCell:(int)col row:(int)row;
 - (void)deleteColumns;
 - (void)setJoyMask:(Uint32 *)mask;
+- (void)SetData;
+- (void)LoadDefaultPresetData;
+- (void)LoadPresetData:(int)idx;
+- (void)SavePresetData:(int)idx;
+- (CocoaCheckBox *)addCombiCheckButton:(CocoaLayout *)layout tabnum:(int)tab_num;
+- (void)setCombiCheckData;
+- (void)updateCombiCheckButton;
 @end
 
 #ifndef USE_NSCELL

@@ -101,10 +101,10 @@ uint32_t EMU::adjust_sound_pos(uint32_t msec)
 	return 0;
 }
 
-void EMU::start_rec_sound(int type)
+void EMU::start_rec_sound(int type, bool with_video)
 {
 #ifdef USE_REC_AUDIO
-	rec_audio->Start(type, sound_rate, false);
+	rec_audio->Start(type, sound_rate, with_video);
 #endif
 }
 

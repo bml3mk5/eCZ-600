@@ -269,7 +269,7 @@ private:
 	// direct sound
 	LPDIRECTSOUND lpds;
 	LPDIRECTSOUNDBUFFER lpdsb, lpdsp;
-	DWORD sound_prev_time;
+	DWORD sound_prev_play_c;
 	// thread and event
 	HANDLE sound_nt_event;
 	DWORD  sound_threadid;

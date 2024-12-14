@@ -802,6 +802,11 @@ static NSWindow *get_main_window()
 }
 #endif
 
+- (void)ShowPreferencesDialog:(id)sender
+{
+	gui->ShowConfigureDialog();
+}
+
 /// called from emu thread
 - (void)PerformUpdateScreen
 {
@@ -816,6 +821,12 @@ static NSWindow *get_main_window()
 	int state = NSControlStateValueOff;
 	BOOL enable = TRUE;
 	SEL act = [menuItem action];
+
+	if (act == @selector(ShowPreferencesDialog:)) {
+		// enable item
+		return true;
+	}
+
 	int drv = [menuItem drv];
 
 	if (act == @selector(Reset:)) {
@@ -1187,11 +1198,13 @@ static NSWindow *get_main_window()
 			state = NSControlStateValueOn;
 		}
 #endif
+#ifdef USE_JOYSTICK
 	} else if (act == @selector(ChangeUseJoypad:)) {
 		int num = [menuItem num];
 		if (gui->IsEnableJoypad(num)) {
 			state = NSControlStateValueOn;
 		}
+#endif
 #ifdef USE_KEY2JOYSTICK
 	} else if (act == @selector(ToggleEnableKey2Joypad:)) {
 		if (gui->IsEnableKey2Joypad()) {
@@ -2656,9 +2669,7 @@ void GUI::ToggleUseMouse(void)
 }
 #endif
 
-#endif /* GUI_TYPE_COCOA */
-
-void remove_window_menu(void)
+void GUI::remove_window_menu(void)
 {
     NSMenu *mainMenu;
     NSInteger i;
@@ -2675,7 +2686,7 @@ void remove_window_menu(void)
 #define APPLE_MENU_STRING _TX("About x68000"),_TX("Hide x68000"),_TX("Hide Others"),_TX("Show All"),_TX("Quit x68000"),_TX("Services"),_TX("Preferences…"),_TX("Window")
 #endif
 
-void translate_apple_menu(void)
+void GUI::translate_apple_menu()
 {
 	NSMenu *appleMenu;
 	NSArray *items;
@@ -2697,9 +2708,15 @@ void translate_apple_menu(void)
 		} else {
 			[item setKeyEquivalent:@""];
 		}
+		if ([[item title] hasPrefix:@"Preferences"]) {
+			[item setTarget:recv];
+			[item setAction:@selector(ShowPreferencesDialog:)];
+		}
 		[item setTitle:[NSString stringWithUTF8String:_tgettext([[item title] UTF8String])]];
 	}
 }
+
+#endif /* GUI_TYPE_COCOA */
 
 @implementation CocoaWindowDelegate
 @synthesize parentObject;

@@ -17,6 +17,7 @@
 #include <QPainter>
 #endif
 #include "rec_video.h"
+#include "rec_common.h"
 #include "../emu.h"
 #include "../config.h"
 #include "../utility.h"
@@ -252,7 +253,7 @@ bool REC_VIDEO::Start(int type, int fps_no, const VmRectWH &srcrect, CSurface *s
 		return false;
 	}
 
-	CreateFileName(rec_path, NULL);
+	gRecCommon.CreateFileName(true, rec_path, sizeof(rec_path) / sizeof(rec_path[0]), NULL);
 
 	switch(rec_type) {
 #ifdef USE_REC_VIDEO_VFW
@@ -501,7 +502,7 @@ bool REC_VIDEO::Capture(int type, const VmRectWH &srcrect, CSurface *srcsurface,
 	}
 
 	// add file name
-	CreateFileName(file_path, capture_file_ext[pConfig->capture_type], prefix, postfix);
+	gRecCommon.CreateFileName(true, file_path, _MAX_PATH, capture_file_ext[pConfig->capture_type], prefix, postfix);
 
 	// create surface for capture
 	switch(pConfig->capture_type) {
@@ -644,16 +645,4 @@ bool REC_VIDEO::SavePNG(int type, CSurface *surface, CTchar &file_name)
 #else
 	return false;
 #endif
-}
-
-void REC_VIDEO::CreateFileName(_TCHAR *file_path, const char *extension, const _TCHAR *prefix, const _TCHAR *postfix)
-{
-//	int tim[8];
-	const _TCHAR *app_path;
-
-	app_path = pConfig->snapshot_path.Length() > 0 ? pConfig->snapshot_path.Get() : emu->application_path();
-	UTILITY::create_date_file_path(app_path, file_path, _MAX_PATH, extension, prefix, postfix);
-
-//	emu->get_timer(tim, 8);
-//	UTILITY::stprintf(file_path, _MAX_PATH, _T("%s%04d-%02d-%02d_%02d-%02d-%02d"), app_path, tim[0], tim[1], tim[2], tim[4], tim[5], tim[6]);
 }

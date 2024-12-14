@@ -171,6 +171,7 @@
 		D9EFF8C7241E067F002F8BA1 /* opengl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9EFF8C5241E067E002F8BA1 /* opengl.cpp */; };
 		D9F141F5233CD5ED0025638D /* simple_ini.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9F141F3233CD5ED0025638D /* simple_ini.cpp */; };
 		D9F18DB626564BFD00765805 /* labels.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9F18DB426564BFD00765805 /* labels.cpp */; };
+		D9F429A22CF1AE2100D90AA7 /* rec_common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9F429A02CF1AE2100D90AA7 /* rec_common.cpp */; };
 		D9FDD1ED223A4ADC0055E9C7 /* msgs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9FDD1EB223A4ADB0055E9C7 /* msgs.cpp */; };
 /* End PBXBuildFile section */
 
@@ -538,6 +539,8 @@
 		D9F141F4233CD5ED0025638D /* simple_ini.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = simple_ini.h; sourceTree = "<group>"; };
 		D9F18DB426564BFD00765805 /* labels.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = labels.cpp; sourceTree = "<group>"; };
 		D9F18DB526564BFD00765805 /* labels.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = labels.h; sourceTree = "<group>"; };
+		D9F429A02CF1AE2100D90AA7 /* rec_common.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rec_common.cpp; sourceTree = "<group>"; };
+		D9F429A12CF1AE2100D90AA7 /* rec_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rec_common.h; sourceTree = "<group>"; };
 		D9FDD1EB223A4ADB0055E9C7 /* msgs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = msgs.cpp; sourceTree = "<group>"; };
 		D9FDD1EC223A4ADC0055E9C7 /* msgs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = msgs.h; sourceTree = "<group>"; };
 		D9FDD1EE223A4B020055E9C7 /* main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = main.h; sourceTree = "<group>"; };
@@ -741,6 +744,8 @@
 				D94DEE801DF5462B00A95F7F /* cocoa */,
 				D9388ACE1DEEC68200222B43 /* rec_audio.cpp */,
 				D9388ACF1DEEC68200222B43 /* rec_audio.h */,
+				D9F429A02CF1AE2100D90AA7 /* rec_common.cpp */,
+				D9F429A12CF1AE2100D90AA7 /* rec_common.h */,
 				D94A741C1B0F571F003DAF01 /* rec_video.cpp */,
 				D94A741D1B0F571F003DAF01 /* rec_video.h */,
 				D9388AD11DEEC68900222B43 /* wave */,
@@ -1323,6 +1328,7 @@
 				D9EFF8C7241E067F002F8BA1 /* opengl.cpp in Sources */,
 				D9F141F5233CD5ED0025638D /* simple_ini.cpp in Sources */,
 				D9F18DB626564BFD00765805 /* labels.cpp in Sources */,
+				D9F429A22CF1AE2100D90AA7 /* rec_common.cpp in Sources */,
 				D9FDD1ED223A4ADC0055E9C7 /* msgs.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

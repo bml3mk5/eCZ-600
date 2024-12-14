@@ -68,7 +68,7 @@ public:
 	~REC_AUDIO();
 
 	/// true:OK false:ERROR
-	bool Start(int type, int sample_rate, bool show_dialog);
+	bool Start(int type, int sample_rate, bool with_video);
 	void Stop();
 	bool Restart();
 //	bool Record(uint8_t *buffer, int samples);
@@ -80,7 +80,6 @@ public:
 	bool *GetNowRecordingPtr() {
 		return &now_recording;
 	}
-	void CreateFileName(_TCHAR *file_path, const char *extension);
 
 	bool IsEnabled(int type);
 	const _TCHAR **GetCodecList(int type);

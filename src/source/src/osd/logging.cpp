@@ -254,7 +254,7 @@ void Logging::out_log(int level, const char* msg)
 /// @param[in] ap: values
 void Logging::out_logv_x(int level, const char* format, va_list ap)
 {
-	out_logv(level, gettext(format), ap);
+    out_logv(level, clocale->GetText(format), ap);
 }
 
 /// Output a message to a file. Message is translated by locale setting.
@@ -267,7 +267,7 @@ void Logging::out_logf_x(int level, const char* format, ...)
 	va_list ap;
 
 	va_start(ap, format);
-	out_logv(level, gettext(format), ap);
+    out_logv(level, clocale->GetText(format), ap);
 	va_end(ap);
 }
 
@@ -277,7 +277,7 @@ void Logging::out_logf_x(int level, const char* format, ...)
 /// @param[in] msg: message string
 void Logging::out_log_x(int level, const char* msg)
 {
-	out_log_real(level, gettext(msg));
+    out_log_real(level, clocale->GetText(msg));
 }
 
 /// Output a message to a file. Id is converted to translated message.

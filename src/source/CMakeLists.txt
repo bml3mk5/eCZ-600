@@ -150,6 +150,7 @@ add_executable(${PROJECT_NAME}
 	${SRCGUI}/gui_keybinddata.cpp
 
 	${SRCVID}/rec_audio.cpp
+	${SRCVID}/rec_common.cpp
 	${SRCVID}/rec_video.cpp
 )
 

@@ -15,7 +15,7 @@ CC:=gcc
 CXX:=g++
 LD:=g++
 
-# FFMPEGDIR:=$(HOME)/Devel/ffmpeg
+FFMPEGDIR:=$(HOME)/Devel/ffmpeg-6.1.1
 
 MACMINVER:=-mmacosx-version-min=10.9
 
@@ -217,12 +217,22 @@ GUIOBJSCOCOA:=$(SRCGUICOCOA)/cocoa_gui.o \
 
 VIDOBJSWAV:=$(SRCVIDWAV)/wav_rec_audio.o
 # VIDOBJSQTKIT:=$(SRCVIDQTKIT)/qt_rec_video.o
-# VIDOBJSAVKIT:=$(SRCVIDAVKIT)/avk_rec_common.o $(SRCVIDAVKIT)/avk_rec_audio.o $(SRCVIDAVKIT)/avk_rec_video.o
-# VIDOBJSFFM:=$(SRCVIDFFM)/ffm_loadlib.o $(SRCVIDFFM)/ffm_rec_base.o $(SRCVIDFFM)/ffm_rec_audio.o $(SRCVIDFFM)/ffm_rec_video.o
-VIDOBJSCOCOA:=$(SRCVIDCOCOA)/cocoa_rec_video.o $(SRCVIDCOCOA)/cocoa_bitmap.o
+# VIDOBJSAVKIT:=$(SRCVIDAVKIT)/avk_rec_common.o \
+#	$(SRCVIDAVKIT)/avk_rec_audio.o \
+#	$(SRCVIDAVKIT)/avk_rec_video.o
+# VIDOBJSFFM:=$(SRCVIDFFM)/ffm_loadlib.o \
+#	$(SRCVIDFFM)/ffm_rec_base.o \
+#	$(SRCVIDFFM)/ffm_rec_audio.o \
+#	$(SRCVIDFFM)/ffm_rec_video.o
+VIDOBJSCOCOA:=$(SRCVIDCOCOA)/cocoa_rec_video.o \
+	$(SRCVIDCOCOA)/cocoa_bitmap.o
 
-# VIDOBJS:=$(VIDOBJSWAV) $(VIDOBJSQTKIT) $(VIDOBJSAVKIT) $(VIDOBJSFFM) $(VIDOBJSCOCOA) $(SRCVID)/rec_audio.o $(SRCVID)/rec_video.o
-VIDOBJS:=$(VIDOBJSWAV) $(VIDOBJSCOCOA) $(SRCVID)/rec_audio.o $(SRCVID)/rec_video.o
+# VIDOBJS:=$(VIDOBJSWAV) $(VIDOBJSQTKIT) $(VIDOBJSAVKIT) $(VIDOBJSFFM) $(VIDOBJSCOCOA) \
+#
+VIDOBJS:=$(VIDOBJSWAV) $(VIDOBJSCOCOA) \
+	$(SRCVID)/rec_audio.o \
+	$(SRCVID)/rec_common.o \
+	$(SRCVID)/rec_video.o
 
 ifeq ($(GUI_TYPE),GUI_TYPE_AGAR)
 	GUIOBJS:=$(GUIOBJSAGAR)

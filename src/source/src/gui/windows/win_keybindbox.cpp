@@ -33,6 +33,7 @@ INT_PTR KeybindBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 	HWND hCtrl;
 	TCITEM tcitm;
 	_TCHAR label[KBLABEL_MAXLEN];
+	int tab_offset = KeybindData::KB_TABS_MIN;
 
 	CDialogBox::onInitDialog(message, wParam, lParam);
 
@@ -42,7 +43,7 @@ INT_PTR KeybindBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 	SIZE siz;
 	font->GetTextSize(hDlg, NULL, &siz);
 	// calcrate number of tabs
-	for(int tab_num=0; tab_num < KeybindData::TABS_MAX; tab_num++) {
+	for(int tab_num=tab_offset; tab_num < KeybindData::KB_TABS_MAX; tab_num++) {
 		hCtrl =	CreateControl(NULL, _T("KeyBindCtrl"), IDC_CUSTOM0 + tab_num, 100, 380, WS_BORDER | WS_VSCROLL, 0, SM_CXVSCROLL);
 		KeybindControl *kc = KeybindControl::GetPtr(hCtrl);
 
@@ -83,13 +84,8 @@ INT_PTR KeybindBox::onInitDialog(UINT message, WPARAM wParam, LPARAM lParam)
 		CBox *box_kb = box_hall->AddBox(CBox::VerticalBox);
 		AdjustControl(box_kb, IDC_CUSTOM0 + tab_num, kbctl[tab_num]->GetWidth(), 380, SM_CXVSCROLL);
 
-		if (LABELS::keybind_combi[tab_num] != CMsg::Null) {
-			int id = get_combi_id(kbctl[tab_num]);
-			if (id) {
-				CreateCheckBox(box_kb, id, LABELS::keybind_combi[tab_num], false);
-				CheckDlgButton(hDlg, id, kbctl[tab_num]->GetCombi() != 0);
-			}
-		}
+		kbctl[tab_num]->AddCombiCheckButton(this, box_kb);
+
 		if (tab_num == 0) {
 			box_hall0 = box_hall;
 		}
@@ -210,11 +206,6 @@ INT_PTR KeybindBox::onClickOk()
 {
 	for(int tab_num=0; tab_num<(int)kbctl.size(); tab_num++) {
 		kbctl[tab_num]->SetData();
-
-		int id = get_combi_id(kbctl[tab_num]);
-		if (id) {
-			kbctl[tab_num]->SetCombi(IsDlgButtonChecked(hDlg, id) ? 1 : 0);
-		}
 	}
 	return (INT_PTR)TRUE;
 }
@@ -224,11 +215,6 @@ INT_PTR KeybindBox::onClickLoadDefault()
 	int tab_num = selected_tabctrl;
 
 	kbctl[tab_num]->LoadDefaultPreset();
-
-	int id = get_combi_id(kbctl[tab_num]);
-	if (id) {
-		CheckDlgButton(hDlg, id, kbctl[tab_num]->GetCombi() != 0);
-	}
 	return (INT_PTR)TRUE;
 }
 
@@ -237,11 +223,6 @@ INT_PTR KeybindBox::onClickLoadPreset(int idx)
 	int tab_num = selected_tabctrl;
 
 	kbctl[tab_num]->LoadPreset(idx);
-
-	int id = get_combi_id(kbctl[tab_num]);
-	if (id) {
-		CheckDlgButton(hDlg, id, kbctl[tab_num]->GetCombi() != 0);
-	}
 	return (INT_PTR)TRUE;
 }
 
@@ -250,11 +231,6 @@ INT_PTR KeybindBox::onClickSavePreset(int idx)
 	int tab_num = selected_tabctrl;
 
 	kbctl[tab_num]->SavePreset(idx);
-
-	int id = get_combi_id(kbctl[tab_num]);
-	if (id) {
-		kbctl[tab_num]->SetCombi(IsDlgButtonChecked(hDlg, id) ? 1 : 0);
-	}
 	return (INT_PTR)TRUE;
 }
 
@@ -294,40 +270,16 @@ void KeybindBox::select_tabctrl(int tab_num)
 		ShowWindow(hCtrl, i == selected_tabctrl ? SW_SHOW : SW_HIDE);
 	}
 
-	hCtrl = GetDlgItem(hDlg, IDC_CHK_COMBI1);
-	ShowWindow(hCtrl, SW_HIDE);
-	hCtrl = GetDlgItem(hDlg, IDC_CHK_COMBI2);
-	ShowWindow(hCtrl, SW_HIDE);
-
-	int id = get_combi_id(kbctl[tab_num]);
-	if (id) {
+	for(int id=IDC_CHK_COMBI1; id<=IDC_CHK_COMBI3; id++) {
 		hCtrl = GetDlgItem(hDlg, id);
+		if (hCtrl) {
+			ShowWindow(hCtrl, SW_HIDE);
+		}
+	}
+	hCtrl = kbctl[tab_num]->GetCombiCheckButton();
+	if (hCtrl) {
 		ShowWindow(hCtrl, SW_SHOW);
 	}
-}
-
-int KeybindBox::get_combi_id(KeybindControl *kbctl)
-{
-	int id = 0;
-	switch (kbctl->m_devtype) {
-	case KeybindData::DEVTYPE_JOYPAD:
-		// input from joystick
-		switch(kbctl->m_vm_type) {
-		case KeybindData::VM_TYPE_KEYASSIGN:
-			// key assigned
-			id = IDC_CHK_COMBI1;
-			break;
-		case KeybindData::VM_TYPE_PIOBITASSIGN:
-			// negative logic
-			id = IDC_CHK_COMBI2;
-			break;
-		}
-		break;
-	case KeybindData::DEVTYPE_KEYBOARD:
-		// input from keyboard
-		break;
-	}
-	return id;
 }
 
 }; /* namespace GUI_WIN */

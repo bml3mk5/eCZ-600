@@ -51,7 +51,6 @@ bool KeybindBox::Show(GtkWidget *parent_window)
 	add_reject_button(CMsg::Cancel);
 
 	GtkWidget *cont = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-	GtkWidget *nb;
 	GtkWidget *vboxall;
 	GtkWidget *hboxall;
 	GtkWidget *vbox;
@@ -60,42 +59,39 @@ bool KeybindBox::Show(GtkWidget *parent_window)
 	char label[128];
 
 	GtkWidget *boxall = create_vbox(cont);
+	hboxall = create_hbox(boxall);
 
 	// create notebook tab
-	nb = create_notebook(boxall);
-
-	for(int tab_num=0; tab_num < KeybindData::TABS_MAX; tab_num++) {
+	notebook = create_notebook(hboxall);
+	gtk_notebook_set_scrollable(GTK_NOTEBOOK(notebook), TRUE);
+	int tab_offset = KeybindData::KB_TABS_MIN;
+	for(int tab_num=tab_offset; tab_num < KeybindData::KB_TABS_MAX; tab_num++) {
 		KeybindDataControl *kc = new KeybindDataControl();
 		ctrls.Add(kc);
 
 		// add note(tab) to notebook
 		vboxall = create_vbox(NULL);
-		add_note(nb, vboxall, LABELS::keybind_tab[tab_num]);
-		hboxall = create_hbox(vboxall);
+		add_note(notebook, vboxall, LABELS::keybind_tab[tab_num-tab_offset]);
 
-		kc->Create(this, hboxall, tab_num, 480, 300
+		kc->Create(this, vboxall, tab_num, 240, 320
 				, G_CALLBACK(OnKeyDown), G_CALLBACK(OnDoubleClick), G_CALLBACK(OnFocusIn));
 
-		vbox = create_vbox(hboxall);
-		btn = create_button(vbox, CMsg::Load_Default, G_CALLBACK(OnClickLoadDefault));
-		g_object_set_data(G_OBJECT(btn), "ctrl", (gpointer)kc);
-		create_label(vbox, "");
-		for(int i=0; i<KEYBIND_PRESETS; i++) {
-			UTILITY::sprintf(label, sizeof(label), CMSG(Load_Preset_VDIGIT), i+1);
-			btn = create_button(vbox, label, G_CALLBACK(OnClickLoadPreset));
-			g_object_set_data(G_OBJECT(btn), "ctrl", (gpointer)kc);
-			g_object_set_data(G_OBJECT(btn), "num", (gpointer)(intptr_t)i);
-		}
-		create_label(vbox, "");
-		for(int i=0; i<KEYBIND_PRESETS; i++) {
-			UTILITY::sprintf(label, sizeof(label), CMSG(Save_Preset_VDIGIT), i+1);
-			btn = create_button(vbox, label, G_CALLBACK(OnClickSavePreset));
-			g_object_set_data(G_OBJECT(btn), "ctrl", (gpointer)kc);
-			g_object_set_data(G_OBJECT(btn), "num", (gpointer)(intptr_t)i);
-		}
-		if (LABELS::keybind_combi[tab_num] != CMsg::Null) {
-			kc->chkCombi = create_check_box(vboxall, LABELS::keybind_combi[tab_num], kc->GetCombi() != 0);
-		}
+		kc->AddCheckBox(vboxall, tab_num);
+	}
+
+	vbox = create_vbox(hboxall);
+	btn = create_button(vbox, CMsg::Load_Default, G_CALLBACK(OnClickLoadDefaultJ));
+	create_label(vbox, "");
+	for(int i=0; i<KEYBIND_PRESETS; i++) {
+		UTILITY::sprintf(label, sizeof(label), CMSG(Load_Preset_VDIGIT), i+1);
+		btn = create_button(vbox, label, G_CALLBACK(OnClickLoadPresetJ));
+		g_object_set_data(G_OBJECT(btn), "num", (gpointer)(intptr_t)i);
+	}
+	create_label(vbox, "");
+	for(int i=0; i<KEYBIND_PRESETS; i++) {
+		UTILITY::sprintf(label, sizeof(label), CMSG(Save_Preset_VDIGIT), i+1);
+		btn = create_button(vbox, label, G_CALLBACK(OnClickSavePresetJ));
+		g_object_set_data(G_OBJECT(btn), "num", (gpointer)(intptr_t)i);
 	}
 
 	ShowAfter(boxall);
@@ -108,7 +104,7 @@ bool KeybindBox::Show(GtkWidget *parent_window)
 void KeybindBox::Hide()
 {
 	KeybindControlBox::Hide();
-
+	notebook = NULL;
 	emu->set_pause(1, false);
 }
 

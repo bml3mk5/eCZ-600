@@ -48,6 +48,9 @@ namespace UTILITY
 	size_t chomp_crlf(char *str);
 	size_t chomp_crlf(wchar_t *str);
 
+	void create_file_path(const _TCHAR *dir, _TCHAR *file_path, size_t maxlen, const _TCHAR *body, const char *extensions, const _TCHAR *prefix = NULL, const _TCHAR *postfix = NULL);
+
+	void create_date_file_name(_TCHAR *file_name, size_t maxlen);
 	void create_date_file_path(const _TCHAR *dir, _TCHAR *file_path, size_t maxlen, const char *extensions, const _TCHAR *prefix = NULL, const _TCHAR *postfix = NULL);
 
 	// ----------------------------------------------------------------------

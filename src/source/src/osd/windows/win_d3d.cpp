@@ -110,7 +110,11 @@ CD3DTexture::~CD3DTexture()
 HRESULT CD3DTexture::CreateD3DTexture(PDIRECT3DDEVICE9 pD3Device, int w, int h)
 {
 	int tw = w / 16;
-	tw = ((tw + 1) & ~1) * 16;
+	if (w < 320) {
+		tw = 320;
+	} else {
+		tw = ((tw + 1) & ~1) * 16;
+	}
 	int th = h;
 	if (th < 32) th = 32;
 	HRESULT hre = pD3Device->CreateTexture(tw, th, 1, D3DUSAGE_DYNAMIC, D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, &pTexture, NULL);

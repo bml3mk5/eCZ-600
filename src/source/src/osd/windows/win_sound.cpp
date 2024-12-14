@@ -15,7 +15,7 @@
 #include "../../cmutex.h"
 #include "../../video/rec_audio.h"
 
-#undef USE_SOUND_NOTIFY
+#define USE_SOUND_NOTIFY
 
 #define DSOUND_SAMPLE (sound_samples)
 #define DSOUND_BUFFER_SIZE (DWORD)(DSOUND_SAMPLE << 3)
@@ -30,7 +30,7 @@
 
 void EMU_OSD::EMU_SOUND()
 {
-	sound_prev_time = 0;
+	sound_prev_play_c = ~0;
 	sound_nt_event = NULL;
 	sound_threadid = 0;
 	sound_thread = NULL;
@@ -180,15 +180,14 @@ void EMU_OSD::end_sound()
 		sound_finished = true;
 		// stop sound
 		lpdsb->Stop();
+
+#ifdef USE_SOUND_NOTIFY
+		// send event
+		SetEvent(sound_nt_event);
+#endif
 	}
 	if (sound_ok) {
 		sound_ok = false;
-#ifdef USE_SOUND_NOTIFY
-		// close event
-		if (sound_nt_event) {
-			CloseHandle(sound_nt_event);
-		}
-#endif
 
 		// wait thread
 		if (WaitForSingleObject(sound_thread, 10000) == WAIT_TIMEOUT) {
@@ -197,6 +196,13 @@ void EMU_OSD::end_sound()
 				TerminateThread(sound_thread, 0);
 			}
 		}
+
+#ifdef USE_SOUND_NOTIFY
+		// close event
+		if (sound_nt_event) {
+			CloseHandle(sound_nt_event);
+		}
+#endif
 	}
 }
 
@@ -204,19 +210,20 @@ void EMU_OSD::end_sound()
 DWORD EMU_OSD::update_sound_th()
 {
 //	out_debug(_T("EMU::update_sound_nt %ld"),timeGetTime());
-	DWORD play_c, write_c, offset, size1, size2, next_wait;
+	DWORD play_c, write_c, offset, size1, size2, next_wait, next_wait_ms;
 	WORD *ptr1, *ptr2;
 
 	// need finish?
 	if (sound_finished) {
-		return -1;
+		return (DWORD)-1;
 	}
 
 	// check current playing position
 	if(FAILED(lpdsb->GetCurrentPosition(&play_c, &write_c))) {
 		logging->out_log(LOG_ERROR,_T("EMU::update_sound_th GetCurrentPosition failed."));
-		return -1;
+		return (DWORD)-1;
 	}
+
 	if(play_c < DSOUND_BUFFER_HALF) {
 		offset = DSOUND_BUFFER_HALF;
 		next_wait = DSOUND_BUFFER_HALF + (DSOUND_BUFFER_HALF / 4) - play_c;
@@ -225,31 +232,46 @@ DWORD EMU_OSD::update_sound_th()
 		next_wait = DSOUND_BUFFER_SIZE + (DSOUND_BUFFER_HALF / 4) - play_c;
 	}
 
-	// sound buffer must be updated
-	int extra_frames = 0;
+#ifndef USE_SOUND_NOTIFY
+	if (sound_prev_play_c == play_c) {
+		// The play cursor is not updated, so query it again after 8 ms.
+		next_wait = sound_rate / 31;
+		next_wait_ms = 8;
 
-	lock_sound_buffer();
-	int16_t* sound_buffer = vm->create_sound(&extra_frames, DSOUND_SAMPLE);
-	unlock_sound_buffer();
+	} else
+#endif
+	{
+		// ms
+		next_wait_ms = (next_wait * 1000 / sound_rate / 4);
 
-	if(lpdsb->Lock(offset, DSOUND_BUFFER_HALF, (void **)&ptr1, &size1, (void**)&ptr2, &size2, 0) == DSERR_BUFFERLOST) {
-//		logging->out_log(LOG_ERROR,_T("EMU::update_sound DSERR_BUFFERLOST"));
-		lpdsb->Restore();
-	}
-	if(sound_buffer) {
-		if(ptr1) {
-			CopyMemory(ptr1, sound_buffer, size1);
+		// sound buffer must be updated
+		int extra_frames = 0;
+
+		lock_sound_buffer();
+		int16_t* sound_buffer = vm->create_sound(&extra_frames, DSOUND_SAMPLE);
+		unlock_sound_buffer();
+
+		if (lpdsb->Lock(offset, DSOUND_BUFFER_HALF, (void **)&ptr1, &size1, (void**)&ptr2, &size2, 0) == DSERR_BUFFERLOST) {
+			//		logging->out_log(LOG_ERROR,_T("EMU::update_sound DSERR_BUFFERLOST"));
+			lpdsb->Restore();
 		}
-		if(ptr2) {
-			CopyMemory(ptr2, sound_buffer + size1, size2);
+		if (sound_buffer) {
+			if (ptr1) {
+				CopyMemory(ptr1, sound_buffer, size1);
+			}
+			if (ptr2) {
+				CopyMemory(ptr2, sound_buffer + size1, size2);
+			}
 		}
+		lpdsb->Unlock(ptr1, size1, ptr2, size2);
 	}
-	lpdsb->Unlock(ptr1, size1, ptr2, size2);
-//	first_half = !first_half;
 
-//	logging->out_logf(LOG_DEBUG,_T("EMU::update_sound off:%ld playc:%ld writec:%ld size1:%ld size2:%ld next:%ld %dms"),offset,play_c,write_c,size1,size2,next_wait,(next_wait * 1000 / sound_rate / 4));
+//	logging->out_logf(LOG_DEBUG,_T("EMU::update_sound off:%5d prev:%5d playc:%5d writec:%5d size1:%5d size2:%5d next:%ld %dms")
+//		,offset,sound_prev_play_c,play_c,write_c,size1,size2,next_wait,next_wait_ms);
 
-	return (next_wait * 1000 / sound_rate / 4);	// ms
+	sound_prev_play_c = play_c;
+
+	return next_wait_ms;
 }
 
 DWORD WINAPI EMU_OSD::sound_proc(LPVOID lpParameter)
@@ -265,14 +287,19 @@ DWORD WINAPI EMU_OSD::sound_proc(LPVOID lpParameter)
 
 		switch(dwResult) {
 		case WAIT_OBJECT_0 + 0:
-			emu->update_sound_th();
+		case WAIT_OBJECT_0 + 1:
+			if (emu->update_sound_th() == (DWORD)-1) {
+				working = false;
+			}
+			break;
+		default:
 			break;
 		}
 	}
 #else
 	while(working) {
 		CDelay(dwResult);
-		if ((dwResult = emu->update_sound_th()) == -1) {
+		if ((dwResult = emu->update_sound_th()) == (DWORD)-1) {
 			working = false;
 			break;
 		}

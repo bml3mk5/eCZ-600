@@ -21,7 +21,7 @@
     <LibIntlDir>$(DevelopDir)libintl-msvc10-with_lc_messages\</LibIntlDir>
     <LibIntlLibDir>$(LibIntlDir)lib\x86\</LibIntlLibDir>
     <LibIntlLib64Dir>$(LibIntlDir)lib\x64\</LibIntlLib64Dir>
-    <FFMpegIncludeDir>$(DevelopBase)include\ffmpeg441\</FFMpegIncludeDir>
+    <FFMpegIncludeDir>$(DevelopBase)include\ffmpeg611\</FFMpegIncludeDir>
     <LocalDebugLibs>SDL.lib; SDLmain.lib; ag_core_static.lib; ag_gui_static.lib; freetype248_D.lib; SDL_ttf.lib</LocalDebugLibs>
     <LocalReleaseLibs>SDL.lib; SDLmain.lib; ag_core_static.lib; ag_gui_static.lib; freetype248.lib; SDL_ttf.lib</LocalReleaseLibs>
     <SDL2Dir>$(DevelopDir)SDL2-2.28.5-static\</SDL2Dir>

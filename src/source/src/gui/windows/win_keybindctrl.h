@@ -21,6 +21,8 @@ namespace GUI_WIN
 {
 
 class KeybindControl;
+class CDialogBox;
+class CBox;
 
 typedef struct ctrlcols_st {
 	int     row;
@@ -48,6 +50,8 @@ private:
 
 	HWND       hTitles[KBCTRL_MAX_COLS + 1];
 	ctrltable_t table[KBCTRL_MAX_LINES];
+
+	HWND hChkCombi;
 
 	int cell_height;
 	int cell_width;
@@ -110,9 +114,21 @@ public:
 
 	void   LoadDefaultPreset();
 	void   LoadPreset(int idx);
+	void   SavePreset(int idx);
+
+	void   SetData();
+
+	HWND   AddCombiCheckButton(CDialogBox *dlg, CBox *box);
+	HWND   GetCombiCheckButton();
+	void   SetCombiCheckData();
+	void   SetCombiCheckButton(int val);
+	void   UpdateCombiCheckButton();
+	int    GetCombiId();
 
 	int    GetWidth() { return ctrl_width; };
 	int    Getheight() { return ctrl_height; };
+	int    GetCellWidth() { return cell_width; };
+	int    GetCellHeight() { return cell_height; };
 };
 
 }; /* namespace GUI_WIN */

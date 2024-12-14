@@ -9,6 +9,7 @@
 */
 
 #include "rec_audio.h"
+#include "rec_common.h"
 #include "../emu.h"
 #include "../config.h"
 #include "../utility.h"
@@ -101,7 +102,7 @@ bool REC_AUDIO::IsEnabled(int type)
 	return rc;
 }
 
-bool REC_AUDIO::Start(int type, int sample_rate, bool show_dialog)
+bool REC_AUDIO::Start(int type, int sample_rate, bool with_video)
 {
 #ifdef USE_REC_AUDIO
 	if (type <= 0 || sample_rate <= 0) {
@@ -110,7 +111,7 @@ bool REC_AUDIO::Start(int type, int sample_rate, bool show_dialog)
 
 	rec_type = type;
 
-	CreateFileName(rec_path, NULL);
+	gRecCommon.CreateFileName(!with_video, rec_path, sizeof(rec_path) / sizeof(rec_path[0]), NULL);
 
 	switch(rec_type) {
 #ifdef USE_REC_AUDIO_WAVE
@@ -291,18 +292,6 @@ bool REC_AUDIO::Record(int32_t *buffer, int samples)
 	}
 #endif
 	return now_recording;
-}
-
-void REC_AUDIO::CreateFileName(_TCHAR *file_path, const char *extension)
-{
-//	int tim[8];
-	const _TCHAR *app_path;
-
-	app_path = pConfig->snapshot_path.Length() > 0 ? pConfig->snapshot_path.Get() : emu->application_path();
-	UTILITY::create_date_file_path(app_path, file_path, _MAX_PATH, extension);
-
-//	emu->get_timer(tim, 8);
-//	UTILITY::stprintf(file_path, _MAX_PATH, _T("%s%04d-%02d-%02d_%02d-%02d-%02d"), app_path, tim[0], tim[1], tim[2], tim[4], tim[5], tim[6]);
 }
 
 const _TCHAR **REC_AUDIO::GetCodecList(int type)

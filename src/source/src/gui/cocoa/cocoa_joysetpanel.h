@@ -23,12 +23,15 @@
 */
 @interface CocoaJoySettingPanel : CocoaBasePanel
 {
+	CocoaTabView *tabView;
 	NSMutableArray *tableViews;
 	Uint32 enable_axes;
 
+#if defined(USE_PIAJOYSTICK) || defined(USE_KEY2JOYSTICK)
 	CocoaPopUpButton *pop[MAX_JOYSTICKS];
 	CocoaSlider *mash[MAX_JOYSTICKS][KEYBIND_JOY_BUTTONS];
 	CocoaSlider *axis[MAX_JOYSTICKS][6];
+#endif
 }
 - (id)init;
 - (NSInteger)runModal;

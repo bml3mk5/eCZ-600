@@ -798,7 +798,7 @@ public:
 	//@}
 	/// @name sound menu for ui
 	//@{
-	void start_rec_sound(int type);
+	void start_rec_sound(int type, bool with_video);
 	void stop_rec_sound();
 	void restart_rec_sound();
 	bool now_rec_sound();

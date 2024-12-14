@@ -573,6 +573,16 @@ bool DialogBox::Show(GtkWidget *parent_window)
 	return true;
 }
 
+bool DialogBox::Show(GtkWidget *parent_window, int)
+{
+	return Show(parent_window);
+}
+
+bool DialogBox::Show(GtkWidget *parent_window, int, bool)
+{
+	return Show(parent_window);
+}
+
 bool DialogBox::ShowModal(GtkWidget *parent_window)
 {
 	bool rc = Show(parent_window);

@@ -125,6 +125,8 @@ public:
 	DialogBox(GUI *new_gui);
 	virtual ~DialogBox();
 	virtual bool Show(GtkWidget *parent_window);
+	virtual bool Show(GtkWidget *parent_window, int);
+	virtual bool Show(GtkWidget *parent_window, int, bool);
 	virtual bool ShowModal(GtkWidget *parent_window);
 	virtual void Hide();
 	virtual bool IsVisible() const;

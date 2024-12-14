@@ -28,6 +28,7 @@
 */
 @interface CocoaKeybindPanel : CocoaBasePanel
 {
+	CocoaTabView *tabView;
 	NSMutableArray *tableViews;
 	Uint32 enable_axes;
 }

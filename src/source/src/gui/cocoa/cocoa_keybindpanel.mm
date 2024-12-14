@@ -46,19 +46,20 @@ extern EMU *emu;
 	CocoaView *view = [self contentView];
 
 	CocoaLayout *box_all = [CocoaLayout create:view :VerticalBox :0 :COCOA_DEFAULT_MARGIN :_T("box_all")];
-	CocoaLayout *box_tab = [box_all addBox:TabViewBox :0 :COCOA_DEFAULT_MARGIN :_T("box_tab")];
-	CocoaLayout *box_sep;
+	CocoaLayout *box_sep = [box_all addBox:HorizontalBox :0 :0];
+	CocoaLayout *box_tab = [box_sep addBox:TabViewBox :0 :COCOA_DEFAULT_MARGIN :_T("box_tab")];
 	CocoaLayout *box_one;
 
-	CocoaTabView *tabView = [CocoaTabView createI:box_tab tabs:LABELS::keybind_tab width:500 height:400];
-	CocoaView *tab_view;
+	tabView = [CocoaTabView createI:box_tab tabs:LABELS::keybind_tab width:420 height:400];
+	CocoaView *view_in_tab;
 
 	CocoaButton *btn;
 	char name[64];
 	NSTabViewItem *tab;
+	int tab_offset = KeybindData::KB_TABS_MIN;
 
 	tableViews = [NSMutableArray array];
-	for(int tab_num=0; tab_num<KeybindData::TABS_MAX; tab_num++) {
+	for(int tab_num=tab_offset; tab_num<KeybindData::KB_TABS_MAX; tab_num++) {
 		CocoaTableView *tableView = [CocoaTableView createW:420 height:400 tabnum:tab_num cellWidth:120];
 		[tableViews addObject:tableView];
 		[tableView setJoyMask:&enable_axes];
@@ -67,44 +68,41 @@ extern EMU *emu;
 	//
 	for(int tab_num=0; tab_num<[tableViews count]; tab_num++) {
 		tab = [tabView tabViewItemAtIndex:tab_num];
-		tab_view = (CocoaView *)[tab view];
-		[box_tab setContentView:tab_view];
+		view_in_tab = (CocoaView *)[tab view];
+		[box_tab setContentView:view_in_tab];
 
 		// table
-		box_sep = [box_tab addBox:HorizontalBox :0 :0];
-		box_one = [box_sep addBox:VerticalBox :0 :0];
+		box_one = [box_tab addBox:VerticalBox :0 :0];
 
 		CocoaTableView *tv = [tableViews objectAtIndex:tab_num];
 		[box_one addControl:tv width:420 height:400];
 
 		// checkbox
 
-		if (LABELS::keybind_combi[tab_num] != CMsg::Null) {
-			CocoaCheckBox *chk = [CocoaCheckBox createI:box_one title:LABELS::keybind_combi[tab_num] action:nil value:[[tv data] combi]];
-			[tv setChkCombi:chk];
-		}
+		[tv addCombiCheckButton:box_one tabnum:tab_num];
 
-		// button (right side)
+	}
 
-		box_one = [box_sep addBox:VerticalBox :0 :0];
+	// button (right side)
 
-		btn = [CocoaButton createI:box_one title:CMsg::Load_Default action:@selector(loadDefaultPreset:) width:180];
-		[btn setRelatedObject:[[CocoaButtonAttr alloc]initWithValue:tab_num:-1]];
+	box_one = [box_sep addBox:VerticalBox :0 :0];
 
-		[box_one addSpace:180 :32];
-		for(int i=0; i<KEYBIND_PRESETS; i++) {
-			UTILITY::sprintf(name, sizeof(name), CMSG(Load_Preset_VDIGIT), i+1);
-			btn = [CocoaButton createT:box_one title:name action:@selector(loadPreset:) width:180];
-			[btn setRelatedObject:[[CocoaButtonAttr alloc]initWithValue:tab_num:i]];
+	btn = [CocoaButton createI:box_one title:CMsg::Load_Default action:@selector(loadDefaultPreset:) width:180];
+	[btn setRelatedObject:[[CocoaButtonAttr alloc]initWithValue:0:-1]];
 
-		}
+	[box_one addSpace:180 :32];
+	for(int i=0; i<KEYBIND_PRESETS; i++) {
+		UTILITY::sprintf(name, sizeof(name), CMSG(Load_Preset_VDIGIT), i+1);
+		btn = [CocoaButton createT:box_one title:name action:@selector(loadPreset:) width:180];
+		[btn setRelatedObject:[[CocoaButtonAttr alloc]initWithValue:0:i]];
 
-		[box_one addSpace:180 :32];
-		for(int i=0; i<KEYBIND_PRESETS; i++) {
-			UTILITY::sprintf(name, sizeof(name), CMSG(Save_Preset_VDIGIT), i+1);
-			btn = [CocoaButton createT:box_one title:name action:@selector(savePreset:) width:180];
-			[btn setRelatedObject:[[CocoaButtonAttr alloc]initWithValue:tab_num:i]];
-		}
+	}
+
+	[box_one addSpace:180 :32];
+	for(int i=0; i<KEYBIND_PRESETS; i++) {
+		UTILITY::sprintf(name, sizeof(name), CMSG(Save_Preset_VDIGIT), i+1);
+		btn = [CocoaButton createT:box_one title:name action:@selector(savePreset:) width:180];
+		[btn setRelatedObject:[[CocoaButtonAttr alloc]initWithValue:0:i]];
 	}
 
 	// axes of joypad
@@ -143,12 +141,7 @@ extern EMU *emu;
     // OK button is pushed
 	for(int tab=0; tab<[tableViews count]; tab++) {
 		CocoaTableView *tv = [tableViews objectAtIndex:tab];
-		CocoaTableData *data = [tv data];
-		[data SetData];
-		CocoaCheckBox *chk = [tv chkCombi];
-		if (chk) {
-			[data setCombi:[chk state] == NSControlStateValueOn ? 1 : 0];
-		}
+		[tv SetData];
 	}
 
 	emu->save_keybind();
@@ -165,46 +158,34 @@ extern EMU *emu;
 
 - (void)loadDefaultPreset:(id)sender
 {
-	CocoaButtonAttr *attr = (CocoaButtonAttr *)[sender relatedObject];
-	CocoaTableView *tv = [tableViews objectAtIndex:[attr tabNum]];
+//	CocoaButtonAttr *attr = (CocoaButtonAttr *)[sender relatedObject];
+	int tab_num = [tabView selectedTabViewItemIndex];
+	CocoaTableView *tv = [tableViews objectAtIndex:tab_num];
 	NSTableView *view = [tv documentView];
-	CocoaTableData *data = [view dataSource];
 	[view editColumn:0 row:[view selectedRow] withEvent:nil select:YES];
-	[data loadDefaultPreset];
-	CocoaCheckBox *chk = [tv chkCombi];
-	if (chk) {
-		[chk setState:[data combi]];
-	}
+	[tv LoadDefaultPresetData];
 	[view reloadData];
 }
 
 - (void)loadPreset:(id)sender
 {
 	CocoaButtonAttr *attr = (CocoaButtonAttr *)[sender relatedObject];
-	CocoaTableView *tv = [tableViews objectAtIndex:[attr tabNum]];
+	int tab_num = [tabView selectedTabViewItemIndex];
+	CocoaTableView *tv = [tableViews objectAtIndex:tab_num];
 	NSTableView *view = [tv documentView];
-	CocoaTableData *data = [view dataSource];
 	[view editColumn:0 row:[view selectedRow] withEvent:nil select:YES];
-	[data loadPreset:attr.idx];
-	CocoaCheckBox *chk = [tv chkCombi];
-	if (chk) {
-		[chk setState:[data combi]];
-	}
+	[tv LoadPresetData:attr.idx];
 	[view reloadData];
 }
 
 - (void)savePreset:(id)sender
 {
 	CocoaButtonAttr *attr = (CocoaButtonAttr *)[sender relatedObject];
-	CocoaTableView *tv = [tableViews objectAtIndex:[attr tabNum]];
+	int tab_num = [tabView selectedTabViewItemIndex];
+	CocoaTableView *tv = [tableViews objectAtIndex:tab_num];
 	NSTableView *view = [tv documentView];
-	CocoaTableData *data = [view dataSource];
 	[view editColumn:0 row:[view selectedRow] withEvent:nil select:YES];
-	CocoaCheckBox *chk = [tv chkCombi];
-	if (chk) {
-		[data setCombi:[chk state] == NSControlStateValueOn ? 1 : 0];
-	}
-	[data savePreset:attr.idx];
+	[tv SavePresetData:attr.idx];
 	[view reloadData];
 }
 

@@ -45,7 +45,6 @@ private:
 	INT_PTR onClickAxis(int id);
 
 	void select_tabctrl(int tab_num);
-	int get_combi_id(KeybindControl *kbctl);
 
 public:
 	KeybindBox(HINSTANCE, CFont *, EMU *, GUI *);

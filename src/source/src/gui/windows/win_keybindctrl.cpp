@@ -7,9 +7,12 @@
 ///
 
 #include "win_keybindctrl.h"
+#include <windowsx.h>
+#include "win_dialogbox.h"
 #include "../../res/resource.h"
 #include "win_gui.h"
 #include "../../emu.h"
+#include "../../labels.h"
 #include "../../clocale.h"
 #include "../../utility.h"
 #if defined(USE_SDL) || defined(USE_SDL2)
@@ -104,6 +107,8 @@ KeybindControl::KeybindControl(HINSTANCE hInst, HWND hWnd) : KeybindData()
 
 	memset(&vScrMain, 0, sizeof(vScrMain));
 	vScrMain.cbSize = sizeof(vScrMain);
+
+	hChkCombi = NULL;
 
 	cell_height = 18;
 	cell_width = 80;
@@ -331,6 +336,7 @@ LRESULT KeybindControl::EditProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 			if (m_devtype != DEVTYPE_JOYPAD && (wParam < 0x88 || wParam > 0x8f)) {
+				ClearCell(obj);
 				wParam = translate_keycode(wParam, lParam);
 				ClearCellByVkCode((uint32_t)wParam);
 				SetKeyCell(obj, (uint32_t)wParam);
@@ -696,12 +702,90 @@ void KeybindControl::LoadDefaultPreset()
 {
 	KeybindData::LoadDefaultPreset();
 	Update();
+	UpdateCombiCheckButton();
 }
 
 void KeybindControl::LoadPreset(int idx)
 {
 	KeybindData::LoadPreset(idx);
 	Update();
+	UpdateCombiCheckButton();
+}
+
+void KeybindControl::SavePreset(int idx)
+{
+	SetCombiCheckData();
+	KeybindData::SavePreset(idx);
+}
+
+void KeybindControl::SetData()
+{
+	SetCombiCheckData();
+	KeybindData::SetData();
+}
+
+HWND KeybindControl::AddCombiCheckButton(CDialogBox *dlg, CBox *box)
+{
+	if (LABELS::keybind_combi[m_tab_num] != CMsg::Null) {
+		int id = GetCombiId();
+		if (id) {
+			hChkCombi = dlg->CreateCheckBox(box, id, LABELS::keybind_combi[m_tab_num], false);
+			if (hChkCombi) {
+				Button_SetCheck(hChkCombi, GetCombi() != 0 ? BST_CHECKED : BST_UNCHECKED);
+			}
+		}
+	}
+	return hChkCombi;
+}
+
+HWND KeybindControl::GetCombiCheckButton()
+{
+	return hChkCombi;
+}
+
+void KeybindControl::SetCombiCheckData()
+{
+	if (hChkCombi) {
+		SetCombi(Button_GetCheck(hChkCombi) != BST_UNCHECKED ? 1 : 0);
+	}
+}
+
+void KeybindControl::SetCombiCheckButton(int val)
+{
+	if (hChkCombi) {
+		Button_SetCheck(hChkCombi,val != 0 ? BST_CHECKED : BST_UNCHECKED);
+	}
+}
+
+void KeybindControl::UpdateCombiCheckButton()
+{
+	if (hChkCombi) {
+		Button_SetCheck(hChkCombi, GetCombi() != 0 ? BST_CHECKED : BST_UNCHECKED);
+	}
+}
+
+int KeybindControl::GetCombiId()
+{
+	int id = 0;
+	switch (m_devtype) {
+	case KeybindData::DEVTYPE_JOYPAD:
+		// input from joystick
+		switch(m_vm_type) {
+		case KeybindData::VM_TYPE_KEYASSIGN:
+			// key assigned
+			id = IDC_CHK_COMBI1;
+			break;
+		case KeybindData::VM_TYPE_PIOBITASSIGN:
+			// negative logic
+			id = IDC_CHK_COMBI2;
+			break;
+		}
+		break;
+	case KeybindData::DEVTYPE_KEYBOARD:
+		// input from keyboard
+		break;
+	}
+	return id;
 }
 
 }; /* namespace GUI_WIN */

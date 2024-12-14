@@ -217,11 +217,19 @@ GUIOBJSGTKX11=$(SRCGUIGTKX11)/gtk_x11_gui.o \
 	$(SRCGUIGTKX11)/gtk_ledbox.o
 
 VIDOBJSWAV:=$(SRCVIDWAV)/wav_rec_audio.o
-# VIDOBJSFFM:=$(SRCVIDFFM)/ffm_loadlib.o $(SRCVIDFFM)/ffm_rec_base.o $(SRCVIDFFM)/ffm_rec_audio.o $(SRCVIDFFM)/ffm_rec_video.o
-VIDOBJSPNG:=$(SRCVIDPNG)/png_rec_video.o $(SRCVIDPNG)/png_bitmap.o
+# VIDOBJSFFM:=$(SRCVIDFFM)/ffm_loadlib.o \
+#	$(SRCVIDFFM)/ffm_rec_base.o \
+#	$(SRCVIDFFM)/ffm_rec_audio.o \
+#	$(SRCVIDFFM)/ffm_rec_video.o
+VIDOBJSPNG:=$(SRCVIDPNG)/png_rec_video.o \
+	$(SRCVIDPNG)/png_bitmap.o
 
-# VIDOBJS:=$(VIDOBJSWAV) $(VIDOBJSFFM) $(VIDOBJSPNG) $(SRCVID)/rec_audio.o $(SRCVID)/rec_video.o
-VIDOBJS:=$(VIDOBJSWAV) $(VIDOBJSPNG) $(SRCVID)/rec_audio.o $(SRCVID)/rec_video.o
+# VIDOBJS:=$(VIDOBJSWAV) $(VIDOBJSFFM) $(VIDOBJSPNG) \
+#
+VIDOBJS:=$(VIDOBJSWAV) $(VIDOBJSPNG) \
+	$(SRCVID)/rec_audio.o \
+	$(SRCVID)/rec_common.o \
+	$(SRCVID)/rec_video.o
 
 ifeq ($(GUI_TYPE),GUI_TYPE_AGAR)
 	GUIOBJS:=$(GUIOBJSAGAR)
