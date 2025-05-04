@@ -1,6 +1,6 @@
 # SHARP X68000 Emulator SDL edition
 
-#### Copyright(C) Common Source Code Project, Sasaji 2012-2024 All Rights Reserved.
+#### Copyright(C) Common Source Code Project, Sasaji 2012-2025 All Rights Reserved.
 
 ## ファイル構成
 
@@ -57,12 +57,11 @@
 
 
 ----------------------------------------
-### MacOSX版 ###
+### MacOS版 ###
 
 * 以下のバージョンがあります。
 
- + SDL2 + Cocoa版 -> Makefile.mac_cocoa2, Makefile.mac_cocoa2_dbgr
-
+  + SDL2 + Cocoa版 -> Makefile.mac_cocoa2, Makefile.mac_cocoa2_dbgr
 
 #### 1. 開発環境の構築
 
@@ -72,38 +71,48 @@
  * コンパイルに必要なライブラリをインストールします。
    ターミナル上で行います。(Xcodeは使用しません。)
 
-  + SDL2-2.28.5
+   + ソースコードからビルドする場合
 
-    1. パッチを適用します。
+     - SDL2-2.28.5
 
-           patch -p 1 < SDL2-2.28.5-mac-keyboard.patch
+     1. パッチを適用します。
 
-    2. ビルド＆インストール
+            patch -p 1 < SDL2-2.28.5-mac-keyboard.patch
+
+     2. ビルド＆インストール
+
+            ./configure
+            make
+            make install
+
+     - SDL2_ttf-2.20.2
 
            ./configure
            make
            make install
 
-  + SDL2_ttf-2.20.2
+   + Homebrewを使用する場合
 
-        ./configure
-        make
-        make install
-
+     - sdl2, sdl2_ttf をインストールしてください。
 
 #### 2. コンパイル（コマンドラインを使用する場合）
 
  ターミナル上で行います。
+
+ * Homebrewからインストールした場合、Makefile中にある変数を変更してください。
+
+   + SDLPATH を /opt/homebrew に変更
+
 
  * sharedなバイナリを作成する場合
 
        make -f Makefile.xxx clean
        make -f Makefile.xxx install
 
-  + installは、makeを実行したディレクトリの上にReleaseSHディレクトリを作成し、
-  そこに必要なファイルをコピーします。
-  (/usr/localにコピーはしません。)
-  + インストール先を変更するには、Makefile中にある、SH_INSTALLDIRを変更
+   + installは、makeを実行したディレクトリの上にReleaseSHディレクトリを作成し、
+     そこに必要なファイルをコピーします。
+     (/usr/localにコピーはしません。)
+   + インストール先を変更するには、Makefile中にある、SH_INSTALLDIRを変更
      してください。
 
  * staticなバイナリを作成する場合
@@ -111,8 +120,8 @@
        make -f Makefile.xxx st_clean
        make -f Makefile.xxx st_install
 
-  + インストール先を変更するには、Makefile中にある、ST_INSTALLDIRを変更
-    してください。
+   + インストール先を変更するには、Makefile中にある、ST_INSTALLDIRを変更
+     してください。
 
 
 #### 3. コンパイル（Xcodeを使用する場合）
@@ -129,119 +138,33 @@
 
 * 以下のバージョンがあります。
 
- + GTK+3 + SDL2版 -> Makefile.linux_gtk_sdl2, Makefile.linux_gtk_sdl2_dbgr
-
+  + GTK+3 + SDL2版 -> Makefile.linux_gtk_sdl2, Makefile.linux_gtk_sdl2_dbgr
 
 #### 1. 開発環境の構築
 
  * ディストリビューションに付属する開発用ライブラリをインストール。
 
-  + DebianやUbuntu: Synapticパッケージマネージャもしくはaptでインストール
-  + RedhatやFedora: Yumなどでインストール
+   + DebianやUbuntu: Synapticパッケージマネージャもしくはaptでインストール
+   + RedhatやFedora: Yumなどでインストール
 
-  + 必要なライブラリ
-   - コンパイラ: gcc, g++, make
-   - 画面系: gtk-3.0-dev, libsdl2-dev, libsdl2-ttf-dev
-   - サウンド系: libalsa-dev
-
- * 上記ライブラリがない場合はソースコードからインストールします。
-
-  + SDL2-2.28.5
-
-          ./configure
-          make
-          make install
-
-  + SDL2_ttf-2.20.2
-
-          ./configure
-          make
-          make install
-
+   + 必要なライブラリ
+     - コンパイラ: gcc, g++, make
+     - 画面系: gtk-3.0-dev, libsdl2-dev, libsdl2-ttf-dev
 
 #### 2. コンパイル
 
  ターミナル(端末)上で行います。
 
  * sharedなバイナリを作成する場合
-  - ライブラリをパッケージからインストールしている場合はこちらでビルド。
+   - ライブラリをパッケージからインストールしている場合はこちらでビルド。
 
          make -f Makefile.xxx clean
          make -f Makefile.xxx install
 
-  * installは、makeを実行したディレクトリの上にReleaseディレクトリを作成し、
-    そこに必要なファイルをコピーします。
-  (/usr/localにコピーはしません。)
-  * インストール先を変更するには、Makefile中にある、SH_INSTALLDIRを変更
-    してください。
-
- * staticなバイナリを作成する場合
-
-         make -f Makefile.xxx st_clean
-         make -f Makefile.xxx st_install
-
-  * インストール先を変更するには、Makefile中にある、ST_INSTALLDIRを変更
-    してください。
-
-
-----------------------------------------
-### MinGW + MSYS (Windows)版 ###
-
-* 以下のバージョンがあります。
-
- + SDL2 + Win GUI版 -> Makefile.win_gui2, Makefile.win_gui2_dbgr
-
-#### 1. 開発環境の構築
-
- * MinGWをインストール
-
-  + インストーラに従ってインストールします。
-
-  + C Compiler, C++ Compiler, MSYS Basic SYSTEM, MSYS Developer Toolkit
-  をチェックしてインストール。
-    インターネットから必要なモジュールがダウンロードされる。
-
- * MinGW Shellを起動してコンパイルに必要なライブラリをインストールします。
-
-  + SDL2-2.28.5
-
-   - Development Librariesかソースからインストール
-
-   - ソースからインストールする場合
-
-          ./configure
-          make
-          make install
-
-  + SDL2_ttf-2.20.2
-
-   - ソースからインストール
-
-          ./configure
-          make
-          make install
-
-
-#### 2. コンパイル
-
- MinGW Shell上で行います。
-
- * 必要に応じてMakefile.xxxを変更します。
-
-  * MinGWのバージョンが異なる場合、GCCLIBDIRを修正。
-  * SDLLIBSのパスを修正。
-    SDL, SDL_ttfなどをバイナリパッケージでインストールした場合、
-    インストール先が/usr/local/cross-tools/i386-mingw32/配下になるため
-
- * sharedなバイナリを作成する場合
-
-       make -f Makefile.xxx clean
-       make -f Makefile.xxx install
-
-  * installは、makeを実行したディレクトリの上にReleaseディレクトリを作成し、
-  そこに必要なファイルをコピーします。
-  (/usr/localにコピーはしません。)
-  * インストール先を変更するには、Makefile中にある、SH_INSTALLDIRを変更
+   * installは、makeを実行したディレクトリの上にReleaseディレクトリを作成し、
+     そこに必要なファイルをコピーします。
+     (/usr/localにコピーはしません。)
+   * インストール先を変更するには、Makefile中にある、SH_INSTALLDIRを変更
      してください。
 
  * staticなバイナリを作成する場合
@@ -249,7 +172,59 @@
        make -f Makefile.xxx st_clean
        make -f Makefile.xxx st_install
 
-  * インストール先を変更するには、Makefile中にある、ST_INSTALLDIRを変更
+   * インストール先を変更するには、Makefile中にある、ST_INSTALLDIRを変更
+     してください。
+
+
+----------------------------------------
+### MSYS2 + MinGW64 (Windows)版 ###
+
+* 以下のバージョンがあります。
+
+  + SDL2 + Win GUI版 -> Makefile.win_gui2, Makefile.win_gui2_dbgr
+
+#### 1. 開発環境の構築
+
+ * MSYS2をインストール
+
+   + インストーラに従ってインストールします。
+
+ * MinGW64シェルを起動してコンパイルに必要なライブラリをインストールします。
+
+   + pacmanを使用して以下をインストール
+     - mingw-w64-x86_64-gcc
+     - mingw-w64-x86_64-make
+     - mingw-w64-x86_64-SDL2
+     - mingw-w64-x86_64-SDL2_ttf
+
+#### 2. コンパイル
+
+ MinGW Shell上で行います。
+
+ * 必要に応じてMakefile.xxxを変更します。
+
+   * MinGWのバージョンが異なる場合、GCCLIBDIRを修正。
+   * SH_LOCALDIR、ST_LOCALDIRのパスを修正。
+     SDL, SDL_ttfなどをバイナリパッケージでインストールした場合、
+     インストール先が/mingw64/lib/配下になるため
+
+ * sharedなバイナリを作成する場合
+
+       make -f Makefile.xxx clean
+       make -f Makefile.xxx install
+
+   * installは、makeを実行したディレクトリの上にReleaseディレクトリを作成し、
+     そこに必要なファイルをコピーします。
+     (/usr/localにコピーはしません。)
+   * インストール先を変更するには、Makefile中にある、SH_INSTALLDIRを変更
+     してください。
+
+ * staticなバイナリを作成する場合
+
+       make -f Makefile.xxx st_clean
+       make -f Makefile.xxx st_install
+
+   * インストール先を変更するには、Makefile中にある、ST_INSTALLDIRを変更
      してください。
 
 
@@ -260,23 +235,23 @@
 
 * 必要なライブラリをVC++でビルドします。
 
- + SDL2-2.28.5
+  + SDL2-2.28.5
 
-    ソースからインストール
+    - ソースからインストール
       VisualCフォルダにあるSDL.slnを使用してビルド。
       出来たdll,libはlib/Release/x86にコピーしておく。
 
- + SDL2_ttf-2.20.2
+  + SDL2_ttf-2.20.2
 
-    ソースからインストール
+    - ソースからインストール
       VisualCフォルダにあるSDL_ttf.slnを使用してビルド。
 
 
 #### 2. コンパイル
 
  * プロジェクトファイル(*_sdl.vcxproj)を使用してビルド。
-  + 表示→プロパティマネージャを開き、Release下を開く。
-  + ユーザーマクロに設定しているパスを変更する。
+   + 表示→プロパティマネージャを開き、Release下を開く。
+   + ユーザーマクロに設定しているパスを変更する。
 
 
 ----------------------------------------
@@ -290,12 +265,12 @@
 * 雑誌やネットなどに転載される場合、不特定多数の方に再配布を行う場合でも
   承諾の必要はありませんが、転載の旨をご連絡いただけたら幸いです。
 
-==============================================================================
+------------------------------------------------------------------------------
 
 連絡先：Sasaji (sasaji@s-sasaji.ddo.jp)
  * My WebPage: http://s-sasaji.ddo.jp/bml3mk5/
  * GitHub:     https://github.com/bml3mk5/eCZ-600
  * X(Twitter): https://x.com/bml3mk5
 
-==============================================================================
+------------------------------------------------------------------------------
 

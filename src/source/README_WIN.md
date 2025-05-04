@@ -1,6 +1,6 @@
 # SHARP X68000 Emulator Windows(VC++) Edition
 
-#### Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
+#### Copyright(C) Common Source Code Project, Sasaji 2011-2025 All Rights Reserved.
 
 ## ファイル構成
 
@@ -51,12 +51,12 @@
   承諾の必要はありませんが、転載の旨をご連絡いただけたら幸いです。
 
 
-==============================================================================
+------------------------------------------------------------------------------
 
 連絡先：Sasaji (sasaji@s-sasaji.ddo.jp)
  * My WebPage: http://s-sasaji.ddo.jp/bml3mk5/
  * GitHub:     https://github.com/bml3mk5/eCZ-600
  * X(Twitter): https://x.com/bml3mk5
 
-==============================================================================
+------------------------------------------------------------------------------
 

@@ -1,6 +1,6 @@
 # ![icon](src/x68000_icon.png) SHARP X68000 Emulator 'eCZ-600'
 
-#### Copyright(C) Common Source Code Project, Sasaji 2011-2024 All Rights Reserved.
+#### Copyright(C) Common Source Code Project, Sasaji 2011-2025 All Rights Reserved.
 
 ------------------------------------------------------------------------------
 

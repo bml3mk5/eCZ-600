@@ -1329,7 +1329,7 @@ void DISPLAY::mix_buffer_graphic_txspbg_one_line_sub_txsp_gr_n(int width, int sr
 		} else {
 			// graphic data already exists
 			uint32_t pal_num = mx_txspbg[src_y + src_x];
-			if (pal_num & MX_TXSPBG_TXSPBG_MASK) {
+			if ((pal_num & MX_TXSPBG_TXSPBG_MASK) != 0) {
 				// text or sprite
 				pal_num &= MX_TXSPBG_SPBG_PALETTE;
 				uint32_t pal = m_palette[pal_num];
@@ -1528,7 +1528,7 @@ void DISPLAY::mix_buffer_graphic_txspbg_one_line_sub_sp_gr_tx_sp(int width, int 
 			if (*dst_buf & MX_BUF_SP_AREA) {
 				// special mode, so prior graphic
 
-			} else if ((pal_num & MX_TXSPBG_SPRITEBG_MASK) != 0 && pal != 0) {
+			} else if ((pal_num & MX_TXSPBG_SPRITEBG_MASK) != 0 && (pal_num & MX_TXSPBG_PALETTE_L4) != 0 && pal != 0) {
 				// sprite and bg
 				*dst_buf = pal;
 				*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
@@ -1577,7 +1577,7 @@ void DISPLAY::mix_buffer_graphic_txspbg_one_line_sub_sp_gr_tx_ht(int width, int 
 				*dst_buf = pal;
 				*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
 
-			} else if ((pal_num & MX_TXSPBG_SPRITEBG_MASK) != 0 && pal != 0) {
+			} else if ((pal_num & MX_TXSPBG_SPRITEBG_MASK) != 0 && (pal_num & MX_TXSPBG_PALETTE_L4) != 0 && pal != 0) {
 				// sprite and bg
 				*dst_buf = pal;
 				*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
@@ -1616,7 +1616,7 @@ void DISPLAY::mix_buffer_graphic_txspbg_one_line_sub_sp_gr_tx_n(int width, int s
 			uint32_t pal_num = mx_txspbg[src_y + src_x];
 			uint32_t pal = m_palette[pal_num & MX_TXSPBG_SPBG_PALETTE];
 
-			if ((pal_num & MX_TXSPBG_SPRITEBG_MASK) != 0 && pal != 0) {
+			if ((pal_num & MX_TXSPBG_SPRITEBG_MASK) != 0 && (pal_num & MX_TXSPBG_PALETTE_L4) != 0 && pal != 0) {
 				// sprite and bg
 				*dst_buf = pal;
 				*dst_buf |= MX_BUF_NO_TRANS;	// no transparent
@@ -1968,6 +1968,7 @@ void DISPLAY::mix_render_text_sprite_bg_one_line_sub_tx_only(int width, int src_
 /// @param[in] dst_y : line 0 - 1023 * 512/1024
 void DISPLAY::mix_render_text_sprite_bg_one_line_sub_sp_only(int width, int src_left, int src_y, int dst_y)
 {
+#if 0
 //	int src = src_y + src_left;
 //	uint32_t txtpal = m_palette[0x100];	// color of text palette 0 
 //	if (txtpal != 0) {
@@ -1979,6 +1980,7 @@ void DISPLAY::mix_render_text_sprite_bg_one_line_sub_sp_only(int width, int src_
 //			src++;
 		}
 //	}
+#endif
 }
 
 /// @brief Mix Text and Sprite per one line (priority: Sprite > Text)
